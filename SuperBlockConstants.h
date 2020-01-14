@@ -1,12 +1,12 @@
 #ifndef SUPERBLOCKCONSTANTS_H
 #define SUPERBLOCKCONSTANTS_H
 
-#include "Basetypes.h"
+#include "basetypes.h"
 #include "SuperBlock.h"
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
 #include "PropagateConstants.h"
-#include "MPE.h"
+#include "mpe.h"
 
 #define CONSTANT_REG_RC0 (0)
 #define CONSTANT_REG_RC1 (1)

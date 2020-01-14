@@ -36,7 +36,7 @@ struct SCNHDR
   uint32  s_flags;    /* flags                            */
 };
 
-bool MPE::LoadCoffFile(char *filename, bool bSetEntryPoint, int handle)
+bool MPE::LoadCoffFile(const char * const filename, bool bSetEntryPoint, int handle)
 {
   uint32 entryPoint;
   int nextPos;

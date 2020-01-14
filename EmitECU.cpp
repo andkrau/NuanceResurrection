@@ -1,5 +1,5 @@
-#include "BaseTypes.h"
-#include "ByteSwap.h"
+#include "basetypes.h"
+#include "byteswap.h"
 #include "EmitMisc.h"
 #include "EmitECU.h"
 #include "InstructionCache.h"

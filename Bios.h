@@ -1,8 +1,7 @@
-
 #ifndef BIOS_H
 #define BIOS_H
 
-#include "Basetypes.h"
+#include "basetypes.h"
 
 class MPE;
 

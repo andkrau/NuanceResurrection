@@ -3,8 +3,6 @@
 
 InstructionCache::InstructionCache(uint32 desiredEntries)
 {
-  uint32 i = 0;
-
   cacheEntries = 0;
   numEntries = desiredEntries;
 
@@ -34,9 +32,7 @@ InstructionCache::~InstructionCache()
 
 void InstructionCache::Invalidate()
 {
-  uint32 i;
-
-  for(i = 0; i < ((numEntries/32) + 1); i++)
+  for(uint32 i = 0; i < ((numEntries/32) + 1); i++)
   {
     validBitmap[i] = 0;
   }

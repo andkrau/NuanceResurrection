@@ -1,5 +1,5 @@
 #include "PatchManager.h"
-#include "BaseTypes.h"
+#include "basetypes.h"
 
 void PatchManager::ApplyPatches()
 {

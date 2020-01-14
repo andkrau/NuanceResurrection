@@ -1,7 +1,7 @@
 #ifndef PAGEMAP_H
 #define PAGEMAP_H
 
-#include "Basetypes.h"
+#include "basetypes.h"
 
 #define NUM_ROOT_PAGENODE_ENTRIES (512)
 #define NUM_LEVEL1_PAGENODE_ENTRIES (8192)

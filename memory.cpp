@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "basetypes.h"
 #include "byteswap.h"
-#include "bios.h"
+#include "Bios.h"
 #include "memory.h"
 #include "mpe.h"
 #include "NuonEnvironment.h"

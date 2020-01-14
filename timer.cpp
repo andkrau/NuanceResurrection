@@ -1,6 +1,6 @@
 #include <windows.h>
 #include <time.h>
-#include "BaseTypes.h"
+#include "basetypes.h"
 #include "byteswap.h"
 #include "NuonEnvironment.h"
 #include "timer.h"
@@ -39,11 +39,10 @@ void CALLBACK SysTimer2Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32
 { 
   static uint64 cycleCounter[4] = {0,0,0,0};
   static uint64 max_delta[4] = {0,0,0,0};
-  uint64 delta;
 
 //  for(uint32 i = 0; i < 4; i++)
 //  {
-//    delta = nuonEnv->mpe[i]->cycleCounter - cycleCounter[i];
+//    uint64 delta = nuonEnv->mpe[i]->cycleCounter - cycleCounter[i];
 //    if(delta > max_delta[i])
 //    {
 //      max_delta[i] = delta;
@@ -185,17 +184,17 @@ void TimerInit(uint32 whichTimer, uint32 rate)
   if(whichTimer == 0)
   {
     timeKillEvent(hSysTimer0);
-    hSysTimer0 = timeSetEvent(((float)rate/1000.0),0,(LPTIMECALLBACK)SysTimer0Callback,0,TIME_PERIODIC);
+    hSysTimer0 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer0Callback,0,TIME_PERIODIC);
   }
   else if(whichTimer == 1)
   {
     timeKillEvent(hSysTimer1);
-    hSysTimer1 = timeSetEvent(((float)rate/1000.0),0,(LPTIMECALLBACK)SysTimer1Callback,0,TIME_PERIODIC);
+    hSysTimer1 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer1Callback,0,TIME_PERIODIC);
   }
   else
   {
     timeKillEvent(hSysTimer2);
-    hSysTimer2 = timeSetEvent(((float)rate/1000.0),0,(LPTIMECALLBACK)SysTimer2Callback,0,TIME_PERIODIC);
+    hSysTimer2 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer2Callback,0,TIME_PERIODIC);
   }
 
 }

@@ -30,7 +30,7 @@ public:
   int clientWidth, clientHeight;
   int fullScreenWidth, fullScreenHeight;
   int bitsPerPixel;
-	bool bVisible;
+  volatile bool bVisible;
   bool bFullScreen;
   bool bUseSeparateThread;
   char *title;

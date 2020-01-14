@@ -5,20 +5,21 @@
 
 class CriticalSection
 {
-  public:
-  CriticalSection::CriticalSection();
-  CriticalSection::~CriticalSection();
-  void CriticalSection::Enter()
+public:
+  CriticalSection();
+  ~CriticalSection();
+
+  void Enter()
   {
     EnterCriticalSection(&criticalSection);
   }
 
-  void CriticalSection::Leave()
+  void Leave()
   {
     LeaveCriticalSection(&criticalSection);
   }
 
-  private:
+private:
   CRITICAL_SECTION criticalSection;
 };
 

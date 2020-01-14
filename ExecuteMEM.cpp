@@ -1,7 +1,7 @@
 #include <assert.h>
 #include "basetypes.h"
-#include "Byteswap.h"
-#include "ExecuteMem.h"
+#include "byteswap.h"
+#include "ExecuteMEM.h"
 #include "InstructionCache.h"
 #include "mpe.h"
 #include "NuonMemoryMap.h"

@@ -853,11 +853,9 @@ void MPE::FreeMPELocalMemory()
 
 void MPE::GenerateMirrorLookupTable()
 {
-  uint8 mirror;
-
   for(uint32 i = 0; i <= 0xFF; i++)
   {
-    mirror = 0;
+    uint8 mirror = 0;
     mirror |= ((i & 0x01) << 7) & 0x80;
     mirror |= ((i & 0x02) << 5) & 0x40;
     mirror |= ((i & 0x04) << 3) & 0x20;
@@ -1078,7 +1076,7 @@ inline uint32 MPE::GetPacketDelta(uint8 *iPtr, uint32 numLevels)
 void MPE::DecompressPacket(uint8 *iBuffer, InstructionCacheEntry *pICacheEntry, uint32 options)
 {
   InstructionCacheEntry pStruct;
-  uint32 executionUnits, i;
+  uint32 executionUnits;
   uint32 ecuIndex, rcuIndex, aluIndex, mulIndex, memIndex, baseIndex;
   uint32 immExt = 0;
   uint32 packetByteCount = 0;
@@ -1095,7 +1093,7 @@ void MPE::DecompressPacket(uint8 *iBuffer, InstructionCacheEntry *pICacheEntry, 
   pICacheEntry->nuanceCount = 0;
   pStruct.packetInfo = 0;
 
-  for(i = 0; i < 5; i++)
+  for(uint32 i = 0; i < 5; i++)
   {
     pStruct.scalarInputDependencies[i] = 0;
     pStruct.miscInputDependencies[i] = 0;
@@ -1671,7 +1669,7 @@ void MPE::DecompressPacket(uint8 *iBuffer, InstructionCacheEntry *pICacheEntry, 
   comboScalarOutDep = pICacheEntry->scalarOutputDependencies[0];
   comboMiscOutDep = pICacheEntry->miscOutputDependencies[0];
 
-  for(i = 1; i < 5; i++)
+  for(uint32 i = 1; i < 5; i++)
   {
     comboScalarInDep |= (pICacheEntry->scalarInputDependencies[i] & comboScalarOutDep);
     comboMiscInDep |= (pICacheEntry->miscInputDependencies[i] & comboMiscOutDep);
@@ -1748,7 +1746,7 @@ void MPE::ScheduleInstructionTriplet(InstructionCacheEntry *destEntry, uint32 ba
 
   uint32 comboScalarOutDep12, comboScalarOutDep23, comboScalarOutDep13;
   uint32 comboMiscOutDep12, comboMiscOutDep23, comboMiscOutDep13;
-  uint32 tempScalarInDep, tempMiscInDep, i, minVal, minIndex;
+  uint32 tempScalarInDep, tempMiscInDep, minVal, minIndex;
   uint32 scores[6];
   
 /*
@@ -1814,7 +1812,7 @@ void MPE::ScheduleInstructionTriplet(InstructionCacheEntry *destEntry, uint32 ba
   minVal = scores[0];
   minIndex = 0;
 
-  for(i = 1; i < 6; i++)
+  for(uint32 i = 1; i < 6; i++)
   {
     if(scores[i] <= minVal)
     {
@@ -1864,7 +1862,7 @@ void MPE::ScheduleInstructionQuartet(InstructionCacheEntry *destEntry, uint32 ba
   uint32 comboScalarOutDep1, comboScalarOutDep2;
   uint32 comboMiscOutDep1, comboMiscOutDep2;
   uint32 tempScalarDep1, tempMiscDep1, tempScalarDep2, tempMiscDep2;
-  uint32 minVal, minIndex, i;
+  uint32 minVal, minIndex;
   uint32 scores[6];
 
   tempScalarDep1 = srcEntry->scalarOutputDependencies[SLOT_RCU] | srcEntry->scalarOutputDependencies[SLOT_MUL];
@@ -1903,7 +1901,7 @@ void MPE::ScheduleInstructionQuartet(InstructionCacheEntry *destEntry, uint32 ba
   minVal = scores[0];
   minIndex = 0;
 
-  for(i = 1; i < 6; i++)
+  for(uint32 i = 1; i < 6; i++)
   {
     if(scores[i] <= minVal)
     {
@@ -1941,7 +1939,7 @@ bool MPE::FetchDecodeExecute()
   NativeCodeCacheEntry *pNativeCodeCacheEntry;
   InstructionCacheEntry *pInstructionCacheEntry;
   Nuance *pNuance;
-  uint32 nInstructions, i, oldOverlayIndex, newOverlayIndex, pcexecLookupValue;
+  uint32 nInstructions, oldOverlayIndex, newOverlayIndex, pcexecLookupValue;
   bool bInvalidateOverlayRegion;
   bool bError;
   bool memory_valid;
@@ -2011,7 +2009,7 @@ bool MPE::FetchDecodeExecute()
     /* made then that index is used.  Once an index is assigned, the index is combined with the current pcexec value to map the overlay */
     /* to an unused region of the Nuon address space to allow multiple sets of compiled overlays to co-exist even when the overlays */
     /* correspond to the same physical memory addresses.  As an example, the first set of code to be executed from MPE memory will be */
-    /* assigned overlay index 0 and the compiled code will be assigned to the code cache range $20300000-$20307FFF.  If new overlay code
+    /* assigned overlay index 0 and the compiled code will be assigned to the code cache range $20300000-$20307FFF.  If new overlay code */
     /* is loaded into the MPE local memory and executed, the hash will not match that of overlay index 0 and so overlay index 1 will be */
     /* assigned with a code cache range of $20308000-$2030FFFF.  This is an important optimization as games like Tempest 3000 load */
     /* multiple overlays into the MPEs several times per frame.  If compiled overlay code was not allowed to exist, the overlay code would */
@@ -2209,7 +2207,7 @@ execute_block:
           pNuance = (Nuance *)nativeCodeCacheEntryPoint;
           bInterpretedBranchTaken = false;
           prevPcexec = pcexec;
-          for(i = 0; i < nInstructions; i++)
+          for(uint32 i = 0; i < nInstructions; i++)
           {
             (nuanceHandlers[pNuance->fields[0]])(*this,*pICacheEntry,*pNuance);
             pNuance++;
@@ -2361,13 +2359,25 @@ void MPE::InitStaticICacheEntries()
 void MPE::SaveRegisters()
 {
   memcpy(tempScalarRegs, regs, sizeof(uint32) * 32);
-  memcpy(&tempRc0, &rc0, sizeof(uint32) * 15);
+  tempRc0     = rc0;
+  tempRc1     = rc1;
+  tempRx      = rx;
+  tempRy      = ry;
+  tempRu      = ru;
+  tempRv      = rv;
+  tempRz      = rz;
+  tempRzi1    = rzi1;
+  tempRzi2    = rzi2;
+  tempXyctl   = xyctl;
+  tempUvctl   = uvctl;
+  tempXyrange = xyrange;
+  tempUvrange = uvrange;
+  tempAcshift = acshift;
+  tempSvshift = svshift;
 }
 
 void MPE::ExecuteNuances(InstructionCacheEntry &entry)
 {
-  uint32 i;
-
   if(entry.packetInfo & PACKETINFO_BREAKPOINT)
   {
     excepsrc |= 0x04;
@@ -2388,12 +2398,26 @@ void MPE::ExecuteNuances(InstructionCacheEntry &entry)
     if(entry.packetInfo & PACKETINFO_DEPENDENCY_PRESENT)
     {
       memcpy(tempScalarRegs, regs, sizeof(uint32) * 32);
-      memcpy(&tempRc0, &rc0, sizeof(uint32) * 15);
+      tempRc0     = rc0;
+      tempRc1     = rc1;
+      tempRx      = rx;
+      tempRy      = ry;
+      tempRu      = ru;
+      tempRv      = rv;
+      tempRz      = rz;
+      tempRzi1    = rzi1;
+      tempRzi2    = rzi2;
+      tempXyctl   = xyctl;
+      tempUvctl   = uvctl;
+      tempXyrange = xyrange;
+      tempUvrange = uvrange;
+      tempAcshift = acshift;
+      tempSvshift = svshift;
     }
 
     tempCC = cc;
 
-    for(i = 0; i < entry.nuanceCount; i++)
+    for(uint32 i = 0; i < entry.nuanceCount; i++)
     {
       (nuanceHandlers[entry.handlers[i]])(*this,entry,*((Nuance *)(&entry.nuances[FIXED_FIELD(i,0)])));
     }
@@ -2522,11 +2546,7 @@ void MPE::PrintInstructionCachePacket(char *buffer, InstructionCacheEntry &entry
 
 void MPE::PrintInstructionCachePacket(char *buffer, uint32 address)
 {
-  InstructionCacheEntry entry;
-  uint8 *memPtr;
-  uint32 bCacheEntryValid;
-
-  bCacheEntryValid = 1;
+  uint32 bCacheEntryValid = 1;
   InstructionCacheEntry *pEntry = instructionCache->FindInstructionCacheEntry(address,bCacheEntryValid);
   
   if(bCacheEntryValid && (address == pEntry->pcexec))
@@ -2535,8 +2555,9 @@ void MPE::PrintInstructionCachePacket(char *buffer, uint32 address)
   }
   else
   {
+    InstructionCacheEntry entry;
     entry.pcexec = address;
-    memPtr = GetPointerToMemoryBank(address);
+    uint8* memPtr = GetPointerToMemoryBank(address);
     DecompressPacket(memPtr,&entry);
     PrintInstructionCachePacket(buffer,entry);    
   }

@@ -1,10 +1,10 @@
-#include "BaseTypes.h"
+#include "basetypes.h"
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
 #include "EmitMisc.h"
 #include "NativeCodeCache.h"
 #include "PatchManager.h"
-#include "Superblock.h"
+#include "SuperBlock.h"
 #include "mpe.h"
 
 uint32 sub_sv_mask[] = {0xFFFF0000UL, 0xFFFF0000UL};

@@ -1,11 +1,11 @@
-#include "Basetypes.h"
+#include "basetypes.h"
 #include "InstructionCache.h"
 #include "NuonMemoryMap.h"
-#include "SuperblockConstants.h"
+#include "SuperBlockConstants.h"
 #include <stdio.h>
 #include <string.h>
 
-char *GetControlRegister(uint32 which)
+const char *GetControlRegister(uint32 which)
 {
   switch(which)
   {
@@ -739,7 +739,7 @@ uint32 Print_StoreScalarRegisterConstant(char *buffer, Nuance &nuance, bool bNew
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-char *GetMiscConstantRegister(uint32 which)
+const char *GetMiscConstantRegister(uint32 which)
 {
   switch(which)
   {

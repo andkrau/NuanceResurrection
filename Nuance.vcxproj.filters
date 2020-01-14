@@ -311,12 +311,6 @@
     <ClInclude Include="FlashEEPROM.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fmod.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="glew.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GLWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>

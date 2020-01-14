@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "InstructionCache.h"
 #include "mpe.h"
 
@@ -218,6 +219,10 @@ void Execute_RangeOnly(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
       //Use v range.  Limit to 10 bits
       rcu_range = (*entry.pUvrange << 16) & 0x03FF0000UL;
       break;
+    default:
+      assert(false);
+      rcu_range = 0;
+      break;
   }
 
   rcu_src = entry.pIndexRegs[rcu_src];
@@ -261,6 +266,10 @@ void Execute_Range(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
     case 3:
       //Use v range.  Limit to 10 bits
       rcu_range = (*entry.pUvrange << 16) & 0x03FF0000UL;
+      break;
+    default:
+      assert(false);
+      rcu_range = 0;
       break;
   }
 
@@ -335,8 +344,11 @@ void Execute_ModuloOnly(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
       //Use v range.  Limit to 10 bits
       rcu_range = (*entry.pUvrange << 16) & 0x03FF0000UL;
       break;
+    default:
+      assert(false);
+      rcu_range = 0;
+      break;
   }
-
 
   rcu_src = entry.pIndexRegs[rcu_src];
 
@@ -385,6 +397,10 @@ void Execute_Modulo(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
     case 3:
       //Use v range.  Limit to 10 bits
       rcu_range = (*entry.pUvrange << 16) & 0x03FF0000UL;
+      break;
+    default:
+      assert(false);
+      rcu_range = 0;
       break;
   }
 

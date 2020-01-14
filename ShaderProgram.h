@@ -1,7 +1,7 @@
 #ifndef SHADERPROGRAM_H
 #define SHADERPROGRAM_H
 
-#include "BaseTypes.h"
+#include "basetypes.h"
 #include "external\glew-2.1.0\include\GL\glew.h"
 
 class ShaderProgram
@@ -10,17 +10,17 @@ public:
   ShaderProgram();
   ~ShaderProgram();
 
-  bool ShaderProgram::Initialize();
+  bool Initialize();
 
-  bool ShaderProgram::Uninitalize();
+  bool Uninitalize();
 
-  bool InstallShaderSourceFromFile(char *filename, GLenum type);
+  bool InstallShaderSourceFromFile(const char * const filename, GLenum type);
   bool InstallShaderSourceFromMemory(char **sourceStrings, uint32 count, const int *lengths, GLenum type);
   bool CompileShader(GLenum type);
   bool Link();
   void PrintInfoLog(GLhandleARB obj, const char *msg);
   bool AttachShader(GLenum type);
-  bool DetatchShader(GLenum type);
+  bool DetachShader(GLenum type);
   bool CompileAndLinkShaders();
   bool StartShaderProgram();
   bool StopShaderProgram();

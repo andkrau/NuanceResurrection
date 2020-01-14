@@ -1,10 +1,10 @@
-#include "BaseTypes.h"
+#include "basetypes.h"
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
 #include "EmitMisc.h"
 #include "NativeCodeCache.h"
 #include "PatchManager.h"
-#include "Superblock.h"
+#include "SuperBlock.h"
 #include "mpe.h"
 
 const uint32 shiftTable[4] = {16, 8, 0, 2};

@@ -4,7 +4,7 @@
 #define joystickH
 //---------------------------------------------------------------------------
 #include "mpe.h"
-#include "BaseTypes.h"
+#include "basetypes.h"
 
 /////////////////////////////////
 // Controller properties values

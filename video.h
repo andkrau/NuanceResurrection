@@ -1,10 +1,10 @@
 #ifndef video_h
 #define video_h
 
-#include "BaseTypes.h"
+#include "basetypes.h"
 #include "mpe.h"
 #include "external\glew-2.1.0\include\GL\glew.h"
-#include "wglew.h"
+#include "external\glew-2.1.0\include\GL\wglew.h"
 
 #define ALLOCATED_TEXTURE_WIDTH (1024)
 #define ALLOCATED_TEXTURE_HEIGHT (512)

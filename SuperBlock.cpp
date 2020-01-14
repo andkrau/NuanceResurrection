@@ -1,8 +1,8 @@
-#include "Basetypes.h"
+#include "basetypes.h"
 #include "Handlers.h"
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
-#include "MPE.h"
+#include "mpe.h"
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
 #include "SuperBlock.h"
@@ -259,7 +259,7 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
   uint8 *entryPoint = 0;
   Nuance *ptrEmitNuance = 0;
   uint32 emittedBytes = 0;
-  uint32 i,numLiveInstructions, flags;
+  uint32 numLiveInstructions, flags;
   InstructionEntry *pInstruction;
   bool bResult = false;
 
@@ -291,7 +291,7 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
     entryPoint = codeCache.LockBuffer(NULL,0);
     ptrEmitNuance = (Nuance *)entryPoint;
 
-    for(i = numInstructions; i > 0; i--)
+    for(uint32 i = numInstructions; i > 0; i--)
     {
       flags = pInstruction->flags;
       if(!(flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
@@ -366,7 +366,7 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
       }
     }
 
-    for(i = numInstructions; i > 0; i--)
+    for(uint32 i = numInstructions; i > 0; i--)
     {
       codeCache.GetEmitVars()->pInstructionEntry = pInstruction;
       flags = pInstruction->flags;
@@ -523,18 +523,14 @@ NativeCodeCacheEntryPoint SuperBlock::CompileBlock(MPE *mpe, uint32 address, Nat
 
 void SuperBlock::PerformConstantPropagation()
 {
-  uint32 i;
-  
   constants->ClearConstants();
   constants->FirstInstruction();
-  for(i = numInstructions; i > 0; i--)
+  for(uint32 i = numInstructions; i > 0; i--)
   {     
     constants->PropagateConstants();
     constants->NextInstruction();
   }
 }
-
-char tempStr[2048];
 
 void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size)
 {
@@ -591,6 +587,7 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
       {
         fprintf(blockFile,"*DEAD*: ");
       }
+      char tempStr[2048];
       (printHandlers[handler])(tempStr, pCurrentInstruction->instruction, false);
       fprintf(blockFile,"%s ",tempStr);
       if(!(pCurrentInstruction->flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
@@ -637,14 +634,14 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
   }
   fprintf(blockFile,"Next Virtual Address: $%8lx\n",exitAddress);
   fprintf(blockFile,"Next Delay Counter: $%lx\n",nextDelayCounter);
-  //fprintf(blockFile,"***\n\n",tempStr);
-  fprintf(blockFile,"****************************************\n\n",tempStr);
+  //fprintf(blockFile,"***\n\n");
+  fprintf(blockFile,"****************************************\n\n");
   fflush(blockFile);
 }
 
 void SuperBlock::AddPacketToList(InstructionCacheEntry &packet, uint32 index)
 {
-  uint32 i, comboScalarInDep, comboMiscInDep, comboScalarOutDep, comboMiscOutDep;
+  uint32 comboScalarInDep, comboMiscInDep, comboScalarOutDep, comboMiscOutDep;
 
   packets[index].pcexec = packet.pcexec;
   packets[index].pcroute = packet.pcroute;
@@ -657,7 +654,7 @@ void SuperBlock::AddPacketToList(InstructionCacheEntry &packet, uint32 index)
   comboScalarOutDep = packet.scalarOutputDependencies[0];
   comboMiscOutDep = packet.miscOutputDependencies[0];
 
-  for(i = 1; i < packet.nuanceCount; i++)
+  for(uint32 i = 1; i < packet.nuanceCount; i++)
   {
     comboScalarInDep |= (packet.scalarInputDependencies[i] & comboScalarOutDep);
     comboMiscInDep |= (packet.miscInputDependencies[i] & comboMiscOutDep);
@@ -674,7 +671,6 @@ void SuperBlock::AddPacketToList(InstructionCacheEntry &packet, uint32 index)
 
 bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry *pPacketEntry, uint32 index, bool bExplicitNOP)
 {
-  uint32 i;
   uint32 comboScalarInDep = 0;
   uint32 comboMiscInDep = 0;
   uint32 comboScalarOutDep = packet.scalarOutputDependencies[0];
@@ -700,7 +696,7 @@ bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntr
     ((Nuance &)(packet.nuances[nuanceBase])).fields[0] = Handler_ECU_NOP;
   }
 
-  for(i = 0; i < packet.nuanceCount; i++)
+  for(uint32 i = 0; i < packet.nuanceCount; i++)
   {
     for(uint32 j = 0; j < FIELDS_PER_NUANCE; j++)
     {
@@ -749,7 +745,7 @@ bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntr
 uint32 SuperBlock::PerformDeadCodeElimination()
 {
   uint32 i, miscRegMask, scalarRegMask, scalarRegMaskNext, miscRegMaskNext, numLive;
-  uint32 j, miscOutDep, scalarOutDep, miscInDep, scalarInDep, flags;
+  uint32 miscOutDep, scalarOutDep, miscInDep = 0, scalarInDep = 0, flags;
   bool bLocked;
 
   //scalarRegMask and miscRegMask represent all registers which do not need to be 
@@ -767,7 +763,7 @@ uint32 SuperBlock::PerformDeadCodeElimination()
   scalarRegMask = scalarRegMaskNext = 0;
   miscRegMask = miscRegMaskNext = 0;
  
-  for(j = numInstructions; j > 0; j--)
+  for(uint32 j = numInstructions; j > 0; j--)
   {
     flags = instructions[i].flags;
 
@@ -843,11 +839,11 @@ uint32 SuperBlock::PerformDeadCodeElimination()
 
 void SuperBlock::UpdateDependencyInfo()
 {
-  uint32 j, miscInDep, miscOutDep, scalarInDep, scalarOutDep, miscOpDep, scalarOpDep, flags;
+  uint32 miscInDep = 0, miscOutDep = 0, scalarInDep = 0, scalarOutDep = 0, miscOpDep = 0, scalarOpDep = 0, flags;
   InstructionEntry *pCurrentPacket, *pCurrentInstruction;
 
   pCurrentInstruction = instructions;
-  for(j = numInstructions; j > 0; j--)
+  for(uint32 j = numInstructions; j > 0; j--)
   {
     flags = pCurrentInstruction->flags;
     if(!(flags & SUPERBLOCKINFO_DEAD))
