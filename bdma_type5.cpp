@@ -2,7 +2,7 @@
 #include "byteswap.h"
 #include "dma.h"
 #include "NuonEnvironment.h"
-#include "Video.h"
+#include "video.h"
 
 extern VidChannel structMainChannel;
 extern NuonEnvironment *nuonEnv;
@@ -284,8 +284,6 @@ void BDMA_Type5_Read_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo
   ylen = (yinfo >> 16) & 0x3FFUL;
   ypos = yinfo & 0x7FFUL;
   skipsize = 0;
-  bCompareZ = false;
-  bUpdateZ = false;
   bUpdatePixel = true;
 
   directValue = intaddr;

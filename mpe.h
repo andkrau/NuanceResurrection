@@ -499,8 +499,8 @@ __declspec(align(16)) class MPE
   void PrintInstructionCachePacket(char *buffer, InstructionCacheEntry &entry);
 
   void Reset();
-  bool LoadCoffFile(char *filename, bool bSetEntryPoint = true, int handle = -1);
-  bool LoadNuonRomFile(char *filename);
+  bool LoadCoffFile(const char * const filename, bool bSetEntryPoint = true, int handle = -1);
+  bool LoadNuonRomFile(const char * const filename);
   //void LoadByte(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
   //void LoadWord(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
   //void LoadScalar(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, PacketStruct *pStruct);

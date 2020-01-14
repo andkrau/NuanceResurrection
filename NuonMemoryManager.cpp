@@ -1,4 +1,4 @@
-#include "BaseTypes.h"
+#include "basetypes.h"
 #include "Bios.h"
 #include "NuonMemoryMap.h"
 #include "NuonMemoryManager.h"
@@ -19,8 +19,7 @@ NuonMemoryManager::~NuonMemoryManager()
 uint32 NuonMemoryManager::Alloc(uint32 requestedBytes, uint32 requestedAlignment, uint32 flags)
 {
   char msg[128];
-  void *address;
-
+  void *address = 0;
 
   if(flags & kMemSDRAM)
   {

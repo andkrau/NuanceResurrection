@@ -45,9 +45,9 @@ bool ShaderProgram::Uninitalize()
       glDeleteObjectARB(hVertexShaderObject);
     }
 
-    if(hVertexShaderObject)
+    if(hFragmentShaderObject)
     {
-      glDeleteObjectARB(hVertexShaderObject);
+      glDeleteObjectARB(hFragmentShaderObject);
     }
 
     glDeleteObjectARB(hProgramObject);
@@ -64,23 +64,18 @@ bool ShaderProgram::Uninitalize()
 void ShaderProgram::PrintInfoLog(GLhandleARB obj, const char *msg)
 {
   int32 blen = 0;   /* length of buffer to allocate */
-  int32 slen = 0;   /* strlen actually written to buffer */
-  GLcharARB *infoLog;
   glGetObjectParameterivARB(obj, GL_OBJECT_INFO_LOG_LENGTH_ARB , &blen);
   if(blen > 1)
   {
-    if((infoLog = new GLcharARB[blen]) == 0) 
-    {
-      MessageBox(NULL,"OpenGLShader could not allocate InfoLog buffer","Error",MB_OK);
-      return;
-    }
+    GLcharARB *infoLog = new GLcharARB[blen];
+    int32 slen = 0;   /* strlen actually written to buffer */
     glGetInfoLogARB(obj, blen, &slen, infoLog);
     MessageBox(NULL,infoLog,msg,MB_OK);
     delete [] infoLog;
  }
 }
 
-bool ShaderProgram::InstallShaderSourceFromFile(char *filename, GLenum type)
+bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLenum type)
 {
   FILE *inFile;
   GLint length;
@@ -197,9 +192,6 @@ bool ShaderProgram::Link()
 
 bool ShaderProgram::AttachShader(GLenum type)
 {
-  bool status = false;
-  GLint bCompiled = GL_FALSE;
-
   if(!hProgramObject)
   {
     return false;
@@ -235,11 +227,8 @@ bool ShaderProgram::AttachShader(GLenum type)
   return true;
 }
 
-bool ShaderProgram::DetatchShader(GLenum type)
+bool ShaderProgram::DetachShader(GLenum type)
 {
-  bool status = false;
-  GLint bCompiled = GL_FALSE;
-
   if(!hProgramObject)
   {
     return false;
@@ -265,7 +254,7 @@ bool ShaderProgram::DetatchShader(GLenum type)
       return false;
     }
 
-    if(!bVertexShaderObjectAttached)
+    if(bVertexShaderObjectAttached)
     {
       bVertexShaderObjectAttached = false;
       glDetachObjectARB(hProgramObject,hVertexShaderObject);

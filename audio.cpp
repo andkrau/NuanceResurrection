@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 #include "NuonEnvironment.h"
-#include "Basetypes.h"
+#include "basetypes.h"
 #include "byteswap.h"
 #include "audio.h"
 #include "NuonMemoryMap.h"

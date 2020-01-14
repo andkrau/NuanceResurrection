@@ -66,7 +66,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <PrecompiledHeader />
-      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
+      <AssemblerOutput />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
@@ -226,7 +226,6 @@
     <ClCompile Include="mpe.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Full</Optimization>
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StreamingSIMDExtensions</EnableEnhancedInstructionSet>
-      <AssemblerOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">All</AssemblerOutput>
     </ClCompile>
     <ClCompile Include="MPEControlRegisters.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Full</Optimization>
@@ -342,8 +341,6 @@
     <ClInclude Include="ExecuteRCU.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="FlashEEPROM.h" />
-    <ClInclude Include="fmod.h" />
-    <ClInclude Include="glew.h" />
     <ClInclude Include="GLWindow.h" />
     <ClInclude Include="Handlers.h" />
     <ClInclude Include="InstructionCache.h" />

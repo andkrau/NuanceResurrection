@@ -1,7 +1,7 @@
 #ifndef PATCH_MANAGER_H
 #define PATCH_MANAGER_H
 
-#include "BaseTypes.h"
+#include "basetypes.h"
 
 #define MAX_PATCH_LABELS (64)
 #define MAX_PATCH_ENTRIES (64)

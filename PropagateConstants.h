@@ -25,7 +25,7 @@
 #define PROPAGATE_CONSTANTS_STORE_MISC_REGISTER_CONSTANT (0xFFFFFFFEUL)
 #define PROPAGATE_CONSTANTS_STORE_SCALAR_REGISTER_CONSTANT (0xFFFFFFFFUL)
 
-#include "Basetypes.h"
+#include "basetypes.h"
 
 class SuperBlockConstants;
 

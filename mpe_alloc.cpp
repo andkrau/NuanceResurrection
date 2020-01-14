@@ -1,5 +1,5 @@
 #include "basetypes.h"
-#include "bios.h"
+#include "Bios.h"
 #include "comm.h"
 #include "mpe.h"
 #include "mpe_alloc.h"

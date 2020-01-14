@@ -1,7 +1,7 @@
-#include "Basetypes.h"
+#include "basetypes.h"
 #include "Handlers.h"
 #include "InstructionCache.h"
-#include "MPE.h"
+#include "mpe.h"
 #include "SuperBlockConstants.h"
 #include "PropagateConstants.h"
 #include "PropagateConstants_MEM.h"
@@ -21,7 +21,7 @@ void PropagateConstants_DECRc0(SuperBlockConstants &constants)
       counterValue--;
       if(counterValue)
       {
-        flagValues &= ~CC_COUNTER0_ZERO;
+        flagValues &= ~CC_COUNTER0_ZERO; // = 0
       }
     }
 
@@ -54,7 +54,7 @@ void PropagateConstants_DECRc1(SuperBlockConstants &constants)
       counterValue--;
       if(counterValue)
       {
-        flagValues &= ~CC_COUNTER1_ZERO;
+        flagValues &= ~CC_COUNTER1_ZERO; // = 0
       }
     }
 

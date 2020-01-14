@@ -1,7 +1,7 @@
 #ifndef NATIVE_CODE_CACHE_H
 #define NATIVE_CODE_CACHE_H
 
-#include "Basetypes.h"
+#include "basetypes.h"
 #include "EmitMisc.h"
 #include "PageMap.h"
 #include "PatchManager.h"

@@ -1,7 +1,7 @@
 #ifndef OVERLAYMANAGER_H
 #define OVERLAYMANAGER_H
 
-#include "BaseTypes.h"
+#include "basetypes.h"
 
 class OverlayManager
 {

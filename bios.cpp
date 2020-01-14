@@ -6,7 +6,7 @@
 #include "media.h"
 #include "mpe.h"
 #include "audio.h"
-#include "bios.h"
+#include "Bios.h"
 #include "comm.h"
 #include "dma.h"
 #include "file.h"
@@ -28,7 +28,7 @@ extern VidChannel structOverlayChannelPrev;
 
 void KPrintf(MPE *mpe);
 
-char *BiosRoutineNames[512] = {
+const char *BiosRoutineNames[512] = {
 "CommSend",
 "CommSendInfo",
 "CommRecvInfo",
@@ -257,8 +257,8 @@ bool InstallCommHandler(MPE *the_mpe, uint32 address, uint32 *handlerList, uint3
   //Didn't find it and the list is full
   if(i >= MAX_RECV_HANDLERS)
   {
-    return false;
     *nHandlers = MAX_RECV_HANDLERS;
+    return false;
   }
 
   //Didn't find it in the list and there is room so install it

@@ -1,9 +1,9 @@
-#include "Basetypes.h"
+#include "basetypes.h"
 #include "InstructionCache.h"
 #include <stdio.h>
 #include <string.h>
 
-char *GetConditionCode(uint32 which)
+const char *GetConditionCode(uint32 which)
 {
   switch(which)
   {

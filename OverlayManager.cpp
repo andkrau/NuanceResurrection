@@ -1,5 +1,5 @@
-#include "BaseTypes.h"
-#include "ByteSwap.h"
+#include "basetypes.h"
+#include "byteswap.h"
 #include "OverlayManager.h"
 
 #define QUOTIENT (0x04C11DB7UL)
@@ -36,6 +36,8 @@ OverlayManager::OverlayManager()
   {
     overlayHash[i] = 0;
   }
+
+  overlayLength = 0;
 }
 
 uint32 OverlayManager::Hash(uint32 *data)

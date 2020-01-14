@@ -654,7 +654,6 @@ void Execute_DOTPScalarShiftImmediate(MPE &mpe, InstructionCacheEntry &entry, Nu
   int32 products[4];
   int32 scalar = ((int32)((entry.pScalarRegs)[nuance.fields[FIELD_MUL_SRC1]])) >> 16;
   int32 src2 = nuance.fields[FIELD_MUL_SRC2];
-  uint32 dest = nuance.fields[FIELD_MUL_DEST];
 
   products[0] =
     (((int32)((entry.pScalarRegs)[src2 + 0])) >> 16) * scalar;

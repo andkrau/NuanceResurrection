@@ -1,17 +1,17 @@
 //---------------------------------------------------------------------------
 #include <windows.h>
 #include "external\glew-2.1.0\include\GL\glew.h"
-#include "wglew.h"
+#include "external\glew-2.1.0\include\GL\wglew.h"
 #include <stdio.h>
 #include "GLWindow.h"
 #include "Bios.h"
-#include "Basetypes.h"
-#include "Byteswap.h"
+#include "basetypes.h"
+#include "byteswap.h"
 #include "mpe.h"
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
 #include "ShaderProgram.h"
-#include "Video.h"
+#include "video.h"
 //---------------------------------------------------------------------------
 
 #define LITTLE_ENDIAN
@@ -308,10 +308,10 @@ void UpdateTextureStates(void)
     yf = -((float)structMainChannel.dest_yoff * (float)structMainChannel.src_height)/((float)structMainChannel.dest_height);
 
 #if (TEXTURE_TARGET == GL_TEXTURE_2D)
-    x0 = x0 * (1.0/((float)ALLOCATED_TEXTURE_WIDTH));
-    xf = xf * (1.0/((float)ALLOCATED_TEXTURE_WIDTH));
-    y0 = y0 * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT));
-    yf = yf * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT));   
+    x0 = (GLfloat)(x0 * (1.0/((float)ALLOCATED_TEXTURE_WIDTH)));
+    xf = (GLfloat)(xf * (1.0/((float)ALLOCATED_TEXTURE_WIDTH)));
+    y0 = (GLfloat)(y0 * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT)));
+    yf = (GLfloat)(yf * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT)));
 #endif
     
     //uint8 *pBuffer = (uint8 *)mainChannelBuffer;
@@ -374,10 +374,10 @@ void UpdateTextureStates(void)
     yf = -((float)structOverlayChannel.dest_yoff * (float)structOverlayChannel.src_height)/((float)structOverlayChannel.dest_height);
 
 #if (TEXTURE_TARGET == GL_TEXTURE_2D)
-    x0 = x0 * (1.0/((float)ALLOCATED_TEXTURE_WIDTH));
-    xf = xf * (1.0/((float)ALLOCATED_TEXTURE_WIDTH));
-    y0 = y0 * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT));
-    yf = yf * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT));
+    x0 = (GLfloat)(x0 * (1.0/((float)ALLOCATED_TEXTURE_WIDTH)));
+    xf = (GLfloat)(xf * (1.0/((float)ALLOCATED_TEXTURE_WIDTH)));
+    y0 = (GLfloat)(y0 * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT)));
+    yf = (GLfloat)(yf * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT)));
 #endif
 
     UpdateTexCoords(x0,y0,&videoTexInfo.osdTexCoords[0]);
@@ -501,14 +501,14 @@ void UpdateDisplayList(void)
 
 void InitTextures(void)
 {
-  videoTexInfo.borderColor[0] = ((GLfloat)borderTexture[0]) / 255.0;
-  videoTexInfo.borderColor[1] = ((GLfloat)borderTexture[1]) / 255.0;
-  videoTexInfo.borderColor[2] = ((GLfloat)borderTexture[2]) / 255.0;
-  videoTexInfo.borderColor[3] = ((GLfloat)borderTexture[3]) / 255.0;
-  videoTexInfo.transColor[0] = ((GLfloat)transparencyTexture[0]) / 255.0;
-  videoTexInfo.transColor[1] = ((GLfloat)transparencyTexture[1]) / 255.0;
-  videoTexInfo.transColor[2] = ((GLfloat)transparencyTexture[2]) / 255.0;
-  videoTexInfo.transColor[3] = ((GLfloat)transparencyTexture[3]) / 255.0;
+  videoTexInfo.borderColor[0] = (GLfloat)(borderTexture[0] / 255.0);
+  videoTexInfo.borderColor[1] = (GLfloat)(borderTexture[1] / 255.0);
+  videoTexInfo.borderColor[2] = (GLfloat)(borderTexture[2] / 255.0);
+  videoTexInfo.borderColor[3] = (GLfloat)(borderTexture[3] / 255.0);
+  videoTexInfo.transColor[0] = (GLfloat)(transparencyTexture[0] / 255.0);
+  videoTexInfo.transColor[1] = (GLfloat)(transparencyTexture[1] / 255.0);
+  videoTexInfo.transColor[2] = (GLfloat)(transparencyTexture[2] / 255.0);
+  videoTexInfo.transColor[3] = (GLfloat)(transparencyTexture[3] / 255.0);
   glGenTextures(1,&videoTexInfo.mainTexName);
   glGenTextures(1,&videoTexInfo.osdTexName);
   glGenTextures(1,&videoTexInfo.borderTexName);
@@ -722,10 +722,6 @@ setup_main_buffer:
         switch(pixType)
         {
           case 2:
-            Y = ptrNuonFrameBuffer[0] & 0xFC; 
-            CR = (ptrNuonFrameBuffer[0] << 6) | ((ptrNuonFrameBuffer[1] >> 2) & 0x38);
-            CB = ptrNuonFrameBuffer[1] << 3;
-            break;
           case 5:
             //16 or 16+16Z
             Y = ptrNuonFrameBuffer[0] & 0xFC; 
@@ -1130,7 +1126,7 @@ void VidConfig(MPE *mpe)
     borderTexture[0] = (structMainDisplay.bordcolor >> 24) & 0xFF;
     borderTexture[1] = (structMainDisplay.bordcolor >> 16) & 0xFF;
     borderTexture[2] = (structMainDisplay.bordcolor >> 8) & 0xFF;
-    borderTexture[3] = 0.0;
+    borderTexture[3] = 0;
     videoTexInfo.borderColor[0] = borderTexture[0];
     videoTexInfo.borderColor[1] = borderTexture[1];
     videoTexInfo.borderColor[2] = borderTexture[2];
@@ -1718,7 +1714,7 @@ void VideoCleanup(void)
   
   for(i = 0; i < 3; i++)
   {
-    if(videoTexInfo.displayListName)
+    if(glIsList(videoTexInfo.displayListName[i]))
     {
       glDeleteLists(videoTexInfo.displayListName[i],1);
     }

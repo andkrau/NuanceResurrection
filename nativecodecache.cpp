@@ -1,5 +1,5 @@
 #include "basetypes.h"
-#include "MPE.h"
+#include "mpe.h"
 #include "NativeCodeCache.h"
 #include "PageMap.h"
 #include <windows.h>
@@ -9,8 +9,6 @@
 
 NativeCodeCache::NativeCodeCache(uint32 numBytes, uint32 warningThreshold, uint32 desiredTLBEntries)
 {
-  uint32 i = desiredTLBEntries - 1;
-
   pageMap = new PageMap;
 
   if(numBytes == 0)

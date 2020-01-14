@@ -1,4 +1,5 @@
-#include "BaseTypes.h"
+#include <assert.h>
+#include "basetypes.h"
 #include "FlashEEPROM.h"
 #include <stdio.h>
 
@@ -171,6 +172,10 @@ void FlashEEPROM::WriteData(uint32 address, uint32 data1)
         }
       }
     }
+    case FlashMode_Error:
+    case FlashMode_SinglePulseProgram:
+      assert(!"not implemented");
+      break;
   }
 }
 
@@ -289,24 +294,21 @@ void FlashEEPROM::LockSector(uint32 address)
   sectorLockStatus[i] = true;
 }
 
-void FlashEEPROM::LoadFromFile(char *fileName)
+void FlashEEPROM::LoadFromFile(const char * const fileName)
 {
-  FILE *inFile;
-  uint32 i, fileLength;
-
-  inFile = fopen(fileName,"rb");
+  FILE *inFile = fopen(fileName,"rb");
 
   if(inFile)
   {
     fseek(inFile,0,SEEK_END);
-    fileLength = ftell(inFile) + 1;
+    uint32 fileLength = ftell(inFile) + 1;
     if(fileLength > DEFAULT_EEPROM_SIZE)
     {
       fileLength = DEFAULT_EEPROM_SIZE;
     }
 
     fseek(inFile,0,SEEK_SET);
-    for(i = 0; i < fileLength; i++)
+    for(uint32 i = 0; i < fileLength; i++)
     {
       eeprom[i] = (uint8)(fgetc(inFile));
     }
@@ -314,16 +316,13 @@ void FlashEEPROM::LoadFromFile(char *fileName)
   }
 }
 
-void FlashEEPROM::SaveToFile(char *fileName)
+void FlashEEPROM::SaveToFile(const char * const fileName)
 {
-  FILE *outFile;
-  uint32 i;
-
-  outFile = fopen(fileName,"wb");
+  FILE *outFile = fopen(fileName,"wb");
 
   if(outFile)
   {
-    for(i = 0; i < DEFAULT_EEPROM_SIZE; i++)
+    for(uint32 i = 0; i < DEFAULT_EEPROM_SIZE; i++)
     {
       fputc((int)(eeprom[i]),outFile);
     }

@@ -1,6 +1,6 @@
 #include "NuonEnvironment.h"
 #include "Bios.h"
-#include "Comm.h"
+#include "comm.h"
 
 extern NuonEnvironment *nuonEnv;
 extern uint32 media_mpe;

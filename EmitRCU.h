@@ -1,8 +1,8 @@
 #ifndef EMITRCU_H
 #define EMITRCU_H
 
-#include "BaseTypes.h"
-#include "MPE.h"
+#include "basetypes.h"
+#include "mpe.h"
 
 NativeEmitHandlerProto Emit_DECRc0;
 NativeEmitHandlerProto Emit_DECRc1;

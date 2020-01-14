@@ -1,8 +1,8 @@
 #include "basetypes.h"
 #include "byteswap.h"
-#include "Comm.h"
-#include "Dma.h"
-#include "MPE.h"
+#include "comm.h"
+#include "dma.h"
+#include "mpe.h"
 #include "NuonMemoryMap.h"
 #include "NuonEnvironment.h"
 #include <assert.h>

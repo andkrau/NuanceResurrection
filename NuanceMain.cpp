@@ -6,18 +6,18 @@
 #include <GL/gl.h>
 #include <stdio.h>
 #include <string.h>
-#include "Basetypes.h"
-#include "ByteSwap.h"
-#include "Comm.h"
+#include "basetypes.h"
+#include "byteswap.h"
+#include "comm.h"
 #include "CriticalSection.h"
 #include "GLWindow.h"
-#include "Audio.h"
-#include "MPE.h"
+#include "audio.h"
+#include "mpe.h"
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
 #include "NuanceRes.h"
-#include "Joystick.h"
-#include "Video.h"
+#include "joystick.h"
+#include "video.h"
 
 NuonEnvironment *nuonEnv = NULL;
 CriticalSection *csVideoDisplay = NULL;
@@ -765,16 +765,10 @@ inline void ProcessCycleBasedEvents(void)
 
 bool CheckForInvalidCommStatus(MPE *mpe)
 {
-  static bool bInvalid;
-  static bool bInvalid2;
-
-  bInvalid = false;
-  bInvalid2 = false;
-
-  bInvalid = (mpe->intsrc & INT_COMMRECV) && 
+  bool bInvalid = (mpe->intsrc & INT_COMMRECV) && 
    (!(mpe->commctl & (1UL << 31)));  //&& (!(mpe->intctl & (1UL << 5)) || (mpe->pcexec >= 0x807604D2))) ||
    //((mpe->commctl & (1UL << 31)) && (mpe->pcexec >= 0x807604C8) && (mpe->pcexec < 0x807604D2)));
-  bInvalid2 = (!(mpe->intsrc & INT_COMMRECV) && (mpe->commctl & (1UL << 31)) &&
+  bool bInvalid2 = (!(mpe->intsrc & INT_COMMRECV) && (mpe->commctl & (1UL << 31)) &&
     ((mpe->pcexec <= 0x807604C0) || (mpe->pcexec >= 0x807604D2)));
   if(bInvalid || bInvalid2)
   {
@@ -817,7 +811,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   display->timerHandler = OnDisplayTimer;
 
   display->Create();
-  while(!display->bVisible);
+  while(!display->bVisible) {}
   GLenum err = glewInit();
   if(err != GLEW_OK)
   {
@@ -828,7 +822,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   overlayChannelBuffer = AllocateTextureMemory(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT*4,true);
   InitializeYCrCbColorSpace();
   
-  HMODULE hRichEditLibrary = LoadLibrary("Riched20.dll");
+  HMODULE hRichEditLibrary = LoadLibrary("Riched20.dll"); // needs to be loaded, otherwise program hangs
   hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_CONTROL_PANEL),NULL,ControlPanelDialogProc);
   hStatusDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_STATUS_DIALOG),NULL,StatusWindowDialogProc);
 

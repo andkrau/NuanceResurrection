@@ -12,7 +12,7 @@ typedef void BilinearDMAHandlerProto(MPE *, uint32, uint32, uint32, uint32, uint
 
 void DMALinear(MPE *mpe, uint32 flags, uint32 baseaddr, uint32 intaddr);
 void DMALinear(MPE *mpe);
-void DMABiLinear(MPE *the_mpe, uint32 baseaddr, uint32 flags, uint32 xinfo, uint32 yinfo, uint32 intaddr);
+void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr);
 void DMABiLinear(MPE *mpe);
 void DMAWait(MPE *mpe);
 void DMADo(MPE *mpe);

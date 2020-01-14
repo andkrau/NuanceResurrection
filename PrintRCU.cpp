@@ -1,12 +1,13 @@
-#include "Basetypes.h"
+#include "basetypes.h"
 #include "InstructionCache.h"
 #include <stdio.h>
 #include <string.h>
 
-char *GetIndexRegister(uint32 which)
+const char *GetIndexRegister(uint32 which)
 {
   switch(which & 0x3)
   {
+    default: //supress warning
     case 0:
       return "rx";
     case 1:
@@ -16,8 +17,6 @@ char *GetIndexRegister(uint32 which)
     case 3:
       return "rv";
   }
-  //supress warning
-  return "rx";
 }
 
 uint32 Print_DEC(char *buffer, Nuance &nuance, bool bNewline)

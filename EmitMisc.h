@@ -1,7 +1,7 @@
 #ifndef EMITMISC_H
 #define EMITMISC_H
 
-#include "BaseTypes.h"
+#include "basetypes.h"
 #include "PatchManager.h"
 #include "X86EmitTypes.h"
 #include "InstructionDependencies.h"

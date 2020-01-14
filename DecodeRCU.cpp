@@ -158,14 +158,10 @@ void MPE::DecodeInstruction_RCU16(uint8 *iPtr, InstructionCacheEntry *entry, uin
       switch(entry->nuances[FIXED_FIELD(SLOT_RCU,FIELD_RCU_DEST)])
       {
         case 0:
-          rangeDependency = DEPENDENCY_MASK_XYRANGE;
-          break;
         case 1:
           rangeDependency = DEPENDENCY_MASK_XYRANGE;
           break;
         case 2:
-          rangeDependency = DEPENDENCY_MASK_UVRANGE;
-          break;
         case 3:
           rangeDependency = DEPENDENCY_MASK_UVRANGE;
           break;

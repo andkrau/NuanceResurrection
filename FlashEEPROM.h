@@ -80,15 +80,12 @@ public:
   void LockSector(uint32 address);
 
   //File functions
-  void LoadFromFile(char *fileName);
-  void ConnectToFile(char *fileName);
-  void DisconnectFromFile(char *fileName);
-  void SaveToFile(char *fileName);
+  void LoadFromFile(const char * const fileName);
+  void SaveToFile(const char * const fileName);
 
 private:
   uint32 eepromSize;
   uint8 *eeprom;
-  FILE *connectedFile;
   uint32 state;
   uint32 errorState;
   uint32 eepromManufacturerCode;

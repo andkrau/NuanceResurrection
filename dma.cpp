@@ -1,8 +1,8 @@
 #include <windows.h>
-#include "Basetypes.h"
-#include "BDMA_Type5.h"
-#include "BDMA_Type8.h"
-#include "BDMA_Type12.h"
+#include "basetypes.h"
+#include "bdma_type5.h"
+#include "bdma_type8.h"
+#include "bdma_type12.h"
 #include "byteswap.h"
 #include "dma.h"
 #include "mpe.h"
@@ -618,7 +618,6 @@ void DMALinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 intaddr)
   void *intMemory, *baseMemory, *pSrc, *pDest;
   uint32 *pDest32, *pSrc32;
   bool bRead, bByteMode, bDirect, bDup, bRemote, bFlushCache;
-  char tempBuf[128];
   uint32 tempScalars[4];
   LARGE_INTEGER timeStart, timeEnd, timeFreq, timeOverhead;
 
@@ -845,6 +844,7 @@ void DMALinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 intaddr)
         //nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
         //nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->nativeCodeCache->FlushRegion(0x20300000, (intaddr & 0xF07FFFFF) + ((length - 1) << 2));
         //QueryPerformanceCounter(&timeEnd);
+        //char tempBuf[128];
         //sprintf(tempBuf,"DMA caused cache invalidations: %lf seconds wasted.",((double)(timeEnd.QuadPart - timeStart.QuadPart - timeOverhead.QuadPart)) / ((double)timeFreq.QuadPart));
         //MessageBox(NULL,tempBuf,"DMALinear",MB_OK);
       }

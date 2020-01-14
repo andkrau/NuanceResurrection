@@ -1,7 +1,7 @@
 #include <windows.h>
 #include "basetypes.h"
-#include "ByteSwap.h"
-#include "bios.h"
+#include "byteswap.h"
+#include "Bios.h"
 #include "mpe.h"
 #include "media.h"
 #include "mpe_alloc.h"
@@ -124,8 +124,8 @@ void MediaInitMPE(MPE *the_mpe)
   the_mpe->regs[0] = which;
 }
 
-char *fileNameArray[] = {"stdin","stdout","stderr",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-uint32 fileModeArray[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+char *fileNameArray[] = {"stdin","stdout","stderr",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+uint32 fileModeArray[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 bool bCableFileOpen;
 bool bEmulatorFileOpen;
 bool bNvramFileOpen;

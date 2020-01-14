@@ -6,7 +6,7 @@
 #include "coff.h"
 #include "nuonrom.h"
 
-bool MPE::LoadNuonRomFile(char *filename)
+bool MPE::LoadNuonRomFile(const char * const filename)
 {
   char linebuf[64];
   char intbuf[5] = "\0\0\0\0";

@@ -1,5 +1,5 @@
-#include "Basetypes.h"
-#include "Byteswap.h"
+#include "basetypes.h"
+#include "byteswap.h"
 #include "Bios.h"
 #include "mpe.h"
 #include "NuonEnvironment.h"

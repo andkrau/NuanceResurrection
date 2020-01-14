@@ -6,7 +6,7 @@
 #include "mpe.h"
 #include "NuonMemoryManager.h"
 #include "SuperBlock.h"
-#include "Video.h"
+#include "video.h"
 #include "FlashEEPROM.h"
 
 enum ConfigTokenType
@@ -26,7 +26,7 @@ public:
   NuonEnvironment();
   ~NuonEnvironment();
 
-  void WriteFile(MPE *pMPE, uint32 fd, uint32 len, uint32 buf);
+  void WriteFile(MPE *pMPE, uint32 fd, uint32 buf, uint32 len);
   void *GetPointerToMemory(MPE *mpe,uint32 address, bool bCheckAddress = true);
   void InitBios(void);
   void InitAudio(void);
@@ -109,13 +109,13 @@ public:
   uint32 GetBufferSize(uint32 channelMode);
   CompilerOptions compilerOptions;
   VideoOptions videoOptions;
-  void SetDVDBaseFromFileName(char *filename);
+  void SetDVDBaseFromFileName(const char * const filename);
 private:
   char *dvdBase;
   bool bAudioInterruptsEnabled;
   uint32 mainWindowHandle;
   ConfigTokenType ReadConfigLine(FILE *file, char *buf);
-  bool LoadConfigFile(char *fileName);
+  bool LoadConfigFile(const char * const fileName);
 };
 
 #endif

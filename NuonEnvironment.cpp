@@ -4,11 +4,11 @@
 #include "audio.h"
 #include "external\fmod-3.75\api\inc\fmod.h"
 #include "basetypes.h"
-#include "bios.h"
+#include "Bios.h"
 #include "file.h"
 #include "memory.h"
 #include "mpe.h"
-#include "Timer.h"
+#include "timer.h"
 #include "video.h"
 #include "GLWindow.h"
 #include "NuonEnvironment.h"
@@ -125,8 +125,6 @@ AudioCallbacks audioCallbacks;
 
 void NuonEnvironment::InitAudio(void)
 {
-  bool bEnumerateSuccess = false;
-  
   if(!bFMODInitialized)
   {
     //Select default sound driver
@@ -438,6 +436,8 @@ NuonEnvironment::NuonEnvironment()
   {
     LoadConfigFile(pArgs[1]);
   }
+
+  cycleCounter = 0;
 }
 
 uint32 NuonEnvironment::GetBufferSize(uint32 channelMode)
@@ -514,12 +514,10 @@ void ReplaceNewline(char *line, char replaceChar, uint32 maxIndex)
   line[index] = replaceChar;
 }
 
-void NuonEnvironment::SetDVDBaseFromFileName(char *filename)
+void NuonEnvironment::SetDVDBaseFromFileName(const char * const filename)
 {
-  uint32 i;
-
   delete [] dvdBase;
-  i = strlen(filename);
+  int i = strlen(filename);
   dvdBase = new char[i+1];
   strncpy(dvdBase,filename,i+1);
   while(i >= 0)
@@ -579,7 +577,7 @@ char *dvdWriteBase;
 char *dvdReadBase;
 char *dvdReadWriteBase;
 
-bool NuonEnvironment::LoadConfigFile(char *fileName)
+bool NuonEnvironment::LoadConfigFile(const char * const fileName)
 {
   char line[1025];
   FILE *configFile = 0;

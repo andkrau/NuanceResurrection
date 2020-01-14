@@ -1,9 +1,9 @@
-#include "Basetypes.h"
+#include "basetypes.h"
 #include "InstructionCache.h"
 #include <stdio.h>
 #include <string.h>
 
-char *GetImmediateShift(uint32 which)
+const char *GetImmediateShift(uint32 which)
 {
   switch(which)
   {
