@@ -2,7 +2,7 @@
 
 #include <windows.h>
 #include "commdlg.h"
-#include "glew.h"
+#include "external\glew-2.1.0\include\GL\glew.h"
 #include <GL/gl.h>
 #include <stdio.h>
 #include <string.h>

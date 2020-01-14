@@ -71,7 +71,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="c:\glew\lib\glew32.lib user32.lib winmm.lib c:\fmod\fmodvc.lib opengl32.lib"
+				AdditionalDependencies="external\glew-2.1.0\lib\Release\Win32\glew32.lib user32.lib winmm.lib external\fmod-3.75\api\lib\fmodvc.lib opengl32.lib"
 				OutputFile="$(OutDir)/Nuance.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
@@ -160,7 +160,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="c:\glew\lib\glew32.lib user32.lib winmm.lib c:\fmod\fmodvc.lib opengl32.lib"
+				AdditionalDependencies="external\glew-2.1.0\lib\Release\Win32\glew32.lib user32.lib winmm.lib external\fmod-3.75\api\lib\fmodvc.lib opengl32.lib"
 				OutputFile="$(OutDir)/Nuance.exe"
 				LinkIncremental="1"
 				GenerateManifest="false"

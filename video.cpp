@@ -1,6 +1,6 @@
 //---------------------------------------------------------------------------
 #include <windows.h>
-#include "glew.h"
+#include "external\glew-2.1.0\include\GL\glew.h"
 #include "wglew.h"
 #include <stdio.h>
 #include "GLWindow.h"
