@@ -788,14 +788,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
   HWND hDlg, hStatusDlg;
   MSG msg;
-  LPARAM lParam;
-  WPARAM wParam;
   uint32 nCycles = 500;
   uint32 displayCycles;
   static uint32 prevPcexec;
   static uint32 prevCommctl;
   static uint32 prevIntsrc;
-  INT_PTR result;
 
   //Create the Nuon environment object
   nuonEnv = new NuonEnvironment;
@@ -804,7 +801,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_SPLASH_SCREEN),NULL,SplashScreenDialogProc);
   Sleep(1000);
   ShowWindow(hDlg,FALSE);
-  EndDialog(hDlg,result);
+  EndDialog(hDlg,IDOK);
 
   display = new GLWindow();
   display->title = displayWindowTitle;
@@ -927,8 +924,8 @@ CLEANUP AND APPLICATION SHUTDOWN CODE
 
   ShowWindow(hDlg,FALSE);
   ShowWindow(hStatusDlg,FALSE);
-  EndDialog(hDlg,result);
-  EndDialog(hStatusDlg,result);
+  EndDialog(hDlg,IDOK);
+  EndDialog(hStatusDlg,IDOK);
 
   FreeTextureMemory(mainChannelBuffer,false);
   FreeTextureMemory(overlayChannelBuffer,true);

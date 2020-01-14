@@ -167,7 +167,6 @@ void FileOpen(MPE *mpe)
   uint32 mode = mpe->regs[2];
   uint32 errnum = mpe->regs[3];
   uint32 *pErr;
-  FILE *fp;
   char name[513];
 
   char *pPath = (char *)nuonEnv->GetPointerToMemory(mpe,path);

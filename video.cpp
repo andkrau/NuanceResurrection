@@ -261,7 +261,6 @@ void UpdateTextureStates(void)
   GLint uniformLoc, filterType;
   bool status;
   static bool bShadersInstalled = false;
-  uint8 *pBuffer;
 
   if(bUseBilinearFiltering)
   {
@@ -315,7 +314,7 @@ void UpdateTextureStates(void)
     yf = yf * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT));   
 #endif
     
-    //pBuffer = (uint8 *)mainChannelBuffer;
+    //uint8 *pBuffer = (uint8 *)mainChannelBuffer;
     //for(uint32 i = 0; i < (ALLOCATED_TEXTURE_WIDTH * ALLOCATED_TEXTURE_HEIGHT); i++)
     //{
     //  pBuffer[0] = videoTexInfo.borderColor[0];
@@ -386,7 +385,7 @@ void UpdateTextureStates(void)
     UpdateTexCoords(xf,yf,&videoTexInfo.osdTexCoords[4]);
     UpdateTexCoords(xf,y0,&videoTexInfo.osdTexCoords[6]);
 
-    //pBuffer = (uint8 *)overlayChannelBuffer;
+    //uint8 *pBuffer = (uint8 *)overlayChannelBuffer;
     //for(uint32 i = 0; i < (ALLOCATED_TEXTURE_WIDTH * ALLOCATED_TEXTURE_HEIGHT); i++)
     //{
     //  pBuffer[0] = videoTexInfo.transColor[0];
