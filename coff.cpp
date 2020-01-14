@@ -46,14 +46,14 @@ bool MPE::LoadCoffFile(char *filename, bool bSetEntryPoint, int handle)
 
   if(handle == -1)
   {
-    handle = open(filename,O_RDONLY|O_BINARY,0);
+    handle = _open(filename,O_RDONLY|O_BINARY,0);
   }
 
-  start_offset = tell(handle);
+  start_offset = _tell(handle);
 
   if(handle >= 0)
   {
-    read(handle, &coffhdr, sizeof(FILHDR));
+    _read(handle, &coffhdr, sizeof(FILHDR));
     coffhdr.f_magic = bswap16(coffhdr.f_magic);
     coffhdr.f_nscns = bswap16(coffhdr.f_nscns);
     coffhdr.f_timdat = bswap32(coffhdr.f_timdat);
@@ -67,13 +67,13 @@ bool MPE::LoadCoffFile(char *filename, bool bSetEntryPoint, int handle)
       return false;
 
     //read the entry point, which is the first four bytes of the optional header
-    read(handle, &entryPoint, 4);
+    _read(handle, &entryPoint, 4);
     entryPoint = bswap32(entryPoint);
     //skip past the remainder of the optional header
-    lseek(handle, (coffhdr.f_opthdr - 4), SEEK_CUR);
+    _lseek(handle, (coffhdr.f_opthdr - 4), SEEK_CUR);
     while(coffhdr.f_nscns > 0)
     {
-      read(handle, &sectionhdr, sizeof(SCNHDR));
+      _read(handle, &sectionhdr, sizeof(SCNHDR));
       sectionhdr.s_paddr = bswap32(sectionhdr.s_paddr);
       sectionhdr.s_vaddr = bswap32(sectionhdr.s_vaddr);
       sectionhdr.s_size = bswap32(sectionhdr.s_size);
@@ -100,16 +100,16 @@ bool MPE::LoadCoffFile(char *filename, bool bSetEntryPoint, int handle)
       }
 
       //save position so we can go to the section data
-      nextPos = tell(handle);
+      nextPos = _tell(handle);
       //start_offset may not be 0 if loading a COFF image stored inside of
       //a NUONROM-DISK image
-      lseek(handle,start_offset,SEEK_SET);
-      lseek(handle,sectionhdr.s_scnptr,SEEK_CUR);
+      _lseek(handle,start_offset,SEEK_SET);
+      _lseek(handle,sectionhdr.s_scnptr,SEEK_CUR);
 
       if(sectionhdr.s_paddr < MAIN_BUS_BASE)
       {
         //assume local MPE memory
-        read(handle,&dtrom[sectionhdr.s_paddr & MPE_VALID_MEMORY_MASK],sectionhdr.s_size);
+        _read(handle,&dtrom[sectionhdr.s_paddr & MPE_VALID_MEMORY_MASK],sectionhdr.s_size);
       }
       else if(sectionhdr.s_paddr < SYSTEM_BUS_BASE)
       {
@@ -123,12 +123,12 @@ bool MPE::LoadCoffFile(char *filename, bool bSetEntryPoint, int handle)
           {
             nuonEnv->mainBusDRAM[(sectionhdr.s_paddr & MAIN_BUS_VALID_MEMORY_MASK) + i] = 0;
           }
-          lseek(handle,16,SEEK_CUR);
-          read(handle,&(nuonEnv->mainBusDRAM[(sectionhdr.s_paddr & MAIN_BUS_VALID_MEMORY_MASK) + 16]),sectionhdr.s_size - 16);
+          _lseek(handle,16,SEEK_CUR);
+          _read(handle,&(nuonEnv->mainBusDRAM[(sectionhdr.s_paddr & MAIN_BUS_VALID_MEMORY_MASK) + 16]),sectionhdr.s_size - 16);
         }
         else
         {
-          read(handle,&(nuonEnv->mainBusDRAM[sectionhdr.s_paddr & MAIN_BUS_VALID_MEMORY_MASK]),sectionhdr.s_size);
+          _read(handle,&(nuonEnv->mainBusDRAM[sectionhdr.s_paddr & MAIN_BUS_VALID_MEMORY_MASK]),sectionhdr.s_size);
         }
       }
       else
@@ -143,20 +143,20 @@ bool MPE::LoadCoffFile(char *filename, bool bSetEntryPoint, int handle)
           {
             nuonEnv->systemBusDRAM[(sectionhdr.s_paddr & SYSTEM_BUS_VALID_MEMORY_MASK) + i] = 0;
           }
-          lseek(handle,16,SEEK_CUR);
-          read(handle,&(nuonEnv->systemBusDRAM[(sectionhdr.s_paddr & SYSTEM_BUS_VALID_MEMORY_MASK) + 16]),sectionhdr.s_size - 16);
+          _lseek(handle,16,SEEK_CUR);
+          _read(handle,&(nuonEnv->systemBusDRAM[(sectionhdr.s_paddr & SYSTEM_BUS_VALID_MEMORY_MASK) + 16]),sectionhdr.s_size - 16);
         }
         else
         {
-          read(handle,&(nuonEnv->systemBusDRAM[(sectionhdr.s_paddr & SYSTEM_BUS_VALID_MEMORY_MASK)]),sectionhdr.s_size);
+          _read(handle,&(nuonEnv->systemBusDRAM[(sectionhdr.s_paddr & SYSTEM_BUS_VALID_MEMORY_MASK)]),sectionhdr.s_size);
         }
       }
 
       coffhdr.f_nscns--;
-      lseek(handle,nextPos,SEEK_SET);
+      _lseek(handle,nextPos,SEEK_SET);
     }
 
-    close(handle);
+    _close(handle);
 
     if(bSetEntryPoint)
     {
