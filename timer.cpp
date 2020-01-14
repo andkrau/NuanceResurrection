@@ -40,9 +40,8 @@ void CALLBACK SysTimer2Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32
   static uint64 cycleCounter[4] = {0,0,0,0};
   static uint64 max_delta[4] = {0,0,0,0};
   uint64 delta;
-  uint32 i;
 
-//  for(i = 0; i < 4; i++)
+//  for(uint32 i = 0; i < 4; i++)
 //  {
 //    delta = nuonEnv->mpe[i]->cycleCounter - cycleCounter[i];
 //    if(delta > max_delta[i])

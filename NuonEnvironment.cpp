@@ -314,7 +314,6 @@ void *NuonEnvironment::GetPointerToMemory(MPE *the_mpe, uint32 address, bool bCh
 void NuonEnvironment::WriteFile(MPE *pMPE, uint32 fd, uint32 buf, uint32 len)
 {
   char *pBuf = (char *)GetPointerToMemory(pMPE, buf, false);
-  int windowTextLength;
   char tempChar = pBuf[len];
   pBuf[len] = '\0';
 
@@ -325,7 +324,7 @@ void NuonEnvironment::WriteFile(MPE *pMPE, uint32 fd, uint32 buf, uint32 len)
       //{
       //    return;
       //}
-      //windowTextLength = pStdOutEdit->length();
+      //int windowTextLength = pStdOutEdit->length();
       //if((windowTextLength != 0) && ((windowTextLength + len) < 65536))
       //{
       //    pStdOutEdit->append(QString(pBuf));
@@ -340,7 +339,7 @@ void NuonEnvironment::WriteFile(MPE *pMPE, uint32 fd, uint32 buf, uint32 len)
       //{
       //    return;
       //}
-      //windowTextLength = pStdErrEdit->length();
+      //int windowTextLength = pStdErrEdit->length();
       //if((windowTextLength != 0) && ((windowTextLength + len) < 65536))
       //{
         //pStdErrEdit->append(QString(pBuf));
