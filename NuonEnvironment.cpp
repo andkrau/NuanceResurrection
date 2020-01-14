@@ -2,7 +2,7 @@
 #include <windows.h>
 #include <stdio.h>
 #include "audio.h"
-#include "fmod.h"
+#include "external\fmod-3.75\api\inc\fmod.h"
 #include "basetypes.h"
 #include "bios.h"
 #include "file.h"
@@ -71,7 +71,7 @@ public:
     }
   }
 
-  static schar F_CALLBACKAPI StreamCallback(FSOUND_STREAM *stream, void *buff, int len, int param)
+  static schar F_CALLBACKAPI StreamCallback(FSOUND_STREAM *stream, void *buff, int len, void* userdata)
   {
     static uint32 position = 0;
 
