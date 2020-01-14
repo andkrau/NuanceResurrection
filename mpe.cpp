@@ -973,18 +973,18 @@ bool MPE::LoadBinaryFile(uchar *filename, bool bIRAM)
   int byteLength;
   uint8 *buffer = &dtrom[MPE_IROM_OFFSET];
 
-  handle = open((char *)filename,_O_RDONLY|_O_BINARY,0);
+  handle = _open((char *)filename,_O_RDONLY|_O_BINARY,0);
   if(handle >= 0)
   {
-    byteLength = filelength(handle);
+    byteLength = _filelength(handle);
 
     if(bIRAM)
     {
       buffer = &dtrom[MPE_IRAM_OFFSET];
     }
 
-    read(handle, buffer, byteLength);
-    close(handle);
+    _read(handle, buffer, byteLength);
+    _close(handle);
     return true;
   }
   else

@@ -314,8 +314,6 @@ void ExecuteSingleStep()
 
 BOOL CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
-  uint32 i;
-  bool bSuccess;
   FILE *outFile;
 
   switch(msg)

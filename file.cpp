@@ -193,7 +193,7 @@ void FileOpen(MPE *mpe)
     
     ConvertSeparatorCharacters(name);
 
-    fd = open(name,access,mode);
+    fd = _open(name,access,mode);
     if(fd == -1)
     {
       goto Error;
@@ -222,7 +222,7 @@ void FileClose(MPE *mpe)
 
   if((index = FindFileDescriptorIndex(fd)) >= 0)
   {
-    result = close(fileDescriptors[index]);
+    result = _close(fileDescriptors[index]);
     if(result == -1)
     {
       goto Error;
@@ -254,7 +254,7 @@ void FileRead(MPE *mpe)
   if((index = FindFileDescriptorIndex(fd)) >= 0)
   {
     pBuf = nuonEnv->GetPointerToMemory(mpe, buf);
-    result = read(fileDescriptors[index], pBuf, len);
+    result = _read(fileDescriptors[index], pBuf, len);
     if(result == -1)
     {
       goto Error;
@@ -291,7 +291,7 @@ void FileWrite(MPE *mpe)
   {
     if((index = FindFileDescriptorIndex(fd)) >= 0)
     {
-      result = write(fileDescriptors[index], pBuf, len);
+      result = _write(fileDescriptors[index], pBuf, len);
       if(result == -1)
       {
         goto Error;
@@ -446,7 +446,7 @@ void FileLseek(MPE *mpe)
 
   if((index = FindFileDescriptorIndex(fd)) >= 0)
   {
-    result = lseek(fd, offset, whence);
+    result = _lseek(fd, offset, whence);
     if(result == -1)
     {
       goto Error;

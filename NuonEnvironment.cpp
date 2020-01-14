@@ -601,7 +601,7 @@ bool NuonEnvironment::LoadConfigFile(char *fileName)
         break;
       case CONFIG_VARIABLE_START:
 
-        if(strnicmp(&line[1],"DVDBase]",sizeof("DVDBase]")) == 0)
+        if(_strnicmp(&line[1],"DVDBase]",sizeof("DVDBase]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
           ReplaceNewline(line,0,1024);
@@ -609,52 +609,52 @@ bool NuonEnvironment::LoadConfigFile(char *fileName)
           dvdBase = new char[strlen(line)+1];
           strcpy(dvdBase,line);
         }
-        else if(strnicmp(&line[1],"AudioInterrupts]",sizeof("AudioInterrupts]")) == 0)
+        else if(_strnicmp(&line[1],"AudioInterrupts]",sizeof("AudioInterrupts]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
-          bAudioInterruptsEnabled = !stricmp(line,"Enabled");
+          bAudioInterruptsEnabled = !_stricmp(line,"Enabled");
         }
-        else if(strnicmp(&line[1],"DynamicCompiler]",sizeof("DynamicCompiler]")) == 0)
+        else if(_strnicmp(&line[1],"DynamicCompiler]",sizeof("DynamicCompiler]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
-          compilerOptions.bAllowCompile = !stricmp(line,"Enabled");
+          compilerOptions.bAllowCompile = !_stricmp(line,"Enabled");
         }
-        else if(strnicmp(&line[1],"DumpCompiledBlocks]",sizeof("DumpCompiledBlocks]")) == 0)
+        else if(_strnicmp(&line[1],"DumpCompiledBlocks]",sizeof("DumpCompiledBlocks]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
-          compilerOptions.bDumpBlocks = !stricmp(line,"Enabled");
+          compilerOptions.bDumpBlocks = !_stricmp(line,"Enabled");
         }
-        else if(strnicmp(&line[1],"CompilerDeadCodeElimination]",sizeof("CompilerDeadCodeElimination]")) == 0)
+        else if(_strnicmp(&line[1],"CompilerDeadCodeElimination]",sizeof("CompilerDeadCodeElimination]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
-          compilerOptions.bDeadCodeElimination = !stricmp(line,"Enabled");
+          compilerOptions.bDeadCodeElimination = !_stricmp(line,"Enabled");
         }
-        else if(strnicmp(&line[1],"CompilerConstantPropagation]",sizeof("CompilerConstantPropagation]")) == 0)
+        else if(_strnicmp(&line[1],"CompilerConstantPropagation]",sizeof("CompilerConstantPropagation]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
-          compilerOptions.bConstantPropagation = !stricmp(line,"Enabled");
+          compilerOptions.bConstantPropagation = !_stricmp(line,"Enabled");
         }
-        else if(strnicmp(&line[1],"T3KCompilerHack]",sizeof("T3KCompilerHack]")) == 0)
+        else if(_strnicmp(&line[1],"T3KCompilerHack]",sizeof("T3KCompilerHack]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
-          compilerOptions.bT3KCompilerHack = !stricmp(line,"Enabled");
+          compilerOptions.bT3KCompilerHack = !_stricmp(line,"Enabled");
         }
-        else if(strnicmp(&line[1],"AlwaysUpdateVideo]",sizeof("AlwaysUpdateVideo]")) == 0)
+        else if(_strnicmp(&line[1],"AlwaysUpdateVideo]",sizeof("AlwaysUpdateVideo]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
-          videoOptions.bAlwaysUpdateVideo = !stricmp(line,"Enabled");
+          videoOptions.bAlwaysUpdateVideo = !_stricmp(line,"Enabled");
         }
-        else if(strnicmp(&line[1],"PixelShaders]",sizeof("PixelShaders]")) == 0)
+        else if(_strnicmp(&line[1],"PixelShaders]",sizeof("PixelShaders]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
-          videoOptions.bUseShaders = !stricmp(line,"Enabled");
+          videoOptions.bUseShaders = !_stricmp(line,"Enabled");
         }
-        else if(strnicmp(&line[1],"CycleBasedTiming]",sizeof("CycleBasedTiming]")) == 0)
+        else if(_strnicmp(&line[1],"CycleBasedTiming]",sizeof("CycleBasedTiming]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
-          bUseCycleBasedTiming = !stricmp(line,"Enabled");
+          bUseCycleBasedTiming = !_stricmp(line,"Enabled");
         }
-        else if(strnicmp(&line[1],"FieldsPerSecond]",sizeof("FieldsPerSecond]")) == 0)
+        else if(_strnicmp(&line[1],"FieldsPerSecond]",sizeof("FieldsPerSecond]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
           sscanf(line,"%lu",&fps);
