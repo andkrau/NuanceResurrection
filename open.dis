@@ -1,0 +1,101 @@
+800145e0	ld_s rz,r29
+800145e2	sub #$00000010,r31
+800145e4	st_v v7,(r31)
+800145e8	mv_s r31,r30
+	sub #$00000010,r31
+800145ec	st_v v3,(r31)
+800145f0	mv_s r0,r12
+800145f2	ld_b (r12),r10
+800145f6	add #$00000010,r30,r11
+800145fa	ld_s (r11),r13
+	asr #$00000018,r10
+800145fe	bra ne,#$80014620
+80014600	and #$00000200,r13,r2
+80014608	cmp #$00000000,r2
+8001460a	jsr #$80014760,nop
+80014612	bra #$8001464e
+	mv_s #$00000002,r10
+80014616	st_s r10,(r0)
+80014618	nop
+	nop
+	nop
+	mv_s #$ffffffff,r0
+80014620	lbra ne,#$8001462e,nop
+	add #$00000014,r30,r10
+80014628	lbra #$80014630,nop
+	mv_s r2,r28
+8001462e	ld_s (r10),r28
+80014630	jsr #$80014760,nop
+80014638	nop
+	nop
+	nop
+	mv_s r0,r3
+80014640	jsr #$80000198
+	mv_s r12,r0
+8001464a	mv_s r13,r1
+8001464c	mv_s r28,r2
+8001464e	ld_v (r31),v3
+	add #$00000010,r31
+80014654	ld_v (r31),v7
+80014658	nop
+8001465a	st_s r29,rz
+8001465c	rts,nop
+	add #$00000010,r31
+80014660	ld_s rz,r29
+80014662	sub #$00000010,r31
+80014664	st_v v7,(r31)
+	copy r31,r30
+8001466a	nop
+	mv_s r0,r28
+	sub #$00000010,r31
+80014670	jsr #$80014760
+	st_v v3,(r31)
+8001467c	mv_s r1,r12
+8001467e	mv_s r2,r13
+80014680	mv_s r0,r3
+80014682	jsr #$800001a8
+	mv_s r28,r0
+8001468c	mv_s r12,r1
+8001468e	mv_s r13,r2
+80014690	ld_v (r31),v3
+	add #$00000010,r31
+80014696	ld_v (r31),v7
+8001469a	nop
+8001469c	nop
+	st_s r29,rz
+800146a0	rts,nop
+	add #$00000010,r31
+800146a4	add r0,r0
+800146a6	add r0,r0
+800146a8	add r0,r0
+800146aa	add r0,r0
+800146ac	add r0,r0
+800146ae	add r0,r0
+800146b0	add r0,r0
+800146b2	add r0,r0
+800146b4	add r0,r0
+800146b6	add r0,r0
+800146b8	add r0,r0
+800146ba	add r0,r0
+800146bc	add r0,r0
+800146be	add r0,r0
+800146c0	ld_s rz,r29
+800146c2	sub #$00000010,r31
+800146c4	st_v v7,(r31)
+	copy r31,r30
+800146ca	nop
+	mv_s r0,r28
+	sub #$00000010,r31
+800146d0	jsr #$80014760
+	st_v v3,(r31)
+800146dc	mv_s r1,r12
+800146de	mv_s r2,r13
+800146e0	mv_s r0,r3
+800146e2	jsr #$800001b0
+	mv_s r28,r0
+800146ec	mv_s r12,r1
+800146ee	mv_s r13,r2
+800146f0	ld_v (r31),v3
+	add #$00000010,r31
+800146f6	ld_v (r31),v7
+

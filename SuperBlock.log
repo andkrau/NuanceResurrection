@@ -1,0 +1,86 @@
+Non-optimized Superblock
+************************
+{
+[pcexec = $80010000  pcroute = $80010006]
+mv_s #$800ABD5C, r31 (ScalarInDep: $00000000, MiscInDep: $00000000, ScalarOutDep: $80000000, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $80010006  pcroute = $80010008]
+ld_s (r31), r31 (ScalarInDep: $80000000, MiscInDep: $00000000, ScalarOutDep: $80000000, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $8001000A  pcroute = $8001000C]
+mv_s #$00000000, r30 (ScalarInDep: $00000000, MiscInDep: $00000000, ScalarOutDep: $40000000, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $8001000C  pcroute = $80010010]
+st_s #$00000000, acshift (ScalarInDep: $00000000, MiscInDep: $00000000, ScalarOutDep: $00000000, MiscOutDep: $00000800, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $80010010  pcroute = $80010016]
+mv_s #$800ABD80, r0 (ScalarInDep: $00000000, MiscInDep: $00000000, ScalarOutDep: $00000001, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $80010016  pcroute = $8001001C]
+mv_s #$000000A0, r1 (ScalarInDep: $00000000, MiscInDep: $00000000, ScalarOutDep: $00000002, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $8001001C  pcroute = $8001001E]
+sub_sv v1, v1, v1 (ScalarInDep: $000001F0, MiscInDep: $00000000, ScalarOutDep: $000001E0, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $8001001E  pcroute = $80010020]
+cmp #$00000000, r1 (ScalarInDep: $00000002, MiscInDep: $00000000, ScalarOutDep: $00000000, MiscOutDep: $0001E000, FlagsInDep: [] FlagsOutDep: [N V Z C ])
+}
+{
+[pcexec = $80010020  pcroute = $80010024]
+bra le, $8001002E, nop (ScalarInDep: $00000000, MiscInDep: $0001C000, ScalarOutDep: $00000000, MiscOutDep: $00000000, FlagsInDep: [N V Z ] FlagsOutDep: [])
+}
+{
+[pcexec = $80010024  pcroute = $80010026]
+bra $80010020 (ScalarInDep: $00000000, MiscInDep: $00000000, ScalarOutDep: $00000000, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $80010026  pcroute = $8001002C]
+st_v v1, (r0) (ScalarInDep: $000000F1, MiscInDep: $00000000, ScalarOutDep: $00000000, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+add #$00000010, r0, r0 (ScalarInDep: $00000001, MiscInDep: $00000000, ScalarOutDep: $00000001, MiscOutDep: $0001E000, FlagsInDep: [] FlagsOutDep: [N V Z C ])
+}
+{
+[pcexec = $8001002C  pcroute = $8001002E]
+sub #$00000010, r1, r1 (ScalarInDep: $00000002, MiscInDep: $00000000, ScalarOutDep: $00000002, MiscOutDep: $0001E000, FlagsInDep: [] FlagsOutDep: [N V Z C ])
+}
+{
+[pcexec = $8001002E  pcroute = $80010034]
+mv_s #$800ABE20, r0 (ScalarInDep: $00000000, MiscInDep: $00000000, ScalarOutDep: $00000001, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $80010034  pcroute = $8001003A]
+mv_s #$00004430, r1 (ScalarInDep: $00000000, MiscInDep: $00000000, ScalarOutDep: $00000002, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $8001003A  pcroute = $80010040]
+sub r5, r5, r5 (ScalarInDep: $00000020, MiscInDep: $00000000, ScalarOutDep: $00000020, MiscOutDep: $0001E000, FlagsInDep: [] FlagsOutDep: [N V Z C ])
+mv_s #$00000000, r4 (ScalarInDep: $00000000, MiscInDep: $00000000, ScalarOutDep: $00000010, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $80010040  pcroute = $80010044]
+sub r7, r7, r7 (ScalarInDep: $00000080, MiscInDep: $00000000, ScalarOutDep: $00000080, MiscOutDep: $0001E000, FlagsInDep: [] FlagsOutDep: [N V Z C ])
+mv_s #$00000000, r6 (ScalarInDep: $00000000, MiscInDep: $00000000, ScalarOutDep: $00000040, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $80010044  pcroute = $80010046]
+cmp #$00000000, r1 (ScalarInDep: $00000002, MiscInDep: $00000000, ScalarOutDep: $00000000, MiscOutDep: $0001E000, FlagsInDep: [] FlagsOutDep: [N V Z C ])
+}
+{
+[pcexec = $80010046  pcroute = $8001004A]
+bra le, $80010054, nop (ScalarInDep: $00000000, MiscInDep: $0001C000, ScalarOutDep: $00000000, MiscOutDep: $00000000, FlagsInDep: [N V Z ] FlagsOutDep: [])
+}
+{
+[pcexec = $8001004A  pcroute = $8001004C]
+bra $80010046 (ScalarInDep: $00000000, MiscInDep: $00000000, ScalarOutDep: $00000000, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+}
+{
+[pcexec = $8001004C  pcroute = $80010052]
+st_v v1, (r0) (ScalarInDep: $000000F1, MiscInDep: $00000000, ScalarOutDep: $00000000, MiscOutDep: $00000000, FlagsInDep: [] FlagsOutDep: [])
+add #$00000010, r0, r0 (ScalarInDep: $00000001, MiscInDep: $00000000, ScalarOutDep: $00000001, MiscOutDep: $0001E000, FlagsInDep: [] FlagsOutDep: [N V Z C ])
+}

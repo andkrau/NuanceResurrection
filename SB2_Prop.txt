@@ -1,0 +1,13 @@
+****************************************
+Virtual Address: $20300116
+Instruction Count: 3
+Compile Type: Native
+
+SaveRegs (NATIVE) 
+btst #31, r4 (ScalarInDep: $00000010, MiscInDep: $00000000, ScalarOutDep: $00000000, MiscOutDep: $00068000, FlagsInDep: [] FlagsOutDep: [N V Z ])
+PacketEnd 
+
+Next Virtual Address: $2030011a
+Next Delay Counter: $0
+****************************************
+

@@ -1,0 +1,330 @@
+f0000800        st_s #$00002045,commctl
+f0000808        mv_s #$80000010,r4
+f000080e        mv_s #$20300900,r5
+f0000814        ld_s (r5),r5
+f0000816        nop
+f0000818        mv_s #$00000000,r6
+f000081a        mv_s r6,r7
+f000081c        st_v v1,commxmit
+f0000820        st_s #$00000000,inten1
+f0000824        st_s #$ffffffff,intclr
+f000082c        st_s #$20102000,sp
+f0000834        mv_s #$00000100,r3
+f0000838        mv_s #$20400000,r1
+f000083e        mv_s #$20480000,r2
+f0000844        sub r0,r0
+f0000846        sub #$00000001,r3
+f0000848        bra ne,#$f0000846
+f000084a        st_s r0,(r1)
+        add #$00000004,r1
+f000084e        st_s r0,(r2)
+        add #$00000004,r2
+f0000852        st_s #$00000201,dcachectl
+f000085a        st_s #$00000022,icachectl
+f0000862        st_s #$00002044,commctl
+f000086a        jsr #$20301080
+f000086e        mv_s #$80000000,r4
+f0000874        mv_s #$00000000,r5
+f0000876        st_s #$00000000,acshift
+f000087a        ld_s commctl,r0
+f000087e        nop
+f0000880        btst #$0000000f,r0
+f0000882        lbra ne,#$f000087a,nop
+f0000886        st_s #$00002045,commctl
+f000088e        mv_s #$00000000,r6
+f0000890        mv_s #$00000000,r7
+f0000892        jsr #$20301080
+f0000896        mv_s #$80000032,r4
+f000089c        mv_s #$00000000,r5
+f000089e        jsr #$20301080
+f00008a2        mv_s #$80000030,r4
+f00008a8        mv_s #$00002100,r5
+f00008ae        mv_s #$00000000,r6
+f00008b0        ld_s configa,r4
+f00008b4        nop
+f00008b6        bits #$00000007,>>#16,r4
+f00008ba        cmp #$00000001,r4
+f00008bc        lbra le,#$f0000918,nop
+f00008c0        mv_s #$80000032,r4
+f00008c6        mv_s #$00cc0014,r5
+f00008cc        jsr #$20301080,nop
+f00008d0        or #$00000001,<>#-15,r5
+f00008d4        jsr #$20301080,nop
+f00008d8        and #$fffffffe,<>#-15,r5
+f00008dc        mv_s #$00000005,r0
+f00008de        sub #$00000001,r0
+f00008e0        lbra ne,#$f00008de,nop
+f00008e4        or #$00000001,<>#-16,r5
+f00008e8        jsr #$20301080,nop
+f00008ec        and #$fffffffe,<>#-16,r5
+f00008f0        mv_s #$00000005,r0
+f00008f2        sub #$00000001,r0
+f00008f4        lbra ne,#$f00008f2,nop
+f00008f8        or #$00000001,<>#15,r5
+f00008fc        st_s #$00000008,rc0
+f0000900        jsr #$20301080,nop
+f0000904        mv_s #$00000005,r0
+f0000906        sub #$00000001,r0
+f0000908        lbra ne,#$f0000906,nop
+f000090c        addr #$00000000,rx
+dec rc0
+f000090e        lbra c0ne,#$f0000900,nop
+f0000912        and #$fffffffe,<>#15,r5
+f0000916        mv_s r5,r6
+f0000918        jsr #$20301080
+f000091c        mv_s #$80000031,r4
+f0000922        mv_s #$000030d1,r5
+f0000928        mv_s r6,r5
+f000092a        jsr #$20301080
+f000092e        or #$00000001,<>#2,r5
+f0000932        mv_s #$80000032,r4
+f0000938        jsr #$20301080
+f000093c        mv_s #$80000023,r4
+f0000942        mv_s #$00000001,r5
+f0000944        st_s #$00002043,commctl
+f000094c        jsr #$20301080
+f0000950        mv_s #$80000000,r4
+f0000956        mv_s #$20e02100,r5
+f000095c        jsr #$20301080
+f0000960        mv_s #$80000008,r4
+f0000966        mv_s #$00000000,r5
+f0000968        jsr #$20301080
+f000096c        mv_s #$8000002c,r4
+f0000972        mv_s #$00000000,r5
+f0000974        ld_s commctl,r0
+f0000978        nop
+f000097a        btst #$0000000f,r0
+f000097c        bra ne,#$f0000974
+f000097e        nop
+f0000980        mv_s #$00002047,r0
+f0000986        st_s r0,commctl
+f000098a        mv_s #$6114052a,r4
+f0000990        mv_s #$6810034b,r5
+f0000996        mv_s #$00800000,r29
+f000099c        ld_s configa,r6
+f00009a0        nop
+f00009a2        bits #$00000007,>>#16,r6
+f00009a6        cmp #$00000001,r6
+f00009a8        lbra gt,#$f00009be,nop
+f00009ac        mv_s #$6104252a,r4
+f00009b2        mv_s #$6810034b,r5
+f00009b8        mv_s #$00800000,r29
+f00009be        jsr #$20301080
+f00009c2        mv_s #$69000000,r6
+f00009c8        mv_s #$60000000,r7
+f00009ce        mv_s #$00000546,r0
+f00009d2        sub #$00000001,r0
+f00009d4        bra ne,#$f00009d2
+f00009d6        nop
+f00009d8        nop
+f00009da        mv_s #$20300910,r12
+f00009e0        mv_s #$20300904,r13
+f00009e6        ld_s (r13),r13
+f00009e8        jsr #$20301080
+f00009ec        ld_v (r12),v1
+f00009f0        add #$00000010,r12
+f00009f2        cmp r12,r13
+f00009f4        bra ne,#$f00009e8
+f00009f6        mv_s #$00040000,r4
+f00009fc        mv_s #$4000fff0,r5
+f0000a02        mv_s #$20101020,r6
+f0000a08        mv_s #$00000000,r7
+f0000a0a        st_v v1,??register
+f0000a0e        mv_s #$00042000,r4
+f0000a14        mv_s #$4000fff0,r5
+f0000a1a        mv_s #$20101020,r6
+f0000a20        mv_s #$00000000,r7
+f0000a22        st_v v1,??register
+f0000a26        mv_s #$11223344,r4
+f0000a2c        mv_s #$55667788,r5
+f0000a32        mv_s #$99aabbcc,r6
+f0000a38        mv_s #$ddeeff00,r7
+f0000a3e        st_v v1,??register
+f0000a42        st_s #$00000020,mdmactl
+f0000a46        mv_s #$20101000,r3
+f0000a4c        st_s r3,mdmacptr
+f0000a50        ld_s mdmactl,r3
+f0000a54        nop
+f0000a56        btst #$00000004,r3
+f0000a58        bra ne,#$f0000a50
+f0000a5a        nop
+f0000a5c        nop
+f0000a5e        mv_s #$20101010,r3
+f0000a64        st_s r3,mdmacptr
+f0000a68        ld_s mdmactl,r3
+f0000a6c        nop
+f0000a6e        and #$0000000f,r3,r3
+f0000a72        bra ne,#$f0000a68
+f0000a74        nop
+f0000a76        nop
+f0000a78        jsr #$203010ac,nop
+f0000a7c        mv_s #$00402000,r4
+f0000a82        mv_s #$f0000c38,r5
+f0000a88        mv_s #$20101020,r6
+f0000a8e        mv_s #$00000000,r7
+f0000a90        st_v v1,??register
+f0000a94        mv_s #$20101000,r3
+f0000a9a        st_s r3,odmacptr
+f0000a9e        ld_s odmactl,r4
+f0000aa2        nop
+f0000aa4        bits #$00000004,>>#0,r4
+f0000aa8        lbra ne,#$f0000a9e,nop
+f0000aac        mv_s #$00400000,r4
+f0000ab2        mv_s #$21b00000,r5
+f0000ab8        mv_s #$20101020,r6
+f0000abe        mv_s #$00000000,r7
+f0000ac0        st_v v1,??register
+f0000ac4        mv_s #$20101010,r3
+f0000aca        st_s r3,odmacptr
+f0000ace        ld_s odmactl,r4
+f0000ad2        nop
+f0000ad4        bits #$00000004,>>#0,r4
+f0000ad8        lbra ne,#$f0000ace,nop
+f0000adc        mv_s #$80000000,r4
+f0000ae2        sub_sv v0,v0
+f0000ae4        st_v v0,(r4)
+f0000ae8        add #$00000010,r4
+f0000aea        lsr #$0000000c,r4,r5
+f0000aee        cmp #$0008000f,r5
+f0000af4        lbra eq,#$f0000ae8,nop
+f0000af8        cmp #$80800000,r4
+f0000afe        lbra ne,#$f0000ae4,nop
+f0000b02        mv_s #$00008000,r1
+f0000b08        st_s r1,rc0
+f0000b0a        push v0
+f0000b0c        ld_s sp,r4
+f0000b10        nop
+f0000b12        mv_s #$08400000,r0
+f0000b18        mv_s #$40000000,r1
+f0000b1e        mv_s #$00000000,r2
+f0000b20        st_v v0,(r4)
+f0000b24        st_s r4,mdmacptr
+f0000b28        ld_s mdmactl,r5
+f0000b2c        nop
+f0000b2e        bits #$00000004,>>#0,r5
+f0000b32        lbra ne,#$f0000b28,nop
+f0000b36        addr #$00000000,rx
+dec rc0
+f0000b38        add #$00000100,r1
+f0000b3c        lbra c0ne,#$f0000b20,nop
+f0000b40        pop v0
+f0000b42        jsr #$20300fe8
+f0000b46        mv_s #$21d004c0,r1
+f0000b4c        mv_s r28,r2
+f0000b4e        jsr #$20300fe8
+f0000b52        mv_s #$21d004d0,r1
+f0000b58        mv_s r29,r2
+f0000b5a        jsr #$20300fe8
+f0000b5e        mv_s #$21d00000,r1
+f0000b64        mv_s #$00000002,r2
+f0000b66        halt
+f0000b68        st_s r2,??register
+f0000b6c        bra #$f0000b90
+f0000b6e        mv_s #$20101000,r2
+f0000b74        mv_s #$00000004,r0
+f0000b76        push v1,rz
+f0000b78        jsr #$20301014
+f0000b7c        mv_s #$20101000,r2
+f0000b82        mv_s #$00000004,r0
+f0000b84        pop v1,rz
+f0000b86        ld_s ??register,r0
+f0000b8a        rts
+f0000b8c        nop
+f0000b8e        nop
+f0000b90        bra #$f0000b9a
+f0000b92        nop
+f0000b94        mv_s #$00000000,r3
+f0000b96        or #$00000001,<>#-13,r3
+f0000b9a        add #$00000003,r0,r5
+        mv_s r3,r0
+f0000ba0        and #$fffffffc,r5,r5
+        mv_s r1,r6
+f0000ba6        bits #$00000003,>>#28,r6
+f0000baa        cmp #$00000004,r6
+f0000bac        mv_s #$20500600,r7
+        lbra eq,#$f0000bd2,nop
+f0000bb6        add r5,r1,r6
+        mv_s #$20500500,r7
+f0000bc0        and #$000003fc,r6,r6
+f0000bc8        cmp #$000003fc,r6
+f0000bcc        lbra ne,#$f0000bd2,nop
+f0000bd0        add #$00000004,r5
+f0000bd2        or r5,>>#-14,r0
+f0000bd6        push v0
+f0000bd8        ld_s sp,r4
+f0000bdc        ld_s (r7),r6
+f0000bde        nop
+f0000be0        bits #$00000004,>>#0,r6
+f0000be4        lbra ne,#$f0000bdc,nop
+f0000be8        add #$00000010,r7
+f0000bea        st_s r4,(r7)
+f0000bec        sub #$00000010,r7
+f0000bee        ld_s (r7),r6
+f0000bf0        nop
+f0000bf2        bits #$00000004,>>#0,r6
+f0000bf6        lbra ne,#$f0000bee,nop
+f0000bfa        rts
+f0000bfc        pop v0
+f0000bfe        nop
+f0000c00        ld_s commctl,r0
+f0000c04        nop
+f0000c06        btst #$0000000f,r0
+f0000c08        lbra ne,#$f0000c00,nop
+f0000c0c        st_v v1,commxmit
+f0000c10        rts
+f0000c12        nop
+f0000c14        nop
+f0000c16        ld_s commctl,r4
+f0000c1a        nop
+f0000c1c        btst #$0000001f,r4
+f0000c1e        lbra eq,#$f0000c16,nop
+f0000c22        ld_v commrecv,v1
+f0000c26        rts
+f0000c28        nop
+f0000c2a        nop
+f0000c2c        mv_s #$f0004200,r28
+f0000c32        rts
+f0000c34        nop
+f0000c36        nop
+f0000c38        st_s #$00000000,inten1
+f0000c3c        st_s #$ffffffff,intclr
+f0000c44        st_s #$20101000,sp
+f0000c4c        mv_s #$00000080,r3
+f0000c50        mv_s #$20400000,r1
+f0000c56        mv_s #$20480000,r2
+f0000c5c        sub r0,r0
+f0000c5e        sub #$00000001,r3
+f0000c60        bra ne,#$f0000c5e
+f0000c62        st_s r0,(r1)
+        add #$00000004,r1
+f0000c66        st_s r0,(r2)
+        add #$00000004,r2
+f0000c6a        st_s #$00000201,dcachectl
+f0000c72        st_s #$00000022,icachectl
+f0000c7a        st_s #$00000000,acshift
+f0000c7e        st_s #$00002045,commctl
+f0000c86        jsr #$2030005e
+f0000c8a        mv_s #$80000023,r4
+f0000c90        mv_s #$00000001,r5
+f0000c92        jmp (r28),nop
+f0000c96        ld_s commctl,r0
+f0000c9a        nop
+f0000c9c        btst #$0000000f,r0
+f0000c9e        lbra ne,#$f0000c96,nop
+f0000ca2        st_v v1,commxmit
+f0000ca6        rts,nop
+f0000ca8        ld_s commctl,r4
+f0000cac        nop
+f0000cae        btst #$0000001f,r4
+f0000cb0        lbra eq,#$f0000ca8,nop
+f0000cb4        ld_v commrecv,v1
+f0000cb8        rts
+f0000cba        nop
+f0000cbc        nop
+f0000cbe        addr #$00030000,rx
+dec rc1
+        bra ne,#$f0000c80
+        bra #$f0000cbe
+        halt
+        add r3,r20
+f0000cc8

@@ -1,0 +1,1132 @@
+#include "Basetypes.h"
+#include "Handlers.h"
+#include "InstructionCache.h"
+#include "InstructionDependencies.h"
+#include "MPE.h"
+#include "NuonEnvironment.h"
+#include "NuonMemoryMap.h"
+#include "SuperBlock.h"
+#include "SuperBlockConstants.h"
+#include "X86EmitTypes.h"
+#include <stdio.h>
+#include <windows.h>
+
+extern NuonEnvironment *nuonEnv;
+extern NativeEmitHandler emitHandlers[];
+
+FILE *blockFile;
+#define NOP_IBYTE_LENGTH (2)
+
+bool IsBranchConditionCompilable(uint32 startAddress, uint32 mpeIndex, uint32 condition)
+{
+
+  switch(condition)
+  {
+    case 0:
+      //ne
+      return true;
+    case 1:
+      //c0z
+      return true;
+    case 2:
+      //c1z
+      return true;
+    case 3:
+      //cc
+      return true;
+    case 4:
+      //eq
+      return true;
+    case 5:
+      //cs
+      return true;
+    case 6:
+      //vc
+      return true;
+    case 7:
+      //vs
+      return true;
+    case 8:
+      //lt
+      return true;
+    case 9:
+      //mvc
+      return true;
+    case 10:
+      //mvs
+      return true;
+    case 11:
+      //hi
+      return true;
+    case 12:
+      //le
+      return true;
+    case 13:
+      //ls
+      return true;
+    case 14:
+      //pl
+      return true;
+    case 15:
+      //mi
+      return true;
+    case 16:
+      //gt
+      return true;
+    case 17:
+      //always
+      return true;
+    case 18:
+      //modmi
+      return true;
+    case 19:
+      //modpl
+      return true;
+    case 20:
+      //ge
+      return true;
+    case 21:
+      //modge
+      return true;
+    case 22:
+      //modlt
+      return true;
+    case 23:
+      //never
+      return false;
+    case 24:
+      //c0ne
+      return true;
+    case 25:
+      //never
+      return false;
+    case 26:
+      //never
+      return false;
+    case 27:
+      //cf0lo
+      return true;
+    case 28:
+      //c1ne
+      return true;
+    case 29:
+      //cf0hi
+      return true;
+    case 30:
+      //cf1lo
+      return true;
+    case 31:
+      //cf1hi
+      return true;
+     default:
+      return false;
+  }
+}
+
+
+SuperBlock::SuperBlock(MPE *mpe, uint32 maxPackets, uint32 maxInstructionsPerPacket)
+{
+  char fileStr[128];
+  maxPacketsPerSuperBlock = maxPackets;
+  pMPE = mpe;
+  this->maxInstructionsPerPacket = maxInstructionsPerPacket;
+  this->constants = new SuperBlockConstants(pMPE,this);
+  //allocate enough instruction entries to account for packet start/end IL
+  instructions = new InstructionEntry[(maxPackets + 2) * (maxInstructionsPerPacket + 2)];
+  packets = new PacketEntry[maxPackets + 2];
+  numInstructions = 0;
+  numPackets = 0;
+  sprintf(fileStr,"SuperBlocks%li.txt",mpe->mpeIndex);
+  blockFile = fopen(fileStr,"w");
+}
+
+SuperBlock::~SuperBlock()
+{
+  delete [] instructions;
+  delete [] packets;
+  delete constants;
+  if(blockFile)
+  {
+    fclose(blockFile);
+  }
+}
+
+#define BRANCH_SLOT (0x4UL)
+#define DELAY_SLOT_ANY (0x3UL)
+#define DELAY_SLOT_1 (0x2UL)
+#define DELAY_SLOT_2 (0x1UL)
+
+void GetFlagString(uint32 flags, char *buffer)
+{
+  char tempStr[128];
+
+  buffer[0] = '\0';
+
+  if(flags & SUPERBLOCKINFO_PACKETSTART)
+  {
+    sprintf(tempStr,"SUPERBLOCKINFO_PACKETSTART\n");
+    strcat(buffer,tempStr);
+  }
+  
+  if(flags & SUPERBLOCKINFO_PACKETEND)
+  {
+    sprintf(tempStr,"SUPERBLOCKINFO_PACKETEND\n");
+    strcat(buffer,tempStr);
+  }
+
+  if(flags & SUPERBLOCKINFO_LOCKED)
+  {
+    sprintf(tempStr,"SUPERBLOCKINFO_LOCKED\n");
+    strcat(buffer,tempStr);
+  }
+
+  if(flags & SUPERBLOCKINFO_NONATIVECOMPILE)
+  {
+    sprintf(tempStr,"SUPERBLOCKINFO_NONATIVECOMPILE\n");
+    strcat(buffer,tempStr);
+  }
+
+  if(flags & SUPERBLOCKINFO_DEAD)
+  {
+    sprintf(tempStr,"SUPERBLOCKINFO_DEAD\n");
+    strcat(buffer,tempStr);
+  }
+
+  if(flags & SUPERBLOCKINFO_SYNC)
+  {
+    sprintf(tempStr,"SUPERBLOCKINFO_SYNC\n");
+    strcat(buffer,tempStr);
+  }
+
+  if(flags & SUPERBLOCKINFO_INHIBIT_ECU)
+  {
+    sprintf(tempStr,"SUPERBLOCKINFO_INHIBIT_ECU\n");
+    strcat(buffer,tempStr);
+  }
+
+  if(flags & SUPERBLOCKINFO_CHECK_ECU_INHIBIT)
+  {
+    sprintf(tempStr,"SUPERBLOCKINFO_CHECK_ECU_INHIBIT\n");
+    strcat(buffer,tempStr);
+  }
+
+  if(flags & SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER)
+  {
+    sprintf(tempStr,"SUPERBLOCKINFO_CHECK_ECU_SKIPCOUNTER\n");
+    strcat(buffer,tempStr);
+  }
+
+  if(buffer[0] == '\0')
+  {
+    sprintf(buffer,"NONE\n");
+  }
+}
+
+void GetIFlagsString(char *buffer, uint32 dep)
+{
+  bool bN = dep & DEPENDENCY_FLAG_N;
+  bool bV = dep & DEPENDENCY_FLAG_V;
+  bool bZ = dep & DEPENDENCY_FLAG_Z;
+  bool bC = dep & DEPENDENCY_FLAG_C;
+  bool bMV = dep & DEPENDENCY_FLAG_MV;
+  bool bC0Z = dep & DEPENDENCY_FLAG_C0Z;
+  bool bC1Z = dep & DEPENDENCY_FLAG_C1Z;
+  bool bMODGE = dep & DEPENDENCY_FLAG_MODGE;
+  bool bMODMI = dep & DEPENDENCY_FLAG_MODMI;
+  bool bCF0 = dep & DEPENDENCY_FLAG_CP0;
+  bool bCF1 = dep & DEPENDENCY_FLAG_CP1;
+
+  sprintf(buffer,"[%s%s%s%s%s%s%s%s%s%s%s]",
+    bN ? "N " : "",
+    bV ? "V " : "",
+    bZ ? "Z " : "",
+    bC ? "C " : "",
+    bMV ? "MV " : "",
+    bC0Z ? "C0Z " : "",
+    bC1Z ? "C1Z " : "",
+    bMODGE ? "MODGE " : "",
+    bMODMI ? "MODMI " : "",
+    bCF0 ? "CF0 " : "",
+    bCF1 ? "CF1 " : "");
+}
+
+extern NuancePrintHandler printHandlers[];
+
+uint32 volatile dummyVar;
+
+bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, bool bContainsBranch)
+{
+  uint8 *entryPoint = 0;
+  Nuance *ptrEmitNuance = 0;
+  uint32 emittedBytes = 0;
+  uint32 i,numLiveInstructions, flags;
+  InstructionEntry *pInstruction;
+  bool bResult = false;
+
+  pInstruction = instructions;
+  numLiveInstructions = 0;
+
+  codeCache.GetEmitVars()->bSaveRegs = false;
+  codeCache.GetEmitVars()->bCheckECUSkipCounter = false;
+  codeCache.GetEmitVars()->bUsesMMX = false;
+
+  if(!bAllowBlockCompile)
+  {
+    compileType = SUPERBLOCKCOMPILETYPE_IL_SINGLE;
+  }
+  else if(compileType != SUPERBLOCKCOMPILETYPE_IL_SINGLE)
+  {
+    if(!bCanEmitNativeCode)
+    {
+      compileType = SUPERBLOCKCOMPILETYPE_IL_BLOCK;
+    }
+    else
+    {
+      compileType = compileType;
+    }
+  }
+
+  if((compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE) || (compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK))
+  {
+    entryPoint = codeCache.LockBuffer(NULL,0);
+    ptrEmitNuance = (Nuance *)entryPoint;
+
+    for(i = numInstructions; i > 0; i--)
+    {
+      flags = pInstruction->flags;
+      if(!(flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
+      {
+        if(!(flags & SUPERBLOCKINFO_DEAD))
+        {
+          numLiveInstructions++;
+          *ptrEmitNuance = pInstruction->instruction;
+          ptrEmitNuance++;
+        }
+      }
+      else if(flags & SUPERBLOCKINFO_PACKETSTART)
+      {
+        //Emit SaveRegs or SaveFlags only if the packet contains live instructions
+        if(pInstruction->packet->liveCount)
+        {
+          numLiveInstructions++;
+
+          if(flags & PACKETINFO_DEPENDENCY_PRESENT)
+          {
+            pInstruction->instruction.fields[0] = Handler_SaveRegs;
+            ptrEmitNuance->fields[0] = Handler_SaveRegs;
+            ptrEmitNuance->fields[1] = pInstruction->scalarOpDependencies;
+            ptrEmitNuance->fields[2] = pInstruction->miscOpDependencies;
+            if(pInstruction->scalarOpDependencies | (pInstruction->miscOpDependencies & ~DEPENDENCY_FLAG_ALLFLAGS))
+            {
+              codeCache.GetEmitVars()->bSaveRegs = true;
+            }
+          }
+          else
+          {
+            pInstruction->instruction.fields[0] = Handler_SaveFlags;
+            ptrEmitNuance->fields[0] = Handler_SaveFlags;
+            ptrEmitNuance->fields[1] = 0;
+            ptrEmitNuance->fields[2] = 0;
+          }
+          ptrEmitNuance++;
+        }
+      }
+      else //PACKET_END
+      {
+        //Emit CheckECUSkipCounter only if there are live instructions (nu uh!)
+        //if(pInstruction->packet->liveCount)
+        {
+          numLiveInstructions++;
+
+          ptrEmitNuance->fields[0] = Handler_CheckECUSkipCounter;
+          ptrEmitNuance->fields[1] = 0;
+          ptrEmitNuance->fields[2] = 0;
+          ptrEmitNuance++;
+        }
+      }
+      pInstruction++;
+    }
+    emittedBytes = numLiveInstructions * sizeof(Nuance);
+    codeCache.ReleaseBuffer((NativeCodeCacheEntryPoint)entryPoint, startAddress, exitAddress, emittedBytes, packetsProcessed, numLiveInstructions, compileType, nextDelayCounter,4);
+    return codeCache.IsBeyondThreshold();
+  }
+  else if(compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
+  {
+    entryPoint = codeCache.LockBuffer(NULL,4);
+    codeCache.GetEmitVars()->pInstructionEntry = pInstruction;
+    
+    if(numInstructions > 0)
+    {
+      codeCache.X86Emit_PUSHAD();
+      codeCache.X86Emit_MOVIR(codeCache.GetEmitVars()->regBase, x86Reg_esi);
+      codeCache.X86Emit_MOVIR(codeCache.GetEmitVars()->tempRegBase, x86Reg_edi);
+      if(bContainsBranch)
+      {
+        codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr_dword, (uint32)&(codeCache.GetEmitVars()->mpe->pcfetchnext));
+      }
+    }
+
+    for(i = numInstructions; i > 0; i--)
+    {
+      codeCache.GetEmitVars()->pInstructionEntry = pInstruction;
+      flags = pInstruction->flags;
+      if(!(flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
+      {
+        if(!(flags & SUPERBLOCKINFO_DEAD))
+        {
+          numLiveInstructions++;
+          codeCache.GetEmitVars()->scalarRegOutDep = pInstruction->scalarOutputDependencies;
+          codeCache.GetEmitVars()->miscRegOutDep = pInstruction->miscOutputDependencies;
+
+          ((NativeEmitHandler)(emitHandlers[pInstruction->instruction.fields[0]]))(codeCache.GetEmitVars(),pInstruction->instruction);
+        }
+      }
+      else if(flags & SUPERBLOCKINFO_PACKETSTART)
+      {
+        //Emit SaveRegs or SaveFlags only if the packet contains live instructions
+        if(pInstruction->packet->liveCount)
+        {
+          numLiveInstructions++;
+          pInstruction->instruction.fields[0] = Handler_SaveRegs;
+          codeCache.GetEmitVars()->scalarRegDep = 0;
+          codeCache.GetEmitVars()->miscRegDep = 0;
+
+          if(flags & PACKETINFO_DEPENDENCY_PRESENT)
+          {
+            codeCache.GetEmitVars()->scalarRegDep = pInstruction->scalarOpDependencies;
+            codeCache.GetEmitVars()->miscRegDep = pInstruction->miscOpDependencies;
+
+            pInstruction->instruction.fields[1] = pInstruction->scalarOpDependencies;
+            pInstruction->instruction.fields[2] = pInstruction->miscOpDependencies;
+            if(pInstruction->scalarOpDependencies | (pInstruction->miscOpDependencies & ~DEPENDENCY_FLAG_ALLFLAGS))
+            {
+              codeCache.GetEmitVars()->bSaveRegs = true;
+            }
+          }
+          else
+          {
+            pInstruction->instruction.fields[1] = 0;
+            pInstruction->instruction.fields[2] = 0;
+          }
+          Emit_SaveRegs(codeCache.GetEmitVars(),pInstruction->instruction);
+        }
+      }
+      pInstruction++;
+    }
+
+    codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr_dword,(uint32)&(codeCache.GetEmitVars()->mpe->pcexec));
+
+    if(codeCache.GetEmitVars()->bSaveRegs || codeCache.GetEmitVars()->bUsesMMX)
+    {
+      codeCache.X86Emit_EMMS();
+    }
+
+    if(numInstructions > 0)
+    {
+      codeCache.X86Emit_POPAD();
+    }
+
+    codeCache.X86Emit_RETN();
+    emittedBytes = (uint32)(codeCache.GetEmitPointer() - entryPoint);
+    codeCache.ReleaseBuffer((NativeCodeCacheEntryPoint)entryPoint,startAddress,exitAddress,emittedBytes,packetsProcessed,numLiveInstructions,compileType,nextDelayCounter,4);
+    return codeCache.IsBeyondThreshold();
+  }
+
+  return bResult;
+}
+
+NativeCodeCacheEntryPoint SuperBlock::CompileBlock(MPE *mpe, uint32 address, NativeCodeCache &codeCache, SuperBlockCompileType compileType, bool bLimitToSinglePacket, bool &bError)
+{
+  NativeCodeCacheEntryPoint entryPoint = (NativeCodeCacheEntryPoint)codeCache.GetEmitPointer();
+  bCanEmitNativeCode = true;
+  bSinglePacket = bLimitToSinglePacket;
+  int32 fetchSuperBlockResult;
+  bool bContainsBranch = false;
+
+  bError = false;
+  constants->bConstantPropagated = false;
+
+  if(compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE)
+  {
+    bAllowBlockCompile = false;
+  }
+  else
+  {
+    bAllowBlockCompile = true;
+  }
+
+  //Step 1, fetch the block (or superblock)
+  if((fetchSuperBlockResult = FetchSuperBlock(*mpe,address,bContainsBranch)) <= 0)
+  {
+    //For whatever reason, no entries were added to the instruction list.  This is most likely due to the first instruction candidate being
+    //a delayed branch followed by an instruction that cannot be compiled in a delay slot such as a control register memory operation or
+    //another branch instruction.  In such cases, CompileBlock returns a negative result and the caller should assume the packet needs to
+    //be interpreted.
+
+    bError = true;
+    return (NativeCodeCacheEntryPoint)-1;
+  }
+
+  if(codeCache.GetAvailableCodeBufferSize() <= (numInstructions * sizeof(Nuance)))
+  {
+    //Not enough room, or too close for comfort: return false to indicate cache should be
+    //flushed and compile request reissued
+
+    //Note that this check only works for code blocks being emitted as Nuances.  In this case,
+    //the required size will always be less than or equal to the number of Nuances in the 
+    //SuperBlock multiplied by the number of fields per Nuance multiplied by the number of
+    //bytes per field.  In all but the most trivial cases, if there is enough room to emit
+    //native code for a block, there will also be enough room to emit the Nuances directly.
+    //This means that this check wont cause many early failures when compiling
+    //to native code.  Native code emission will still require a more robust check at the
+    //end of the emit phase
+
+    return (NativeCodeCacheEntryPoint)0;
+  }
+
+  //Step 2, perform constant propagation
+  if(bSinglePacket)
+  {
+    UpdateDependencyInfo();
+  }
+  else
+  {
+    if(nuonEnv->compilerOptions.bConstantPropagation)
+    {
+      //Step 2, perform constant propagation
+      UpdateDependencyInfo();
+      PerformConstantPropagation();
+    }
+    
+    if(nuonEnv->compilerOptions.bDeadCodeElimination)
+    {
+      //Step 3, perform dead code elimination
+      UpdateDependencyInfo();
+      PerformDeadCodeElimination();
+    }
+
+    UpdateDependencyInfo();
+  }
+  
+  //Step 4, emit native code or IL nodes based on compile type and
+  //update code cache entry fields appropriately
+  if(!EmitCodeBlock(codeCache, compileType, bContainsBranch))
+  {
+    return entryPoint;
+  }
+  else
+  {
+    bError = true;
+    return (NativeCodeCacheEntryPoint)0;
+  }
+}
+
+void SuperBlock::PerformConstantPropagation()
+{
+  uint32 i;
+  
+  constants->ClearConstants();
+  constants->FirstInstruction();
+  for(i = numInstructions; i > 0; i--)
+  {     
+    constants->PropagateConstants();
+    constants->NextInstruction();
+  }
+}
+
+char tempStr[2048];
+
+void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size)
+{
+  InstructionEntry *pCurrentInstruction = instructions;
+  uint32 handler;
+  
+  if(!blockFile)
+  {
+    return;
+  }
+
+  //fprintf(blockFile,"***\n");
+  fprintf(blockFile,"****************************************\n");
+  fprintf(blockFile,"Virtual Address: $%8lx\n",startAddress);
+  if(constants->bConstantPropagated)
+  {
+    fprintf(blockFile,"Constants Propagated: TRUE\n");
+  }
+  else
+  {
+    fprintf(blockFile,"Constants Propagated: FALSE\n");
+  }
+  fprintf(blockFile,"Instruction Count: %li\n",numInstructions);
+  fprintf(blockFile,"Packet Count: %li\n",packetsProcessed);
+  fprintf(blockFile,"Code Size: %lu bytes\n",size);
+  fprintf(blockFile,"Code Cache Usage: %lu bytes\n",pMPE->nativeCodeCache->GetUsedCodeBufferSize());
+  if(compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE)
+  {
+    fprintf(blockFile,"Compile Type: IL single\n\n");
+  }
+  else if(compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK)
+  {
+    fprintf(blockFile,"Compile Type: IL block\n\n");
+  }
+  else if(compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
+  {
+    fprintf(blockFile,"Compile Type: Native block\n\n");
+  }
+  else
+  {
+    fprintf(blockFile,"Compile Type: Unknown\n\n");
+  }
+
+  if(numInstructions > 0)
+  {
+    for(uint32 j = numInstructions; j > 0; j--)
+    {
+      handler = pCurrentInstruction->instruction.fields[0];
+      if((handler == Handler_PacketEnd) && (pCurrentInstruction->packet->flags & SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER))
+      {
+        handler = Handler_CheckECUSkipCounter;
+      }
+      if(pCurrentInstruction->flags & SUPERBLOCKINFO_DEAD)
+      {
+        fprintf(blockFile,"*DEAD*: ");
+      }
+      (printHandlers[handler])(tempStr, pCurrentInstruction->instruction, false);
+      fprintf(blockFile,"%s ",tempStr);
+      if(!(pCurrentInstruction->flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
+      //if(0)
+      {
+        fprintf(blockFile,"(ScalarInDep: $%8.8LX, MiscInDep: $%8.8LX, ScalarOutDep: $%8.8LX, MiscOutDep: $%8.8LX, ",
+          pCurrentInstruction->scalarInputDependencies,pCurrentInstruction->miscInputDependencies,
+          pCurrentInstruction->scalarOutputDependencies,pCurrentInstruction->miscOutputDependencies);
+        GetIFlagsString(tempStr,pCurrentInstruction->miscInputDependencies);
+        fprintf(blockFile,"FlagsInDep: %s ",tempStr);
+        GetIFlagsString(tempStr,pCurrentInstruction->miscOutputDependencies);
+        fprintf(blockFile,"FlagsOutDep: %s)\n",tempStr);
+      }
+      else if(pCurrentInstruction->flags & SUPERBLOCKINFO_PACKETSTART)
+      {
+        if(pCurrentInstruction->packet->flags & SUPERBLOCKINFO_NONATIVECOMPILE)
+        {
+          fprintf(blockFile,"(IL) ");
+        }
+        else
+        {
+          fprintf(blockFile,"(NATIVE) ");
+        }
+
+        if(pCurrentInstruction->flags & PACKETINFO_DEPENDENCY_PRESENT)
+        {
+          fprintf(blockFile,"(DEPENDENCY_PRESENT)");        
+        }
+        
+        fprintf(blockFile,"\n");
+      }
+      else
+      {
+        fprintf(blockFile,"\n");
+      }
+      
+      pCurrentInstruction++;
+    }
+    fprintf(blockFile,"\n");
+  }
+  else
+  {
+    fprintf(blockFile,"EMPTY BLOCK\n\n");  
+  }
+  fprintf(blockFile,"Next Virtual Address: $%8lx\n",exitAddress);
+  fprintf(blockFile,"Next Delay Counter: $%lx\n",nextDelayCounter);
+  //fprintf(blockFile,"***\n\n",tempStr);
+  fprintf(blockFile,"****************************************\n\n",tempStr);
+  fflush(blockFile);
+}
+
+void SuperBlock::AddPacketToList(InstructionCacheEntry &packet, uint32 index)
+{
+  uint32 i, comboScalarInDep, comboMiscInDep, comboScalarOutDep, comboMiscOutDep;
+
+  packets[index].pcexec = packet.pcexec;
+  packets[index].pcroute = packet.pcroute;
+  packets[index].pcfetchnext = packet.pcfetchnext;
+  packets[index].instructionCount = packet.nuanceCount; 
+  packets[index].flags = packet.packetInfo;
+
+  comboScalarInDep = 0;
+  comboMiscInDep = 0;
+  comboScalarOutDep = packet.scalarOutputDependencies[0];
+  comboMiscOutDep = packet.miscOutputDependencies[0];
+
+  for(i = 1; i < packet.nuanceCount; i++)
+  {
+    comboScalarInDep |= (packet.scalarInputDependencies[i] & comboScalarOutDep);
+    comboMiscInDep |= (packet.miscInputDependencies[i] & comboMiscOutDep);
+    comboScalarOutDep |= packet.scalarOutputDependencies[i];
+    comboMiscOutDep |= packet.miscOutputDependencies[i];
+  }
+
+  packets[index].comboMiscInputDependencies = comboMiscInDep;
+  packets[index].comboScalarInputDependencies = comboScalarInDep;
+  packets[index].comboMiscOutputDependencies = comboMiscOutDep;
+  packets[index].comboScalarOutputDependencies = comboScalarOutDep;
+
+}
+
+bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry *pPacketEntry, uint32 index, bool bExplicitNOP)
+{
+  uint32 i;
+  uint32 comboScalarInDep = 0;
+  uint32 comboMiscInDep = 0;
+  uint32 comboScalarOutDep = packet.scalarOutputDependencies[0];
+  uint32 comboMiscOutDep = packet.miscOutputDependencies[0];
+  uint32 nuanceBase = 0;
+  InstructionEntry *pCurrentInstruction = &instructions[index];
+  bool bCanEmitNativeCode = true;
+
+  ((Nuance &)(pCurrentInstruction->instruction)).fields[0] = Handler_PacketStart;
+  ((Nuance &)(pCurrentInstruction->instruction)).fields[1] = pPacketEntry->pcexec;
+  ((Nuance &)(pCurrentInstruction->instruction)).fields[2] = (uint32)pPacketEntry;
+  pCurrentInstruction->packet = pPacketEntry;
+  pCurrentInstruction->scalarInputDependencies = pPacketEntry->comboScalarInputDependencies;
+  pCurrentInstruction->miscInputDependencies = pPacketEntry->comboMiscInputDependencies;
+  pCurrentInstruction->scalarOutputDependencies = pPacketEntry->comboScalarOutputDependencies;
+  pCurrentInstruction->miscOutputDependencies = pPacketEntry->comboMiscOutputDependencies;
+  pCurrentInstruction->flags = pPacketEntry->flags | SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_LOCKED;
+  pCurrentInstruction++;
+
+  if(bExplicitNOP && (packet.nuanceCount == 0))
+  {
+    packet.nuanceCount = 1;
+    ((Nuance &)(packet.nuances[nuanceBase])).fields[0] = Handler_ECU_NOP;
+  }
+
+  for(i = 0; i < packet.nuanceCount; i++)
+  {
+    for(uint32 j = 0; j < FIELDS_PER_NUANCE; j++)
+    {
+      ((Nuance &)(pCurrentInstruction->instruction)).fields[j] = ((Nuance &)(packet.nuances[nuanceBase])).fields[j];
+    }
+
+    if(((Nuance &)(packet.nuances[nuanceBase])).fields[FIELD_MEM_HANDLER] == Handler_LoadScalarControlRegisterAbsolute)
+    {
+      //Check for ld_s pcexec, Sk and replace it with mv_s <pcroute>, Sk: some programs read from pcexec
+      //which has been updated to point to the next packet prior to execution.  That is, when pcexec is
+      //read in packet N, the result is always the address of packet N+1
+      if(((Nuance &)(packet.nuances[nuanceBase])).fields[FIELD_MEM_FROM] == 0x20500070)
+      {
+        ((Nuance &)(pCurrentInstruction->instruction)).fields[FIELD_MEM_HANDLER] = Handler_MV_SImmediate;
+        ((Nuance &)(pCurrentInstruction->instruction)).fields[FIELD_MEM_FROM] = pPacketEntry->pcroute;
+      }
+    }
+
+    bCanEmitNativeCode = bCanEmitNativeCode && ((bool)emitHandlers[((Nuance &)(packet.nuances[nuanceBase])).fields[0]]);
+    pCurrentInstruction->packet = pPacketEntry;
+    pCurrentInstruction->scalarInputDependencies = packet.scalarInputDependencies[i];
+    pCurrentInstruction->miscInputDependencies = packet.miscInputDependencies[i];
+    pCurrentInstruction->scalarOutputDependencies = packet.scalarOutputDependencies[i];
+    pCurrentInstruction->miscOutputDependencies = packet.miscOutputDependencies[i];
+    pCurrentInstruction->flags = 0;
+    nuanceBase += FIELDS_PER_NUANCE;
+    pCurrentInstruction++;
+  }
+  
+  ((Nuance &)(pCurrentInstruction->instruction)).fields[0] = Handler_PacketEnd;
+  ((Nuance &)(pCurrentInstruction->instruction)).fields[1] = pPacketEntry->pcroute;
+  ((Nuance &)(pCurrentInstruction->instruction)).fields[2] = (uint32)pPacketEntry;
+  pCurrentInstruction->packet = pPacketEntry;
+  pCurrentInstruction->scalarInputDependencies = 0;
+  pCurrentInstruction->miscInputDependencies = 0;
+  pCurrentInstruction->scalarOutputDependencies = 0;
+  pCurrentInstruction->miscOutputDependencies = 0;
+  pCurrentInstruction->flags = (SUPERBLOCKINFO_PACKETEND | SUPERBLOCKINFO_LOCKED);
+  if(!bCanEmitNativeCode)
+  {
+    pPacketEntry->flags |= SUPERBLOCKINFO_NONATIVECOMPILE;
+  }
+  return bCanEmitNativeCode;
+}
+
+uint32 SuperBlock::PerformDeadCodeElimination()
+{
+  uint32 i, miscRegMask, scalarRegMask, scalarRegMaskNext, miscRegMaskNext, numLive;
+  uint32 j, miscOutDep, scalarOutDep, miscInDep, scalarInDep, flags;
+  bool bLocked;
+
+  //scalarRegMask and miscRegMask represent all registers which do not need to be 
+  //output by the instruction being processed
+
+  //scalarRegMaskNext and miscRegMaskNext work the same way except they aggregrate the
+  //mask values to be applied to the instructions in the next packet to be processed.  
+  //These variables would not be needed on a single (instruction) issue architecture
+  //but enclosing single instructions within packets does not add significant overhead
+  //to the compilation process.
+
+  numLive = 0;
+  i = numInstructions - 1;
+
+  scalarRegMask = scalarRegMaskNext = 0;
+  miscRegMask = miscRegMaskNext = 0;
+ 
+  for(j = numInstructions; j > 0; j--)
+  {
+    flags = instructions[i].flags;
+
+    if(!(flags & SUPERBLOCKINFO_DEAD))
+    {
+      numLive++;
+
+      if(!(flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
+      {
+        bLocked = flags & SUPERBLOCKINFO_LOCKED;
+        if(!bLocked)
+        {
+          //Remove output dependencies which are not used as inputs prior to being modified
+          instructions[i].scalarOutputDependencies &= ~scalarRegMask;
+          instructions[i].miscOutputDependencies &= ~miscRegMask;
+        }
+       
+        scalarOutDep = instructions[i].scalarOutputDependencies;
+        miscOutDep = instructions[i].miscOutputDependencies;
+
+        //Keep a running total of all input dependencies for this packet
+        scalarInDep |= instructions[i].scalarInputDependencies;
+        miscInDep |= (instructions[i].miscInputDependencies & DEPENDENCY_MASK_ALLMISC_NON_MEM);
+
+        //Add all registers which are modified by this instruction
+        scalarRegMaskNext |= scalarOutDep;
+        miscRegMaskNext |= miscOutDep;
+
+        //Remove all registers which are input dependencies of this packet
+        scalarRegMaskNext &= ~scalarInDep;
+        miscRegMaskNext &= ~miscInDep;
+
+        if(!bLocked && !(scalarOutDep | miscOutDep))
+        {
+          //If there are no output dependencies then the current instruction can be eliminated.
+          //Locked instructions must not be eliminated (e.g. memory stores to control registers)
+          numLive--;
+          instructions[i].flags |= SUPERBLOCKINFO_DEAD;
+        }
+      }
+      else if(flags & SUPERBLOCKINFO_PACKETEND)
+      {
+        if(flags & SUPERBLOCKINFO_SYNC)
+        {
+          //When the sync flag is set, the register masks are reset so that all output dependencies are preserved.  
+          //This is primarily used when allowing superblocks to contain multiple conditional branches.
+          scalarRegMask = 0;
+          miscRegMask = 0;
+        }
+        else
+        {
+          //Grab the dependency information collected from the previously processed packet
+          scalarRegMask = scalarRegMaskNext;
+          miscRegMask = miscRegMaskNext;
+        }
+
+        scalarInDep = 0;
+        miscInDep = 0;
+        //The initial state of the the masks for the packet above the current one should be the same as the initial state for the current
+        //packet.  This is because the masks indicate which dependencies a packet does not need to update: assuming the current packet is empty
+        //then the dependencies haven't changed.
+
+        scalarRegMaskNext = scalarRegMask;
+        miscRegMaskNext = miscRegMask;
+      }
+    }
+  
+    i--;
+  }
+
+  return numLive;
+}
+
+void SuperBlock::UpdateDependencyInfo()
+{
+  uint32 j, miscInDep, miscOutDep, scalarInDep, scalarOutDep, miscOpDep, scalarOpDep, flags;
+  InstructionEntry *pCurrentPacket, *pCurrentInstruction;
+
+  pCurrentInstruction = instructions;
+  for(j = numInstructions; j > 0; j--)
+  {
+    flags = pCurrentInstruction->flags;
+    if(!(flags & SUPERBLOCKINFO_DEAD))
+    {
+      if(!(flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
+      {
+        //Set flags for dependencies of the current instruction where the
+        //input registers were output dependencies of previous instructions in
+        //the packet
+        scalarOpDep |= (pCurrentInstruction->scalarInputDependencies & scalarOutDep);
+        miscOpDep |= (pCurrentInstruction->miscInputDependencies & miscOutDep);
+        
+        //Add output dependencies of the current instruction to the 
+        //aggregate output dependency flags
+        scalarOutDep |= pCurrentInstruction->scalarOutputDependencies;
+        miscOutDep |= pCurrentInstruction->miscOutputDependencies;
+        
+        //Aggregate input dependencies for the heck of it
+        scalarInDep |= pCurrentInstruction->scalarInputDependencies;
+        miscInDep |= pCurrentInstruction->miscInputDependencies;
+
+        pCurrentPacket->packet->liveCount++;
+      }
+      else
+      {
+        if(flags & SUPERBLOCKINFO_PACKETSTART)
+        {
+          //Reset aggregate dependency flags and set the packet pointer to this PacketStart node
+          scalarInDep = scalarOutDep = miscInDep = miscOutDep = scalarOpDep = miscOpDep = 0;
+          pCurrentPacket = pCurrentInstruction;
+          pCurrentPacket->packet->liveCount = 0;
+        }
+        else
+        {
+          //Now that the PacketEnd node was reached, store the aggregated packet
+          //dependency information back to the last PacketStart node
+          pCurrentPacket->scalarInputDependencies = scalarInDep;
+          pCurrentPacket->scalarOutputDependencies = scalarOutDep;
+          pCurrentPacket->miscInputDependencies = miscInDep;
+          pCurrentPacket->miscOutputDependencies = miscOutDep;
+          pCurrentPacket->scalarOpDependencies = scalarOpDep;
+          pCurrentPacket->miscOpDependencies = miscOpDep;
+          pCurrentPacket->flags &= (~PACKETINFO_DEPENDENCY_PRESENT);
+          if(scalarOpDep | miscOpDep)
+          {
+            pCurrentPacket->flags |= PACKETINFO_DEPENDENCY_PRESENT;
+          }
+        }
+      }
+    }
+    pCurrentInstruction++;
+  }
+}
+
+#define ALLOW_NATIVE_CODE_EMIT true;
+
+int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContainsBranch)
+{
+  InstructionCacheEntry packet, packetDelaySlot1, packetDelaySlot2;
+  int32 packetCounter;
+  uint32 decodeOptions = (DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST | DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST);
+  bCanEmitNativeCode = ALLOW_NATIVE_CODE_EMIT;
+  bool bPacketAllowsNativeCode;
+  bool bFirstNonNOPReached = false;
+  bool bForceILBlock = false;
+  
+  bContainsBranch = false;
+
+  nextDelayCounter = 0;
+  numPackets = 0;
+  numInstructions = 0;
+
+  startAddress = packetAddress;
+  exitAddress = packetAddress;
+
+  //If the starting address is in the imaginary overlay region (0x20308000,0x2FF07FFF), mask the ending address so that it is within
+  //the real IRAM region of (20300000,20307FFF).  The starting address should not be modified as it is used as the lookup key.
+
+  if((startAddress < MPE1_ADDR_BASE) && (startAddress >= (MPE_IRAM_BASE + OVERLAY_SIZE)))
+  {
+    exitAddress = packetAddress = (packetAddress & (0xFFF00000 | (OVERLAY_SIZE - 1)));
+  }
+
+  packetsProcessed = 0;
+
+  if(bSinglePacket)
+  {
+    packetCounter = 1;
+  }
+  else
+  {
+    packetCounter = maxPacketsPerSuperBlock;
+  }
+
+  //if(startAddress == 0x800265e0)
+  {
+    //startAddress = 0x800265e0;
+  }
+
+  while(packetCounter > 0)
+  {
+    packet.pcexec = packetAddress;
+
+    mpe.DecompressPacket((uint8 *)nuonEnv->GetPointerToMemory(&mpe,packetAddress,false),&packet, decodeOptions);
+    packetAddress = packet.pcroute;
+
+    packetsProcessed++;
+
+    if(!(packet.packetInfo & PACKETINFO_NOP) && (packet.nuanceCount != 0))
+    {
+      //Packet is not a NOP nor is it a packet containing a single inhibited ECU instruction: 
+      //check to see if it contains a breakpoint or is marked as non-compilable
+
+      if(!((packet.packetInfo & (PACKETINFO_NEVERCOMPILE | PACKETINFO_BREAKPOINT))))
+      {
+        //Packet does not contain a NOP: add the packet to the packet list and add the instructions to the instruction list
+
+        if(packet.packetInfo & (PACKETINFO_BRANCH_CONDITIONAL | PACKETINFO_BRANCH_ALWAYS | PACKETINFO_BRANCH_NOP))
+        {
+          //Packet contains a branch instruction.  Non-delayed branches are fine.  Delayed branches can only be compiled if
+          //the delay slot packets do not contain additional branch instructions, indirect memory operations or direct memory
+          //operations on the control registers.
+
+          bContainsBranch = true;
+
+          if(packet.packetInfo & PACKETINFO_BRANCH_ALWAYS)
+          {
+            decodeOptions |= DECOMPRESS_OPTIONS_INHIBIT_ECU;
+          }
+
+          //if(!IsBranchConditionCompilable(startAddress, mpe.mpeIndex, packet.ecuConditionCode))// || (numPackets != 0))
+          //{
+          //  goto non_compilable_packet;
+          //}
+
+          if(!(packet.packetInfo & PACKETINFO_BRANCH_NOP))
+          {
+            //Delayed branch with explicit delay slot instructions
+            packetDelaySlot1.pcexec = packetAddress;
+            mpe.DecompressPacket((uint8 *)nuonEnv->GetPointerToMemory(&mpe,packetAddress,false),&packetDelaySlot1, decodeOptions);
+            packetAddress = packetDelaySlot1.pcroute;
+            packetDelaySlot2.pcexec = packetAddress;
+            mpe.DecompressPacket((uint8 *)nuonEnv->GetPointerToMemory(&mpe,packetAddress,false),&packetDelaySlot2, decodeOptions);
+            packet.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
+            packetDelaySlot1.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
+            packetDelaySlot2.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
+
+            packetAddress = packetDelaySlot2.pcroute;
+
+            if(((packetDelaySlot1.packetInfo|packetDelaySlot2.packetInfo) & (PACKETINFO_MEMORY_IO|PACKETINFO_MEMORY_INDIRECT|PACKETINFO_ECU|PACKETINFO_NEVERCOMPILE)))
+            {
+              if(!bFirstNonNOPReached)
+              {
+                goto non_compilable_packet;
+                bForceILBlock = true;
+              }
+              else
+              {
+                goto non_compilable_packet;
+              }
+            }
+ 
+            if(!((packetDelaySlot1.packetInfo|packetDelaySlot2.packetInfo) & (PACKETINFO_MEMORY_IO|PACKETINFO_MEMORY_INDIRECT|PACKETINFO_ECU|PACKETINFO_NEVERCOMPILE)) 
+              || bForceILBlock)
+            {
+              AddPacketToList(packet,numPackets);
+              bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
+              bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
+              numInstructions += (packet.nuanceCount + 2);
+              numPackets++;
+              packetCounter--;
+
+              if(bForceILBlock)
+              {
+                //goto force_il_block;
+              }
+
+              if((!(packetDelaySlot1.packetInfo & PACKETINFO_NOP) && (packetDelaySlot1.nuanceCount != 0)) || bForceILBlock)
+              {
+                AddPacketToList(packetDelaySlot1,numPackets);              
+                bPacketAllowsNativeCode = AddInstructionsToList(packetDelaySlot1,&packets[numPackets],numInstructions,bForceILBlock);
+                bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
+                numInstructions += (packetDelaySlot1.nuanceCount + 2);
+                numPackets++;
+              }
+              packetCounter--;
+
+              if((!(packetDelaySlot2.packetInfo & PACKETINFO_NOP) && (packetDelaySlot2.nuanceCount != 0)) || bForceILBlock)
+              {
+                AddPacketToList(packetDelaySlot2,numPackets);              
+                bPacketAllowsNativeCode = AddInstructionsToList(packetDelaySlot2,&packets[numPackets],numInstructions,bForceILBlock);
+                bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
+                numInstructions += (packetDelaySlot2.nuanceCount + 2);
+                numPackets++;
+              }
+              packetCounter--;
+
+              packetsProcessed += 2;
+              packetCounter = 0;
+
+              exitAddress = packetDelaySlot2.pcroute;           
+force_il_block:
+              if(bForceILBlock)
+              {
+                bCanEmitNativeCode = false;
+              }
+              break;
+            }
+            else
+            {
+              goto non_compilable_packet;
+            }
+          }
+          else
+          {
+            //Delayed branch with implicit NOP
+            AddPacketToList(packet,numPackets);
+            bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
+            bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
+            //Increment numInstructions by nuance count and add two to account for PacketStart and PacketEnd
+            numInstructions += (packet.nuanceCount + 2);
+            //Increment packet count
+            numPackets++;
+            packetCounter--;
+            //Update the exit address
+            exitAddress = packet.pcroute;
+            break;
+          }
+        }
+
+        bFirstNonNOPReached = true;
+
+        AddPacketToList(packet,numPackets);
+        bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
+        bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
+        //Increment numInstructions by nuance count and add two to account for PacketStart and PacketEnd
+        numInstructions += (packet.nuanceCount + 2);
+        //Increment packet count
+        numPackets++;
+        packetCounter--;
+        //Update the exit address
+        exitAddress = packet.pcroute;
+      }
+      else
+      {
+non_compilable_packet:
+        //Packet contains non-compilable instruction: don't add it to the list and stop adding packets
+        //Don't modify the current value of the delay counter
+        exitAddress = packet.pcexec;
+        packetsProcessed--;
+        break;
+      }
+    }
+    else
+    {
+      //Packet is a NOP or the packet contains a single inhibited ECU instruction: 
+      //If the packet is a NOP and not in a delay slot, don't add it to the list: just update the exit address.
+      //If the packet is in a delay slot, don't add it to the list but decrement the packet counter
+      exitAddress = packet.pcroute;
+      if(nextDelayCounter || !bAllowBlockCompile)
+      //if(nextDelayCounter)
+      {
+        packetCounter--;
+      }
+    }
+
+    if(nextDelayCounter > 1)
+    {
+      nextDelayCounter--;
+    }
+  }
+
+  //Assume all instructions are live for now
+  numLiveInstructions = numInstructions;
+  //Mark the last added instruction with SUPERBLOCKINFO_SYNC to ensure EliminateDeadCode works.
+  if(numInstructions)
+  {
+    instructions[numInstructions - 1].flags |= SUPERBLOCKINFO_SYNC;
+  }
+
+  return packetsProcessed;
+}

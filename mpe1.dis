@@ -1,0 +1,570 @@
+20300000:    mv_s #$20100000,r1
+20300006:    st_s r1,clutbase
+2030000A:    st_s #$0030E100,uvctl
+20300012:    st_s #$20100470,uvbase
+2030001A:    pad
+             st_s #$00000000,ru
+20300020:    st_s #$00000000,ry
+20300024:    st_s #$00000200,mpectl
+20300028:    bra $20300054
+2030002A:    st_s #$10400000,linpixctl
+20300032:    nop
+
+20300034:    ld_s $201008B0,r4
+`wait_for_xmit_clear:
+20300038:    ld_s commctl,r0
+;r4 = xmit_value | transmit_retry
+2030003C:    or #$00000001,<>#-13,r4
+20300040:    btst #15,r0
+;if commctl.xmitbufferfull is set, branch back to wait_for_xmit_clear
+20300042:    bra ne,$20300038,nop
+
+`send_comm_response:
+;commctl = xmit_value | transmit_retry
+20300046:    st_s r4,commctl
+2030004A:    sub_sv v0,v0
+;comminfo = 0
+2030004C:    st_s r0,comminfo
+;trigger comm transmit (commxmit = {0,0,0,0})
+20300050:    st_v v0,commxmit
+
+`wait_for_recv_buffer_full:
+20300054:    ld_s commctl,r4
+20300058:    nop
+2030005A:    btst #31,r4
+;if commctl.recvbufferfull is clear, branch back to `wait_for_recv_buffer_full
+2030005C:    bra eq,$20300054,nop
+
+20300060:    ld_v commrecv,v0
+20300064:    bits #7,>>#16,r4
+20300068:    st_s r4,$201008B0
+2030006C:    cmp #$00000004,r0
+2030006E:    bra ne,$20300338,nop
+
+20300072:    ld_s commctl,r4
+20300076:    nop
+20300078:    btst #31,r4
+2030007A:    pad
+             bra eq,$20300072,nop
+20300080:    ld_v commrecv,v1
+20300084:    nop
+20300086:    push v1
+             and #$0000FFFF,r3,r19
+20300090:    pad
+             pad
+             pad
+             st_s #$00000000,$20100460
+             cmp #$00000000,r3
+203000A0:    bra gt,$203000B8
+             add #$00266666,r3
+203000A8:    sat #24,r3,r3
+203000AC:    asl #6,r3
+203000AE:    mv_s #$00000000,r3
+203000B0:    st_s #$00000001,$20100460
+203000B8:    st_s r3,$20100464
+             asl #-16,r1,r10
+203000C0:    asl #-16,r2,r11
+203000C4:    lsr #-16,r1,r27
+             mv_s #$00010000,r14
+203000CE:    lsr #-16,r2,r26
+             mv_s #$00000000,r15
+203000D4:    mv_s r15,r30
+             copy r14,r31
+203000D8:    pop v0
+203000DA:    nop
+203000DC:    mv_s r2,r12
+             copy r0,r8
+203000E0:    mv_s r3,r13
+             copy r1,r9
+203000E4:    mv_s r12,r29
+203000E6:    mv_s r13,r28
+203000E8:    cmp r26,r27
+203000EA:    bra ge,$203000FA,nop
+203000EE:    push v3
+203000F0:    mv_v v7,v3
+203000F2:    pop v7
+203000F4:    nop
+203000F6:    mv_s r27,r26
+             copy r26,r27
+203000FA:    mv_s #$203003F0,r17
+20300100:    mv_s #$20100580,r24
+20300106:    mv_s #$20100680,r25
+2030010C:    ld_s $20100460,r0
+20300110:    st_s r24,xybase
+             sub r18,r18
+20300116:    pad
+             pad
+             pad
+             pad
+             cmp #$00000000,r0
+20300120:    bra ne,$20300130,nop
+             mv_s #$2030053C,r16
+2030012A:    mv_s #$203004D6,r16
+20300130:    cmp #$00000000,r12
+20300132:    bra lt,$20300140
+20300134:    cmp #$00000000,r13
+20300136:    bra ge,$203002AC
+2030013A:    pad
+             bra $20300232,nop
+20300140:    bra ge,$203001B8,nop
+20300144:    push v2
+20300146:    push v7
+20300148:    cmp #$00000040,r27
+             st_s r27,rc0
+2030014E:    bra lt,$20300158,nop
+             st_s r27,rc1
+20300154:    st_s #$00000040,rc1
+20300158:    jsr (r17)
+2030015C:    ld_s $20100464,r28
+20300160:    nop
+20300162:    jsr modmi,(r17),nop
+             range rv
+             dec rc0
+             dec rc1
+20300168:    jsr modmi,(r17),nop
+2030016C:    addr r12,ru
+             ld_pz (r0),v5
+             add r12,r8
+20300174:    addr r13,rv
+             add r13,r9
+20300178:    pad
+             bra c1ne,$20300162
+             mul_p r28,v5,>>#2,v5
+20300180:    ld_p (uv),v0
+             range ru
+20300186:    st_pz v5,(xy)
+             addr #(1 << 16),rx
+             add #$00000001,r18
+2030018E:    jsr (r16)
+20300192:    push v0
+20300194:    nop
+20300196:    bra c0ne,$20300162
+20300198:    pop v0
+2030019A:    nop
+2030019C:    pad
+             pop v7
+203001A0:    pop v2
+             sub #$00000001,r26
+203001A4:    bra gt,$20300144
+203001A6:    addm r11,r31,r11
+             add r30,r10
+203001AC:    addm r9,r29,r9
+             add r28,r8
+203001B2:    bra $2030031C
+203001B4:    nop
+203001B6:    nop
+203001B8:    push v2
+203001BA:    pad
+             pad
+             push v7
+203001C0:    cmp #$00000040,r27
+             st_s r27,rc0
+203001C6:    bra lt,$203001D0,nop
+             st_s r27,rc1
+203001CC:    st_s #$00000040,rc1
+203001D0:    jsr (r17)
+203001D4:    ld_s $20100464,r28
+203001D8:    nop
+203001DA:    jsr modmi,(r17),nop
+             range rv
+             dec rc0
+             dec rc1
+203001E0:    jsr modge,(r17),nop
+203001E4:    addr r12,ru
+             ld_pz (r0),v5
+             add r12,r8
+203001EC:    addr r13,rv
+             add r13,r9
+203001F0:    bra c1ne,$203001DA
+             mul_p r28,v5,>>#2,v5
+203001F6:    pad
+             pad
+             ld_p (uv),v0
+             range ru
+20300200:    st_pz v5,(xy)
+             addr #(1 << 16),rx
+             add #$00000001,r18
+20300208:    jsr (r16)
+2030020C:    push v0
+2030020E:    nop
+20300210:    bra c0ne,$203001DA
+20300212:    pop v0
+20300214:    nop
+20300216:    pop v7
+20300218:    pop v2
+             sub #$00000001,r26
+2030021C:    pad
+             bra gt,$203001B8
+20300220:    addm r11,r31,r11
+             add r30,r10
+20300226:    addm r9,r29,r9
+             add r28,r8
+2030022C:    bra $2030031C
+2030022E:    nop
+20300230:    nop
+20300232:    push v2
+20300234:    push v7
+20300236:    pad
+             pad
+             cmp #$00000040,r27
+             st_s r27,rc0
+20300240:    bra lt,$2030024A,nop
+             st_s r27,rc1
+20300246:    st_s #$00000040,rc1
+2030024A:    jsr (r17)
+2030024E:    ld_s $20100464,r28
+20300252:    nop
+20300254:    jsr modge,(r17),nop
+             range rv
+             dec rc0
+             dec rc1
+2030025A:    pad
+             jsr modmi,(r17),nop
+20300260:    addr r12,ru
+             ld_pz (r0),v5
+             add r12,r8
+20300268:    addr r13,rv
+             add r13,r9
+2030026C:    bra c1ne,$20300254
+             mul_p r28,v5,>>#2,v5
+20300272:    ld_p (uv),v0
+             range ru
+20300278:    st_pz v5,(xy)
+             addr #(1 << 16),rx
+             add #$00000001,r18
+20300280:    jsr (r16)
+20300284:    push v0
+20300286:    nop
+20300288:    bra c0ne,$20300254
+2030028A:    pop v0
+2030028C:    nop
+2030028E:    pop v7
+20300290:    pop v2
+             sub #$00000001,r26
+20300294:    bra gt,$20300232
+20300296:    pad
+             pad
+             addm r11,r31,r11
+             add r30,r10
+203002A0:    addm r9,r29,r9
+             add r28,r8
+203002A6:    bra $2030031C
+203002A8:    nop
+203002AA:    nop
+203002AC:    push v2
+203002AE:    push v7
+203002B0:    cmp #$00000040,r27
+             st_s r27,rc0
+203002B6:    bra lt,$203002C0,nop
+             st_s r27,rc1
+203002BC:    st_s #$00000040,rc1
+203002C0:    jsr (r17)
+203002C4:    ld_s $20100464,r28
+203002C8:    nop
+203002CA:    jsr modge,(r17),nop
+             range rv
+             dec rc0
+             dec rc1
+203002D0:    jsr modge,(r17),nop
+203002D4:    addr r12,ru
+             ld_pz (r0),v5
+             add r12,r8
+203002DC:    addr r13,rv
+             add r13,r9
+203002E0:    bra c1ne,$203002CA
+             mul_p r28,v5,>>#2,v5
+203002E6:    ld_p (uv),v0
+             range ru
+203002EC:    st_pz v5,(xy)
+             addr #(1 << 16),rx
+             add #$00000001,r18
+203002F4:    jsr (r16)
+203002F8:    push v0
+203002FA:    nop
+203002FC:    bra c0ne,$203002CA
+203002FE:    pop v0
+20300300:    nop
+20300302:    pop v7
+20300304:    pop v2
+             sub #$00000001,r26
+20300308:    bra gt,$203002AC
+2030030A:    addm r11,r31,r11
+             add r30,r10
+20300310:    addm r9,r29,r9
+             add r28,r8
+20300316:    bra $2030031C
+20300318:    nop
+2030031A:    nop
+2030031C:    ld_s odmactl,r0
+20300320:    ld_s mdmactl,r1
+20300324:    bits #4,>>#0,r0
+20300328:    bra ne,$2030031C,nop
+             bits #4,>>#0,r1
+20300330:    bra ne,$2030031C,nop
+20300334:    bra $20300034,nop
+20300338:    pad
+             st_v v0,$20100450
+             cmp #$00000001,r0
+20300340:    bra ne,$20300378,nop
+20300344:    st_s r1,$20100434
+20300348:    st_s r2,$20100430
+2030034C:    bits #3,>>#4,r2
+20300350:    cmp #$00000006,r2
+20300352:    bra le,$20300360,nop
+             asl #20,r2
+20300358:    pad
+             mv_s #$00500000,r2
+20300360:    or #$10000040,r2,r2
+20300368:    st_s r2,xyctl
+2030036C:    st_s #$00000000,rx
+20300370:    st_s #$00000000,ry
+20300374:    bra $2030031C,nop
+20300378:    cmp #$00000003,r0
+2030037A:    pad
+             bra ne,$203003D0,nop
+20300380:    st_s r1,$20100404
+             or #$00000001,<>#-13,r2
+20300388:    st_s r2,$20100400
+2030038C:    st_s r3,$20100418
+20300390:    pad
+             pad
+             pad
+             pad
+             pad
+             bits #3,>>#4,r2
+             mv_s #$00000003,r1
+203003A0:    st_s #$00000001,$20100414
+             bra eq,$203003BE,nop
+203003AC:    st_s #$00000000,$20100414
+             cmp #$00000006,r2
+203003B6:    mv_s r2,r1
+             bra le,$203003BE,nop
+203003BC:    mv_s #$00000005,r1
+203003BE:    asl #20,r1
+203003C0:    or #$1000E100,r1,r1
+203003C8:    st_s r1,uvctl
+203003CC:    bra $2030031C,nop
+203003D0:    cmp #$00000002,r0
+203003D2:    bra ne,$2030031C,nop
+203003D6:    pad
+             pad
+             pad
+             jsr $2030060A
+203003E0:    mv_s #$20100000,r1
+             copy r1,r0
+203003E8:    mv_s #$00000400,r2
+203003EC:    bra $2030031C,nop
+203003F0:    push v1,rz
+203003F2:    ld_s rc0,r0
+             copy r8,r4
+203003F6:    pad
+             pad
+             pad
+             ld_s $20100418,r1
+20300400:    ld_s $20100404,r2
+             mul r12,r0,#16,r0
+20300408:    cmp #$00000000,r12
+2030040A:    bra ge,$20300416,nop
+             mv_s r8,r4
+20300410:    addm r4,r0,r4
+             abs r0
+20300416:    lsr #-16,r9,r3
+2030041A:    pad
+             pad
+             and r19,r3
+20300420:    mul r3,r1,#0,r1
+             lsr #-16,r4,r3
+20300428:    and r19,r3
+2030042A:    add r2,r3
+2030042C:    add r1,r3
+2030042E:    and #$FFFFFFF0,r3,r2
+20300432:    sub r2,r3
+20300434:    addm r0,r3,r0
+             asl #-16,r3,r6
+2030043C:    pad
+             add #$0000000F,r0
+20300440:    and #$FFFFFFF0,r0,r3
+20300444:    mv_s #$00000010,r0
+             bra eq,$2030045A,nop
+2030044C:    cmp #$00000100,r3
+             mv_s r3,r0
+20300452:    bra le,$2030045A,nop
+20300456:    mv_s #$00000100,r0
+2030045A:    mv_s #$0000FFFF,r3
+20300460:    and r9,r3,r5
+20300464:    mvr r5,rv
+             and r8,r3
+20300468:    mvr r3,ru
+2030046A:    addr r6,ru
+             lsr #16,r6
+2030046E:    ld_s $20100418,r5
+             lsr #16,r4
+20300474:    and r19,r4
+20300476:    sub r4,r5
+20300478:    add r6,r5
+2030047A:    pad
+             pad
+             cmp r0,r5
+20300480:    bra ge,$2030048C,nop
+             asl #-16,r0,r3
+20300488:    asl #-16,r5,r3
+2030048C:    or #$00000001,r3,r3
+20300490:    st_s r3,uvrange
+20300494:    mv_s #$20100470,r1
+2030049A:    pad
+             jsr $2030060A
+203004A0:    mv_s r2,r0
+             copy r0,r2
+203004A4:    nop
+203004A6:    pop v1,rz
+203004A8:    ld_p (uv),v0
+203004AC:    nop
+203004AE:    cmp #$20100000,r0
+203004B4:    bra lt,$203004BE,nop
+203004B8:    rts 
+203004BA:    nop
+203004BC:    range ru
+203004BE:    nop
+203004C0:    mv_s #$0BAD001D,r0
+203004C6:    copy r0,r1
+203004C8:    copy r1,r2
+203004CA:    halt
+203004CC:    nop
+203004CE:    nop
+203004D0:    rts 
+203004D2:    nop
+203004D4:    range ru
+203004D6:    cmp #$00000000,r18
+203004D8:    rts eq,nop
+203004DA:    pad
+             mv_s r24,r25
+             copy r25,r24
+203004E0:    st_s r24,xybase
+203004E4:    st_s #$00000000,rx
+203004E8:    ld_s mdmactl,r4
+203004EC:    nop
+203004EE:    bits #4,>>#0,r4
+203004F2:    bra ne,$203004E8,nop
+203004F6:    mv_s #$00010000,r0
+             cmp #$00000000,r15
+203004FE:    bra ne,$20300510
+20300500:    mv_s r0,r2
+             copy r10,r1
+20300504:    bra $20300518
+             mv_s r11,r3
+20300508:    asl #-16,r18,r0
+2030050C:    add r18,>>#-16,r10
+20300510:    asl #-16,r18,r2
+20300514:    add r18,>>#-16,r11
+20300518:    ld_s rc0,r4
+2030051A:    pad
+             st_sv v0,$20100438
+20300520:    st_s r25,$20100440
+20300524:    st_s #$20100430,mdmacptr
+2030052C:    cmp #$00000040,r4
+             st_s r4,rc1
+20300532:    rts lt
+20300534:    rts 
+20300536:    mv_s #$00000000,r18
+20300538:    st_s #$00000040,rc1
+2030053C:    cmp #$00000000,r18
+2030053E:    rts eq,nop
+20300540:    mv_s r24,r25
+             copy r25,r24
+20300544:    st_s #$00000000,rx
+20300548:    ld_s mdmactl,r4
+2030054C:    nop
+2030054E:    bits #4,>>#0,r4
+20300552:    bra ne,$20300548,nop
+20300556:    mv_s #$00010000,r0
+             cmp #$00000000,r15
+2030055E:    bra ne,$20300570
+20300560:    mv_s r0,r2
+             copy r10,r1
+20300564:    bra $20300578
+             mv_s r11,r3
+20300568:    asl #-16,r18,r0
+2030056C:    add r18,>>#-16,r10
+20300570:    asl #-16,r18,r2
+20300574:    add r18,>>#-16,r11
+20300578:    ld_s $20100430,r4
+2030057C:    st_sv v0,$20100438
+20300580:    or #$00000001,<>#-13,r4
+             st_s #$20100780,$20100440
+2030058C:    st_s r4,$20100430
+20300590:    st_s #$20100430,mdmacptr
+20300598:    ld_s mdmactl,r4
+2030059C:    pad
+             nop
+203005A0:    bits #4,>>#0,r4
+203005A4:    bra ne,$20300598,nop
+203005A8:    mv_s #$20100780,r4
+203005AE:    ld_pz (xy),v0
+203005B2:    ld_pz (r4),v5
+             add #$00000004,r4
+203005B8:    eor #$FFFFFFFF,r3
+203005BA:    sub_p v5,v0,v0
+203005BE:    lsr #2,r3
+203005C0:    mul_p r3,v0,>>#2,v0
+             sub #$00000001,r18
+203005C6:    bra gt,$203005AE
+203005C8:    add_pv0,v5,v5
+203005CC:    st_p v5,(xy)
+             addr #(1 << 16),rx
+203005D2:    ld_s $20100430,r0
+203005D6:    st_s #$00000000,rx
+203005DA:    pad
+             and #$FFFFFFFE,<>#-13,r0
+203005E0:    st_s r0,$20100430
+203005E4:    st_s r25,$20100440
+203005E8:    ld_s rc0,r4
+203005EA:    st_s #$20100430,mdmacptr
+203005F2:    cmp #$00000040,r4
+             st_s r4,rc1
+203005F8:    rts lt
+             st_s r24,xybase
+203005FE:    rts 
+20300600:    mv_s #$00000000,r18
+20300602:    st_s #$00000040,rc1
+20300606:    bra $20300610
+20300608:    nop
+2030060A:    mv_s #$00000000,r4
+2030060C:    or #$00000001,<>#-13,r4
+20300610:    add #$0000000F,r2,r5
+             mv_s r1,r2
+20300616:    pad
+             pad
+             pad
+             and #$FFFFFFF0,r5,r5
+20300620:    mv_s #$20500600,r3
+             copy r0,r1
+20300628:    push v0
+2030062A:    copy r1,r7
+2030062C:    bits #3,>>#28,r7
+20300630:    cmp #$00000004,r7
+20300632:    bra eq,$2030063A,nop
+20300636:    sub #$00000100,r3
+2030063A:    mv_s #$000000F0,r6
+2030063E:    cmp r6,r5
+20300640:    bra ge,$20300646,nop
+20300644:    mv_s r5,r6
+20300646:    asl #-14,r6,r0
+2030064A:    ld_s (r3),r7
+2030064C:    or r4,r0
+2030064E:    ld_s sp,r7
+             btst #4,r7
+20300654:    bra ne,$2030064A,nop
+20300658:    st_v v0,(r7)
+             add #$00000010,r3
+2030065E:    st_s r7,(r3)
+20300660:    sub #$00000010,r3
+20300662:    sub r6,r5
+20300664:    bra gt,$2030063A
+20300666:    add r6,r1
+20300668:    add r6,r2
+2030066A:    ld_s (r3),r7
+2030066C:    nop
+2030066E:    bits #4,>>#0,r7
+20300672:    bra ne,$2030066A,nop
+20300676:    pop v0
+20300678:    rts 

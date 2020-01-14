@@ -1,0 +1,4025 @@
+<!DOCTYPE UI><UI>
+<class>RegisterWindow</class>
+<widget>
+    <class>QDialog</class>
+    <property stdset="1">
+        <name>name</name>
+        <cstring>RegisterWindow</cstring>
+    </property>
+    <property stdset="1">
+        <name>geometry</name>
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>799</width>
+            <height>782</height>
+        </rect>
+    </property>
+    <property stdset="1">
+        <name>minimumSize</name>
+        <size>
+            <width>799</width>
+            <height>514</height>
+        </size>
+    </property>
+    <property stdset="1">
+        <name>maximumSize</name>
+        <size>
+            <width>799</width>
+            <height>32767</height>
+        </size>
+    </property>
+    <property stdset="1">
+        <name>caption</name>
+        <string>Nuance Register Window</string>
+    </property>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbExcepsrc</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>60</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>sizePolicy</name>
+            <sizepolicy>
+                <hsizetype>0</hsizetype>
+                <vsizetype>0</vsizetype>
+            </sizepolicy>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR31</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>480</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_4_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>661</x>
+                <y>180</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r21</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3_2_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>661</x>
+                <y>270</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r24</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR23</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>240</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>90</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR14</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>450</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbCommxmit0</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>270</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>191</x>
+                <y>360</y>
+                <width>30</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>uvctl</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>21</x>
+                <y>30</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>mpectl</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_4_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>180</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r5</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_4_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>341</x>
+                <y>90</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>odmactl</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3_2_2_4_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>340</x>
+                <y>480</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>commrecv3</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_4_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>361</x>
+                <y>150</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>mdmactl</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_4</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>201</x>
+                <y>90</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>rx</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_4</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>180</x>
+                <y>180</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>xyrange</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbRu</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>240</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>181</x>
+                <y>300</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>uvrange</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>181</x>
+                <y>330</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>uvbase</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>191</x>
+                <y>450</y>
+                <width>30</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>svshift</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_3_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>330</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r10</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR8</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>270</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_4_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>351</x>
+                <y>180</y>
+                <width>50</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>mdmacptr</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbRv</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>270</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbPcroute</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>180</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_3_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>660</x>
+                <y>330</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r26</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_4_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>661</x>
+                <y>90</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r18</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_3_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>360</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r11</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR5</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>180</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_4_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>210</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r6</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR13</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>420</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_3_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>520</x>
+                <y>300</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r9</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_3_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>450</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r14</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbCommxmit1</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>300</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>201</x>
+                <y>270</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>rv</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbXybase</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>210</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>21</x>
+                <y>180</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>pcroute</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>31</x>
+                <y>450</y>
+                <width>30</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>inten1</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbIntvec2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>360</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_3_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>660</x>
+                <y>390</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r28</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR16</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>30</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR9</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>300</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_4_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>90</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r2</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR7</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>240</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbOdmactl</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>90</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbDabreak</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>60</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbXyrange</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>180</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_2_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>201</x>
+                <y>240</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>ru</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbSvshift</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>450</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>21</x>
+                <y>210</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>pcexec</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbRz</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>240</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>41</x>
+                <y>120</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>cc</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_3_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>661</x>
+                <y>360</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r27</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR28</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>390</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_4_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>661</x>
+                <y>120</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r19</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_3_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>660</x>
+                <y>300</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r25</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR4</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>150</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>340</x>
+                <y>270</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>commxmit0</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbXyctl</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>150</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>31</x>
+                <y>420</y>
+                <width>30</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>intctl</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>21</x>
+                <y>360</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>intvec2</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>41</x>
+                <y>300</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>rzi2</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_4</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>181</x>
+                <y>30</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>rc0</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbPcfetch</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>150</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbMpectl</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>30</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>sizePolicy</name>
+            <sizepolicy>
+                <hsizetype>0</hsizetype>
+                <vsizetype>0</vsizetype>
+            </sizepolicy>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_4_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>660</x>
+                <y>60</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r17</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_2_3_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>661</x>
+                <y>240</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r23</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR19</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>120</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR17</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>60</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_3_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>520</x>
+                <y>420</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r13</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR12</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>390</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_4_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>150</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r4</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3_2_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>270</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r8</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_4_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>351</x>
+                <y>60</y>
+                <width>50</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>dabreak</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbMdmactl</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>150</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>180</x>
+                <y>420</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>clutbase</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbUvctl</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>360</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbIntvec1</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>330</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR25</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>300</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR24</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>270</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR29</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>420</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR6</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>210</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR10</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>330</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR11</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>360</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>120</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbComminfo</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>210</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbCommrecv3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>480</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3_2_2_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>340</x>
+                <y>450</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>commrecv2</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbOdmacptr</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>120</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>41</x>
+                <y>240</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>rz</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbPcexec</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>210</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbCc</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>120</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3_2_2_4</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>340</x>
+                <y>360</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>commxmit3</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbSp</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>30</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbUvbase</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>330</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbInten2sel</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>480</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbRzi2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>300</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR18</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>90</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR22</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>210</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR20</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>150</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR0</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>30</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbCommxmit2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>330</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_4</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>201</x>
+                <y>150</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>xyctl</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbRy</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>120</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_4</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>201</x>
+                <y>120</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>ry</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>31</x>
+                <y>390</y>
+                <width>30</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>intsrc</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbRc1</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>60</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>1</x>
+                <y>90</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>excephalten</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR26</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>330</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR21</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>180</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_4_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>120</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r3</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_2_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>480</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r15</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3_2_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>340</x>
+                <y>420</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>commrecv1</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbLinpixctl</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>390</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_4</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>201</x>
+                <y>60</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>rc1</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>21</x>
+                <y>330</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>intvec1</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbRc0</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>30</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbRzi1</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>270</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbExcephalten</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>90</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_3_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>660</x>
+                <y>420</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r29</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbCommxmit3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>360</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3_2_2_5</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>340</x>
+                <y>390</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>commrecv0</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_4_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>361</x>
+                <y>30</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>sp</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbCommrecv1</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>420</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbUvrange</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>300</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbRx</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>90</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbInten1</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>450</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3_2_2_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>340</x>
+                <y>330</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>commxmit2</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbCommctl</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>240</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>181</x>
+                <y>390</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>linpixctl</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbMdmacptr</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>180</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>340</x>
+                <y>300</y>
+                <width>60</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>commxmit1</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>191</x>
+                <y>480</y>
+                <width>30</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>acshift</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_2_3_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>240</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r7</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_3_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>521</x>
+                <y>390</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r12</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR1</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>60</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_4_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>520</x>
+                <y>60</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r1</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_4_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>351</x>
+                <y>210</y>
+                <width>50</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>comminfo</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_4_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>351</x>
+                <y>120</y>
+                <width>50</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>odmacptr</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbCommrecv2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>450</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbCommrecv0</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>410</x>
+                <y>390</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>21</x>
+                <y>150</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>pcfetch</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbIntctl</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>420</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR30</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>450</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>11</x>
+                <y>60</y>
+                <width>50</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>excepsrc</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_3_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>661</x>
+                <y>450</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r30</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_4_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>661</x>
+                <y>150</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r20</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR15</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>480</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_2_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>361</x>
+                <y>240</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>commctl</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbClutbase</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>420</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>41</x>
+                <y>270</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>rzi1</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>11</x>
+                <y>480</y>
+                <width>50</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>inten2sel</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_4_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>660</x>
+                <y>30</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r16</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_4_3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>661</x>
+                <y>210</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r22</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbR27</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>690</x>
+                <y>360</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_4_3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>520</x>
+                <y>30</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r0</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_4</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>181</x>
+                <y>210</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>xybase</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbAcshift</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>230</x>
+                <y>480</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>20</x>
+                <y>520</y>
+                <width>40</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>memory</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tbIntsrc</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>390</y>
+                <width>100</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_2_2_2_2_2_2_2_2_2_2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>660</x>
+                <y>480</y>
+                <width>20</width>
+                <height>20</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>r31</string>
+        </property>
+        <property stdset="1">
+            <name>alignment</name>
+            <set>AlignVCenter|AlignRight</set>
+        </property>
+        <property>
+            <name>hAlign</name>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_5</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>600</x>
+                <y>520</y>
+                <width>120</width>
+                <height>16</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>Memory Bank Select</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QComboBox</class>
+        <item>
+            <property>
+                <name>text</name>
+                <string>MPE Local Memory</string>
+            </property>
+        </item>
+        <item>
+            <property>
+                <name>text</name>
+                <string>Main Bus RAM</string>
+            </property>
+        </item>
+        <item>
+            <property>
+                <name>text</name>
+                <string>System Bus RAM</string>
+            </property>
+        </item>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>ddlbSelectMemoryBank</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>600</x>
+                <y>540</y>
+                <width>120</width>
+                <height>20</height>
+            </rect>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel1_5_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>600</x>
+                <y>680</y>
+                <width>110</width>
+                <height>16</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>Memory Page Control</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QSpinBox</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>sbMemoryPageLowerNibble</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>650</x>
+                <y>710</y>
+                <width>30</width>
+                <height>40</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>wrapping</name>
+            <bool>true</bool>
+        </property>
+        <property stdset="1">
+            <name>buttonSymbols</name>
+            <enum>UpDownArrows</enum>
+        </property>
+        <property stdset="1">
+            <name>maxValue</name>
+            <number>15</number>
+        </property>
+    </widget>
+    <widget>
+        <class>QSpinBox</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>sbMemoryPageUpperNibble</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>610</x>
+                <y>710</y>
+                <width>30</width>
+                <height>40</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>wrapping</name>
+            <bool>true</bool>
+        </property>
+        <property stdset="1">
+            <name>buttonSymbols</name>
+            <enum>UpDownArrows</enum>
+        </property>
+        <property stdset="1">
+            <name>maxValue</name>
+            <number>7</number>
+        </property>
+    </widget>
+    <widget>
+        <class>QTextView</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>tvMemory</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>70</x>
+                <y>520</y>
+                <width>520</width>
+                <height>230</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>font</name>
+            <font>
+                <family>Fixedsys</family>
+            </font>
+        </property>
+        <property stdset="1">
+            <name>lineWidth</name>
+            <number>2</number>
+        </property>
+        <property stdset="1">
+            <name>vScrollBarMode</name>
+            <enum>Auto</enum>
+        </property>
+        <property stdset="1">
+            <name>hScrollBarMode</name>
+            <enum>Auto</enum>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string></string>
+        </property>
+        <property stdset="1">
+            <name>textFormat</name>
+            <enum>PlainText</enum>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>sbMemoryPageLowerNibble</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>RegisterWindow</receiver>
+        <slot>OnMemoryPageChange(int)</slot>
+    </connection>
+    <connection>
+        <sender>ddlbSelectMemoryBank</sender>
+        <signal>activated(int)</signal>
+        <receiver>RegisterWindow</receiver>
+        <slot>OnMemoryBankSelect(int)</slot>
+    </connection>
+    <connection>
+        <sender>sbMemoryPageUpperNibble</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>RegisterWindow</receiver>
+        <slot>OnMemoryPageChange(int)</slot>
+    </connection>
+    <slot access="public">OnMemoryBankSelect(int)</slot>
+    <slot access="public">OnMemoryPageChange(int)</slot>
+</connections>
+</UI>

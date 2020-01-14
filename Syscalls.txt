@@ -1,0 +1,79 @@
+Syscalls
+========
+
+The Syscall mechanism is a new feature of Nuance that allows extension of the Aries instruction set in a manner that is (hopefully) innocuous on a real Aries processor.  The syscall interface is activated by a write of the configa register.  On the real hardware, the configa register is read-only.  This means that programs taking advantage of the syscall interface do not require modification to run properly on the real hardware provided that the Aries does not crash or misbehave when attempting to write to a read-only register.
+
+The value written to the configa register specifies the syscall routine to be executed.  Parameters to the syscall routine are passed in standard fashion through the scalar registers r0-r11. The value takes the following form:
+
+Bits [31:24]: Category
+Bits [23:0]: Function
+
+The currently defined categories are:
+0x00: Compiler Hints
+0x01: Interrupts
+
+The currently defined functions are:
+
+(Compiler Hints)
+
+[0x00:0x01]: Set Invariant Region
+[0x00:0x02]: Clear Invariant Region
+
+(Interrupts)
+
+[0x00:0x00]: Wait For interrupt
+[0x00:0x01]: Wait For Comm Packet
+
+Compiler Hints
+==============
+
+Set Invariant Region [0x00:0x01]
+--------------------------------
+r0: region start 
+r1: region end
+
+This function is used to inform the compiler of invariant memory regions.  The contents of a invariant memory regions must remain constant.  The compiler can use this information to replace memory load instructions with move immediate instructions that are much faster to execute.
+
+Clear Invariant Region [0x00:0x02]
+--------------------------------
+r0: region start 
+r1: region end
+
+This function is used to inform the compiler that a memory region is no longer considered invariant.
+
+Interrupts
+==========
+
+Wait for interrupt [0x01:0x00]
+------------------------------
+r0: interrupt mask
+
+This function halts the processor until one of the specified interrupts occurs.  This function is meant to be used to allow
+programs using CommRecv handlers to sleep while waiting for slave MPEs to finish tasks rather than entering a spin-loop.  Programs running on MPE3 that do not use CommRecv interrupt handlers do not and should not call this function as the BIOS routines use the WaitForCommPacket syscall function in a fashion transparent to the user code.  This function should be used as follows:
+
+1) Disable level 1 and level 2 interrupts (hardware mask)
+2) Check condition variable to see if the processor is still waiting for slave MPEs
+3a) If condition variable matches finished state, enable interrupts and skip to (4).
+3b) If condition variable does not match finished state, set r0 to inten1 | (1 << inten2sel)
+3c) Call WaitForInterrupt syscall
+3d) Branch back to (1) to see if condition variable matches finished state
+4) Exit loop
+
+Be aware that this function clears the hardware interrupt masks when executed.  It is recommended that this function be called only when both hardware masks are clear to guarantee expected behavior. 
+
+The benefit of this function is that it eliminates the need for the emulator to emulate processor cycles in which MPE3 is doing no useful work.  Each iteration through the dispatch loop can take hundreds of cycles in the best case and on a single processor system, this syscall can greatly improve emulator performance.
+ 
+Wait for comm packet [0x01:0x01]
+------------------------------
+
+This function halts the processor until a comm packet arrives.  It is meant to be called by the minibios and slave MPEs that access the comm registers directly.  The function will automatically detect the environment from which it is called (minibios, slave MPE or BIOS) and act accordingly.  If a comm packet is already available, the function will return immediately.  The function should be used as follows:
+
+1) Call WaitForCommPacket syscall
+2) Check commctl register to see if commrecv buffer is full
+3) If commrecv buffer is not full, branch back to (1)
+4) Exit loop
+
+Be aware that this function clears the hardware interrupt masks when executed.  It is recommended that this function be called only when both hardware masks are clear to guarantee expected behavior.  When the processor is put to sleep, the processor will
+be woken upon any interrupt source seen using the mask (inten1 | (1 << inten2sel)).  This function should not be called explicitly by user code running on the BIOS or minibios MPEs.  The minibios and BIOS comm routines already take advantage of this function.
+
+The benefit of this function is that it eliminates the need for the emulator to emulate processor cycles in which MPEs are waiting for comm packets to arrive and doing no useful work.  Each iteration through the dispatch loop can take hundreds of cycles in the best case and on a single processor system, this syscall can greatly improve emulator performance.

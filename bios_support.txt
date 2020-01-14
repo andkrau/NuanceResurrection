@@ -1,0 +1,90 @@
+BIOS Support:
+
+Not all BIOS routines are implemented.  The routines which are implemented 
+are listed below:
+
+Implemented BIOS routines
+=========================
+_AudioMute
+_AudioReset
+_AudioQueryChannelMode
+_AudioQuerySampleRates
+_AudioSetChannelMode
+_AudioSetDMABuffer
+_AudioSetSampleRate
+_BiosInit
+_BiosExit
+_BiosGetInfo
+_comm_query
+_comm_recv
+_CommSend
+_CommSendDirect
+_CommSendInfo
+_CommRecvQueryInfo
+_ControllerInitialize
+_DeviceDetect
+_DMABiLinear
+_DMALinear
+_Dma_do
+_Dma_wait
+_FileOpen
+_FileClose
+_FileLSeek
+_FileRead
+_FileStat
+_FileWrite
+_IntGetVector
+_IntSetVector
+_MediaClose
+_MediaGetDevicesAvailable
+_MediaGetInfo
+_MediaInitMPE
+_MediaOpen
+_MediaRead
+_MediaShutdownMPE
+_MediaWrite
+_MemAlloc
+_MemFree
+_MemInit
+_MemLocalScratch
+_MPEAlloc
+_MPEAllocSpecific
+_MPEFree
+_MPELoad
+_MPERun
+_MPERunThread
+_MPEsAvailable
+_MPEReadRegister
+_MPEStatus
+_MPEStop
+_MPEWait
+_MPEWriteRegister
+_PatchJumpTable
+_SetDefaultColor
+_SetISRExitHook
+_SpinWait
+_TimeElapsed
+_TimeOfDay
+_TimeToSleep 
+_TimerInit
+_VidChangeBase
+_VidChangeScroll
+_VidConfig
+_VidQueryConfig
+_VidSetCLUTRange
+_VidSetup
+_VidSync
+=========================
+
+The _serial_delay, _serial_read, _serial_write, _serial_write_direct and
+_serial_write_cmd BIOS routines will never be implemented.  Without a
+physical implementation of the NUON high speed serial bus, there is no
+reason to implement these calls.
+
+The filesystem routines (e.g. FileOpen) only support regular files.  There
+is no support for directory files, symbolic links or hard links.  Note that
+the development system does not differentiate between text and binary file
+modes.  This behavior is duplicated in the emulator such that files are
+always opened using the O_BINARY access mode even if the O_TEXT flag is
+specified.  File handles returned by the filesystem routines are not
+compatible with the media routines.

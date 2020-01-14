@@ -1,0 +1,41 @@
+f0000000	mv_s #$2030000a,r0
+f0000006	jmp (r0),nop
+
+f000000a	st_s #$0000002f,rc0
+;R0 = DMAFlags (READ, Length = 32 scalars)
+f000000e	mv_s #$00202000,r0
+;R1 = Base address ($F0000400)
+f0000014	mv_s #$f0000400,r1
+;R2 = Internal address ($20300880)
+f000001a	mv_s #$20300880,r2
+f0000020	mv_s #$20100000,r3
+
+
+f0000026	ld_s odmactl,r4
+f000002a	nop
+f000002c	bits #$00000004,>>#0,r4
+f0000030	lbra ne,#$f0000026,nop
+
+;Store DMA command words to Mem[$20100000]
+f0000034	st_v v0,(r3)
+f0000038	st_s r3,odmacptr
+f000003c	addr #$00000000,rx
+dec rc0
+f000003e	bra c0ne,#$f0000026
+;Increment internal address pointer by $80
+f0000040	add #$00000080,r2
+;Increment base address pointer by $80
+f0000044	add #$00000080,r1
+
+f0000048	ld_s odmactl,r4
+f000004c	nop
+f000004e	bits #$00000004,>>#0,r4
+f0000052	lbra ne,#$f0000048,nop
+
+f0000056	jmp #$20300c80
+f000005a	nop
+f000005c	nop
+
+f000005e	cmp #$00000001,r0
+
+

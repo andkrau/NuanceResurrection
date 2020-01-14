@@ -1,0 +1,169 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "NuanceRes.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "NuanceRes.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_APPICON             ICON                    "Nuance.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CONTROL_PANEL DIALOGEX 100, 100, 468, 270
+STYLE DS_SETFONT | DS_NOIDLEMSG | DS_3DLOOK | DS_FIXEDSYS | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_NOPARENTNOTIFY | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE | WS_EX_APPWINDOW
+CAPTION "Nuance Control Panel"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         126,IDC_MPE0_LED,"Static",SS_BITMAP | SS_NOTIFY | WS_TABSTOP,5,10,19,16
+    CONTROL         126,IDC_MPE1_LED,"Static",SS_BITMAP | SS_NOTIFY | WS_TABSTOP,5,26,19,16
+    CONTROL         126,IDC_MPE2_LED,"Static",SS_BITMAP | SS_NOTIFY | WS_TABSTOP,5,42,19,16
+    CONTROL         126,IDC_MPE3_LED,"Static",SS_BITMAP | SS_NOTIFY | WS_TABSTOP,5,57,19,16
+    LTEXT           "mpe0:",IDC_LABEL_MPE0,32,15,21,8,SS_NOTIFY | WS_TABSTOP
+    LTEXT           "mpe1:",IDC_LABEL_MPE1,32,31,21,8,SS_NOTIFY | WS_TABSTOP
+    LTEXT           "mpe2:",IDC_LABEL_MPE2,32,47,21,8,SS_NOTIFY | WS_TABSTOP
+    LTEXT           "mpe3:",IDC_LABEL_MPE3,32,62,21,8,SS_NOTIFY | WS_TABSTOP
+    LTEXT           "$80010000",IDC_MPE0_PCEXEC,56,15,37,8
+    LTEXT           "$80010000",IDC_MPE1_PCEXEC,56,31,37,8
+    LTEXT           "$80010000",IDC_MPE3_PCEXEC,56,62,37,8
+    LTEXT           "$80010000",IDC_MPE2_PCEXEC,56,47,37,8
+    CONTROL         "",RE_TERM_DISPLAY,"RichEdit20A",ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_NOHIDESEL | ES_READONLY | WS_BORDER | WS_VSCROLL | WS_HSCROLL,122,11,317,219
+    EDITTEXT        EB_TERM_INPUT,124,239,315,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Reset",IDC_CB_RESET,18,225,67,29
+    PUSHBUTTON      "Run",IDC_CB_RUN,18,160,67,29
+    PUSHBUTTON      "Stop",IDC_CB_STOP,18,193,67,29
+    PUSHBUTTON      "Load File",IDC_CB_LOAD_FILE,18,94,67,29
+    PUSHBUTTON      "Single Step",IDC_CB_SINGLE_STEP,18,126,67,29
+END
+
+IDD_SPLASH_SCREEN DIALOGEX 0, 0, 253, 95
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_BORDER
+EXSTYLE WS_EX_CONTROLPARENT | WS_EX_APPWINDOW
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         116,IDC_TB_ADDRESS,"Static",SS_BITMAP | SS_NOTIFY | WS_GROUP,6,7,235,84
+END
+
+IDD_STATUS_DIALOG DIALOGEX 0, 0, 395, 316
+STYLE DS_SETFONT | DS_NOIDLEMSG | DS_FIXEDSYS | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
+EXSTYLE WS_EX_STATICEDGE | WS_EX_APPWINDOW
+CAPTION "Nuance Status Window"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Comm Status",IDC_COMM_STATUS,25,239,67,35
+    PUSHBUTTON      "Display Status",IDC_DISPLAY_STATUS,114,239,65,35,BS_CENTER | BS_MULTILINE
+    PUSHBUTTON      "MPE Status",IDC_MPE_STATUS,201,239,70,35
+    CONTROL         "",RE_STATUS_DISPLAY,"RichEdit20A",ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_BORDER | WS_TABSTOP,25,16,332,203
+    PUSHBUTTON      "Dump MPEs",IDC_DUMP_MPES,293,239,70,35
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_CONTROL_PANEL, DIALOG
+    BEGIN
+        RIGHTMARGIN, 463
+        TOPMARGIN, 2
+        BOTTOMMARGIN, 263
+    END
+
+    IDD_SPLASH_SCREEN, DIALOG
+    BEGIN
+        LEFTMARGIN, 6
+        RIGHTMARGIN, 241
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 91
+    END
+
+    IDD_STATUS_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 15
+        RIGHTMARGIN, 388
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 309
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_NUANCE_LOGO         BITMAP                  "NuanceLogo.bmp"
+IDB_LED_ON              BITMAP                  "led_on.bmp"
+IDB_LED_OFF             BITMAP                  "led_off.bmp"
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

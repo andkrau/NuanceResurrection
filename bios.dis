@@ -1,0 +1,416 @@
+80760080:    mv_s r1,r5
+             copy r0,r4
+80760084:    mv_s r2,r1
+             bra $8076008C,nop
+8076008A:    sub r5,r5
+8076008C:    mv_s r1,r3
+             copy r0,r4
+80760090:    ld_s (r3),r0
+             add #$00000004,r3
+80760094:    ld_s (r3),r1
+             add #$00000004,r3
+80760098:    ld_s (r3),r2
+             add #$00000004,r3
+8076009C:    ld_s (r3),r3
+8076009E:    nop
+807600A0:    ld_s commctl,r6
+807600A4:    nop
+807600A6:    btst #15,r6
+807600A8:    bra ne,$807600A0,nop
+807600AC:    st_s r5,comminfo
+             bits #7,>>#0,r4
+807600B4:    st_s r4,commctl
+807600B8:    st_v v0,commxmit
+807600BC:    ld_s commctl,r6
+807600C0:    nop
+807600C2:    btst #14,r6
+807600C4:    bra ne,$807600AC,nop
+             btst #5,r6
+807600CA:    bra ne,$807600AC,nop
+             btst #15,r6
+807600D0:    rts eq,nop
+807600D2:    bra $807600BC,nop
+807600D6:    mv_s #$807FFCE8,r0
+             copy r0,r2
+807600DE:    ld_s (r0),r0
+807600E0:    nop
+807600E2:    sub #$00000001,r0
+807600E4:    rts mi,nop
+807600E6:    mv_s #$807FFCE4,r0
+807600EC:    mv_s #$807FFCD0,r3
+807600F2:    ld_s (r0),r0
+807600F4:    ld_v (r3),v1
+807600F8:    st_s r0,(r2)
+807600FA:    mv_s #$807FFCE8,r2
+             sub r0,r0
+80760102:    mv_s #$807FFCE0,r3
+80760108:    ld_s (r3),r3
+8076010A:    st_s r4,(r1)
+             add #$00000004,r1
+8076010E:    st_s r5,(r1)
+             add #$00000004,r1
+80760112:    st_s r6,(r1)
+             add #$00000004,r1
+80760116:    st_s r7,(r1)
+80760118:    st_s r0,(r2)
+             copy r3,r0
+8076011C:    rts nop
+8076011E:    ld_s rz,r29
+80760120:    sub #$00000010,r31
+80760122:    st_v v7,(r31)
+80760126:    mv_s r0,r28
+80760128:    mv_s r1,r30
+8076012A:    jsr $807600D6,nop
+80760132:    cmp #$FFFFFFFF,r0
+80760138:    bra ne,$80760144,nop
+8076013C:    mv_s r28,r0
+8076013E:    mv_s r30,r1
+80760140:    bra $8076012A,nop
+80760144:    ld_v (r31),v7
+80760148:    nop
+8076014A:    st_s r29,rz
+8076014C:    add #$00000010,r31
+8076014E:    rts nop
+80760150:    push v7,rz
+80760152:    st_s #$01000001,configa
+8076015A:    mv_s r0,r28
+8076015C:    mv_s r1,r30
+8076015E:    jsr $807600D6,nop
+80760166:    cmp #$FFFFFFFF,r0
+8076016C:    mv_s r28,r0
+8076016E:    mv_s r30,r1
+80760170:    bra eq,$80760152,nop
+80760174:    pop v7,rz
+80760176:    nop
+80760178:    rts nop
+8076017A:    mv_s #$807FFCE8,r1
+80760180:    mv_s #$807FFCD0,r5
+80760186:    ld_s (r1),r0
+80760188:    nop
+8076018A:    cmp #$00000000,r0
+8076018C:    bra ne,$8076019C,nop
+80760190:    st_s #$01000001,configa
+80760198:    bra $80760186,nop
+8076019C:    eor r2,r2
+8076019E:    st_s r2,(r1)
+807601A0:    ld_v (r5),v0
+             add #$00000010,r5
+807601A6:    ld_s (r5),r4
+             add #$00000004,r5
+807601AA:    ld_s (r5),r5
+807601AC:    nop
+807601AE:    rts nop
+807601B0:    mv_s #$807FFCE8,r0
+807601B6:    ld_s (r0),r0
+807601B8:    nop
+807601BA:    sub #$00000001,r0
+807601BC:    rts nop
+807601BE:    ld_s rz,r29
+807601C0:    sub #$00000010,r31
+807601C2:    st_v v7,(r31)
+807601C6:    mv_s r2,r1
+             copy r1,r2
+807601CA:    mv_s #$807FFCA0,r3
+807601D0:    st_s r0,(r3)
+807601D2:    jsr $80760080,nop
+807601DA:    mv_s #$807FFCA0,r3
+807601E0:    ld_s (r3),r3
+807601E2:    nop
+807601E4:    btst #31,r3
+807601E6:    bra eq,$807601DA,nop
+807601EA:    mv_s #$807FFCB0,r3
+807601F0:    ld_v (r3),v1
+807601F4:    nop
+807601F6:    st_v v1,(r1)
+807601FA:    ld_v (r31),v7
+807601FE:    nop
+80760200:    st_s r29,rz
+80760202:    add #$00000010,r31
+80760204:    rts nop
+80760206:    mv_s #$807FFDC0,r3
+             copy r0,r4
+8076020E:    ld_s (r3),r0
+80760210:    cmp #$FFFFFFFF,r4
+80760216:    rts lt,nop
+80760218:    bra eq,$8076025A,nop
+8076021C:    mv_s #$807FFDC0,r3
+             copy r0,r1
+80760224:    ld_s (r3),r0
+             cmp #$00000000,r4
+80760228:    bra ne,$80760246,nop
+8076022C:    mv_s #$807FFDC4,r1
+80760232:    mv_s #$807FFDC0,r3
+80760238:    ld_s (r1),r1
+8076023A:    nop
+8076023C:    ld_s (r3),r0
+             cmp r1,r0
+80760240:    rts ne,nop
+80760242:    bra $8076022C,nop
+80760246:    mv_s #$807FFDC0,r2
+8076024C:    ld_s (r2),r2
+8076024E:    nop
+80760250:    sub r1,r2,r3
+80760254:    cmp r3,r4
+80760256:    bra gt,$80760246,nop
+8076025A:    mv_s #$807FFDC0,r0
+80760260:    ld_s (r0),r0
+80760262:    rts nop
+80760264:    ld_s rz,r29
+80760266:    sub #$00000010,r31
+80760268:    st_v v7,(r31)
+8076026C:    jsr $80000358
+80760274:    mv_s #$20500000,r1
+             copy r0,r4
+8076027C:    nop
+8076027E:    btst #1,r0
+80760280:    bra ne,$8076026C,nop
+             mv_s r4,r0
+80760286:    mv_s #$20500030,r1
+8076028C:    jsr $80000358,nop
+80760294:    mv_s r0,r2
+             copy r4,r0
+80760298:    mv_s #$20500010,r1
+8076029E:    jsr $80000358,nop
+807602A6:    mv_s #$FFFFFFFF,r0
+             and r1,r2
+807602AA:    bra ne,$807602BE,nop
+807602AE:    mv_s #$20500300,r1
+             copy r4,r0
+807602B6:    jsr $80000358,nop
+807602BE:    ld_v (r31),v7
+807602C2:    nop
+807602C4:    st_s r29,rz
+807602C6:    rts 
+807602C8:    add #$00000010,r31
+807602CA:    nop
+807602CC:    ld_s rz,r29
+807602CE:    sub #$00000010,r31
+807602D0:    st_v v7,(r31)
+807602D4:    mv_s r0,r28
+807602D6:    mv_s #$00000000,r0
+807602D8:    mv_s #$00000000,r1
+807602DA:    jsr $80000070,nop
+807602E2:    mv_s #$00000000,r0
+             copy r0,r30
+807602E6:    jsr $80000070,nop
+807602EE:    sub r30,r0,r1
+807602F2:    cmp r28,r1
+807602F4:    mv_s #$00000000,r0
+807602F6:    mv_s #$00000000,r1
+807602F8:    bra lt,$807602E6,nop
+807602FC:    ld_v (r31),v7
+80760300:    nop
+80760302:    st_s r29,rz
+80760304:    add #$00000010,r31
+80760306:    rts nop
+80760308:    push v3
+8076030A:    mv_s r1,r0
+8076030C:    mv_s r2,r12
+8076030E:    mv_s r0,r4
+80760310:    mv_s #$000000C2,r5
+80760314:    jsr $807600A0,nop
+8076031C:    st_s r12,rz
+8076031E:    pop v3
+80760320:    rts nop
+80760322:    rts 
+80760324:    st_s #$00010000,intclr
+8076032C:    rts 
+8076032E:    st_s #$00000002,intclr
+80760332:    rts 
+80760334:    st_s #$00000001,intclr
+80760338:    rts nop
+8076033A:    mv_s #$807FFCE0,r3
+80760340:    st_s r0,(r3)
+80760342:    mv_s #$807FFCE4,r3
+80760348:    st_s r1,(r3)
+8076034A:    mv_s #$807FFCD0,r3
+80760350:    st_v v1,(r3)
+80760354:    mv_s #$807FFCE8,r3
+8076035A:    mv_s #$00000001,r2
+8076035C:    st_s r2,(r3)
+8076035E:    mv_s #$FFFFFFFF,r0
+80760360:    rts nop
+80760362:    mv_s #$807FFE4C,r0
+80760368:    ld_s (r0),r0
+8076036A:    st_s #$80000000,intclr
+80760372:    or r0,r0
+80760374:    jmp ne,(r0),nop
+80760378:    rts nop
+8076037A:    push v0
+8076037C:    push v1
+8076037E:    push v2
+80760380:    push v3
+80760382:    push v4
+80760384:    push v5
+80760386:    push r29,cc,rzi1,rz
+80760388:    ld_s rc0,r17
+8076038A:    ld_s intctl,r8
+8076038C:    ld_s rc1,r18
+8076038E:    btst #3,r8
+80760390:    bra ne,$80760470,nop
+80760394:    ld_s commctl,r0
+80760398:    nop
+8076039A:    btst #15,r0
+8076039C:    bra ne,$80760394,nop
+807603A0:    ld_s commctl,r19
+807603A4:    bits #0,>>#14,r0
+807603A8:    ld_s comminfo,r20
+807603AC:    ld_s acshift,r21
+807603B0:    ld_s sp,r22
+807603B4:    or r0,>>#-5,r19
+807603B8:    cmp #$807FDC80,r22
+807603BE:    bra ge,$807603CA,nop
+807603C2:    st_s #$807FFC80,sp
+807603CA:    mv_s #$8000080C,r0
+807603D0:    ld_s (r0),r1
+807603D2:    nop
+807603D4:    add #$00000001,r1
+807603D6:    st_s r1,(r0)
+807603D8:    ld_s inten1,r14
+807603DA:    ld_s intsrc,r15
+807603DC:    nop
+807603DE:    and r14,r15
+807603E0:    mv_s #$807FFDCC,r1
+807603E6:    btst #31,r15
+807603E8:    bra eq,$807603F8,nop
+             and #$FFFFFFFE,<>#1,r15
+807603F0:    ld_s (r1),r1
+807603F2:    nop
+807603F4:    jsr (r1),nop
+807603F8:    msb r15,r0
+             mv_s #$807FFDD0,r1
+80760402:    sub #$00000001,r0
+80760404:    add r0,>>#-2,r1
+80760408:    neg r0
+8076040A:    or #$00000001,>>r#0,r15
+8076040E:    cmp #$00000001,r0
+80760410:    bra ne,$807603F0,nop
+80760414:    ld_s intsrc,r0
+80760416:    ld_s inten1,r15
+80760418:    nop
+8076041A:    and r0,r15
+8076041C:    bra ne,$807603E0,nop
+80760420:    ld_s commctl,r0
+80760424:    nop
+80760426:    btst #15,r0
+80760428:    bra ne,$80760420,nop
+8076042C:    st_s #$00000004,intctl
+80760430:    mv_s #$807FFC90,r0
+80760436:    mv_s #$8000080C,r1
+8076043C:    ld_s (r0),r0
+8076043E:    ld_s (r1),r1
+80760440:    nop
+80760442:    cmp #$00000001,r1
+80760444:    bra gt,$8076044E,nop
+80760448:    or r0,r0
+8076044A:    jsr ne,(r0),nop
+8076044E:    mv_s #$8000080C,r0
+80760454:    ld_s (r0),r1
+80760456:    nop
+80760458:    sub #$00000001,r1
+8076045A:    st_s r1,(r0)
+8076045C:    st_s r17,rc0
+8076045E:    st_s r18,rc1
+80760460:    st_s r19,commctl
+80760464:    st_s r20,comminfo
+80760468:    st_s r21,acshift
+8076046C:    st_s r22,sp
+80760470:    pop r29,cc,rzi1,rz
+80760472:    pop v5
+80760474:    pop v4
+80760476:    pop v3
+80760478:    pop v2
+8076047A:    pop v1
+8076047C:    pop v0
+8076047E:    rti rzi1,nop
+
+;level2 handler
+80760480:    push v7
+80760482:    push v4
+80760484:    push v3
+80760486:    push v2
+80760488:    push v1
+8076048A:    push v0
+8076048C:    ld_s rc0,r13
+8076048E:    ld_s rc1,r14
+80760490:    push r29,cc,rzi2,rz
+80760492:    ld_s sp,r12
+80760496:    nop
+80760498:    cmp #$807FDC80,r12
+8076049E:    bra ge,$807604AA,nop
+807604A2:    st_s #$807FFC80,sp
+
+807604AA:    mv_s #$807FFCA0,r2
+807604B0:    ld_s commctl,r0
+807604B4:    ld_s comminfo,r1
+807604B8:    ld_s (r2),r2
+             btst #31,r0
+;if commctl.recvbufferfull is not set, branch to comm_error
+807604BC:    bra eq,$80760542,nop
+
+;clear commrecv interrupt before reading the commrecv register
+807604C0:    st_s #$00000010,intclr
+             bits #7,>>#16,r0
+807604C8:    bits #7,>>#16,r1
+;v1 = commrecv (clears commctl.recvbufferfull)
+807604CC:    ld_v commrecv,v1
+             cmp r0,r2
+807604D2:    bra eq,$8076052A,nop
+807604D6:    mv_s #$807FFDC8,r18
+807604DC:    ld_s (r18),r18
+807604DE:    nop
+807604E0:    asl #-2,r18,r19
+807604E4:    mv_s #$807FFE50,r19
+807604EA:    ld_s (r19),r16
+807604EC:    or r18,r18
+807604EE:    bra eq,$8076050A,nop
+
+`next_recv_handler
+;call next commrecv handler
+807604F2:    jsr (r16),nop
+807604F6:    add #$00000004,r19
+807604F8:    cmp #$FFFFFFFF,r0
+;if the commrecv handler returned -1, branch to level2_epilogue:
+807604FE:    bra eq,$80760512,nop
+             sub #$00000001,r18
+;if more commrecv handlers left, branch back to `next_recv_handler
+80760504:    bra ne,$807604F2,nop
+             ld_s (r19),r16
+
+;call default commrecv handler
+8076050A:    jsr $8076033A,nop
+
+level2_epilogue:
+80760512:    st_s r12,sp
+80760516:    st_s r13,rc0
+80760518:    st_s r14,rc1
+8076051A:    pop r29,cc,rzi2,rz
+8076051C:    pop v0
+8076051E:    pop v1
+80760520:    pop v2
+80760522:    pop v3
+80760524:    pop v4
+80760526:    pop v7
+80760528:    rti rzi2,nop
+
+8076052A:    mv_s #$807FFCB0,r2
+80760530:    st_v v1,(r2)
+80760534:    mv_s #$FFFFFFFF,r17
+80760536:    mv_s #$807FFCA0,r2
+8076053C:    st_s r17,(r2)
+;branch to level2_epilogue:
+8076053E:    bra $80760512,nop
+
+comm_error:
+80760542:    st_s #$F0025084,rx
+8076054A:    halt
+8076054C:    nop
+8076054E:    nop
+80760550:    bra $80760512,nop
+
+;riff_nullroutine:
+80760554:    rts nop
+
+riff_biosgetinfo:
+80760556:    mv_s #$80760000,r0
+8076055C:    rts nop

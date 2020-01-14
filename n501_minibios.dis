@@ -1,0 +1,515 @@
+;disable all level 1 interrupt sources
+20301A80:    st_s #$00000000,inten1
+;clear all interrupts
+20301A84:    st_s #$FFFFFFFF,intclr
+;v0 = commrecv (clear commrecv.recvbufferfull bit)
+20301A8C:    ld_v commrecv,v0
+
+;comm_c3_rzi1
+20301A90:    st_s #$20101BE0,sp
+20301A98:    st_s #$00000020,odmactl
+20301A9C:    st_s #$00000020,mdmactl
+;set up the level 1 interrupt handler
+20301AA0:    st_s #$20301FF4,intvec1
+20301AA8:    mv_s #$0000000C,r0
+20301AAA:    st_s r0,intclr
+;enable VLD DMA done interrupt (manual says MPE1 only, wtf?)
+20301AAC:    st_s r0,inten1set
+;enable halting on all exceptions
+20301AAE:    st_s #$FFFFFFFF,excephalten
+;enable software interrupt (so much for VLD)
+20301AB6:    st_s #$00000001,inten1set
+;set up level 2 handler and branch to mini_spinwait
+20301ABA:    st_s #$20301C1A,intvec2
+             bra minispinwait
+;select commrecv as level 2 interrupt source
+20301AC4:    st_s #$00000004,inten2sel
+;clear hw and sw masks for level 1 and level 2
+20301AC8:    st_s #$00000055,intctl
+
+comm_c4_rzi1:
+20301ACC:    st_s r27,(r26)
+
+minispinwait:
+20301ACE:    nop
+20301AD0:    bra $20301ACE
+20301AD2:    nop
+20301AD4:    nop
+
+comm_c0:
+20301AD6:    push v0,rz
+20301AD8:    mv_v v1,v2
+20301ADA:    add #$00000003,r10
+20301ADC:    lsr #2,r10
+
+read_loop:
+20301ADE:    mv_s r9,r1
+20301AE0:    mv_s r8,r2
+20301AE2:    mv_s #$80000000,r3
+20301AE8:    mv_s r10,r0
+20301AEA:    cmp #$00000040,r10
+20301AEE:    bra le,$20301AF6,nop
+
+20301AF2:    mv_s #$00000040,r0
+
+20301AF6:    add r0,>>#-2,r9
+20301AFA:    jsr minidmalinearread
+20301AFE:    sub r0,r10
+20301B00:    add r0,>>#-2,r8
+20301B04:    cmp #$00000000,r10
+20301B06:    bra ne,$20301ADE,nop
+20301B0A:    pop v0,rz
+20301B0C:    nop
+
+20301B0E:    rts nop
+
+;comm_c2:
+20301B10:    rts 
+20301B12:    st_s r4,rzi1
+20301B14:    st_s #$FFFFFFFE,excephalten
+
+;exceptionhandler:
+20301B1C:    st_s #$00000001,intclr
+20301B20:    st_s #$00000001,excepclr
+
+;comm_c3:
+20301B24:    rts 
+20301B26:    st_s #$00000000,$20101C0C
+20301B2E:    st_s #comm_c3_rzi1,rzi1
+
+;comm_c4:
+20301B36:    st_s #$comm_c4_rzi1,rzi1
+20301B3E:    rts 
+20301B40:    mv_s r4,r26
+20301B42:    mv_s r5,r27
+
+;minidmalineardirect_wait:
+20301B44:    push v1
+20301B46:    mv_s r0,r4
+             sub r3,r3
+20301B4A:    or #$00000001,<>#1,r3
+20301B4E:    bra $20301B7C
+20301B50:    asl #16,r0
+20301B52:    or #$00000001,<>#5,r0
+20301B56:    asl #16,r0
+20301B58:    or #$00000001,<>#-13,r0
+20301B5C:    or r3,r0
+20301B5E:    bra $20301B7A
+20301B60:    sub r3,r3
+20301B62:    or #$00000001,<>#1,r3
+
+;minidmalinearread_wait:
+20301B66:    bra $20301B70
+;minidmalinearwrite_wait:
+20301B68:    sub r3,r3
+20301B6A:    or #$00000001,<>#1,r3
+;minidmalinearwrite:
+20301B6E:    bra minidmacommon
+
+;minidmalinearread:
+20301B70:    mv_s r0,r4
+20301B72:    asl #16,r0
+20301B74:    rts eq,nop
+20301B76:    or #$00000001,<>#-13,r0
+
+;minidmacommon:
+20301B7A:    push v1
+20301B7C:    ld_s mdmactl,r4
+20301B80:    ld_s odmactl,r5
+20301B84:    btst #4,r4
+20301B86:    bra ne,$20301B7C,nop
+             btst #4,r5
+20301B8C:    bra ne,$20301B7C,nop
+             btst #31,r1
+20301B92:    mv_s #$20500600,r5
+20301B98:    bra eq,$20301BA2,nop
+20301B9C:    mv_s #$20500500,r5
+20301BA2:    and #$00000001,r3,r4
+20301BA6:    asl #4,r4
+20301BA8:    add #$20101BE0,r4
+20301BAE:    st_v v0,(r4)
+20301BB2:    add #$00000010,r5
+20301BB4:    st_s r4,(r5)
+20301BB6:    sub #$00000010,r5
+20301BB8:    btst #31,r3
+20301BBA:    bra eq,$20301BCA,nop
+20301BBE:    ld_s (r5),r4
+20301BC0:    nop
+20301BC2:    bits #4,>>#0,r4
+20301BC6:    bra ne,$20301BBE,nop
+20301BCA:    rts nop
+             pop v1
+
+;miniwaitmdma:
+20301BCE:    bra $20301BBE
+20301BD0:    push v1
+20301BD2:    mv_s #$20500500,r5
+
+;miniwaitodma:
+20301BD8:    bra $20301BBE
+20301BDA:    push v1
+20301BDC:    mv_s #$20500600,r5
+
+;minilevel1handler:
+20301BE2:    ld_s rz,r13
+20301BE4:    push v1
+20301BE6:    ld_s intsrc,r15
+20301BE8:    ld_s inten1,r14
+20301BEA:    push v0
+20301BEC:    and r14,r15
+20301BEE:    btst #3,r15
+20301BF0:    jsr ne,$20301CA2,nop
+20301BF4:    btst #2,r15
+20301BF6:    jsr ne,$20301EF6,nop
+20301BFA:    ld_s $20101000,r1
+20301BFE:    btst #27,r15
+20301C00:    jsr ne,(r1),nop
+20301C04:    btst #0,r15
+20301C06:    jsr ne,#dmaclearexceptions,nop
+20301C0A:    pop v0
+20301C0C:    pop v1
+20301C0E:    st_s r13,rz
+20301C10:    pop v2
+20301C12:    st_s r12,cc
+             rti rzi1
+20301C16:    pop v3
+20301C18:    nop
+
+;Start of level 2 handler
+20301C1A:    push v0
+20301C1C:    push v1
+20301C1E:    push v2
+20301C20:    push r31,cc,rzi2,rz
+20301C22:    ld_s $20101C10,r31
+20301C26:    st_s #$20301C8E,rz
+20301C2E:    ld_s commctl,r0
+20301C32:    ld_s comminfo,r1
+20301C36:    btst #31,r0
+20301C38:    bra eq,$20301C9E,nop
+20301C3C:    bits #7,>>#16,r0
+             st_s #$00000010,intclr
+20301C44:    ld_v commrecv,v1
+             cmp #$0000004A,r0
+20301C4C:    bits #7,>>#16,r1
+             jmp eq,$20301E38,nop
+20301C54:    cmp #$00000003,r0
+20301C56:    bra ne,$20301C60
+             cmp #$000000D0,r1
+20301C5C:    jmp eq,$20301DF2,nop
+20301C60:    st_v v0,(r31)
+             add #$00000010,r31
+20301C66:    st_v v1,(r31)
+             add #$00000010,r31
+20301C6C:    ld_s $20101C14,r0
+             cmp #$20101DA0,r31
+20301C76:    bra lt,$20301C80,nop
+20301C7A:    mv_s #$20101C20,r31
+20301C80:    cmp r0,r31
+20301C82:    bra eq,$20301C9A,nop
+20301C86:    st_s r31,$20101C10
+20301C8A:    st_s #$00000008,intsrc
+20301C8E:    pop r31,cc,rzi2,rz
+20301C90:    pop v2
+20301C92:    pop v1
+             rti rzi2
+20301C96:    pop v0
+20301C98:    nop
+
+20301C9A:    st_s #$00000004,excepsrc
+;comm_exception:
+20301C9E:    st_s #$00000004,excepsrc
+
+;intsrc3_handler:
+20301CA2:    st_s #$00000008,intclr
+20301CA6:    push v3,rz
+20301CA8:    ld_v $20101C10,v2
+20301CAC:    st_s #$20301CA8,rz
+20301CB4:    cmp r9,r8
+20301CB6:    bra eq,$20301D52,nop
+20301CBA:    ld_v (r9),v0
+             add #$00000010,r9
+20301CC0:    ld_v (r9),v1
+             add #$00000010,r9
+20301CC6:    ld_s $20101C0C,r3
+             cmp #$20101DA0,r9
+20301CD0:    bra ne,$20301CDA,nop
+20301CD4:    mv_s #$20101C20,r9
+20301CDA:    st_s r9,$20101C14
+20301CDE:    cmp #$00000003,r0
+20301CE0:    bra ne,$20301D1C,nop
+20301CE4:    ld_s $20101004,r2
+20301CE8:    and #$000000F0,r1,r3
+20301CF0:    cmp #$000000A0,r3
+             ld_s $20101C0C,r3
+20301CF8:    jmp eq,(r2),nop
+             cmp #$000000C0,r1
+20301D00:    jmp eq,$20301AD6,nop
+             cmp #$000000C2,r1
+20301D08:    jmp eq,$20301B10,nop
+             cmp #$000000C3,r1
+20301D10:    jmp eq,$20301B24,nop
+             cmp #$000000C4,r1
+20301D18:    jmp eq,$20301B36,nop
+20301D1C:    cmp #$00000000,r3
+20301D1E:    jmp ne,(r3),nop
+20301D22:    add #$00000020,r10,r8
+20301D2A:    cmp #$20101E40,r8
+20301D30:    bra ne,$20301D3A,nop
+20301D34:    mv_s #$20101DA0,r8
+20301D3A:    cmp r8,r11
+20301D3C:    bra eq,$20301D4E,nop
+20301D40:    st_v v0,(r10)
+             add #$00000010,r10
+20301D46:    st_v v1,(r10)
+20301D4A:    st_s r8,$20101C18
+20301D4E:    bra $20301CA8,nop
+20301D52:    pop v3,rz
+20301D54:    nop
+20301D56:    rts nop
+
+;Start of minicommsend
+20301D58:    push v2
+20301D5A:    ld_s commctl,r8
+20301D5E:    ld_s comminfo,r7
+20301D62:    btst #15,r8
+20301D64:    bra ne,$20301D5A,nop
+
+20301D68:    st_s r5,comminfo
+             copy r8,r10
+20301D6E:    st_s r4,commctl
+             bits #0,>>#14,r10
+20301D76:    st_v v0,commxmit
+             or r10,>>#-5,r8
+20301D7E:    ld_s commctl,r11
+20301D82:    nop
+20301D84:    btst #14,r11
+20301D86:    bra ne,$20301D68,nop
+             btst #5,r11
+20301D8C:    bra ne,$20301D68,nop
+             btst #15,r11
+20301D92:    bra ne,$20301D7E,nop
+20301D96:    st_s r8,commctl
+             rts 
+20301D9C:    pop v2
+20301D9E:    st_s r7,comminfo
+
+;Start of minicommrecv
+20301DA2:    bra $20301DB2
+20301DA4:    mv_s #$20301DB4,r6
+20301DAA:    nop
+
+20301DAC:    mv_s #$20301DE2,r6
+
+;commrecv_common
+20301DB2:    push v2
+20301DB4:    ld_v $20101C10,v2
+20301DB8:    nop
+20301DBA:    cmp r10,r11
+20301DBC:    jmp eq,(r6),nop
+             mv_s #$FFFFFFFF,r4
+20301DC2:    ld_v (r11),v1
+20301DC6:    add #$00000010,r11
+20301DC8:    ld_v (r11),v0
+20301DCC:    add #$00000010,r11
+20301DCE:    cmp #$20101E40,r11
+20301DD4:    bra ne,$20301DDE,nop
+20301DD8:    mv_s #$20101DA0,r11
+20301DDE:    st_s r11,$20101C1C
+20301DE2:    pop v2
+20301DE4:    rts nop
+
+;minicommhook
+20301DE6:    ld_s $20101C0C,r1
+20301DEA:    rts 
+20301DEC:    st_s r0,$20101C0C
+20301DF0:    copy r1,r0
+
+;comm_d0:
+20301DF2:    ld_s $20101FF0,r0
+20301DF6:    copy r5,r7
+20301DF8:    cmp #$00000000,r0
+20301DFA:    bra ne,$20301E22,nop
+20301DFE:    sub r5,r5
+20301E00:    st_v v1,$20101FC0
+20301E04:    mv_s #$20101E40,r0
+20301E0A:    st_s r0,$20101FE0
+             sub r0,r0
+20301E10:    st_s r0,$20101FE4
+             rts 
+20301E16:    st_s r0,$20101FE8
+20301E1A:    st_s #$0000000D,$20101FF0
+
+20301E22:    mv_s r4,r1
+20301E24:    mv_s #$00000009,r0
+20301E26:    st_s #$00000000,$20101FF0
+20301E2E:    jmp minicommsend
+20301E32:    mv_s #$00000003,r4
+20301E34:    mv_s #$000000D1,r5
+
+;cdihandler:
+20301E38:    push v3,rz
+             copy r1,r14
+20301E3C:    ld_s $20101FF0,r12
+             btst #7,r14
+20301E42:    bra ne,$20301E94,nop
+             ld_v $20101FE0,v2
+20301E4A:    btst #0,r12
+20301E4C:    bra eq,$20301E94,nop
+             mv_v v1,v0
+20301E52:    add r9,r8,r13
+20301E56:    st_v v0,(r13)
+             btst #5,r14
+20301E5C:    bra eq,$20301E86,nop
+             add #$00000010,r9
+20301E62:    btst #3,r12
+20301E64:    bra ne,$20301E86,nop
+20301E68:    btst #4,r14
+20301E6A:    bra ne,$20301EA0,nop
+20301E6E:    sub #$00000010,r9
+20301E70:    and #$0000000F,r14,r14
+20301E74:    add r14,r9
+20301E76:    jsr $20301EAC,nop
+20301E7A:    and #$00000002,r12,r10
+20301E7E:    bra $20301E4A
+20301E80:    add r14,r10
+20301E82:    or #$00000001,<>#-2,r12
+20301E86:    btst #4,r14
+20301E88:    bra ne,$20301EA0,nop
+20301E8C:    cmp #$000000B1,r9
+20301E90:    jsr ge,$20301EAC,nop
+20301E94:    st_s r12,$20101FF0
+20301E98:    pop v3,rz
+20301E9A:    st_v v2,$20101FE0
+20301E9E:    rts nop
+20301EA0:    mv_s #$00000007,r0
+20301EA2:    ld_s $20101FC0,r1
+20301EA6:    bra $20301E26
+20301EA8:    pop v3,rz
+20301EAA:    nop
+
+20301EAC:    ld_s intsrc,r0
+20301EAE:    nop
+20301EB0:    btst #2,r0
+20301EB2:    bra eq,$20301ED2,nop
+20301EB6:    st_s r12,$20101FF0
+20301EBA:    push v1
+20301EBC:    push v2
+20301EBE:    push v3,rz
+20301EC0:    jsr $20301EF6,nop
+20301EC4:    pop v3,rz
+20301EC6:    pop v2
+20301EC8:    ld_s $20101FF0,r12
+20301ECC:    pop v1
+20301ECE:    btst #0,r12
+20301ED0:    rts eq,nop
+20301ED2:    st_s r8,$20101FD4
+20301ED6:    st_s r9,$20101FD8
+20301EDA:    st_s r10,$20101FDC
+20301EDE:    st_s r12,$20101FD0
+20301EE2:    st_s #$00000004,intsrc
+20301EE6:    eor #$00000140,r8
+20301EEC:    mv_s #$00000000,r9
+20301EEE:    rts 
+20301EF0:    mv_s #$00000000,r10
+20301EF2:    and #$00000003,r12,r12
+
+;intsrc2_handler
+20301EF6:    st_s #$00000080,intctl
+20301EFA:    ld_v $20101FD0,v1
+20301EFE:    ld_v $20101FC0,v2
+20301F02:    st_s #$00000004,intclr
+             sub r7,r6,r3
+20301F0A:    st_s #$00000040,intctl
+             add r7,r5
+20301F10:    ld_s $20101FF0,r0
+             btst #2,r4
+20301F16:    bra eq,$20301F3A,nop
+20301F1A:    btst #0,r0
+20301F1C:    rts eq,nop
+             cmp #$00000000,r9
+20301F20:    bra ne,$20301F80,nop
+20301F24:    mv_s #$00000804,r9
+20301F2A:    ld_s (r5),r0
+20301F2C:    add #$0000000C,r5
+20301F2E:    bits #23,>>#0,r0
+20301F32:    cmp r8,r0
+20301F34:    bra ne,$20301F84,nop
+20301F38:    sub #$0000000C,r3
+20301F3A:    sub r3,r9
+20301F3C:    cmp #$00000004,r9
+20301F3E:    bra gt,$20301F46,nop
+20301F42:    sub #$00000004,r3
+20301F44:    add r9,r3
+20301F46:    cmp #$00000000,r3
+20301F48:    bra le,$20301F64,nop
+20301F4C:    push v1,rz
+20301F4E:    lsr #2,r3,r0
+20301F52:    mv_s r10,r1
+             add r3,r10
+20301F56:    jsr minidmalinearwrite
+20301F5A:    copy r5,r2
+20301F5C:    mv_s #$80000001,r3
+20301F62:    pop v1,rz
+20301F64:    st_v v2,$20101FC0
+20301F68:    cmp #$00000000,r9
+20301F6A:    rts gt,nop
+20301F6C:    mv_s r8,r1
+             add #$00000001,r8
+20301F70:    sub #$00000001,r11
+20301F72:    bra gt,$20301E2E
+20301F76:    mv_s #$00000000,r0
+20301F78:    st_v v2,$20101FC0
+20301F7C:    bra $20301E26,nop
+20301F80:    bra $20301E26
+20301F82:    mv_s #$00000001,r0
+20301F84:    copy r8,r1
+20301F86:    bra $20301E26
+20301F88:    mv_s #$00000002,r0
+20301F8A:    bra $20301E26
+20301F8C:    copy r8,r1
+20301F8E:    mv_s #$00000003,r0
+
+20301FC0:    mv_s #$FFFFFFFF,r0
+             rts nop
+20301FC4:    mv_s #$FFFFFFFF,r0
+             rts nop
+
+.section djumptab
+.origin $20301fc8
+
+;dma_jumptable
+;minidmalinearread
+20301FC8:    jmp $20301B70,nop
+;minidmalinearread_wait
+20301FCC:    jmp $20301B66,nop
+;minidmalinearwrite
+20301FD0:    jmp $20301B6E,nop
+;minidmalinearwrite_wait
+20301FD4:    jmp $20301B68,nop
+;miniwaitodma
+20301FD8:    jmp $20301BD8,nop
+;miniwaitmdma
+20301FDC:    jmp $20301BCE,nop
+
+.section jumptabX
+.origin $20301fe0
+
+;minibios_jumptable:
+;minicommhook
+20301FE0:    jmp $20301DE6,nop
+;minicommsend
+20301FE4:    jmp $20301D58,nop
+;minicommrecvquery
+20301FE8:    jmp $20301DAC,nop
+;minicommrecv
+20301FEC:    jmp $20301DA2,nop
+20301FF0:    mv_s #$00000005,r0
+             rts nop
+
+.origin $20301ff4
+minilevel1wrapper
+20301FF4:    push v3
+             jmp minilevel1handler
+20301FFA:    ld_s cc,r12
+20301FFC:    push v2
+20301FFE:    nop

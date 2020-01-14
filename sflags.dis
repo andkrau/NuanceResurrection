@@ -1,0 +1,193 @@
+80012bc6	ld_s rz,r29
+80012bc8	sub #$00000010,r31
+80012bca	st_v v7,(r31)
+80012bce	mv_s r31,r30
+	sub #$00000010,r31
+80012bd2	st_v v3,(r31)
+80012bd6	mv_s r0,r12
+80012bd8	add #$0000005c,r12,r10
+80012be0	ld_s (r10),r11
+80012be2	nop
+80012be4	cmp #$00000000,r11
+80012be6	bra ne,#$80012c00
+80012be8	add #$00000200,r12,r28
+80012bf0	add #$00000004,r28,r11
+80012bf4	jsr #$80012d2c,nop
+80012bfc	add #$00000004,r28,r11
+80012c00	add #$00000008,r28,r10
+80012c04	bra #$80012c24
+	ld_s (r11),r11
+80012c08	ld_s (r10),r9
+80012c0a	sub #$00000001,r11
+80012c0c	add #$0000000c,r9,r29
+80012c10	ld_s (r29),r10
+80012c12	nop
+80012c14	asr #$00000010,r10,r6
+80012c18	nop
+	lbra eq,#$80012c5c,nop
+	sub #$00000001,r11
+80012c20	add #$0000005c,r9
+80012c24	cmp #$00000000,r11
+80012c26	lbra ge,#$80012c0c,nop
+80012c2a	ld_s (r28),r10
+80012c2c	nop
+80012c2e	cmp #$00000000,r10
+80012c30	lbra ne,#$80012c48,nop
+80012c34	jsr #$80012b5e
+80012c3c	mv_s r12,r0
+80012c3e	mv_s #$00000004,r1
+80012c40	cmp #$00000000,r0
+80012c42	lbra eq,#$80012c54,nop
+	st_s r0,(r28)
+80012c48	ld_s (r28),r28
+80012c4a	bra #$80012c04
+80012c4c	add #$00000004,r28,r11
+80012c50	add #$00000008,r28,r10
+80012c54	bra #$80012cce
+	mv_s #$0000000c,r10
+80012c58	st_s r10,(r12)
+80012c5a	mv_s #$00000000,r0
+80012c5c	bits #$0000000f,>>#0,r10
+80012c60	or #$00000001,<>#-16,r10
+80012c64	st_s r10,(r29)
+80012c66	add #$00000008,r9,r11
+	st_s r6,(r9)
+80012c6c	add #$00000004,r9,r10
+	st_s r6,(r11)
+80012c72	add #$00000014,r9,r29
+	st_s r6,(r10)
+80012c78	nop
+	add #$00000018,r9,r11
+	st_s r6,(r29)
+80012c80	add #$0000001c,r9,r10
+	st_s r6,(r11)
+80012c86	st_s r6,(r10)
+80012c88	nop
+	mv_s #$ffffffff,r8
+	add #$00000010,r9,r29
+80012c90	nop
+	nop
+	nop
+	st_s r8,(r29)
+	add #$00000034,r9,r11
+80012ca0	st_s r6,(r11)
+	add #$00000038,r9,r10
+80012caa	st_s r6,(r10)
+	add #$00000048,r9,r29
+80012cb4	nop
+	st_s r6,(r29)
+	add #$0000004c,r9,r11
+80012cc0	st_s r6,(r11)
+	add #$00000058,r9,r10
+80012cca	st_s r12,(r10)
+	copy r9,r0
+80012cce	ld_v (r31),v3
+	add #$00000010,r31
+80012cd4	ld_v (r31),v7
+80012cd8	nop
+80012cda	st_s r29,rz
+80012cdc	rts,nop
+	add #$00000010,r31
+80012ce0	ld_s rz,r29
+80012ce2	jsr #$80013720
+	sub #$00000010,r31
+80012cec	st_v v7,(r31)
+80012cf0	mv_s #$800129a0,r1
+	copy r31,r30
+80012cf8	ld_v (r31),v7
+80012cfc	nop
+80012cfe	st_s r29,rz
+80012d00	rts,nop
+	add #$00000010,r31
+80012d04	ld_s rz,r29
+80012d06	sub #$00000010,r31
+80012d08	mv_s #$80014cec,r10
+80012d0e	st_v v7,(r31)
+80012d12	nop
+	jsr #$80012ce0,nop
+	ld_s (r10),r0
+	copy r31,r30
+80012d20	ld_v (r31),v7
+80012d24	nop
+80012d26	st_s r29,rz
+80012d28	rts,nop
+	add #$00000010,r31
+80012d2c	ld_s rz,r29
+80012d2e	sub #$00000010,r31
+80012d30	st_v v7,(r31)
+80012d34	mv_s #$80012ce0,r10
+	copy r31,r30
+80012d3c	mv_s r0,r28
+	sub #$00000010,r31
+80012d40	st_v v3,(r31)
+	add #$00000060,r28,r11
+80012d4c	st_s r10,(r11)
+80012d4e	mv_s #$00000001,r13
+80012d50	mv_s #$80012ac0,r12
+80012d56	mv_s r28,r3
+	add #$0000020c,r28,r14
+80012d60	mv_s r14,r0
+	add #$0000005c,r28,r10
+80012d6a	jsr (r12)
+	st_s r13,(r10)
+80012d70	mv_s #$00000004,r1
+80012d72	mv_s #$00000000,r2
+80012d74	jsr (r12)
+	mv_s r28,r3
+80012d7a	nop
+	nop
+	mv_s r13,r2
+80012d80	mv_s #$00000008,r1
+	add #$00000268,r28,r0
+80012d8a	jsr (r12)
+	mv_s r28,r3
+80012d90	mv_s #$0000000a,r1
+80012d92	nop
+	nop
+	mv_s #$00000002,r2
+	add #$000002c4,r28,r0
+80012da0	add #$00000200,r28,r11
+	mv_s #$00000000,r10
+80012daa	st_s r10,(r11)
+80012dac	mv_s #$00000003,r10
+	add #$00000204,r28,r29
+80012db6	st_s r10,(r29)
+	add #$00000208,r28
+80012dbc	nop
+	st_s r14,(r28)
+80012dc0	ld_v (r31),v3
+	add #$00000010,r31
+80012dc6	ld_v (r31),v7
+80012dca	nop
+80012dcc	st_s r29,rz
+80012dce	rts,nop
+	add #$00000010,r31
+80012dd2	add r0,r0
+80012dd4	add r0,r0
+80012dd6	add r0,r0
+80012dd8	add r0,r0
+80012dda	add r0,r0
+80012ddc	add r0,r0
+80012dde	add r0,r0
+80012de0	ld_s rz,r29
+80012de2	sub #$00000010,r31
+80012de4	st_v v7,(r31)
+80012de8	sub #$00000020,r31
+	mv_s r31,r30
+80012dee	st_v v3,(r31)
+80012df2	nop
+	jsr #$80014400
+	mv_s r2,r1
+	copy r1,r14
+80012e00	mv_s r0,r28
+	sub #$00000004,r30,r13
+80012e06	mv_s r13,r2
+80012e08	mv_s r0,r12
+80012e0a	cmp #$00000000,r12
+80012e0c	lbra eq,#$80012ee6,nop
+80012e10	jsr #$80012bc6,nop
+	mv_s r28,r0
+80012e1a	mv_s r0,r28
+80012e1c	nop
+	cmp #$00000000,r28
+

@@ -1,0 +1,103 @@
+        bios.cof
+6 sections
+105 symbols
+Entry at	0x80760080
+Target: not specified.
+.file               	 00000000	 [       D]	 103	0 +1
+commxmit1           	 20500804	 [       A]	 3	5 +0
+commxmit2           	 20500808	 [       A]	 3	5 +0
+commxmit3           	 2050080c	 [       A]	 3	5 +0
+NUMRECVHANDLERS     	 00000058	 [       A]	 3	5 +0
+environ             	 80000800	 [       A]	 3	4 +0
+mediawaiting        	 80000804	 [       A]	 3	4 +0
+lostpackets         	 80000808	 [       A]	 3	4 +0
+intnesting          	 8000080c	 [       A]	 3	4 +0
+compatibility_mode  	 80000810	 [       A]	 3	4 +0
+riff_biosinfostruct 	 80760000	 [       A]	 3	4 +0
+riff_biosinfostring 	 80760014	 [       A]	 3	4 +0
+riff_biosdatestring 	 8076002e	 [       A]	 3	4 +0
+env_system          	 8076003d	 [       A]	 3	4 +0
+env_mainram         	 80760054	 [       A]	 3	4 +0
+env_sysram          	 80760064	 [       A]	 3	4 +0
+biosinfo_end        	 80760073	 [       A]	 3	4 +0
+riff_commsend       	 80760080	 [       A]	 3	4 +0
+commsend_waitforsend	 807600a0	 [       A]	 3	4 +0
+commsend_waitforxmit	 807600bc	 [       A]	 3	4 +0
+riff_commsendinfo   	 807600c6	 [       A]	 3	4 +0
+commsendinfo_waitfor	 807600de	 [       A]	 3	4 +0
+commsendinfo_waitfor	 807600fe	 [       A]	 3	4 +0
+riff_commsenddirect 	 8076010c	 [       A]	 3	4 +0
+commsenddirect_waitf	 8076011a	 [       A]	 3	4 +0
+commsenddirect_waitf	 8076013c	 [       A]	 3	4 +0
+riffcommrecv        	 8076014a	 [       A]	 3	4 +0
+riff_commrecv_wait  	 8076015a	 [       A]	 3	4 +0
+riff_vsync          	 80760176	 [       A]	 3	4 +0
+vidsync_neg2        	 80760184	 [       A]	 3	4 +0
+vidsync_neg1        	 8076018a	 [       A]	 3	4 +0
+test_for_vidsync_0  	 8076018e	 [       A]	 3	4 +0
+vidsync_0           	 80760196	 [       A]	 3	4 +0
+vidsync_n           	 807601ae	 [       A]	 3	4 +0
+vidsync_complete    	 807601c0	 [       A]	 3	4 +0
+riff_defaultint16han	 807601cc	 [       A]	 3	4 +0
+riff_defaultint1hand	 807601d6	 [       A]	 3	4 +0
+riff_defaultint0hand	 807601dc	 [       A]	 3	4 +0
+riff_defaultinthandl	 807601e2	 [       A]	 3	4 +0
+riff_defaultrecvhand	 807601e4	 [       A]	 3	4 +0
+riff_level1handler  	 8076020c	 [       A]	 3	4 +0
+test_int15          	 8076024c	 [       A]	 3	4 +0
+test_int0           	 8076025a	 [       A]	 3	4 +0
+test_int4           	 8076026c	 [       A]	 3	4 +0
+recvhandler_loop    	 807602bc	 [       A]	 3	4 +0
+calldefaultrecvhandl	 807602d4	 [       A]	 3	4 +0
+matched_commsendrecv	 807602e6	 [       A]	 3	4 +0
+test_int5           	 80760302	 [       A]	 3	4 +0
+level1handler_int20o	 8076030c	 [       A]	 3	4 +0
+test_int30          	 8076032c	 [       A]	 3	4 +0
+test_int29          	 80760342	 [       A]	 3	4 +0
+test_int28          	 8076035a	 [       A]	 3	4 +0
+test_int27          	 80760372	 [       A]	 3	4 +0
+level1handler_epilog	 80760378	 [       A]	 3	4 +0
+riff_level2handler  	 80760390	 [       A]	 3	4 +0
+riff_mpewait        	 807603aa	 [       A]	 3	4 +0
+wait_for_halt       	 807603ac	 [       A]	 3	4 +0
+mpewait_epilogue    	 807603fe	 [       A]	 3	4 +0
+riff_comm_recv_info_	 80760404	 [       A]	 3	4 +0
+riff_comm_recv_info 	 80760438	 [       A]	 3	4 +0
+wait_for_comm_recv_p	 8076043c	 [       A]	 3	4 +0
+got_comm_recv_info_p	 80760454	 [       A]	 3	4 +0
+riff_comm_query     	 8076045a	 [       A]	 3	4 +0
+riffcommsendrecvinfo	 80760468	 [       A]	 3	4 +0
+riffcommsendrecv    	 80760468	 [       A]	 3	4 +0
+wait_for_recv_target	 8076047e	 [       A]	 3	4 +0
+riff_timetosleep    	 807604a2	 [       A]	 3	4 +0
+calc_target_seconds 	 807604bc	 [       A]	 3	4 +0
+calc_target_microsec	 807604ca	 [       A]	 3	4 +0
+let_time_pass       	 807604e0	 [       A]	 3	4 +0
+time_elapsed        	 80760500	 [       A]	 3	4 +0
+commsendrecv_target 	 807ffca0	 [       A]	 3	4 +0
+commsendrecv_info   	 807ffca4	 [       A]	 3	4 +0
+reserved0           	 807ffca8	 [       A]	 3	4 +0
+reserved1           	 807ffcac	 [       A]	 3	4 +0
+commsendrecv_packet 	 807ffcb0	 [       A]	 3	4 +0
+reserved2           	 807ffcc0	 [       A]	 3	4 +0
+bios_commrecv_packet	 807ffcd0	 [       A]	 3	4 +0
+bios_commrecv_id    	 807ffce0	 [       A]	 3	4 +0
+bios_commrecv_info  	 807ffce4	 [       A]	 3	4 +0
+bios_commrecv_packet	 807ffce8	 [       A]	 3	4 +0
+bios_commrecv_packet	 807ffcec	 [       A]	 3	4 +0
+riff_environment    	 807ffcf0	 [       A]	 3	4 +0
+riff_scratchmem     	 807ffd00	 [       A]	 3	4 +0
+riff_cyclecounter   	 807ffdc0	 [       A]	 3	4 +0
+riff_vidfieldcounter	 807ffdc4	 [       A]	 3	4 +0
+riff_lastvidconfigco	 807ffdc8	 [       A]	 3	4 +0
+riff_recvhandlercoun	 807ffdcc	 [       A]	 3	4 +0
+riff_intvectors     	 807ffdd0	 [       A]	 3	4 +0
+riff_recvhandlers   	 807ffe50	 [       A]	 3	4 +0
+riff_halt_instructio	 807fff60	 [       A]	 3	4 +0
+riff_controllerdata 	 807fff70	 [       A]	 3	4 +0
+.biosvars           	 00000000	 [biosvars]	 3	0 +1
+.biosinfo           	 00000000	 [biosinfo]	 3	0 +1
+.biosfunc           	 00000000	 [biosfunc]	 3	0 +1
+.biosdata           	 00000000	 [biosdata]	 3	0 +1
+.halts              	 00000000	 [   halts]	 3	0 +1
+.controll           	 00000000	 [controll]	 3	0 +1

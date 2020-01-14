@@ -1,0 +1,8 @@
+ before ftell -> r: 0, w: 0, ur: 0, flags: 0x4, lbfsize: 0, offset: 0, seek: 0x80014b6c
+f2 pos: 0
+ before fseek -> r: 0, w: 0, ur: 0, flags: 0x1004, lbfsize: 0, offset: 0, seek: 0x80014b6c
+f2 pos: 20
+ after fseek -> r: 0, w: 0, ur: 0, flags: 0x1884, lbfsize: 0, offset: 20, seek: 0x80014b6c
+f2 pos: 20
+ after ftell -> r: 0, w: 0, ur: 0, flags: 0x1884, lbfsize: 0, offset: 20, seek: 0x80014b6c
+f2 pos: 20

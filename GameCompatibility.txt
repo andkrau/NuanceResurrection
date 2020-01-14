@@ -1,0 +1,36 @@
+Game Compatibility:
+
+Not all commercial games are supported.  The level of compatibility for the major
+commercial releases are described below:
+
+Compatibility Level:
+====================
+
+Space Invaders XL
+-----------------
+Playable.
+
+The Next Tetris
+-----------------
+Playable.
+
+Merlin Racing
+-------------
+Playable.
+
+Tempest 3000
+------------
+Playable.
+
+Ballistic
+---------
+Playable.
+
+Freefall 3050 AD
+----------------
+Unplayable.  Will require MPEG playback.
+
+Iron Soldier 3
+--------------
+Unplayable.  Will require MPEG playback.
+
