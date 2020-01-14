@@ -1,0 +1,54 @@
+;Start of BiosExit/BiosReboot routine
+
+;Call $F000AF20
+f0005040	jsr #$80789ec0,nop
+f0005048	mv_s #$8000f030,r1
+f000504e	mv_s #$12345678,r0
+;Mem[$8000F030] = $12345678
+f0005054	st_s r0,(r1)
+;BIOS Call: DCacheSync
+f0005056	nop
+	jsr #$80000050,nop
+;Call NotifyDebugControllerOfShutdown routine
+f0005060	jmp #$f0004dc0
+f0005068	nop
+f000506a	nop
+;RX = $F00240AD
+f000506c	st_s #$f00240ad,rx
+f0005074	halt
+f0005076	nop
+f0005078	nop
+
+
+f000507a	add r0,r0
+f000507c	add r0,r0
+f000507e	add r0,r0
+
+
+f0005080	ld_s rz,r29
+f0005082	sub #$00000010,r31
+f0005084	st_v v7,(r31)
+f0005088	mv_s r31,r30
+	sub #$00000030,r31
+f000508e	mv_s #$ffffffff,r11
+f0005090	add #$0000000c,r31,r29
+f0005094	st_s r11,(r29)
+f0005096	add #$00000010,r31,r10
+f000509a	st_s r11,(r10)
+f000509c	add #$00000014,r31,r10
+f00050a0	mv_s #$00000000,r1
+f00050a2	st_s r0,(r10)
+f00050a4	add #$00000018,r31,r10
+f00050a8	st_s r1,(r10)
+f00050aa	st_s #$80000000,inten1
+f00050b2	st_s #$00000081,intctl
+f00050b6	mv_s r29,r0
+f00050b8	nop
+	mv_s #$8078edb8,r8
+;Call $F000FE18
+f00050c0	jsr (r8)
+f00050c4	mv_s r1,r2
+f00050c6	mv_s r1,r3
+f00050c8	lbra #$f00050c8,nop
+
+

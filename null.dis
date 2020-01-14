@@ -1,0 +1,21 @@
+F0025C68:    mv_s #$FFFFFFFF,r0
+             rts nop
+F0025C6C:    mv_s #$FFFFFFFF,r0
+             rts nop
+F0025C70:    jmp $20301B70,nop
+F0025C74:    jmp $20301B66,nop
+F0025C78:    jmp $20301B6E,nop
+F0025C7C:    jmp $20301B68,nop
+F0025C80:    jmp $20301BD8,nop
+F0025C84:    jmp $20301BCE,nop
+F0025C88:    jmp $20301DE6,nop
+F0025C8C:    jmp $20301D58,nop
+F0025C90:    jmp $20301DAC,nop
+F0025C94:    jmp $20301DA2,nop
+F0025C98:    mv_s #$00000005,r0
+             rts nop
+F0025C9C:    push v3
+             jmp $20301BE2
+F0025CA2:    ld_s cc,r12
+F0025CA4:    push v2
+F0025CA6:    nop

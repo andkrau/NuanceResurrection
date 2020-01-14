@@ -1,0 +1,1190 @@
+;START OF SOMETHING
+f0000e56
+
+;SECUREFORPE
+f0000e76	add r0,r0
+f0000e78	push v2,rz
+;CALL SOME BIOS ROUTINE: BETWEEN MPEALLOCTHREAD AND SERIAL_WRITE_DIRECT (PERHAPS SERIAL RESET?)
+f0000e7a	jsr #$80790620,nop
+;BIOS CALL: MEDIASHUTDOWNMPE
+f0000e82	jsr #$800003a0,nop
+f0000e8a	mv_s #$80781b58,r0
+;CHECK_FOR_MEDIAMPE_HALT:
+f0000e90	ld_s (r0),r1
+f0000e92	nop
+f0000e94	cmp #$00000000,r1
+;IF MEDIA MPE NOT HALTED, BRANCH BACK TO CHECK_FOR_MEDIAMPE_HALT
+f0000e96	lbra ne,#$f0000e90,nop
+f0000e9a	nop
+	nop
+	nop
+	mv_s #$00000000,r0
+;BIOS CALL: MPEFREE(MPE0)
+f0000ea2	jsr #$80000090,nop
+f0000eaa	mv_s #$00000001,r0
+;BIOS CALL: MPEFREE(MPE1)
+f0000eac	jsr #$80000090,nop
+f0000eb4	mv_s #$00000002,r0
+;BIOS CALL: MPEFREE(MPE2)
+f0000eb6	nop
+	nop
+	jsr #$80000090,nop
+;CALL SOME BIOS ROUTINE: BETWEEN VIDSETUP AND VIDSETOUTPUTTYPE (PERHAPS SOME DEFAULT VIDEO INIT)
+f0000ec2	jsr #$8078f5a8,nop
+f0000eca	st_s #$00000080,intctl
+f0000ece	st_s #$7fffffff,inten1clr
+;BIOS CALL: DCACHESYNC
+f0000ed6	jsr #$80000050,nop
+f0000ede	nop
+	pop v2,rz
+;CLEAR DATA ADDRESS WRITE BREAK ENABLE
+f0000ee2	st_s #$00000040,mpectl
+f0000ee6	nop
+f0000ee8	rts
+f0000eea	nop
+
+;START OF LOADPE ROUTINE
+f0000eec	nop
+f0000eee	ld_s rz,r29
+f0000ef0	sub #$00000010,r31
+f0000ef2	st_v v7,(r31)
+f0000ef6	sub #$00000010,r31
+f0000ef8	st_v v6,(r31)
+f0000efc	sub #$00000010,r31
+f0000efe	st_v v5,(r31)
+f0000f02	sub #$00000010,r31
+f0000f04	st_v v4,(r31)
+f0000f08	sub #$00000010,r31
+f0000f0a	st_v v3,(r31)
+;CALL ROUTINE TO SAVE INTVEC1, INTVEC2, INTEN1, ICACHECTL AND DCACHECTL
+f0000f0e	jsr #$8078dd9c,nop
+;BIOSCALL: CACHECONFIGX($101,$11)
+f0000f16	jsr #$8078c200
+;ICACHE PARAMS: 2-WAY, 1K WAYSIZE, 32 BYTE BLOCK SIZE
+f0000f1e	mv_s #$00000101,r0
+;DCACHE PARAMS: 1-WAY, 2K WAYSIZE, 32 BYTE BLOCK SIZE
+f0000f22	mv_s #$00000011,r1
+;CALL _LOADPE ROUTINE
+f0000f26	jsr #$f0000f64,nop
+
+f0000f2e	mv_s #$80781b58,r0
+;CHECK_MEDIA_MPE_STATE:
+;R1 = MEDIA_MPE_HALTED
+f0000f34	ld_s (r0),r1
+f0000f36	nop
+;COMPARE MEDIA MPE STATE TO ZERO (NON-ZERO INDICATES THAT MPE IS STILL RUNNING)
+f0000f38	cmp #$00000000,r1
+;IF MEDIA MPE IS STILL RUNNING, BRANCH BACK TO CHECK_MEDIA_MPE_STATE
+f0000f3a	lbra ne,#$f0000f34,nop
+f0000f3e	ld_v (r31),v3
+f0000f42	add #$00000010,r31
+f0000f44	ld_v (r31),v4
+f0000f48	add #$00000010,r31
+f0000f4a	ld_v (r31),v5
+f0000f4e	add #$00000010,r31
+f0000f50	ld_v (r31),v6
+f0000f54	add #$00000010,r31
+f0000f56	ld_v (r31),v7
+f0000f5a	nop
+f0000f5c	st_s r29,rz
+f0000f5e	add #$00000010,r31
+f0000f60	rts
+f0000f62	nop
+
+;START OF _LOADPE ROUTINE
+f0000f64	nop
+f0000f66	ld_s rz,r29
+f0000f68	sub #$00000010,r31
+f0000f6a	st_v v7,(r31)
+f0000f6e	sub #$00000010,r31
+f0000f70	st_v v6,(r31)
+f0000f74	sub #$00000010,r31
+f0000f76	st_v v5,(r31)
+f0000f7a	sub #$00000010,r31
+f0000f7c	st_v v4,(r31)
+f0000f80	sub #$00000010,r31
+f0000f82	st_v v3,(r31)
+f0000f86	mv_s #$f0130000,r1
+f0000f8c	mv_s #$f0130000,r2
+;CALL SOME BIOS ROUTINE(3,$F0130000,$F0130000,0) BETWEEN DISPLAYBOOTIMAGE AND MEMLOADCOFFX
+f0000f92	jsr #$8079e428
+f0000f9a	mv_s #$00000003,r0
+f0000f9c	mv_s #$00000000,r3
+f0000f9e	nop
+	cmp #$00000000,r0
+;IF RETURN VALUE IS ZERO, BRANCH TO $F0000E56 (PROBABLY UNAUTHENTICATED EXECUTABLE HANDLER!)
+f0000fa2	lbra eq,#$f0000e56,nop
+f0000fa6	ld_v (r31),v3
+f0000faa	add #$00000010,r31
+f0000fac	ld_v (r31),v4
+f0000fb0	add #$00000010,r31
+f0000fb2	ld_v (r31),v5
+f0000fb6	add #$00000010,r31
+f0000fb8	ld_v (r31),v6
+f0000fbc	add #$00000010,r31
+f0000fbe	ld_v (r31),v7
+f0000fc2	nop
+f0000fc4	st_s r29,rz
+f0000fc6	add #$00000010,r31
+f0000fc8	rts
+f0000fca	nop
+f0000fcc	nop
+
+f0000fce	halt
+f0000fd0	nop
+f0000fd2	nop
+
+
+f0000fd4	add r0,r0
+f0000fd6	add r0,r0
+f0000fd8	add r0,r0
+f0000fda	add r0,r0
+f0000fdc	add r0,r0
+f0000fde	add r0,r0
+f0000fe0	add r0,r0
+
+;COMMSEND
+f0000fe2	ld_s commctl,r0
+f0000fe6	nop
+f0000fe8	btst #$0000000f,r0
+f0000fea	lbra ne,#$f0000fe2,nop
+f0000fee	st_v v1,commxmit
+f0000ff2	rts
+f0000ff4	nop
+f0000ff6	nop
+
+;COMMRECV
+f0000ff8	ld_s commctl,r4
+f0000ffc	nop
+f0000ffe	nop
+	btst #$0000001f,r4
+f0001002	lbra eq,#$f0000ff8,nop
+f0001006	ld_v commrecv,v1
+f000100a	rts
+f000100c	nop
+f000100e	nop
+
+
+f0001010	mul_sv v0,v4
+	add r0,r0
+f0001014	add r0,r0
+f0001016	add r0,r0
+f0001018	add r0,r0
+f000101a	add r0,r0
+f000101c	add r0,r0
+f000101e	add r0,r0
+f0001020	add r0,r0
+
+;START OF BIOS JUMPTABLE: ROM COPIES THIS TO $80000000
+;ENTRY 0: COMMSEND
+f0001022	jmp #$8078a588
+;COMMSENDINFO
+f000102a	jmp #$8078a580
+;COMMRECVINFO
+f0001032	jmp #$8078a600
+;COMMRECVINFOQUERY
+f000103a	jmp #$8078a640
+;COMMSENDRECV
+f0001042	jmp #$8078a5b0
+;COMMSENDRECVINFO
+f000104a	jmp #$8078a5b6
+;CONTROLLERINITIALIZE
+f0001052	jmp #$8078a680
+;CONTROLLEREXTENDEDINFO
+f000105a	jmp #$8078a76e
+;TIMEOFDAY
+f0001062	jmp #$80785000
+;DCACHESYNCREGION
+f000106a	jmp #$8078e0c4
+;ENTRY 10: _DCACHESYNC
+f0001072	jmp #$8078e0c0
+;DCACHEINVALIDATEREGION
+f000107a	jmp #$8078e120
+;DCACHEFLUSH
+f0001082	jmp #$8078bba0
+;TIMERINIT
+f000108a	jmp #$8078bce0
+;TIMEELAPSED
+f0001092	jmp #$8078bd46
+;TIMETOSLEEP
+f000109a	jmp #$8078be76
+;MPEALLOC
+f00010a2	jmp #$8078d36c
+;MPEALLOCSPECIFIC
+f00010aa	jmp #$8078d40e
+;MPEFREE
+f00010b2	jmp #$8078d440
+;MPESAVAILABLE
+f00010ba	jmp #$8078d474
+;ENTRY 20: INTSETVECTORX
+f00010c2	jmp #$807907a0
+;INTGETVECTOR
+f00010ca	jmp #$80790822
+;VIDSYNC
+f00010d2	jmp #$8078f208
+;VIDSETUP
+f00010da	jmp #$8078f496
+;VIDCONFIG
+f00010e2	jmp #$8078e6fe
+;VIDQUERYCONFIG
+f00010ea	jmp #$8078f39e
+;VIDCHANGEBASE
+f00010f2	jmp #$8078f29e
+;VIDCHANGESCROLL
+f00010fa	jmp #$8078f31e
+;VIDSETCLUTRANGE
+f0001102	jmp #$8078f404
+;BIOSINIT
+f000110a	jmp #$807853c0
+;ENTRY 30: BIOSEXIT
+f0001112	jmp #$f0001ac0
+;BIOSREBOOT
+f000111a	jmp #$f0001af2
+;BIOSPOLL
+f0001122	jmp #$8078f6c0
+;BIOSPAUSEMSG
+f000112a	jmp #$8078f6cc
+;AUDIOQUERYCHANNELMODE
+f0001132	jmp #$80789e7e
+;AUDIOSETCHANNELMODE
+f000113a	jmp #$80789e8a
+;AUDIOQUERYSAMPLERATE
+f0001142	jmp #$80789dda
+;AUDIOSETSAMPLERATE
+f000114a	jmp #$80789dfa
+;AUDIORESET
+f0001152	jmp #$80789c76
+;AUDIOMUTE
+f000115a	jmp #$80789c4e
+;ENTRY 40: AUDIOSETDMABUFFER
+f0001162	jmp #$80789f82
+;MEMINIT
+f000116a	jmp #$8078cecc
+;MEMADD
+f0001172	jmp #$8078cffc
+;MEMALLOC
+f000117a	jmp #$8078d0e2
+;MEMFREE
+f0001182	jmp #$8078d174
+;MEMLOCALSCRATCH
+f000118a	jmp #$8078d302
+;MEMLOADCOFFX
+f0001192	jmp #$8079e852
+;DOWNLOADCOFF
+f000119a	jmp #$80785220
+;STREAMLOADCOFF
+f00011a2	jmp #$80792db6
+;DMALINEAR
+f00011aa	jmp #$8078d600
+;ENTRY 50: DMABILINEAR
+f00011b2	jmp #$8078d600
+;FILEOPEN
+f00011ba	jmp #$8078a890
+;FILECLOSE
+f00011c2	jmp #$8078a9b6
+;FILEREAD
+f00011ca	jmp #$8078ad90
+;FILEWRITE
+f00011d2	jmp #$8078acda
+;FILEIOCTL
+f00011da	jmp #$8078aaee
+;FILEFSTAT
+f00011e2	jmp #$8078aa5e
+;FILESTAT
+f00011ea	jmp #$8078ac80
+;FILEISATTY
+f00011f2	jmp #$8078ac24
+;FILELSEEK
+f00011fa	jmp #$8078ab7e
+;ENTRY 60: FILELINK
+f0001202	jmp #$8078ae50
+;FILELSTAT
+f000120a	jmp #$8078aea6
+;FILEUNLINK
+f0001212	jmp #$8078aefc
+f000121a	jmp #$8078af4e
+f0001222	jmp #$8078b08e
+f000122a	jmp #$8078b130
+f0001232	jmp #$8078b1d8
+f000123a	jmp #$8078b23a
+f0001242	jmp #$8078b2e6
+f000124a	jmp #$8078b38e
+;ENTRY 70
+f0001252	jmp #$8078b43e
+f000125a	jmp #$8078b4e6
+f0001262	jmp #$8078b59a
+f000126a	jmp #$8078b664
+f0001272	jmp #$8078b70e
+f000127a	jmp #$8078b884
+f0001282	jmp #$8078b7ba
+f000128a	jmp #$8078b92e
+f0001292	jmp #$8078b936
+f000129a	jmp #$8078b9e4
+;ENTRY 80
+;NETSOCKET
+f00012a2	jmp #$8078ba8a
+;COMMSENDDIRECT
+f00012aa	jmp #$8078a4b0
+;COMM_RECV
+f00012b2	jmp #$8078a3e0
+;COMM_QUERY
+f00012ba	jmp #$8078a482
+;SERIAL_DELAY
+f00012c2	jmp #$8079075a
+;SERIAL_READ
+f00012ca	jmp #$8079073c
+;SERIAL_WRITE
+f00012d2	jmp #$8079071e
+;SERIAL_WRITE_DIRECT
+f00012da	jmp #$807906d4
+;MEDIAOPEN
+f00012e2	jmp #$8078c360
+f00012ea	jmp #$8078c454
+;ENTRY 90
+;MEDIAGETDEVICESAVAILABLE
+f00012f2	jmp #$8078c476
+;MEDIAGETINFO
+f00012fa	jmp #$8078c47a
+;MEDIAGETSTATUS
+f0001302	jmp #$8078c4ee
+;MEDIAREAD
+f000130a	jmp #$8078c4fc
+;MEDIAWRITE
+f0001312	jmp #$8078c618
+;MEDIAIOCTL
+f000131a	jmp #$8078c71e
+;SPINWAIT
+f0001322	jmp #$80790ee0
+;CACHECONFIGX
+f000132a	jmp #$8078c200
+;LOADGAME
+f0001332	jmp #$8078db82
+;LOADPE
+f000133a	jmp #$f0000eec
+;ENTRY 100: DMA_WAIT
+f0001342	jmp #$80790ea0
+;DMA_DO
+f000134a	jmp #$80790eb8
+;PATCHHUMPTABLE
+f0001352	jmp #$8078c2c0
+;BIOSRESUME
+f000135a	jmp #$8078ddf8
+;MPESTOP
+f0001362	jmp #$80790162
+;MPERUN
+f000136a	jmp #$807901b0
+;MPEWAIT
+f0001372	jmp #$807902f6
+;MPEREADREGISTER
+f000137a	jmp #$80790040
+;MPEWRITEREGISTER
+f0001382	jmp #$8079007a
+;SETPARENTALCONTROL
+f000138a	jmp #$80792520
+;ENTRY 110: GETPARENTALCONTROL
+f0001392	jmp #$8079252a
+;BIOSGETINFO
+f000139a	jmp #$80785540
+;LOADTEST
+f00013a2	jmp #$8078dc78
+;MPELOAD
+f00013aa	jmp #$807903f4
+;MPEALLOCTHREAD
+f00013b2	jmp #$807905a0
+;MEDIAINITMPE
+f00013ba	jmp #$8078d4d8
+;MEDIASHUTDOWNMPE
+f00013c2	jmp #$8078d5a2
+;ENTRY 117: SECUREFORPE
+f00013ca	jmp #$f0000e76
+;ENTRY 118:
+f00013d2	rts
+f00013d4	nop
+f00013d6	mv_s #$ffffffff,r0
+f00013d8	nop
+;ENTRY 119:
+f00013da	rts
+f00013dc	nop
+f00013de	mv_s #$ffffffff,r0
+f00013e0	nop
+;ENTRY 120:
+f00013e2	rts
+f00013e4	nop
+f00013e6	mv_s #$ffffffff,r0
+f00013e8	nop
+;ENTRY 121: FINDNAME
+f00013ea	jmp #$8078a7e0
+;ENTRY 122: DEVICEDETECT
+f00013f2	jmp #$8078a772
+;ENTRY 123: MPERUNTHREAD
+f00013fa	jmp #$807904c0
+f0001402	jmp #$80793180
+f000140a	jmp #$80796164
+f0001412	jmp #$80796146
+f000141a	jmp #$8079077a
+;ENTRY 128: SETDEFAULTCOLOR
+f0001422	rts
+f0001424	nop
+f0001426	mv_s #$ffffffff,r0
+f0001428	nop
+;ENTRY 129: DISPLAYBOOTIMAGE
+f000142a	jmp #$8079da80
+;SERIALWRITECMD
+f0001432	jmp #$807906fa
+;GETMEMDEVICE
+f000143a	jmp #$8078672a
+;WRITEMEMDEVSECTOR
+f0001442	jmp #$80786f1c
+f000144a	jmp #$80786f5a
+f0001452	jmp #$8078a7c0
+f000145a	jmp #$807960c4
+f0001462	jmp #$80796104
+f000146a	jmp #$80790bfe
+f0001472	jmp #$80790ac8
+f000147a	jmp #$80790bc0
+f0001482	jmp #$80790b58
+f000148a	jmp #$80790c08
+f0001492	jmp #$80790c80
+;MOUNT
+f000149a	jmp #$8078f75e
+;MPESTATUS
+f00014a2	jmp #$8078d4cc
+;KPRINTF
+f00014aa	jmp #$80792a4e
+;CONTROLLERPOLLRATE
+f00014b2	jmp #$8078a74c
+;VIDSETOUTPUTTYPE
+f00014ba	jmp #$8078f676
+;LOADDEFAULTSYSTEMSETTINGS
+f00014c2	jmp #$80790c44
+;SETISRHOOK
+f00014ca	jmp #$8078bfc0
+;COMPATIBILITYMODE
+f00014d2	rts
+f00014d4	nop
+f00014d6	mv_s #$ffffffff,r0
+f00014d8	nop
+f00014da	rts
+f00014dc	nop
+f00014de	mv_s #$ffffffff,r0
+f00014e0	nop
+f00014e2	rts
+f00014e4	nop
+f00014e6	mv_s #$ffffffff,r0
+f00014e8	nop
+f00014ea	rts
+f00014ec	nop
+f00014ee	mv_s #$ffffffff,r0
+f00014f0	nop
+f00014f2	rts
+f00014f4	nop
+f00014f6	mv_s #$ffffffff,r0
+f00014f8	nop
+f00014fa	rts
+f00014fc	nop
+f00014fe	mv_s #$ffffffff,r0
+f0001500	nop
+f0001502	rts
+f0001504	nop
+f0001506	mv_s #$ffffffff,r0
+f0001508	nop
+f000150a	rts
+f000150c	nop
+f000150e	mv_s #$ffffffff,r0
+f0001510	nop
+f0001512	rts
+f0001514	nop
+f0001516	mv_s #$ffffffff,r0
+f0001518	nop
+f000151a	rts
+f000151c	nop
+f000151e	mv_s #$ffffffff,r0
+f0001520	nop
+f0001522	rts
+f0001524	nop
+f0001526	mv_s #$ffffffff,r0
+f0001528	nop
+f000152a	rts
+f000152c	nop
+f000152e	mv_s #$ffffffff,r0
+f0001530	nop
+f0001532	rts
+f0001534	nop
+f0001536	mv_s #$ffffffff,r0
+f0001538	nop
+f000153a	rts
+f000153c	nop
+f000153e	mv_s #$ffffffff,r0
+f0001540	nop
+f0001542	rts
+f0001544	nop
+f0001546	mv_s #$ffffffff,r0
+f0001548	nop
+f000154a	rts
+f000154c	nop
+f000154e	mv_s #$ffffffff,r0
+f0001550	nop
+f0001552	rts
+f0001554	nop
+f0001556	mv_s #$ffffffff,r0
+f0001558	nop
+f000155a	rts
+f000155c	nop
+f000155e	mv_s #$ffffffff,r0
+f0001560	nop
+f0001562	rts
+f0001564	nop
+f0001566	mv_s #$ffffffff,r0
+f0001568	nop
+f000156a	rts
+f000156c	nop
+f000156e	mv_s #$ffffffff,r0
+f0001570	nop
+f0001572	rts
+f0001574	nop
+f0001576	mv_s #$ffffffff,r0
+f0001578	nop
+f000157a	rts
+f000157c	nop
+f000157e	mv_s #$ffffffff,r0
+f0001580	nop
+f0001582	rts
+f0001584	nop
+f0001586	mv_s #$ffffffff,r0
+f0001588	nop
+f000158a	rts
+f000158c	nop
+f000158e	mv_s #$ffffffff,r0
+f0001590	nop
+f0001592	rts
+f0001594	nop
+f0001596	mv_s #$ffffffff,r0
+f0001598	nop
+f000159a	rts
+f000159c	nop
+f000159e	mv_s #$ffffffff,r0
+f00015a0	nop
+f00015a2	rts
+f00015a4	nop
+f00015a6	mv_s #$ffffffff,r0
+f00015a8	nop
+f00015aa	rts
+f00015ac	nop
+f00015ae	mv_s #$ffffffff,r0
+f00015b0	nop
+f00015b2	rts
+f00015b4	nop
+f00015b6	mv_s #$ffffffff,r0
+f00015b8	nop
+f00015ba	rts
+f00015bc	nop
+f00015be	mv_s #$ffffffff,r0
+f00015c0	nop
+f00015c2	rts
+f00015c4	nop
+f00015c6	mv_s #$ffffffff,r0
+f00015c8	nop
+f00015ca	rts
+f00015cc	nop
+f00015ce	mv_s #$ffffffff,r0
+f00015d0	nop
+f00015d2	rts
+f00015d4	nop
+f00015d6	mv_s #$ffffffff,r0
+f00015d8	nop
+f00015da	rts
+f00015dc	nop
+f00015de	mv_s #$ffffffff,r0
+f00015e0	nop
+f00015e2	rts
+f00015e4	nop
+f00015e6	mv_s #$ffffffff,r0
+f00015e8	nop
+f00015ea	rts
+f00015ec	nop
+f00015ee	mv_s #$ffffffff,r0
+f00015f0	nop
+f00015f2	rts
+f00015f4	nop
+f00015f6	mv_s #$ffffffff,r0
+f00015f8	nop
+f00015fa	rts
+f00015fc	nop
+f00015fe	mv_s #$ffffffff,r0
+f0001600	nop
+f0001602	rts
+f0001604	nop
+f0001606	mv_s #$ffffffff,r0
+f0001608	nop
+f000160a	rts
+f000160c	nop
+f000160e	mv_s #$ffffffff,r0
+f0001610	nop
+f0001612	rts
+f0001614	nop
+f0001616	mv_s #$ffffffff,r0
+f0001618	nop
+f000161a	rts
+f000161c	nop
+f000161e	mv_s #$ffffffff,r0
+f0001620	nop
+f0001622	rts
+f0001624	nop
+f0001626	mv_s #$ffffffff,r0
+f0001628	nop
+f000162a	rts
+f000162c	nop
+f000162e	mv_s #$ffffffff,r0
+f0001630	nop
+f0001632	rts
+f0001634	nop
+f0001636	mv_s #$ffffffff,r0
+f0001638	nop
+f000163a	rts
+f000163c	nop
+f000163e	mv_s #$ffffffff,r0
+f0001640	nop
+f0001642	rts
+f0001644	nop
+f0001646	mv_s #$ffffffff,r0
+f0001648	nop
+f000164a	rts
+f000164c	nop
+f000164e	mv_s #$ffffffff,r0
+f0001650	nop
+f0001652	rts
+f0001654	nop
+f0001656	mv_s #$ffffffff,r0
+f0001658	nop
+f000165a	rts
+f000165c	nop
+f000165e	mv_s #$ffffffff,r0
+f0001660	nop
+f0001662	rts
+f0001664	nop
+f0001666	mv_s #$ffffffff,r0
+f0001668	nop
+f000166a	rts
+f000166c	nop
+f000166e	mv_s #$ffffffff,r0
+f0001670	nop
+f0001672	rts
+f0001674	nop
+f0001676	mv_s #$ffffffff,r0
+f0001678	nop
+f000167a	rts
+f000167c	nop
+f000167e	mv_s #$ffffffff,r0
+f0001680	nop
+f0001682	rts
+f0001684	nop
+f0001686	mv_s #$ffffffff,r0
+f0001688	nop
+f000168a	rts
+f000168c	nop
+f000168e	mv_s #$ffffffff,r0
+f0001690	nop
+f0001692	rts
+f0001694	nop
+f0001696	mv_s #$ffffffff,r0
+f0001698	nop
+f000169a	rts
+f000169c	nop
+f000169e	mv_s #$ffffffff,r0
+f00016a0	nop
+f00016a2	rts
+f00016a4	nop
+f00016a6	mv_s #$ffffffff,r0
+f00016a8	nop
+f00016aa	rts
+f00016ac	nop
+f00016ae	mv_s #$ffffffff,r0
+f00016b0	nop
+f00016b2	rts
+f00016b4	nop
+f00016b6	mv_s #$ffffffff,r0
+f00016b8	nop
+f00016ba	rts
+f00016bc	nop
+f00016be	mv_s #$ffffffff,r0
+f00016c0	nop
+f00016c2	rts
+f00016c4	nop
+f00016c6	mv_s #$ffffffff,r0
+f00016c8	nop
+f00016ca	rts
+f00016cc	nop
+f00016ce	mv_s #$ffffffff,r0
+f00016d0	nop
+f00016d2	rts
+f00016d4	nop
+f00016d6	mv_s #$ffffffff,r0
+f00016d8	nop
+f00016da	rts
+f00016dc	nop
+f00016de	mv_s #$ffffffff,r0
+f00016e0	nop
+f00016e2	rts
+f00016e4	nop
+f00016e6	mv_s #$ffffffff,r0
+f00016e8	nop
+f00016ea	rts
+f00016ec	nop
+f00016ee	mv_s #$ffffffff,r0
+f00016f0	nop
+f00016f2	rts
+f00016f4	nop
+f00016f6	mv_s #$ffffffff,r0
+f00016f8	nop
+f00016fa	rts
+f00016fc	nop
+f00016fe	mv_s #$ffffffff,r0
+f0001700	nop
+f0001702	rts
+f0001704	nop
+f0001706	mv_s #$ffffffff,r0
+f0001708	nop
+f000170a	rts
+f000170c	nop
+f000170e	mv_s #$ffffffff,r0
+f0001710	nop
+f0001712	rts
+f0001714	nop
+f0001716	mv_s #$ffffffff,r0
+f0001718	nop
+f000171a	rts
+f000171c	nop
+f000171e	mv_s #$ffffffff,r0
+f0001720	nop
+f0001722	rts
+f0001724	nop
+f0001726	mv_s #$ffffffff,r0
+f0001728	nop
+f000172a	rts
+f000172c	nop
+f000172e	mv_s #$ffffffff,r0
+f0001730	nop
+f0001732	rts
+f0001734	nop
+f0001736	mv_s #$ffffffff,r0
+f0001738	nop
+f000173a	rts
+f000173c	nop
+f000173e	mv_s #$ffffffff,r0
+f0001740	nop
+f0001742	rts
+f0001744	nop
+f0001746	mv_s #$ffffffff,r0
+f0001748	nop
+f000174a	rts
+f000174c	nop
+f000174e	mv_s #$ffffffff,r0
+f0001750	nop
+f0001752	rts
+f0001754	nop
+f0001756	mv_s #$ffffffff,r0
+f0001758	nop
+f000175a	rts
+f000175c	nop
+f000175e	mv_s #$ffffffff,r0
+f0001760	nop
+f0001762	rts
+f0001764	nop
+f0001766	mv_s #$ffffffff,r0
+f0001768	nop
+f000176a	rts
+f000176c	nop
+f000176e	mv_s #$ffffffff,r0
+f0001770	nop
+f0001772	rts
+f0001774	nop
+f0001776	mv_s #$ffffffff,r0
+f0001778	nop
+f000177a	rts
+f000177c	nop
+f000177e	mv_s #$ffffffff,r0
+f0001780	nop
+f0001782	rts
+f0001784	nop
+f0001786	mv_s #$ffffffff,r0
+f0001788	nop
+f000178a	rts
+f000178c	nop
+f000178e	mv_s #$ffffffff,r0
+f0001790	nop
+f0001792	rts
+f0001794	nop
+f0001796	mv_s #$ffffffff,r0
+f0001798	nop
+f000179a	rts
+f000179c	nop
+f000179e	mv_s #$ffffffff,r0
+f00017a0	nop
+f00017a2	rts
+f00017a4	nop
+f00017a6	mv_s #$ffffffff,r0
+f00017a8	nop
+f00017aa	rts
+f00017ac	nop
+f00017ae	mv_s #$ffffffff,r0
+f00017b0	nop
+f00017b2	rts
+f00017b4	nop
+f00017b6	mv_s #$ffffffff,r0
+f00017b8	nop
+f00017ba	rts
+f00017bc	nop
+f00017be	mv_s #$ffffffff,r0
+f00017c0	nop
+f00017c2	rts
+f00017c4	nop
+f00017c6	mv_s #$ffffffff,r0
+f00017c8	nop
+f00017ca	rts
+f00017cc	nop
+f00017ce	mv_s #$ffffffff,r0
+f00017d0	nop
+f00017d2	rts
+f00017d4	nop
+f00017d6	mv_s #$ffffffff,r0
+f00017d8	nop
+f00017da	rts
+f00017dc	nop
+f00017de	mv_s #$ffffffff,r0
+f00017e0	nop
+f00017e2	rts
+f00017e4	nop
+f00017e6	mv_s #$ffffffff,r0
+f00017e8	nop
+f00017ea	rts
+f00017ec	nop
+f00017ee	mv_s #$ffffffff,r0
+f00017f0	nop
+f00017f2	rts
+f00017f4	nop
+f00017f6	mv_s #$ffffffff,r0
+f00017f8	nop
+f00017fa	rts
+f00017fc	nop
+f00017fe	mv_s #$ffffffff,r0
+f0001800	nop
+f0001802	rts
+f0001804	nop
+f0001806	mv_s #$ffffffff,r0
+f0001808	nop
+f000180a	rts
+f000180c	nop
+f000180e	mv_s #$ffffffff,r0
+f0001810	nop
+f0001812	rts
+f0001814	nop
+f0001816	mv_s #$ffffffff,r0
+f0001818	nop
+f000181a	rts
+f000181c	nop
+f000181e	mv_s #$ffffffff,r0
+
+f0001820	nop
+f0001822	ld_s rz,r29
+f0001824	sub #$00000010,r31
+f0001826	st_v v7,(r31)
+	sub #$00000020,r31
+f000182e	st_v v3,(r31)
+	sub #$00000010,r31
+f0001834	st_v v4,(r31)
+f0001838	mv_s #$20500ff0,r10
+;R10 = CONFIGA
+f000183e	ld_s (r10),r10
+f0001840	nop
+;R10 = CONFIGA.MMP_RELEASE
+f0001842	lsr #$00000018,r10
+;COMPARE CONFIGA.MMP_RELEASE TO $02
+f0001844	cmp #$00000002,r10
+;IF CONFIGA.MMP_RELEASE IS GREATER THAN $02 (IE ARIES2 OR ARIES3) BRANCH TO NOT_ARIES1
+f0001846	lbra hi,#$f00018b0
+f000184a	add #$00000020,r31,r12
+f0001852	mv_s #$80000023,r10
+
+f0001858	st_s r10,(r12)
+f000185a	add #$00000024,r31,r16
+f0001862	mv_s #$00000000,r28
+f0001864	add #$0000002c,r31,r15
+f000186c	st_s r28,(r16)
+f000186e	add #$00000028,r31,r14
+f0001876	st_s r28,(r15)
+f0001878	mv_s r12,r1
+f000187a	nop
+	mv_s #$8078a588,r13
+;BIOS CALL: COMMSEND
+f0001882	jsr (r13)
+f0001886	st_s r28,(r14)
+;R0 = TARGET = MISCELLANEOUS IO INTERFACE
+f0001888	mv_s #$00000045,r0
+f000188c	mv_s #$80000029,r10
+f0001892	st_s r10,(r12)
+f0001894	sub #$20000029,r10
+f000189a	mv_s r12,r1
+f000189c	st_s r10,(r16)
+f000189e	nop
+	st_s r28,(r15)
+;BIOS CALL: COMMSEND
+f00018a2	jsr (r13)
+f00018a6	st_s r28,(r14)
+;R0 = TARGET = MISCELLANEOUS IO INTERFACE
+f00018a8	mv_s #$00000045,r0
+;BRANCH TO INFINITE LOOP
+f00018ac	lbra #$f00018e6,nop
+
+;NOT_ARIES1:
+;MASK INTERRUPTS
+f00018b0	st_s #$00000088,intctl
+f00018b4	ld_s commctl,r0
+f00018b8	nop
+f00018ba	and #$fffffffe,<>#-13,r0
+;CLEAR COMMCTL.XMITRETRY BIT
+f00018be	st_s r0,commctl
+;WAIT_FOR_XMIT_EMPTY:
+f00018c2	ld_s commctl,r0
+f00018c6	nop
+;TEST COMMCTL.XMITBUFFERFULL BIT
+f00018c8	btst #$0000000f,r0
+;IF XMIT BUFFER IS FULL, BRANCH BACK TO WAIT_FOR_XMIT_EMPTY
+f00018ca	bra ne,#$f00018c2
+f00018cc	nop
+f00018ce	mv_s #$00002044,r0
+
+;SET COMMCTL.XMITRETRY BIT, SET TARGET ID TO $44 (DEBUG CONTROLLER)
+f00018d4	st_s r0,commctl
+f00018d8	mv_s #$80000000,r4
+f00018de	nop
+	mv_s #$00000001,r5
+f00018e2	st_v v1,commxmit
+
+;INFINITE_LOOP:
+f00018e6	lbra #$f00018e6,nop
+f00018ea	nop
+f00018ec	nop
+
+f00018ee	add r0,r0
+f00018f0	add r0,r0
+f00018f2	add r0,r0
+f00018f4	add r0,r0
+f00018f6	add r0,r0
+f00018f8	add r0,r0
+f00018fa	add r0,r0
+f00018fc	add r0,r0
+f00018fe	add r0,r0
+f0001900	add r0,r0
+
+;START OF ROUTINE
+;COPY BIOS ROUTINES TO $80785000 (118.5K!)
+f0001902	mv_s #$f0006940,r0
+f0001908	mv_s #$80785000,r1
+f000190e	mv_s #$0001d9e8,r2
+f0001914	ld_s (r0),r4
+f0001916	add #$00000004,r0
+f0001918	sub #$00000004,r2
+f000191a	cmp #$00000000,r2
+f000191c	bra ne,#$f0001914
+f000191e	st_s r4,(r1)
+f0001920	add #$00000004,r1
+
+;COPY BIOS JUMP TABLE TO $8000000
+f0001922	mv_s #$f0001020,r0
+f0001928	mv_s #$80000000,r1
+f000192e	mv_s #$f0001820,r2
+f0001934	ld_s (r0),r4
+f0001936	add #$00000004,r0
+f0001938	cmp r0,r2
+f000193a	bra ne,#$f0001934
+f000193c	st_s r4,(r1)
+f000193e	add #$00000004,r1
+
+;COPY HAL TABLES?
+f0001940	push v4,rz
+f0001942	jsr #$f0001a20,nop
+f000194a	pop v4,rz
+f000194c	sub_sv v0,v0
+f000194e	mv_s #$f0002640,r0
+f0001954	mv_s #$80780000,r1
+f000195a	mv_s #$00004300,r2
+
+f0001960	ld_s (r0),r4
+f0001962	add #$00000004,r0
+f0001964	sub #$00000004,r2
+f0001966	cmp #$00000000,r2
+f0001968	bra ne,#$f0001960
+f000196a	st_s r4,(r1)
+f000196c	add #$00000004,r1
+
+f000196e	mv_s #$f0001b8c,r0
+f0001974	mv_s #$807a5800,r1
+f000197a	mv_s #$00000a98,r2
+
+f0001980	ld_s (r0),r4
+f0001982	add #$00000004,r0
+f0001984	sub #$00000004,r2
+f0001986	cmp #$00000000,r2
+f0001988	bra ne,#$f0001980
+f000198a	st_s r4,(r1)
+f000198c	add #$00000004,r1
+
+f000198e	mv_s #$80780000,r0
+f0001994	mv_s #$80000800,r1
+f000199a	mv_s #$80780dd0,r2
+
+f00019a0	ld_s (r0),r4
+f00019a2	add #$00000004,r0
+f00019a4	cmp r0,r2
+f00019a6	bra ne,#$f00019a0
+f00019a8	st_s r4,(r1)
+f00019aa	add #$00000004,r1
+
+f00019ac	mv_s #$80780fd4,r0
+f00019b2	mv_s #$80000a30,r1
+f00019b8	add #$00000280,r0,r2
+
+
+f00019c0	ld_s (r0),r4
+f00019c2	add #$00000004,r0
+f00019c4	cmp r0,r2
+f00019c6	bra ne,#$f00019c0
+f00019c8	st_s r4,(r1)
+f00019ca	add #$00000004,r1
+
+
+f00019cc	rts
+f00019ce	nop
+f00019d0	nop
+
+;THE FOLLOWING CODE COPIES THE DATA BLOCK [$80780DD0,$80780FD4] TO [$20100C80,$20100E84]
+;CLEAR DATA ADDRESS WRITE BREAK ENABLE BIT IN MPECTL
+f00019d2	st_s #$00000040,mpectl
+f00019d6	mv_s #$80780dd0,r0
+f00019dc	mv_s #$20100c80,r1
+f00019e2	mv_s #$80780fd4,r2
+f00019e8	ld_s (r0),r4
+f00019ea	add #$00000004,r0
+f00019ec	cmp r0,r2
+f00019ee	bra ne,#$f00019e8
+f00019f0	st_s r4,(r1)
+f00019f2	add #$00000004,r1
+
+;SET DATA ADDRESS BREAK REGISTER TO $20100E80
+f00019f4	nop
+	nop
+	nop
+	st_s #$20100e80,dabreak
+;SET DATA ADDRESS WRITE BREAK ENABLE BIT IN MPECTL
+f0001a02	st_s #$00000080,mpectl
+f0001a06	rts
+f0001a08	nop
+f0001a0a	nop
+
+f0001a0c	add r0,r0
+f0001a0e	add r0,r0
+f0001a10	add r0,r0
+f0001a12	add r0,r0
+f0001a14	add r0,r0
+f0001a16	add r0,r0
+f0001a18	add r0,r0
+f0001a1a	add r0,r0
+f0001a1c	add r0,r0
+f0001a1e	add r0,r0
+
+;START OF ??? ROUTINE
+f0001a20	add r0,r0
+f0001a22	mv_s #$ffffffff,r1
+	sub r0,r0
+f0001a26	mv_s #$80000000,r0
+	copy r0,r8
+f0001a2e	ld_s rz,r10
+f0001a30	nop
+f0001a32	mv_s #$40000000,r1
+	copy r1,r9
+f0001a3a	jsr #$f0001a7c,nop
+f0001a42	st_s r10,rz
+f0001a44	ld_s (r6),r0
+f0001a46	copy r5,r7
+f0001a48	and #$fffffffc,r0,r3
+f0001a4c	and #$00000003,r0,r2
+f0001a50	cmp #$00000003,r2
+f0001a52	lbra ne,#$f0001a72,nop
+	cmp r8,r3
+f0001a58	nop
+	nop
+	lbra cs,#$f0001a72,nop
+	cmp r9,r3
+f0001a62	lbra cc,#$f0001a72,nop
+	eor r7,r3
+f0001a68	ld_s (r3),r1
+f0001a6a	lbra mvs,#$f0001a48
+f0001a6e	ld_s (r6),r0
+f0001a70	add r5,r7
+f0001a72	sub #$00000001,r4
+f0001a74	bra gt,#$f0001a44
+f0001a76	add #$00000004,r6
+f0001a78	rts
+f0001a7a	nop
+
+;START OF ROUTINE
+f0001a7c	nop
+f0001a7e	ld_s dcachectl,r2
+f0001a82	ld_s (r0),r0
+	copy r0,r6
+f0001a86	ld_s (r1),r1
+	copy r2,r5
+f0001a8a	bits #$00000002,>>#8,r5
+f0001a8e	add #$00000001,r5
+f0001a90	mv_s r2,r4
+	bits #$00000001,>>#4,r2
+	mul r5,r6,>>#0,r6
+f0001a9a	add #$0000000a,r2
+f0001a9c	neg r2
+f0001a9e	ls r2,r5,r5
+f0001aa2	and #$00000003,r4,r4
+	rts
+f0001aa8	add #$00000004,r4
+f0001aaa	ls r4,r5,r4
+	mv_s #$20400000,r6
+
+
+f0001ab4	mul_sv v0,v4
+	add r0,r0
+f0001ab8	add r0,r0
+f0001aba	add r0,r0
+f0001abc	add r0,r0
+f0001abe	add r0,r0
+f0001ac0	add r0,r0
+f0001ac2	ld_b ??register,r8
+	eor r16,r0
+f0001ac8	copy r0,r0
+f0001ace	add r0,r0
+f0001ad0	add r0,r0
+f0001ad2	add r0,r0
+f0001ad4	add r0,r0
+f0001ad6	add r0,r0
+f0001ad8	add r0,r0
+f0001ada	and r2,r6
+f0001adc	mul_sv v0,v2
+	add r0,r0
+f0001ae0	add r0,r0
+f0001ae2	add r0,r0
+f0001ae4	add r0,r0
+f0001ae6	add r0,r0
+f0001ae8	add r0,r0
+f0001aea	modulo rx
+dec rc0
+dec rc1
+	mul_sv v0,v2
+	add r0,r0
+f0001af0	add r0,r0
+f0001af2	add r0,r0
+f0001af4	add r0,r0
+f0001af6	add r16,r0
+f0001af8	add r0,r0
+f0001afa	add #$00000000,r0
+f0001afc	add r0,r0
+f0001afe	add r0,r0
+f0001b00	add r0,r0
+f0001b02

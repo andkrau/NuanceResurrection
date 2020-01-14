@@ -1,0 +1,529 @@
+#ifndef MPE_H
+#define MPE_H
+
+#include "InstructionCache.h"
+#include "NativeCodeCache.h"
+#include "NuonMemoryMap.h"
+#include "OverlayManager.h"
+#include "Syscall.h"
+
+class SuperBlock;
+enum SuperBlockCompileType;
+class EmitterVariables;
+
+#define DECOMPRESS_OPTIONS_INHIBIT_ECU (0x00000004UL)
+#define DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST (0x00000002UL)
+#define DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST (0x00000001UL)
+#define MPECTRL_MPEGOCLR (1UL << 0)
+#define MPECTRL_MPEGO (1UL << 1)
+#define MPECTRL_MPESINGLESTEPCLR (1UL << 2)
+#define MPECTRL_MPESINGLESTEP (1UL << 3)
+#define MPECTRL_MPEDARDBRKENCLR (1UL << 4)
+#define MPECTRL_MPEDARDBRKEN (1UL << 5)
+#define MPECTRL_MPEDAWRBRKENCLR (1UL << 6)
+#define MPECTRL_MPEDAWRBRKEN (1UL << 7)
+#define MPECTRL_MPEIS2XCLR (1UL << 8)
+#define MPECTRL_MPEDIS2X (1UL << 9)
+#define MPECTRL_MPEINTTOHOSTCLR (1UL << 10)
+#define MPECTRL_MPEINTTOHOST (1UL << 11)
+#define MPECTRL_MPERESET (1UL << 13)
+#define MPECTRL_MPEWASRESETCLR (1UL << 14)
+#define MPECTRL_MPEWASRESET (1UL << 15)
+#define MPECTRL_MPECYCLETYPEWREN (1UL << 23)
+#define MPECTRL_MPECYCLETYPE (0xFUL << 24)
+
+#define INT_EXCEPTION (1UL)
+#define INT_SOFTWARE (1UL << 1)
+#define INT_COMMRECV (1UL << 4)
+#define INT_COMMXMIT (1UL << 5)
+#define INT_MDMADONE (1UL << 6)
+#define INT_MDMAREADY (1UL << 7)
+#define INT_ODMADONE (1UL << 8)
+#define INT_ODMAREADY (1UL << 9)
+#define INT_VDMADONE (1UL << 12)
+#define INT_VDMAREADY (1UL << 13)
+#define INT_SYSTIMER2 (1UL << 16)
+#define INT_MDMAOTF (1UL << 17)
+#define INT_MDMADUMP (1UL << 18)
+#define INT_MDMAFINISH (1UL << 19)
+#define INT_IICPERIPH (1UL << 20)
+#define INT_BDUERROR (1UL << 21)
+#define INT_BDUMBDONE (1UL << 22)
+#define INT_MCUDCTDONE (1UL << 23)
+#define INT_MCUMBDONE (1UL << 24)
+#define INT_DEBUG (1UL << 25)
+#define INT_HOST (1UL << 26)
+#define INT_AUDIO (1UL << 27)
+#define INT_GPIO (1UL << 28)
+#define INT_SYSTIMER0 (1UL << 29)
+#define INT_SYSTIMER1 (1UL << 30)
+#define INT_VIDTIMER (1UL << 31)
+
+#define CC_NUM_FLAGS (11)
+
+#define SLOT_COPROCESSOR1 (10)
+#define SLOT_COPROCESSOR0 (9)
+#define SLOT_MODMI (8)
+#define SLOT_MODGE (7)
+#define SLOT_COUNTER1_ZERO (6)
+#define SLOT_COUNTER0_ZERO (5)
+#define SLOT_MUL_OVERFLOW (4)
+#define SLOT_ALU_NEGATIVE (3)
+#define SLOT_ALU_OVERFLOW (2)
+#define SLOT_ALU_CARRY (1)
+#define SLOT_ALU_ZERO (0)
+
+#define CC_COPROCESSOR1 (0x400UL)
+#define CC_COPROCESSOR0 (0x200UL)
+#define CC_MODMI (0x100UL)
+#define CC_MODGE (0x80UL)
+#define CC_COUNTER1_ZERO (0x40UL)
+#define CC_COUNTER0_ZERO (0x20UL)
+#define CC_MUL_OVERFLOW (0x10UL)
+#define CC_ALU_NEGATIVE (0x08UL)
+#define CC_ALU_OVERFLOW (0x04UL)
+#define CC_ALU_CARRY (0x02UL)
+#define CC_ALU_ZERO (0x01UL)
+#define CC_ALLFLAGS (0x7FFUL)
+
+/*
+The following sequence describes the condition variable sequence
+utilized by 32/64 bit ECU instructions and TestConditionCode.  The
+decode handler for 16/48 bit ECU instructions will convert to
+this sequence
+*/
+
+#define ECU_CONDITION_NE (0x00UL)
+#define ECU_CONDITION_C0EQ (0x01UL)
+#define ECU_CONDITION_C1EQ (0x02UL)
+#define ECU_CONDITION_CC (0x03UL)
+#define ECU_CONDITION_EQ (0x04UL)
+#define ECU_CONDITION_CS (0x05UL)
+#define ECU_CONDITION_VC (0x06UL)
+#define ECU_CONDITION_VS (0x07UL)
+#define ECU_CONDITION_LT (0x08UL)
+#define ECU_CONDITION_MVC (0x09UL)
+#define ECU_CONDITION_MVS (0x0AUL)
+#define ECU_CONDITION_HI (0x0BUL)
+#define ECU_CONDITION_LE (0x0CUL)
+#define ECU_CONDITION_LS (0x0DUL)
+#define ECU_CONDITION_PL (0x0EUL)
+#define ECU_CONDITION_MI (0x0FUL)
+#define ECU_CONDITION_GT (0x10UL)
+#define ECU_CONDITION_T (0x11UL)
+#define ECU_CONDITION_MODMI (0x12UL)
+#define ECU_CONDITION_MODPL (0x13UL)
+#define ECU_CONDITION_GE (0x14UL)
+#define ECU_CONDITION_MODGE (0x15UL)
+#define ECU_CONDITION_MODLT (0x16UL)
+#define ECU_CONDITION_C0NE (0x18UL)
+#define ECU_CONDITION_CF0LO (0x1BUL)
+#define ECU_CONDITION_C1NE (0x1CUL)
+#define ECU_CONDITION_CF0HI (0x1DUL)
+#define ECU_CONDITION_CF1LO (0x1EUL)
+#define ECU_CONDITION_CF1HI (0x1FUL)
+
+/*
+
+The following sequence is for conditions encoded
+in the 16/48 bit ECU instructions.  The decode handler
+will convert these values to the sequence used by 32/64
+bit ECU instructions and TestConditionCode.
+
+#define ECU_CONDITION_NE (0UL)
+#define ECU_CONDITION_EQ (1UL)
+#define ECU_CONDITION_LT (2UL)
+#define ECU_CONDITION_LE (3UL)
+#define ECU_CONDITION_GT (4UL)
+#define ECU_CONDITION_GE (5UL)
+#define ECU_CONDITION_C0NE (6UL)
+#define ECU_CONDITION_C1NE (7UL)
+#define ECU_CONDITION_C0EQ (8UL)
+#define ECU_CONDITION_CS (9UL)
+#define ECU_CONDITION_MVC (10UL)
+#define ECU_CONDITION_LS (11UL)
+#define ECU_CONDITION_T (12UL)
+#define ECU_CONDITION_MODGE (13UL)
+#define ECU_CONDITION_CF0HI (15UL)
+#define ECU_CONDITION_C1EQ (16UL)
+#define ECU_CONDITION_VC (17UL)
+#define ECU_CONDITION_MVS (18UL)
+#define ECU_CONDITION_PL (19UL)
+#define ECU_CONDITION_MODMI (20UL)
+#define ECU_CONDITION_MODLT (21UL)
+#define ECU_CONDITION_CF1LO (23UL)
+#define ECU_CONDITION_CC (24UL)
+#define ECU_CONDITION_VS (25UL)
+#define ECU_CONDITION_HI (26UL)
+#define ECU_CONDITION_MI (27UL)
+#define ECU_CONDITION_MODPL (28UL)
+#define ECU_CONDITION_CF0LO (30UL)
+#define ECU_CONDITION_CF1HI (31UL)
+*/
+
+#define PACKETSTRUCT_ECU (0)
+#define PACKETSTRUCT_RCU (1)
+#define PACKETSTRUCT_ALU (2)
+#define PACKETSTRUCT_MUL (3)
+#define PACKETSTRUCT_MEM (4)
+
+struct PacketStruct
+{
+  uint32 inputRegisterDependencies[5];
+  uint32 inputMiscDependencies[5];
+  uint32 outputRegisterDependencies[5];
+  uint32 outputMiscDependencies[5];
+
+  //ALU instruction data;
+  uint32 alu_src1;
+  uint32 alu_src2;
+  uint8 alu_control;
+  uint8 alu_dest;
+  uint8 alu_info;
+
+  //MUL instruction data;
+  uint8 mul_control;
+  uint32 mul_src1;
+  uint32 mul_src2;
+  uint8 mul_dest;
+  uint8 mul_shift;
+  
+  uint8 reservedByte;
+
+  //ECU instruction data;
+  uint8 ecu_control;
+  uint32 ecu_condition;
+  int32 ecu_address;
+
+  //Contains Breakpoint and NOP data plus individual resource NOP bits
+  //bits [7:0] are as follows:
+  //7: operand dependency flag (0 = no dependencies: use standard register set, 1 = dependencies: copy all registers, read from copied registers, write to standard registers)
+  //6: alu nop
+  //5: mul nop
+  //4: mem nop
+  //3: rcu nop
+  //2: ecu nop
+  //1: breakpoint
+  //0: all units nop
+
+  uint32 packetInfo;
+
+  //RCU instruction data;
+  uint32 rcu_src;
+  uint8 rcu_control;
+  uint8 rcu_dest;
+
+  uint8 next_packet_offset;
+
+  //MEM instruction data;
+  uint8 mem_control;
+  uint32 mem_from;
+  uint32 mem_to;
+  uint32 *mem_ptr;
+ 
+  uint32 alu_handler;
+  uint32 mul_handler;
+  uint32 mem_handler;
+  uint32 ecu_handler;
+  uint32 rcu_handler;
+};
+
+#define BilinearInfo_XRev(data) (data & (1UL << 30))
+#define BilinearInfo_YRev(data) (data & (1UL << 29))
+#define BilinearInfo_XYChnorm(data) (data & (1UL << 28))
+#define BilinearInfo_XYMipmap(data) ((data >> 24) & 0x07UL)
+#define BilinearInfo_XYType(data) ((data >> 20) & 0x0FUL)
+#define BilinearInfo_XTile(data) ((data >> 16) & 0x0FUL)
+#define BilinearInfo_YTile(data) ((data >> 12) & 0x0FUL)
+#define BilinearInfo_XYWidth(data) (data & 0x7FFUL)
+#define BilinearInfo_PixelWidth(table,data) (table[(data >> 20) & 0x0FUL])
+
+struct sBilinearInfo
+{
+  uint32 xy_mipmap;
+  uint32 xy_type;
+  uint32 x_tile;
+  uint32 y_tile;
+  uint32 xy_width;
+  uint32 pixel_width;
+  bool x_rev;
+  bool y_rev;
+  bool xy_chnorm;
+};
+
+#define REGINDEX_CC (0UL)
+#define REGINDEX_RC0 (1UL)
+#define REGINDEX_RC1 (2UL)
+#define REGINDEX_RX (3UL)
+#define REGINDEX_RY (4UL)
+#define REGINDEX_RU (5UL)
+#define REGINDEX_RV (6UL)
+#define REGINDEX_RZ (7UL)
+#define REGINDEX_RZI1 (8UL)
+#define REGINDEX_RZI2 (9UL)
+#define REGINDEX_XYCTL (10UL)
+#define REGINDEX_UVCTL (11UL)
+#define REGINDEX_XYRANGE (12UL)
+#define REGINDEX_UVRANGE (13UL)
+#define REGINDEX_ACSHIFT (14UL)
+#define REGINDEX_SVSHIFT (15UL)
+
+__declspec(align(16)) class MPE
+{
+  public:
+
+  //don't change the order of these registers! (regs to svshift)
+
+  uint32 regs[32];
+  uint32 cc;
+  uint32 rc0;
+  uint32 rc1;
+  uint32 rx;
+  uint32 ry;
+  uint32 ru;
+  uint32 rv;
+  uint32 rz;
+  uint32 rzi1;
+  uint32 rzi2;
+  uint32 xyctl;
+  uint32 uvctl;
+  uint32 xyrange;
+  uint32 uvrange;
+  uint32 acshift;
+  uint32 svshift;
+
+  //don't change the order of the temp registers!
+  uint32 tempScalarRegs[32];
+  uint32 tempCC;
+  uint32 tempRc0;
+  uint32 tempRc1;
+  uint32 tempRx;
+  uint32 tempRy;
+  uint32 tempRu;
+  uint32 tempRv;
+  uint32 tempRz;
+  uint32 tempRzi1;
+  uint32 tempRzi2;
+  uint32 tempXyctl;
+  uint32 tempUvctl;
+  uint32 tempXyrange;
+  uint32 tempUvrange;
+  uint32 tempAcshift;
+  uint32 tempSvshift;
+
+  uint32 mpectl;
+  uint32 excepsrc;
+  uint32 excepclr;
+  uint32 excephalten;
+  uint32 pcfetch;
+  uint32 pcroute;
+  uint32 pcexec;
+  uint32 intvec1;
+  uint32 intvec2;
+  uint32 intsrc;
+  uint32 intclr;
+  uint32 intctl;
+  uint32 inten1;
+  uint32 inten1set;
+  uint32 inten1clr;
+  uint32 inten2sel;
+  uint32 xybase;
+  uint32 uvbase;
+  uint32 linpixctl;
+  uint32 clutbase;
+  uint32 sp;
+  uint32 dabreak;
+  uint32 odmactl;
+  uint32 odmacptr;
+  uint32 mdmactl;
+  uint32 mdmacptr;
+  uint32 comminfo;
+  uint32 commctl;
+  uint32 commxmit0;
+  uint32 commxmit1;
+  uint32 commxmit2;
+  uint32 commxmit3;
+  uint32 commrecv0;
+  uint32 commrecv1;
+  uint32 commrecv2;
+  uint32 commrecv3;
+  uint32 configa;
+  uint32 configb;
+  uint32 dcachectl;
+  uint32 icachectl;
+  uint32 vdmactla;
+  uint32 vdmactlb;
+  uint32 vdmaptra;
+  uint32 vdmaptrb;
+
+  //emulator variables
+
+  uint8 *dtrom;
+  uint32 pcfetchnext;
+  uint32 prevPcexec;
+  uint32 breakpointAddress;
+  uint32 ecuSkipCounter;
+  uint64 cycleCounter;
+  uint64 cacheMissCounter;
+
+  uint8 bUsingCompositeFlags;
+  uint32 strictMemoryPolicyMiscInputDependencies;
+  uint32 strictMemoryPolicyMiscOutputDependencies;
+
+  uint32 overlayIndex;
+  uint32 overlayMask;
+  uint32 interpretNextPacket;
+  uint32 invalidateRegionStart;
+  uint32 invalidateRegionEnd;
+  uint32 interpreterInvalidateRegionStart;
+  uint32 interpreterInvalidateRegionEnd;
+  bool bInvalidateInterpreterCache;
+  bool bInvalidateInstructionCaches;
+  bool bInterpretedBranchTaken;
+
+  uint32 numInterpreterCacheFlushes;
+  uint32 numNativeCodeCacheFlushes;
+  uint32 numNonCompilablePackets;
+  uint32 mpeStartAddress;
+  uint32 mpeEndAddress;
+  uint32 mpeIndex;
+  InstructionCacheEntry * volatile pICacheEntry;
+  InstructionCache *instructionCache;
+  SuperBlock *superBlock;
+  NativeCodeCache *nativeCodeCache;
+  OverlayManager *overlayManager;
+
+  uint8 *bankPtrTable[16];
+  static uint8 mirrorLookup[256];
+
+  sBilinearInfo sBIXY;
+  sBilinearInfo sBIUV;
+
+  InstructionCacheEntry ICacheEntry_SaveRegs;
+  InstructionCacheEntry ICacheEntry_SaveFlags;
+
+  bool bStrictMemoryDependencyPolicy;
+  uint32 strictMemoryMiscInputDependencies;
+  uint32 strictMemoryMiscOutputDependencies;
+  
+  void AllocateMPELocalMemory();
+  void FreeMPELocalMemory();
+  uint8 DecodeSingleInstruction(uint8 *iPtr, InstructionCacheEntry *pStruct, uint32 *immExt, bool &bTerminating);
+  uint32 GetPacketDelta(uint8 *iPtr, uint32 numLevels);
+  void DecompressPacket(uint8 *iBuffer, InstructionCacheEntry *pStruct, uint32 options = 0);
+  bool ChooseInstructionPairOrdering(InstructionCacheEntry *entry, uint32 slot1, uint32 slot2);
+  uint32 ScoreInstructionTriplet(InstructionCacheEntry *srcEntry, uint32 slot1, uint32 slot2, uint32 slot3);
+  void GetInstructionTripletDependencies(uint32 *comboScalarDep, uint32 *comboMiscDep, InstructionCacheEntry *srcEntry, uint32 slot1, uint32 slot2, uint32 slot3);
+  void ScheduleInstructionTriplet(InstructionCacheEntry *destEntry, uint32 baseSlot, InstructionCacheEntry *srcEntry, uint32 slot1, uint32 slot2, uint32 slot3);
+  void ScheduleInstructionQuartet(InstructionCacheEntry *destEntry, uint32 baseSlot, InstructionCacheEntry *srcEntry);
+  NativeCodeCacheEntryPoint CompileNativeCodeBlock(uint32 pcexec, SuperBlockCompileType compileType, bool &bError, bool bSinglePacket = false);
+  bool FetchDecodeExecute();
+  void ExecuteSingleStep();
+  void ExecuteNuances(InstructionCacheEntry &iCacheEntry);
+  uint32 GetControlRegisterInputDependencies(uint32 address, bool &bException);
+  uint32 GetControlRegisterOutputDependencies(uint32 address, bool &bException);
+  void DecodeInstruction_RCU16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
+  void DecodeInstruction_ECU16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
+  void DecodeInstruction_ECU32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
+  void DecodeInstruction_ALU16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
+  void DecodeInstruction_ALU32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
+  void DecodeInstruction_MEM16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
+  void DecodeInstruction_MEM32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
+  void DecodeInstruction_MUL16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
+  void DecodeInstruction_MUL32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
+  void GenerateMirrorLookupTable();
+  void InitializeBankTable(uint8 *mainBusPtr, uint8 *systemBusPtr, uint8 *flashEEPROMPtr);
+  void CalculateBilinearAddress(uint32 *pBaseAddress, sBilinearInfo *bi, uint32 x, uint32 y);
+  bool TestConditionCode(uint32 whichCondition);
+  
+  MPE(uint32 index);
+  ~MPE();
+
+  bool LoadBinaryFile(uchar *filename, bool bIRAM);
+
+#define ExecuteSingleCycle() FetchDecodeExecute()
+
+  //bool ExecuteSingleCycle()
+  //{
+  //  return FetchDecodeExecute();
+  //}
+
+  bool ExecuteUntilAddress(uint32 address);
+
+  inline void InvalidateICache()
+  {
+    numInterpreterCacheFlushes++;
+    instructionCache->Invalidate();
+  }
+
+  inline void InvalidateICacheRegion(uint32 start, uint32 end)
+  {
+    numInterpreterCacheFlushes++;
+    instructionCache->InvalidateRegion(start, end);
+  }
+
+  void WriteControlRegister(uint32 address, uint32 data);
+  void SaveRegisters();
+  void InitStaticICacheEntries();
+  uint32 ReadControlRegister(uint32 address, InstructionCacheEntry *entry);
+
+  inline void Halt(void)
+  {
+    mpectl &= ~MPECTRL_MPEGO;
+  }
+
+  inline void Go(void)
+  {
+    mpectl |= MPECTRL_MPEGO;
+  }
+
+  inline void TriggerInterrupt(uint32 which)
+  {
+    intsrc |= which;
+    Syscall_InterruptTriggered(this);
+  }
+
+  inline void *GetPointerToMemory(void)
+  {
+    return dtrom;
+  }
+
+  uint8 *GetPointerToMemoryBank(uint32 address)
+  {
+    return bankPtrTable[address >> 28] + (address & MPE_VALID_MEMORY_MASK);
+  }
+
+  void UpdateInvalidateRegion(uint32 start, uint32 length);
+
+  void PrintInstructionCachePacket(char *buffer, uint32 address);
+  void PrintInstructionCachePacket(char *buffer, InstructionCacheEntry &entry);
+
+  void Reset();
+  bool LoadCoffFile(char *filename, bool bSetEntryPoint = true, int handle = -1);
+  bool LoadNuonRomFile(char *filename);
+  //void LoadByte(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
+  //void LoadWord(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
+  //void LoadScalar(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, PacketStruct *pStruct);
+  //void LoadShortVector(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
+  //void LoadVector(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, PacketStruct *pStruct);
+  //void LoadPixel(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, unsigned __int32 pixType, unsigned __int32 subpixel, bool bChnorm);
+  //void LoadPixelZ(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, unsigned __int32 pixType, unsigned __int32 subpixel, bool bChnorm);
+  //void StoreByte(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
+  //void StoreWord(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
+  //void StoreScalar(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
+  //void StoreScalarImmediate(unsigned __int32 immediateData, unsigned __int32 address);
+  //void StoreShortVector(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
+  //void StoreVector(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
+  //void StorePixel(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, unsigned __int32 pixType, unsigned __int32 subpixel, bool bChnorm);
+  //void StorePixelZ(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, unsigned __int32 pixType, unsigned __int32 subpixel, bool bChnorm);
+};
+
+typedef void (* NuanceHandler)(MPE &, InstructionCacheEntry &, Nuance &);
+typedef void NuanceHandlerProto(MPE &, InstructionCacheEntry &, Nuance &);
+typedef uint32 (* NuancePrintHandler)(char *, Nuance &, bool);
+typedef uint32 NuancePrintHandlerProto(char *, Nuance &, bool);
+typedef void (* NativeEmitHandler)(EmitterVariables *, Nuance &);
+typedef void NativeEmitHandlerProto(EmitterVariables *, Nuance &);
+typedef void (* NativeCodeBlockFunction)();
+
+#endif

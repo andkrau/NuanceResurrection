@@ -1,0 +1,170 @@
+Dynamic Recompiler:
+
+Overview
+========
+
+Nuance normally interprets single instruction packets by decoding the instruction packet at the current
+pcexec location.  The decoded packets are stored in a small direct-mapped cache so that the full decode
+process can be skipped if the packet is executed multiple times.  Each time a cached instruction packet
+is interpreted, an access count is incremented and compared against a threshold value.  If the access
+count is equal to the threshold count, the emulator will attempt to compile a contiguous block of
+instructions starting with the packet at the current pcexec location.  Once an instruction block is
+compiled, it is placed into a separate code cache.  If the starting pcexec value is encountered in the
+future, the emulator will execute the compiled block rather than interpreting the single instruction
+packet that may or may not be present in the interpreter cache.
+
+Why compile?
+============
+
+The main loop of the emulator is approximately the following:
+
+1) Execute a single cycle on MPE3
+2) Execute a single cycle on MPE2
+3) Execute a single cycle on MPE1
+4) Execute a single cycle on MPE0
+5) Process the communications bus
+
+Executing a single cycle on each processor entails the following:
+
+1) Check the interpreter cache for the packet at the current pcexec location.
+2) If the packet was not cached, decode the packet and place it into the instruction cache.
+3) If any interrupt bits are set, check the interrupt mask registers and jump to the appropriate location and exit
+4) If no unmasked interrupts are pending, call the instruction handlers for each instruction in the packet
+5) Copy pcroute to pcexec
+6) Decrement the ECU skip counter if it is non-zero and copy pcfetch to pcexec if it was decremented to zero
+7) Check for halting exceptions and halt the processor if any are present
+8) Halt the processor if pcexec matches the address specified in breakpoint.txt
+
+All of these steps are necessary but the only steps that perform useful work are steps 5 of the main loop
+and step 4 of the processor execute loop.  The remainder of the tasks are more or less overhead that decrease
+the number of packets that the emulator can execute per second.
+
+When the dynamic compiler is enabled, the main loop stays the same but the processor loop is modified:
+
+1) If the ECU skip counter is non-zero, skip to step 3
+1) Check the code cache for a block at the current pcexec location
+2) If a block was found, skip to step 7
+3) Check the interpreter cache for the packet at the current pcexec location.
+4) If the packet was not cached, decode the packet and place it into the instruction cache.
+5) If the packet was cached, increment the access count
+6) If the access count is equal to the compile threshold, mark the packet as compiled and compile the block
+   starting at the current pcexec location
+7) If any interrupt bits are set, check the interrupt mask registers and jump to the appropriate location and exit
+8) If a code cache entry was found, execute the block and skip to step 11
+9) Call the instruction handler for each instruction in the packet
+10) Copy pcroute to pcexec
+11) Decrement the ECU skip counter if it is non-zero and copy pcfetch to pcexec if it was decremented to zero
+12) Check for halting exceptions and halt the processor if any are present
+13) Halt the processor if pcexec matches the address specified in breakpoint.txt
+
+The number of steps executed per loop is increased but now packet execution has been replaced by block execution.
+Compiled blocks may contain up to 240 packets and it is not uncommon to encounter blocks of more than 30 packets.
+The benefit of executing blocks of packets is that overhead is amortized over the number of packets contained in
+a block.  In particular, the overhead of fetching mutliple packets is reduced to the overhead of fetching a single
+packet, interrupts are checked only once per block and many function calls and returns are eliminated.  
+
+Once the overhead of the processor loop is reduced as much as possible, the only way to improve performance is
+to reduce the amount of processing time spent by the instruction handlers.  Fortunately, interpretation creates
+plenty of overhead that can be removed at runtime.  In particular, the instruction handlers manipulate a good deal
+of information that is unknown at compile-time but becomes known at run-time.  Pointers can be replaced by absolute
+addresses and some function calls can be replaced by inline code.
+
+The process
+===========
+
+The compilation process is carried out in a four step process
+
+1) Instruction selection
+
+The very first step is to select the packets that are to be compiled.  The routine responsible for carrying out this
+task must decode packets in sequential order, starting from the entry point, and determine if the enclosed instructions
+should be added to the block of instructions to be compiled or if the block should be terminated.  The current
+implementation will add packets until a packet limit is reached or if a non-compilable instruction is encountered.
+
+The instruction selection routine also determines the form of the compiled blocks.  Blocks can be compiled as
+blocks of intermediate language (IL) nodes or as native machine code.  Some instructions can be compiled that do
+not allow for native compilation.  If the compiler encounters a packet that cannot be compiled natively, it must
+decide whether to force the block to be compiled as IL or to exclude the packet and terminate the block.
+
+2) Constant propagation
+
+In this phase, constant folding and constant propagation are performed.  Constant folding involves the replacement of
+expressions with a constant when the result of the expression can be computed from known values.  Constant propagation
+involves taking the constants that are known after evaluating one instruction and propagating the constants forwared
+to the next instruction.  By evaluating instructions and propogating constants through the block, register operands
+can be replaced by constants, allowing instructions to be simplified.  In the cases where the result of an operation
+can be calculated from known constants, artithmetic instructions can be replaced by simple memory moves.  In every
+case, the input dependencies and outputs of each instruction are tracked for use in the dead code elimination stage.
+
+Example:
+
+mv_s #$10001000, r0 [out: r0]
+mv_s #01110111, r1 [out: r1]
+add r0, r1, r2 [in: r0, r1; out: r2, N, V, Z, C]
+mul #$2, r2, >>#0, r2 [in: r2; out: r2, MV]
+or r2, r3, r4 [in: r2, r3; out: r4, N, V, Z]
+
+becomes
+
+mv_s #$10001000, r0 [out: r0]
+mv_s #$01110111, r1 [out: r1]
+mv_s #$11111111, r2 [out: r2, N = 1, V = 0, Z = 0, C = 0]
+mv_s #$22222222, r2 [out: r2, MV]
+or #$22222222, r3, r1 [in: r3, out: r1, N, V, Z]
+
+3) Dead code elimination
+
+Dead code elimination uses data-flow analysis to analyze the dependency information for each instruction in the block.
+If an instruction I outputs to a register R then if no following instructions have register R as an input dependency 
+prior to another instruction that outputs to register R then the original instruction can safely ignore the output to
+register R.  If an instruction has all outputs removed then the instruction can be considered dead code and need
+not be emitted when the code block is generated.  Each flag of the condition codes register is tracked as a separate
+dependency.  The native instruction emitters make use of these dependencies when generating machine code and will
+skip flag calculations for any flags that do not need to be updated for a particular instruction.  
+
+Example:
+
+mv_s #$10001000, r0 [out: r0]
+mv_s #01110111, r1 [out: r1]
+add r0, r1, r2 [in: r0, r1; out: r2, N, V, Z, C]
+mul #$2, r2, >>#0, r2 [in: r2; out: r2, MV]
+or r2, r3, r1 [in: r2, r3; out: r1, N, V, Z]
+
+becomes
+
+mv_s #$10001000, r0 [out: r0]
+nop [dead code]
+nop [out: C = 0]
+mv_s #$22222222, r2 [out: r2, MV]
+or #$22222222, r3, r1 [in: r3, out: r1, N, V, Z]
+
+4) Code generation
+
+The final phase involves generating IL nodes or blocks of machine code and writing the code out to the code cache.
+In the case of IL nodes, the process is a simple memory copy as the IL information can be copied directly from
+the IL list that the compiler used throughout the compiling process.  The emulator can use a simple loop to execute
+an IL block by calling each instruction handler represented in block.  Although the IL block form utilizes
+interpretation, the aggregation of multiple instruction packets allows for optimization of the instruction stream
+which is not possible when treating instruction packets separately.   When the code block can be emitted as
+machine code, efficiency is increased further.  Native code emission allows for the instruction handler code to be
+inlined and condition code calculations can take advantage of the x86 flags.  Furthermore, the native code emitters
+take advantage of dependency information to eliminate condition code calculations that have no effect on the processor
+state at the end of the block.
+
+Overlay management
+==================
+
+Many games use overlays to execute rendering code on multiple MPEs in parallel.  In some cases, multiple overlays
+are swapped in and out of local MPE memory on a per-frame basis.  In a naive implementation, this would cause
+invalidation of the code cache each time a new overlay is loaded.  As an example, Tempest 3000 contains over 16
+overlays of which four or more may be used per frame.  To avoid having to recompile static overlay code and to
+mitigate the overhead of invalidating the code cache, the emulator keeps track of invalidated regions of IRAM and
+delays cache invalidation until the program counter has entered an invalidated region.  When an invalidated region
+is entered, the CRC32 of the IRAM data is calculated and compared against a list of stored CRC values for up to
+32 overlays.  The emulator uses the overlay index to map the 4K/8K IRAM region to the larger 1 MB reserved IRAM
+address space.  Utilizing address translation, up to 32 seperate IRAM states may exist within the code cache at
+any given time.  If all 32 overlay address regions are in use and the IRAM state does not match any of the stored
+CRC values, an overlay region is reassigned and the cache region must be flushed.  If the CRC matches, however,
+the emulator can use the overlay code that was compiled at an earlier time.  Given a large enough code cache, static
+overlay code will never be compiled more than once.  This technique will also work for overlay code that is
+generated at run-time such as the dynamic pipeline code created by MML3D.

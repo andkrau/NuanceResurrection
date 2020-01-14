@@ -1,0 +1,6112 @@
+;Called by MediaInitMPE (if allocating to MPE0)
+8079d940	ld_s rz,r29
+8079d942	sub #$00000010,r31
+8079d944	st_v v7,(r31)
+	sub #$00000010,r31
+8079d94a	st_v v3,(r31)
+;BIOS Call: MPEStop(mpe=0)
+8079d94e	jsr #$80000340
+8079d956	mv_s #$00000000,r0
+8079d958	nop
+	mv_s #$20301a80,r12
+8079d960	mv_s #$80000388,r28
+8079d966	mv_s #$00000000,r0
+8079d968	mv_s r12,r1
+;BIOS Call: MPELoad(mpe=0,mpeaddr=$203001a80,linkaddr=$f0026b08,size=$540)
+8079d96a	jsr (r28)
+8079d96e	mv_s #$f0026b08,r2
+8079d974	mv_s #$00000540,r3
+8079d97a	nop
+	nop
+	mv_s #$00000000,r0
+8079d980	mv_s #$20101a00,r1
+;BIOS Call: MPELoad(mpe=0,mpeaddr=$201001a00,linkaddr=$f0026510,size=$5f4)
+8079d986	jsr (r28)
+8079d98a	mv_s #$f0026510,r2
+8079d990	mv_s #$000005f4,r3
+
+8079d996	mv_s #$00000000,r0
+8079d998	nop
+	mv_s #$20301fc0,r1
+;BIOS Call: MPELoad(mpe=0,mpeaddr=$203001fc0,linkaddr=$f0027048,size=$40)
+8079d9a0	jsr (r28)
+8079d9a4	mv_s #$f0027048,r2
+8079d9aa	mv_s #$00000040,r3
+
+;BIOS Call: MPERun
+8079d9b0	jsr #$80000348
+8079d9b8	mv_s r12,r1
+8079d9ba	nop
+	nop
+	mv_s #$00000000,r0
+;Epilogue:
+8079d9c0	ld_v (r31),v3
+	add #$00000010,r31
+8079d9c6	ld_v (r31),v7
+8079d9ca	nop
+8079d9cc	st_s r29,rz
+8079d9ce	rts
+8079d9d0	add #$00000010,r31
+8079d9d2	nop
+
+;Called by MediaInitMPE (if allocating to mpe other than MPE0)
+8079d9d4	ld_s rz,r29
+8079d9d6	sub #$00000010,r31
+8079d9d8	nop
+	st_v v7,(r31)
+	sub #$00000010,r31
+8079d9e0	st_v v3,(r31)
+;BIOS Call: MPEStop(media_mpe)
+8079d9e4	jsr #$80000340
+8079d9ec	mv_s r0,r28
+8079d9ee	mv_s #$20300a80,r13
+8079d9f4	mv_s #$80000388,r12
+8079d9fa	mv_s r28,r0
+8079d9fc	nop
+	mv_s r13,r1
+;BIOS Call: MPELoad(mpe=media_mpe,mpeaddr=$20300a80,linkaddr=$f0027688,size=$540)
+8079da00	jsr (r12)
+8079da04	mv_s #$f0027688,r2
+8079da0a	mv_s #$00000540,r3
+8079da10	mv_s r28,r0
+8079da12	mv_s #$20100a00,r1
+;BIOS Call: MPELoad(mpe=media_mpe,mpeaddr=$20100a00,linkaddr=$f0027090,size=$5f4)
+8079da18	nop
+	nop
+	jsr (r12)
+8079da20	mv_s #$f0027090,r2
+8079da26	mv_s #$000005f4,r3
+8079da2c	mv_s r28,r0
+8079da2e	mv_s #$20300fc0,r1
+;BIOS Call: MPELoad(mpe=media_mpe,mpeaddr=$20300fc0,linkaddr=$f0027bc8,size=$40)
+8079da34	jsr (r12)
+8079da38	nop
+	mv_s #$f0027bc8,r2
+8079da40	mv_s #$00000040,r3
+;BIOS Call: MPERun
+8079da46	jsr #$80000348
+8079da4e	mv_s r28,r0
+8079da50	mv_s r13,r1
+;Epilogue:
+8079da52	ld_v (r31),v3
+	add #$00000010,r31
+8079da58	ld_v (r31),v7
+8079da5c	nop
+8079da5e	st_s r29,rz
+8079da60	rts
+8079da62	add #$00000010,r31
+8079da64	nop
+
+8079da66	add r0,r0
+8079da68	add r0,r0
+8079da6a	add r0,r0
+8079da6c	add r0,r0
+8079da6e	add r0,r0
+8079da70	add r0,r0
+8079da72	add r0,r0
+8079da74	add r0,r0
+8079da76	add r0,r0
+8079da78	add r0,r0
+8079da7a	add r0,r0
+8079da7c	add r0,r0
+8079da7e	add r0,r0
+
+8079da80	ld_s rz,r29
+8079da82	sub #$00000010,r31
+8079da84	st_v v7,(r31)
+	sub #$00000030,r31
+8079da8c	st_v v3,(r31)
+	sub #$00000010,r31
+8079da92	st_v v4,(r31)
+	sub #$00000010,r31
+8079da98	nop
+	st_v v5,(r31)
+	sub #$00000010,r31
+8079daa0	st_v v6,(r31)
+8079daa4	mv_s #$f002800c,r21
+8079daaa	mv_s #$f0028008,r10
+8079dab0	ld_s (r10),r10
+8079dab2	ld_s (r21),r11
+8079dab4	nop
+8079dab6	mul r10,r11
+8079dab8	mv_s r0,r17
+8079daba	mv_s r1,r16
+8079dabc	nop
+	lsr #$00000004,r10
+8079dac0	mv_s #$f0028010,r0
+8079dac6	asl #$fffffff0,r10
+8079dac8	mv_s #$f0027c08,r1
+8079dace	or #$00008a10,r10,r24
+8079dad6	mv_s #$00000000,r18
+8079dad8	jsr #$80783130
+8079dae0	or #$00008a00,r10,r22
+8079dae8	add r11,r17,r23
+8079daec	ld_s (r21),r10
+8079daee	nop
+8079daf0	cmp r10,r18
+8079daf2	lbra cc,#$8079dc34
+8079daf6	nop
+8079daf8	nop
+	mv_s #$f0028008,r10
+8079db00	mv_s #$00010000,r19
+8079db06	mv_s #$f0028008,r10
+8079db0c	mv_s r10,r20
+8079db0e	ld_s (r20),r11
+8079db10	nop
+8079db12	mv_s #$00000000,r15
+8079db14	cmp r11,r15
+8079db16	lbra cc,#$8079dc20,nop
+8079db1a	ld_s (r20),r11
+8079db1c	nop
+	nop
+8079db20	mv_s #$00000100,r14
+8079db24	sub r15,r11,r10
+8079db28	cmp r10,r14
+8079db2a	lbra ls,#$8079db34
+8079db2e	nop
+8079db30	mv_s #$00000000,r13
+8079db32	mv_s r10,r14
+8079db34	cmp r14,r13
+8079db36	lbra ge,#$8079dbe0
+8079db3a	nop
+8079db3c	nop
+	mv_s r16,r30
+8079db40	mv_s #$8078314a,r28
+8079db46	jsr (r28)
+8079db4a	add #$00000040,r31,r12
+8079db52	add #$00000008,r13
+8079db54	jsr (r28)
+8079db58	nop
+8079db5a	st_s r0,(r12)
+8079db5c	jsr (r28)
+8079db60	add #$00000044,r31,r10
+8079db68	st_s r0,(r10)
+8079db6a	jsr (r28)
+8079db6e	add #$00000048,r31,r10
+8079db76	st_s r0,(r10)
+8079db78	nop
+	nop
+	jsr (r28)
+8079db80	add #$0000004c,r31,r10
+8079db88	st_s r0,(r10)
+8079db8a	jsr (r28)
+8079db8e	add #$00000050,r31,r10
+8079db96	st_s r0,(r10)
+8079db98	nop
+	nop
+	jsr (r28)
+8079dba0	add #$00000054,r31,r10
+8079dba8	st_s r0,(r10)
+8079dbaa	jsr (r28)
+8079dbae	add #$00000058,r31,r10
+8079dbb6	st_s r0,(r10)
+8079dbb8	add #$0000005c,r31,r10
+8079dbc0	mv_s r30,r1
+8079dbc2	st_s r0,(r10)
+8079dbc4	jsr #$8079dc80
+8079dbcc	add #$00000010,r30
+8079dbce	mv_s r12,r0
+8079dbd0	cmp r14,r13
+8079dbd2	lbra lt,#$8079db46
+8079dbd6	nop
+8079dbd8	nop
+	mv_s #$8078314a,r28
+8079dbe0	asl #$fffffff0,r14,r28
+8079dbe4	mv_s #$8078d600,r30
+8079dbea	add r15,>>#-1,r28
+8079dbee	mv_s r22,r0
+8079dbf0	mv_s r17,r1
+8079dbf2	mv_s r28,r2
+8079dbf4	jsr (r30)
+8079dbf8	mv_s r19,r3
+8079dbfa	mv_s r16,r4
+8079dbfc	and #$00000001,r18,r10
+8079dc00	cmp #$00000000,r10
+8079dc02	bra ne,#$8079dc14
+8079dc04	mv_s r28,r2
+8079dc06	add #$00000008,r16,r4
+8079dc0a	mv_s r24,r0
+8079dc0c	jsr (r30)
+8079dc10	mv_s r23,r1
+8079dc12	mv_s r19,r3
+8079dc14	ld_s (r20),r10
+8079dc16	add #$00000100,r15
+8079dc1a	cmp r10,r15
+8079dc1c	lbra cs,#$8079db1a,nop
+8079dc20	ld_s (r21),r11
+8079dc22	add #$00000001,r18
+8079dc24	cmp r11,r18
+8079dc26	lbra cs,#$8079db06
+8079dc2a	nop
+8079dc2c	add #$00000002,r19
+8079dc2e	mv_s #$f0028008,r10
+8079dc34	ld_s (r10),r2
+8079dc36	nop
+8079dc38	nop
+	mv_s #$f002800c,r10
+8079dc40	lsr #$00000003,r2,r1
+8079dc44	ld_s (r10),r3
+8079dc46	asl #$fffffff0,r1
+8079dc48	jsr #$800000b8
+8079dc50	mv_s r17,r0
+8079dc52	mv_s #$00000000,r4
+8079dc54	ld_v (r31),v6
+	add #$00000010,r31
+8079dc5a	ld_v (r31),v5
+	add #$00000010,r31
+8079dc60	ld_v (r31),v4
+	add #$00000010,r31
+8079dc66	ld_v (r31),v3
+	add #$00000030,r31
+8079dc6e	ld_v (r31),v7
+8079dc72	nop
+8079dc74	st_s r29,rz
+8079dc76	rts
+8079dc78	add #$00000010,r31
+8079dc7a	nop
+
+8079dc7c	add r0,r0
+8079dc7e	add r0,r0
+8079dc80	push v2
+8079dc82	push v3
+8079dc84	push v4
+8079dc86	push v5
+8079dc88	st_s #$00400000,linpixctl
+8079dc90	mv_s #$00000004,r2
+8079dc92	nop
+	nop
+	nop
+	ld_p (r0),v1
+	addm r2,r0,r0
+8079dca0	ld_p (r0),v2
+	addm r2,r0,r0
+8079dca8	asl #$fffffffe,r4,r20
+8079dcac	add r5,r9,r12
+8079dcb0	nop
+	nop
+	add r6,r10,r14
+	ld_p (r0),v1
+	addm r2,r0,r0
+8079dcc0	ld_p (r0),v2
+	addm r2,r0,r0
+	or r8,>>#6,r20
+8079dccc	asl #$fffffffe,r4,r21
+8079dcd0	add r5,r9,r16
+8079dcd4	add r6,r10,r18
+	ld_p (r0),v1
+	addm r2,r0,r0
+8079dce0	ld_p (r0),v2
+	addm r2,r0,r0
+	or r8,>>#6,r21
+8079dcec	asl #$fffffffe,r4,r22
+8079dcf0	add r5,r9,r13
+8079dcf4	add r6,r10,r15
+	ld_p (r0),v1
+	addm r2,r0,r0
+8079dd00	ld_p (r0),v2
+	addm r2,r0,r0
+	or r8,>>#6,r22
+8079dd0c	asl #$fffffffe,r4,r23
+8079dd10	or r8,>>#6,r23
+8079dd14	nop
+	add r5,r9,r17
+	mv_s #$00020000,r3
+8079dd20	add r6,r10,r19
+	mul_sv r3,v3,>>#$00000008,v3
+8079dd28	mul_sv r3,v4,>>#$00000008,v4
+	mv_s #$01000000,r3
+8079dd32	mul_sv r3,v3,>>#$00000000,v3
+	mv_s #$00010000,r3
+8079dd3c	mul_sv r3,v4,>>#$00000000,v4
+8079dd40	st_sv v5,(r1)
+	add #$00000008,r1
+8079dd46	add_sv v4,v3
+8079dd48	st_sv v3,(r1)
+8079dd4c	pop v5
+8079dd4e	pop v4
+8079dd50	rts
+	pop v3
+8079dd54	pop v2
+8079dd56	nop
+8079dd58	add r0,r0
+8079dd5a	add r0,r0
+8079dd5c	add r0,r0
+8079dd5e	add r0,r0
+8079dd60	ld_s rz,r29
+8079dd62	sub #$00000010,r31
+8079dd64	st_v v7,(r31)
+	sub #$00000010,r31
+8079dd6a	st_v v3,(r31)
+8079dd6e	mv_s r1,r15
+8079dd70	mv_s r2,r13
+8079dd72	mv_s r0,r28
+8079dd74	cmp r13,r28
+8079dd76	bra ge,#$8079ddc4
+8079dd78	mv_s r3,r12
+8079dd7a	mv_s r4,r14
+8079dd7c	mv_s r15,r30
+8079dd7e	cmp r12,r30
+8079dd80	bra ge,#$8079ddba
+8079dd82	mv_s #$00080000,r2
+8079dd88	or r2,r30,r3
+8079dd8c	mv_s #$082dc840,r0
+8079dd92	mv_s #$40000000,r1
+8079dd98	nop
+	nop
+	nop
+	or r28,r2
+8079dda0	jsr #$80000190
+8079dda8	mv_s r14,r4
+8079ddaa	add #$00000008,r30
+8079ddac	cmp r12,r30
+8079ddae	bra lt,#$8079dd8c
+8079ddb0	mv_s #$00080000,r2
+8079ddb6	or r2,r30,r3
+8079ddba	add #$00000008,r28
+8079ddbc	cmp r13,r28
+8079ddbe	bra lt,#$8079dd7e
+8079ddc0	nop
+8079ddc2	mv_s r15,r30
+8079ddc4	ld_v (r31),v3
+	add #$00000010,r31
+8079ddca	ld_v (r31),v7
+8079ddce	nop
+8079ddd0	st_s r29,rz
+8079ddd2	rts
+8079ddd4	add #$00000010,r31
+8079ddd6	nop
+8079ddd8	ld_s rz,r29
+8079ddda	nop
+	nop
+	sub #$00000010,r31
+8079dde0	st_v v7,(r31)
+	sub #$00000010,r31
+8079dde6	st_v v3,(r31)
+8079ddea	jsr #$80000030
+8079ddf2	mv_s #$40000000,r28
+8079ddf8	mv_s #$8079dd60,r30
+8079ddfe	mv_s r0,r15
+8079de00	mv_s r28,r0
+8079de02	mv_s #$002dc840,r1
+8079de08	mv_s #$00000168,r2
+8079de0c	jsr #$800000b8
+8079de14	mv_s #$000000f0,r3
+8079de18	mv_s #$00000000,r4
+8079de1a	mv_s #$00000000,r0
+8079de1c	nop
+	mv_s #$00000000,r1
+8079de20	mv_s #$00000168,r2
+8079de24	jsr (r30)
+8079de28	mv_s #$000000f0,r3
+8079de2c	mv_s #$60808000,r4
+8079de32	mv_s #$80000190,r12
+8079de38	mv_s #$082dc840,r0
+8079de3e	mv_s r28,r1
+8079de40	mv_s #$00010078,r2
+8079de46	jsr (r12)
+8079de4a	mv_s #$000e0052,r3
+8079de50	mv_s #$a28e2c00,r4
+8079de56	nop
+	nop
+	mv_s #$41d46400,r13
+8079de60	mv_s #$082dc840,r0
+8079de66	mv_s r28,r1
+8079de68	mv_s #$000800ec,r2
+8079de6e	jsr (r12)
+8079de72	mv_s #$00010052,r3
+8079de78	nop
+	mv_s #$a28e2c00,r4
+8079de80	mv_s #$41d46400,r14
+8079de86	mv_s #$082dc840,r0
+8079de8c	mv_s r28,r1
+8079de8e	mv_s #$000800ec,r2
+8079de94	jsr (r12)
+8079de98	nop
+	mv_s #$00010059,r3
+8079dea0	mv_s #$a28e2c00,r4
+8079dea6	mv_s #$082dc840,r0
+8079deac	mv_s r28,r1
+8079deae	mv_s #$000800ec,r2
+8079deb4	jsr (r12)
+8079deb8	nop
+	mv_s #$00010060,r3
+8079dec0	mv_s #$a28e2c00,r4
+8079dec6	mv_s #$082dc840,r0
+8079decc	mv_s r28,r1
+8079dece	mv_s #$000100f4,r2
+8079ded4	jsr (r12)
+8079ded8	nop
+	mv_s #$00070052,r3
+8079dee0	mv_s #$a28e2c00,r4
+8079dee6	mv_s r28,r1
+8079dee8	mv_s #$082dc840,r0
+8079deee	mv_s #$000100ec,r2
+8079def4	jsr (r12)
+8079def8	nop
+	mv_s #$00070059,r3
+8079df00	mv_s #$a28e2c00,r4
+8079df06	add #$00000010,r15,r10
+8079df0a	mv_s #$00000064,r0
+8079df0e	ld_b (r10),r10
+8079df12	add #$00000050,r15,r11
+8079df1a	nop
+	mv_s #$0000008c,r2
+8079df20	bits #$00000000,>>#30,r10
+8079df24	cmp #$00000000,r10
+8079df26	bra eq,#$8079df32
+8079df28	mv_s r0,r1
+8079df2a	mv_s r2,r3
+8079df2c	mv_s #$703a4800,r13
+8079df32	ld_b (r11),r10
+8079df36	nop
+8079df38	bits #$00000000,>>#30,r10
+8079df3c	nop
+	cmp #$00000000,r10
+8079df40	lbra eq,#$8079df4a,nop
+8079df44	mv_s #$703a4800,r14
+8079df4a	jsr (r30)
+8079df4e	nop
+8079df50	mv_s r13,r4
+8079df52	mv_s #$000000dc,r0
+8079df56	mv_s #$00000064,r1
+8079df5a	nop
+	mv_s #$00000104,r2
+8079df60	jsr (r30)
+8079df64	mv_s #$0000008c,r3
+8079df68	mv_s r14,r4
+8079df6a	bra #$8079df0e
+8079df6c	add #$00000010,r15,r10
+8079df70	mv_s #$00000064,r0
+8079df74	nop
+8079df76	nop
+8079df78	add r0,r0
+8079df7a	add r0,r0
+8079df7c	add r0,r0
+8079df7e	add r0,r0
+8079df80	ld_s rz,r29
+8079df82	sub #$00000010,r31
+8079df84	st_v v7,(r31)
+	sub #$00020070,r31
+8079df8e	st_v v3,(r31)
+8079df92	mv_s r0,r13
+8079df94	mv_s r1,r30
+8079df96	mv_s r2,r12
+8079df98	mv_s #$00000000,r11
+8079df9a	add #$00000018,r31,r29
+8079df9e	mv_s r29,r10
+8079dfa0	add r11,>>#-2,r10
+8079dfa4	add #$00000001,r11
+8079dfa6	cmp #$00007fff,r11
+8079dfac	lbra ls,#$8079df9e
+8079dfb0	mv_s #$00000000,r8
+8079dfb2	st_s r8,(r10)
+8079dfb4	nop
+	nop
+	add #$00020018,r31,r28
+8079dfc0	mv_s #$00020000,r11
+8079dfc6	st_s r29,(r28)
+8079dfc8	add #$0002001c,r31,r10
+8079dfd0	st_s r11,(r10)
+8079dfd2	add #$00020020,r31,r10
+8079dfda	mv_s r28,r0
+8079dfdc	nop
+	st_s r8,(r10)
+8079dfe0	add #$00020028,r31,r11
+8079dfe8	add #$00020024,r31,r10
+8079dff0	st_s r8,(r10)
+8079dff2	ld_s (r11),r29
+8079dff4	nop
+8079dff6	nop
+	and #$00ffffff,r29,r10
+8079e000	jsr #$8079e940
+8079e008	or #$00000001,<>#8,r10
+8079e00c	st_s r10,(r11)
+8079e00e	mv_s r30,r1
+8079e010	jsr #$8079ea18
+8079e018	mv_s r12,r2
+8079e01a	mv_s r28,r0
+8079e01c	nop
+	mv_s r13,r1
+8079e020	jsr #$8079ea34
+8079e028	mv_s r28,r0
+8079e02a	mv_s #$00800000,r2
+8079e030	jsr #$8079ea8a
+8079e038	nop
+8079e03a	mv_s r28,r0
+8079e03c	and #$fffffff2,r0,r30
+8079e040	cmp #$00000000,r30
+8079e042	bra ne,#$8079e056
+8079e044	nop
+8079e046	mv_s #$ffffffff,r0
+8079e048	jsr #$8079eb74
+8079e050	nop
+8079e052	mv_s r28,r0
+8079e054	mv_s r30,r0
+8079e056	ld_v (r31),v3
+	add #$00020070,r31
+8079e060	ld_v (r31),v7
+8079e064	nop
+8079e066	st_s r29,rz
+8079e068	rts
+8079e06a	add #$00000010,r31
+8079e06c	nop
+8079e06e	add r0,r0
+8079e070	ld_s dcachectl,r3
+8079e074	ld_s odmactl,r4
+8079e078	bits #$00000003,>>#28,r3
+8079e07c	lbra ne,#$8079e070,nop
+8079e080	bits #$00000004,>>#0,r4
+8079e084	lbra ne,#$8079e070,nop
+8079e088	st_v v0,??register
+8079e08c	st_s #$20100c80,odmacptr
+8079e094	ld_s odmactl,r4
+8079e098	nop
+8079e09a	bits #$00000004,>>#0,r4
+8079e09e	bra ne,#$8079e094
+8079e0a0	rts
+8079e0a2	nop
+8079e0a4	nop
+8079e0a6	add r0,r0
+8079e0a8	add r0,r0
+8079e0aa	add r0,r0
+8079e0ac	add r0,r0
+8079e0ae	add r0,r0
+8079e0b0	ld_s rz,r29
+8079e0b2	sub #$00000010,r31
+8079e0b4	nop
+	nop
+	st_v v7,(r31)
+	sub #$00000110,r31
+8079e0c0	st_v v3,(r31)
+	sub #$00000010,r31
+8079e0c6	st_v v4,(r31)
+8079e0ca	mv_s r0,r12
+8079e0cc	jsr #$8079e846
+8079e0d4	mv_s r1,r16
+8079e0d6	mv_s r2,r28
+8079e0d8	nop
+	nop
+	nop
+	asl #$ffffffe9,r0
+8079e0e0	add #$20300000,r0,r13
+8079e0e8	cmp r13,r12
+8079e0ea	bra lt,#$8079e156
+8079e0ec	add #$20310000,r0,r10
+8079e0f4	cmp r10,r12
+8079e0f6	bra ge,#$8079e160
+8079e0f8	nop
+8079e0fa	mv_s #$80000188,r15
+8079e100	mv_s #$20100c80,r2
+8079e106	add #$00000020,r31,r1
+8079e10e	mv_s #$80000188,r13
+8079e114	jsr (r13)
+8079e118	nop
+	mv_s #$00400000,r0
+8079e120	add #$00000010,r2,r15
+8079e124	mv_s #$8079e070,r1
+8079e12a	sub r1,#$8079e0b0,r0
+8079e132	cmp #$00000000,r0
+8079e134	bra ge,#$8079e146
+8079e136	asr #$00000002,r0,r30
+8079e13a	mv_s r15,r2
+8079e13c	nop
+	add #$00000003,r0
+8079e140	asr #$00000002,r0,r30
+8079e144	mv_s r15,r2
+8079e146	jsr (r13)
+8079e14a	asl #$fffffff0,r30,r0
+8079e14e	or #$00000001,<>#-13,r0
+8079e152	lbra #$8079e160,nop
+8079e156	nop
+	nop
+	mv_s #$80000188,r15
+8079e160	cmp #$2fffffff,r12
+8079e166	bra gt,#$8079e1b2
+8079e168	mv_s r16,r14
+8079e16a	mv_s #$10000000,r13
+8079e170	mv_s r12,r14
+8079e172	bra #$8079e1b2
+8079e174	mv_s r16,r12
+8079e176	mv_s #$10002000,r13
+8079e17c	nop
+	bra gt,#$8079e19e
+8079e180	mv_s #$00000040,r30
+8079e184	asl #$fffffff0,r30,r0
+8079e188	add #$00000003,r28,r0
+8079e18c	cmp #$00000000,r0
+8079e18e	lbra ge,#$8079e196,nop
+8079e192	add #$00000006,r28,r0
+8079e196	asr #$00000002,r0,r30
+8079e19a	asl #$fffffff0,r30,r0
+8079e19e	mv_s r12,r1
+8079e1a0	jsr (r15)
+8079e1a4	mv_s r14,r2
+8079e1a6	or r13,r0
+8079e1a8	asl #$fffffffe,r30,r10
+8079e1ac	sub r10,r28
+8079e1ae	add r10,r12
+8079e1b0	add r10,r14
+8079e1b2	cmp #$00000000,r28
+8079e1b4	bra gt,#$8079e17c
+8079e1b6	nop
+8079e1b8	nop
+	nop
+	cmp #$00000100,r28
+8079e1c0	mv_s #$80000188,r10
+8079e1c6	cmp r10,r15
+8079e1c8	bra eq,#$8079e1e6
+8079e1ca	nop
+8079e1cc	mv_s #$00402000,r0
+8079e1d2	jsr (r10)
+8079e1d6	nop
+	add #$00000020,r31,r1
+8079e1e0	mv_s #$20100c80,r2
+8079e1e6	ld_v (r31),v4
+	add #$00000010,r31
+8079e1ec	ld_v (r31),v3
+	add #$00000110,r31
+8079e1f4	ld_v (r31),v7
+8079e1f8	nop
+8079e1fa	st_s r29,rz
+8079e1fc	rts
+8079e1fe	add #$00000010,r31
+8079e200	nop
+8079e202	ld_s rz,r29
+8079e204	sub #$00000010,r31
+8079e206	st_v v7,(r31)
+	sub #$00000020,r31
+8079e20e	st_v v3,(r31)
+8079e212	mv_s r0,r12
+8079e214	add #$00000004,r12,r10
+8079e218	ld_s (r12),r28
+8079e21a	ld_s (r10),r15
+8079e21c	add #$00000008,r12,r11
+8079e220	ld_s (r11),r14
+8079e222	add #$00000010,r12,r10
+8079e226	ld_s (r10),r13
+8079e228	bra #$8079e332
+8079e22a	mv_s r28,r10
+8079e22c	sub #$00000001,r28
+8079e22e	ld_s (r10),r10
+8079e230	nop
+8079e232	and #$00000282,r10,r30
+8079e23a	cmp #$00000000,r30
+8079e23c	lbra ne,#$8079e32e
+8079e240	nop
+8079e242	add #$0000002c,r29,r15
+8079e24a	and #$00000001,<>#-16,r10
+8079e24e	cmp #$00000000,r10
+8079e250	bra eq,#$8079e2c0
+8079e252	nop
+8079e254	cmp #$00000001,r13
+8079e256	lbra eq,#$8079e32e
+8079e25a	nop
+	add #$00000010,r29,r10
+8079e260	add #$00000008,r29,r11
+8079e264	ld_s (r10),r2
+8079e266	ld_s (r11),r0
+8079e268	add #$00000014,r29,r10
+8079e26c	ld_s (r10),r10
+8079e26e	jsr #$8079df80
+8079e276	nop
+8079e278	nop
+	nop
+	add r10,r14,r1
+8079e280	cmp #$ffffffff,r0
+8079e286	lbra ne,#$8079e330
+8079e28a	nop
+8079e28c	mv_s r28,r10
+8079e28e	add #$00000010,r31,r2
+8079e292	mv_s #$deadbeef,r11
+8079e298	st_s r30,(r2)
+8079e29a	add #$00000014,r31,r10
+8079e29e	st_s r30,(r10)
+8079e2a0	add #$00000018,r31,r10
+8079e2a4	mv_s #$00000003,r0
+8079e2a6	st_s r30,(r10)
+8079e2a8	add #$0000001c,r31,r10
+8079e2ac	mv_s #$0000006b,r1
+8079e2b0	jsr #$80000008
+8079e2b8	st_s r30,(r10)
+8079e2ba	st_s r11,(r2)
+8079e2bc	lbra #$8079e348,nop
+8079e2c0	add #$00000008,r29,r10
+8079e2c4	ld_s (r10),r1
+8079e2c6	nop
+8079e2c8	sub #$20000000,r1,r10
+8079e2d0	cmp #$007fffff,r10
+8079e2d6	lbra hi,#$8079e30a
+8079e2da	nop
+8079e2dc	cmp #$00000002,r13
+8079e2de	bra eq,#$8079e32e
+8079e2e0	add #$00000010,r29,r10
+8079e2e4	add #$00000014,r29,r11
+8079e2e8	ld_s (r10),r2
+8079e2ea	ld_s (r11),r11
+8079e2ec	add #$0000000c,r12,r10
+8079e2f0	ld_s (r10),r10
+8079e2f2	jsr #$8079e0b0
+8079e2fa	nop
+	add r10,r1,r0
+8079e300	add r11,r14,r1
+8079e304	bra #$8079e332
+8079e306	mv_s r28,r10
+8079e308	sub #$00000001,r28
+8079e30a	cmp #$00000001,r13
+8079e30c	bra eq,#$8079e32e
+8079e30e	nop
+8079e310	add #$00000010,r29,r10
+8079e314	ld_s (r10),r2
+8079e316	add #$00000014,r29,r10
+8079e31a	nop
+	nop
+	ld_s (r10),r10
+8079e320	jsr #$80789fc0
+8079e328	nop
+8079e32a	add r10,r14,r0
+8079e32e	mv_s r28,r10
+8079e330	sub #$00000001,r28
+8079e332	cmp #$00000000,r10
+8079e334	lbra gt,#$8079e22e
+8079e338	nop
+	nop
+	nop
+	mv_s r15,r29
+8079e340	add #$00000028,r29,r10
+8079e348	jsr #$80000060,nop
+8079e350	ld_v (r31),v3
+	add #$00000020,r31
+8079e358	ld_v (r31),v7
+8079e35c	nop
+8079e35e	st_s r29,rz
+8079e360	rts
+8079e362	add #$00000010,r31
+8079e364	nop
+8079e366	ld_s rz,r29
+8079e368	sub #$00000010,r31
+8079e36a	st_v v7,(r31)
+	sub #$00000010,r31
+8079e370	st_v v3,(r31)
+8079e374	asl #$ffffffe9,r0,r28
+8079e378	nop
+	mv_s #$00000ff0,r13
+8079e380	mv_s #$807b6060,r0
+8079e386	mv_s #$8079e0b0,r12
+8079e38c	jsr (r12)
+8079e390	add #$20100000,r28,r1
+8079e398	nop
+	nop
+	nop
+	mv_s r13,r2
+8079e3a0	add #$20300000,r28,r1
+8079e3a8	jsr (r12)
+8079e3ac	mv_s r13,r2
+8079e3ae	mv_s #$807b7060,r0
+8079e3b4	ld_v (r31),v3
+	add #$00000010,r31
+8079e3ba	ld_v (r31),v7
+8079e3be	nop
+8079e3c0	st_s r29,rz
+8079e3c2	rts
+8079e3c4	add #$00000010,r31
+8079e3c6	nop
+8079e3c8	ld_s rz,r29
+8079e3ca	sub #$00000010,r31
+8079e3cc	st_v v7,(r31)
+	sub #$00000010,r31
+8079e3d2	st_v v3,(r31)
+8079e3d6	asl #$ffffffe9,r0,r28
+8079e3da	mv_s #$00000ff0,r13
+8079e3e0	add #$20100000,r28,r0
+8079e3e8	mv_s #$8079e0b0,r12
+8079e3ee	jsr (r12)
+8079e3f2	mv_s #$807b6060,r1
+8079e3f8	nop
+	nop
+	nop
+	mv_s r13,r2
+8079e400	add #$20300000,r28,r0
+8079e408	jsr (r12)
+8079e40c	mv_s r13,r2
+8079e40e	mv_s #$807b7060,r1
+8079e414	ld_v (r31),v3
+	add #$00000010,r31
+8079e41a	ld_v (r31),v7
+8079e41e	nop
+8079e420	st_s r29,rz
+8079e422	rts
+8079e424	add #$00000010,r31
+8079e426	nop
+8079e428	ld_s rz,r29
+8079e42a	sub #$00000010,r31
+8079e42c	st_v v7,(r31)
+	sub #$00000050,r31
+8079e434	st_v v3,(r31)
+	sub #$00000010,r31
+8079e43a	st_v v4,(r31)
+	sub #$00000010,r31
+8079e440	st_v v5,(r31)
+8079e444	mv_s r1,r12
+8079e446	mv_s r0,r17
+8079e448	jsr #$80000060
+8079e450	mv_s r3,r18
+8079e452	asl #$ffffffe9,r17,r30
+8079e456	mv_s r12,r28
+8079e458	ld_s (r12),r10
+8079e45a	nop
+8079e45c	nop
+	lsr #$00000010,r10
+8079e460	cmp #$00000120,r10
+8079e464	bra eq,#$8079e470
+8079e466	mv_s r28,r11
+8079e468	add #$00000014,r28
+8079e46a	bra #$8079e824
+8079e46c	nop
+8079e46e	mv_s #$00000000,r0
+8079e470	add #$00000010,r12,r10
+8079e474	ld_s (r10),r29
+8079e476	nop
+8079e478	lsr #$00000010,r29,r10
+8079e47c	cmp #$00000000,r10
+8079e47e	bra eq,#$8079e48c
+8079e480	nop
+8079e482	mv_s #$80010000,r19
+8079e488	ld_s (r28),r19
+8079e48a	add r10,r28
+8079e48c	ld_s (r11),r11
+8079e48e	add #$00000054,r31,r10
+8079e496	add #$0000006c,r31,r22
+8079e49e	st_s r30,(r10)
+8079e4a0	add #$00000068,r31,r10
+8079e4a8	mv_s r11,r13
+8079e4aa	st_s r30,(r10)
+8079e4ac	bits #$0000000f,>>#0,r13
+8079e4b0	mv_s #$00000002,r11
+8079e4b2	add #$00000058,r31,r10
+8079e4ba	st_s r11,(r10)
+8079e4bc	mv_s #$00000000,r29
+8079e4be	cmp r13,r29
+8079e4c0	bra ge,#$8079e50a
+8079e4c2	st_s r11,(r22)
+8079e4c4	mv_s r29,r9
+8079e4c6	add #$00000028,r28,r10
+8079e4ce	ld_s (r10),r10
+8079e4d0	nop
+8079e4d2	and #$00000282,r10,r10
+8079e4da	cmp #$00000000,r10
+8079e4dc	bra ne,#$8079e4f2
+8079e4de	nop
+8079e4e0	mv_s #$0000002c,r10
+8079e4e4	mul r29,r10
+8079e4e6	nop
+8079e4e8	add r28,r10
+8079e4ea	add #$00000010,r10
+8079e4ec	ld_s (r10),r10
+8079e4ee	nop
+8079e4f0	add r10,r9
+8079e4f2	add #$00000001,r29
+8079e4f4	cmp r13,r29
+8079e4f6	bra lt,#$8079e4ce
+8079e4f8	nop
+	nop
+	nop
+	nop
+8079e500	add #$00000028,r28,r10
+8079e508	mv_s #$00000000,r29
+8079e50a	cmp r13,r29
+8079e50c	lbra ge,#$8079e596
+8079e510	nop
+8079e512	mv_s r29,r8
+8079e514	add #$00000028,r28,r6
+8079e51c	ld_s (r6),r11
+8079e51e	nop
+8079e520	and #$00000282,r11,r10
+8079e528	cmp #$00000000,r10
+8079e52a	bra ne,#$8079e550
+8079e52c	nop
+8079e52e	add #$00000001,r29
+8079e530	sub #$00000001,r29
+8079e532	add #$00000010,r28,r11
+8079e536	lsr #$0000001f,r9,r10
+8079e53a	ld_s (r11),r8
+8079e53c	add r9,r10
+8079e53e	asr #$00000001,r10
+8079e540	cmp r10,r8
+8079e542	bra gt,#$8079e5a0
+8079e544	nop
+8079e546	add #$0000005c,r31,r14
+8079e54e	add #$00000001,r29
+8079e550	cmp r13,r29
+8079e552	bra ge,#$8079e5a0
+8079e554	nop
+8079e556	add #$0000005c,r31,r14
+8079e55e	ld_s (r6),r11
+8079e560	nop
+8079e562	and #$00000282,r11,r10
+8079e56a	cmp #$00000000,r10
+8079e56c	bra ne,#$8079e550
+8079e56e	nop
+8079e570	add #$00000001,r29
+8079e572	sub #$00000001,r29
+8079e574	mv_s #$0000002c,r10
+8079e578	lsr #$0000001f,r9,r11
+8079e57c	mul r29,r10
+8079e57e	add r9,r11
+8079e580	asr #$00000001,r11
+8079e582	add r28,r10
+8079e584	add #$00000010,r10
+8079e586	ld_s (r10),r10
+8079e588	nop
+8079e58a	add r10,r8
+8079e58c	cmp r11,r8
+8079e58e	bra le,#$8079e550
+8079e590	nop
+8079e592	add #$00000001,r29
+8079e594	sub #$00000001,r29
+8079e596	nop
+	add #$0000005c,r31,r14
+8079e5a0	mv_s #$0000002c,r8
+8079e5a4	st_s r29,(r14)
+8079e5a6	sub r29,r13,r10
+8079e5aa	add #$00000048,r31,r16
+8079e5b2	st_s r10,(r16)
+8079e5b4	add #$00000060,r31,r20
+8079e5bc	nop
+	st_s r28,(r20)
+8079e5c0	add #$0000004c,r31,r15
+8079e5c8	ld_s (r14),r10
+8079e5ca	add #$00000064,r31,r11
+8079e5d2	add #$00000050,r31,r29
+8079e5da	nop
+	nop
+	mul r8,r10
+8079e5e0	and #$00000020,r18,r21
+8079e5e8	add r28,r10
+8079e5ea	st_s r10,(r15)
+8079e5ec	cmp #$00000000,r21
+8079e5ee	bra ne,#$8079e600
+8079e5f0	st_s r12,(r11)
+8079e5f2	st_s r12,(r29)
+8079e5f4	nop
+	nop
+	jsr #$800003a0,nop
+8079e600	jsr #$8078d1fa
+8079e608	nop
+8079e60a	mv_s #$000251c0,r0
+8079e610	mv_s r0,r12
+8079e612	cmp #$00000000,r12
+8079e614	bra eq,#$8079e662
+8079e616	nop
+8079e618	nop
+	nop
+	nop
+	mv_s #$fffffffe,r30
+8079e620	jsr #$80000080
+8079e628	nop
+8079e62a	mv_s #$00000003,r0
+8079e62c	mv_s r0,r30
+8079e62e	cmp #$00000000,r30
+8079e630	bra lt,#$8079e668
+8079e632	and #$00000010,r18,r10
+8079e63a	cmp #$00000000,r10
+8079e63c	lbra eq,#$8079e648,nop
+8079e640	jsr #$8079e366,nop
+8079e648	mv_s r30,r0
+8079e64a	add #$000251c0,r12,r3
+8079e652	jsr #$800003d8
+8079e65a	mv_s #$8079e202,r1
+8079e660	mv_s r14,r2
+8079e662	cmp #$00000000,r30
+8079e664	lbra ge,#$8079e66c,nop
+8079e668	st_s r28,(r15)
+8079e66a	st_s r13,(r16)
+8079e66c	mv_s #$8079e202,r15
+8079e672	jsr (r15)
+8079e676	nop
+8079e678	add #$00000048,r31,r0
+8079e680	cmp #$00000000,r30
+8079e682	lbra lt,#$8079e6b4,nop
+8079e686	jsr #$80000350
+8079e68e	nop
+8079e690	mv_s r30,r0
+8079e692	cmp #$ffffffff,r0
+8079e698	nop
+	nop
+	lbra ne,#$8079e6a8,nop
+8079e6a0	jsr #$800000f0,nop
+8079e6a8	jsr #$80000090
+8079e6b0	nop
+8079e6b2	mv_s r30,r0
+8079e6b4	cmp #$00000000,r12
+8079e6b6	bra eq,#$8079e6ce
+8079e6b8	nop
+8079e6ba	nop
+	nop
+	mv_s #$00000001,r10
+8079e6c0	jsr #$8078d24a
+8079e6c8	nop
+8079e6ca	mv_s r12,r0
+8079e6cc	mv_s #$00000001,r10
+8079e6ce	st_s r10,(r22)
+8079e6d0	st_s r13,(r14)
+8079e6d2	jsr (r15)
+8079e6d6	st_s r28,(r20)
+8079e6d8	nop
+	nop
+	nop
+	mv_s r14,r0
+8079e6e0	and #$00000010,r18,r10
+8079e6e8	cmp #$00000000,r10
+8079e6ea	bra eq,#$8079e700
+8079e6ec	nop
+8079e6ee	cmp #$00000000,r30
+8079e6f0	lbra lt,#$8079e700,nop
+8079e6f4	jsr #$8079e3c8
+8079e6fc	nop
+8079e6fe	mv_s r30,r0
+8079e700	cmp #$00000000,r21
+8079e702	lbra ne,#$8079e70e,nop
+8079e706	jsr #$80000398,nop
+8079e70e	cmp #$00000000,r30
+8079e710	lbra lt,#$8079e7a0,nop
+8079e714	lbra #$8079e784,nop
+8079e718	jsr #$80000010
+8079e720	add #$00000044,r31,r0
+8079e728	mv_s r30,r1
+8079e72a	add #$00000044,r31,r10
+8079e732	ld_s (r10),r10
+8079e734	nop
+8079e736	cmp #$0000006b,r10
+8079e73a	lbra ne,#$8079e784,nop
+8079e73e	ld_s (r30),r30
+8079e740	nop
+8079e742	cmp #$deadbeef,r30
+8079e748	bra ne,#$8079e784
+8079e74a	nop
+8079e74c	add #$00000038,r31,r10
+8079e754	ld_s (r10),r10
+8079e756	nop
+8079e758	cmp #$00000000,r10
+8079e75a	bra ne,#$8079e784
+8079e75c	nop
+	nop
+8079e760	add #$0000003c,r31,r10
+8079e768	ld_s (r10),r10
+8079e76a	nop
+8079e76c	cmp #$00000000,r10
+8079e76e	bra ne,#$8079e784
+8079e770	nop
+8079e772	add #$00000040,r31,r10
+8079e77a	ld_s (r10),r0
+8079e77c	nop
+8079e77e	cmp #$00000000,r0
+8079e780	lbra eq,#$8079e824,nop
+8079e784	jsr #$80000298,nop
+8079e78c	cmp #$00000000,r0
+8079e78e	bra eq,#$8079e718
+8079e790	nop
+8079e792	nop
+	nop
+	nop
+	add #$00000034,r31,r30
+8079e7a0	jsr #$8079e846,nop
+8079e7a8	mv_s r0,r30
+8079e7aa	cmp r17,r30
+8079e7ac	bra ne,#$8079e7c4
+8079e7ae	nop
+8079e7b0	and #$00000001,r18,r10
+8079e7b4	jsr #$8078c200
+8079e7bc	mv_s #$ffffffff,r0
+8079e7be	mv_s #$ffffffff,r1
+8079e7c0	and #$00000001,r18,r10
+8079e7c4	cmp #$00000000,r10
+8079e7c6	bra eq,#$8079e822
+8079e7c8	nop
+8079e7ca	mv_s #$80781b58,r10
+8079e7d0	ld_s (r10),r10
+8079e7d2	nop
+8079e7d4	cmp #$00000000,r10
+8079e7d6	bra ne,#$8079e7d0
+8079e7d8	nop
+8079e7da	mv_s #$80781b58,r10
+8079e7e0	jsr #$8078f5a8,nop
+8079e7e8	cmp r17,r30
+8079e7ea	bra ne,#$8079e7fa
+8079e7ec	nop
+8079e7ee	cmp #$00000000,r17
+8079e7f0	jsr (r19),nop
+8079e7f4	bra #$8079e824
+8079e7f6	nop
+8079e7f8	mv_s r19,r0
+8079e7fa	bra eq,#$8079e814
+8079e7fc	nop
+8079e7fe	mv_s r17,r0
+8079e800	jsr #$80000360
+8079e808	mv_s #$20500000,r1
+8079e80e	mv_s #$00002000,r2
+8079e814	jsr #$80000348
+8079e81c	mv_s r17,r0
+8079e81e	mv_s r19,r1
+8079e820	halt
+8079e822	mv_s r19,r0
+8079e824	ld_v (r31),v5
+	add #$00000010,r31
+8079e82a	ld_v (r31),v4
+	add #$00000010,r31
+8079e830	ld_v (r31),v3
+	add #$00000050,r31
+8079e838	ld_v (r31),v7
+8079e83c	nop
+8079e83e	st_s r29,rz
+8079e840	rts
+8079e842	add #$00000010,r31
+8079e844	nop
+8079e846	ld_s configa,r0
+8079e84a	rts
+8079e84c	bits #$00000007,>>#8,r0
+8079e850	nop
+8079e852	ld_s rz,r29
+8079e854	sub #$00000010,r31
+8079e856	st_v v7,(r31)
+8079e85a	nop
+	nop
+	mv_s r2,r10
+8079e860	jsr #$8079e428
+8079e868	mv_s r3,r2
+8079e86a	mv_s r10,r3
+8079e86c	ld_v (r31),v7
+8079e870	nop
+8079e872	st_s r29,rz
+8079e874	rts
+8079e876	add #$00000010,r31
+8079e878	nop
+8079e87a	add r0,r0
+8079e87c	add r0,r0
+8079e87e	add r0,r0
+8079e880	ld_s rz,r11
+8079e882	jsr #$8079e890,nop
+8079e88a	jmp (r11),nop
+	mv_s r1,r0
+8079e890	abs r0
+8079e892	lbra cc,#$8079e89c
+8079e896	mv_s #$00000001,r6
+8079e898	mv_s #$00000001,r7
+8079e89a	neg r6
+8079e89c	nop
+	abs r1
+8079e8a0	lbra cc,#$8079e8aa
+8079e8a4	ld_s rz,r5
+8079e8a6	nop
+8079e8a8	neg r7
+8079e8aa	jsr #$8079e8d4
+8079e8b2	mul r6,r7
+8079e8b4	nop
+8079e8b6	jmp (r5)
+	mul r7,r0
+8079e8bc	mul r6,r1
+8079e8be	nop
+8079e8c0	mv_s #$8079e8d4,r10
+8079e8c6	ld_s rz,r11
+8079e8c8	jsr (r10),nop
+8079e8cc	st_s r11,rz
+8079e8ce	rts
+8079e8d0	mv_s r1,r0
+8079e8d2	nop
+8079e8d4	cmp r0,r1
+8079e8d6	lbra hi,#$8079e924,nop
+	mv_s #$00000020,r2
+	btst #$0000001f,r0
+8079e8e0	lbra ne,#$8079e8e8,nop
+8079e8e4	msb r0,r2
+8079e8e8	mv_s #$00000020,r3
+	btst #$0000001f,r1
+8079e8ee	lbra ne,#$8079e8f6,nop
+8079e8f2	msb r1,r3
+8079e8f6	sub r3,r2
+8079e8f8	nop
+	nop
+	st_s r2,rc0
+	neg r2
+8079e900	mv_s #$00000000,r3
+	ls r2,r1,r2
+8079e906	cmp r0,r2
+8079e908	lbra hi,#$8079e916,nop
+	asl #$ffffffff,r3
+8079e90e	subm r2,r0,r0
+	or #$00000001,r3,r3
+8079e916	bra c0ne,#$8079e906
+	dec
+dec rc0
+8079e91a	lsr #$00000001,r2
+8079e91c	nop
+8079e91e	rts
+8079e920	mv_s r0,r1
+8079e922	mv_s r3,r0
+8079e924	rts
+8079e926	mv_s r0,r1
+8079e928	mv_s #$00000000,r0
+8079e92a	add r0,r0
+8079e92c	add r0,r0
+8079e92e	add r0,r0
+8079e930	add r0,r0
+8079e932	add r0,r0
+8079e934	add r0,r0
+8079e936	add r0,r0
+8079e938	add r0,r0
+8079e93a	add r0,r0
+8079e93c	add r0,r0
+8079e93e	add r0,r0
+8079e940	ld_s rz,r29
+8079e942	sub #$00000010,r31
+8079e944	st_v v7,(r31)
+	copy r31,r30
+8079e94a	mv_s #$00000000,r11
+8079e94c	add #$00000014,r0,r10
+8079e950	st_s r11,(r10)
+8079e952	add #$00000048,r0,r29
+8079e95a	add #$00000018,r0,r10
+8079e95e	st_s r11,(r10)
+8079e960	add #$0000001c,r0,r10
+8079e964	st_s r11,(r10)
+8079e966	add #$00000020,r0,r10
+8079e96e	st_s r11,(r10)
+8079e970	add #$00000024,r0,r10
+8079e978	nop
+	nop
+	nop
+	st_s r11,(r10)
+8079e980	add #$00000028,r0,r10
+8079e988	st_s r11,(r10)
+8079e98a	add #$0000002c,r0,r10
+8079e992	st_s r11,(r10)
+8079e994	add #$00000030,r0,r10
+8079e99c	nop
+	st_s r11,(r10)
+8079e9a0	add #$00000034,r0,r10
+8079e9a8	st_s r11,(r10)
+8079e9aa	add #$00000038,r0,r10
+8079e9b2	st_s r11,(r10)
+8079e9b4	add #$0000003c,r0,r10
+8079e9bc	nop
+	st_s r11,(r10)
+8079e9c0	add #$00000040,r0,r10
+8079e9c8	st_s r11,(r10)
+8079e9ca	add #$00000044,r0,r10
+8079e9d2	st_s r11,(r10)
+8079e9d4	add #$0000004c,r0,r10
+8079e9dc	nop
+	st_s r11,(r10)
+8079e9e0	add #$00000010,r0,r10
+8079e9e4	ld_s (r10),r10
+8079e9e6	add #$00000050,r0,r11
+8079e9ee	lsr #$00000018,r10
+8079e9f0	st_s r10,(r29)
+8079e9f2	ld_s (r11),r29
+8079e9f4	nop
+	nop
+	jsr #$8079eba0
+8079ea00	and #$00ffffff,r29,r10
+8079ea08	st_s r10,(r11)
+8079ea0a	ld_v (r31),v7
+8079ea0e	nop
+8079ea10	st_s r29,rz
+8079ea12	rts
+8079ea14	add #$00000010,r31
+8079ea16	nop
+8079ea18	sub #$00000010,r31
+8079ea1a	st_v v7,(r31)
+	copy r31,r30
+8079ea20	add #$00000014,r0,r10
+8079ea24	st_s r1,(r10)
+8079ea26	add #$00000018,r0
+8079ea28	st_s r2,(r0)
+8079ea2a	ld_v (r31),v7
+8079ea2e	rts
+8079ea30	add #$00000010,r31
+8079ea32	nop
+8079ea34	sub #$00000010,r31
+8079ea36	nop
+	nop
+	st_v v7,(r31)
+	copy r31,r30
+8079ea40	add #$00000020,r0,r10
+8079ea48	st_s r1,(r10)
+8079ea4a	add #$00000024,r0,r10
+8079ea52	st_s r2,(r10)
+8079ea54	add #$00000054,r0
+8079ea58	st_s r2,(r0)
+8079ea5a	ld_v (r31),v7
+8079ea5e	rts
+8079ea60	add #$00000010,r31
+8079ea62	nop
+8079ea64	sub #$00000010,r31
+8079ea66	st_v v7,(r31)
+	copy r31,r30
+8079ea6c	add #$00000024,r0,r10
+8079ea74	add #$00000054,r0
+8079ea78	ld_s (r10),r10
+8079ea7a	ld_s (r0),r0
+8079ea7c	nop
+8079ea7e	sub r10,r0
+8079ea80	ld_v (r31),v7
+8079ea84	rts
+8079ea86	add #$00000010,r31
+8079ea88	nop
+8079ea8a	ld_s rz,r29
+8079ea8c	sub #$00000010,r31
+8079ea8e	st_v v7,(r31)
+	copy r31,r30
+8079ea94	sub #$00000010,r31
+8079ea96	st_v v3,(r31)
+8079ea9a	nop
+	nop
+	mv_s r0,r12
+8079eaa0	add #$00000050,r12,r28
+8079eaa8	ld_s (r28),r10
+8079eaaa	nop
+8079eaac	lsr #$00000018,r10
+8079eaae	cmp #$00000000,r10
+8079eab0	bra ne,#$8079eaf2
+8079eab2	nop
+8079eab4	mv_s #$00000000,r13
+8079eab6	add #$00000014,r12,r0
+8079eaba	nop
+	nop
+	mv_s #$fffffff1,r1
+8079eac0	jsr #$8079edee
+8079eac8	mv_s #$807a5d64,r2
+8079eace	mv_s #$0000003c,r3
+8079ead2	ld_s (r28),r11
+8079ead4	nop
+8079ead6	and #$00ffffff,r11,r10
+8079eade	cmp #$00000000,r0
+8079eae0	bra ge,#$8079eaf2
+8079eae2	or #$00000001,<>#8,r10
+8079eae6	st_s r10,(r28)
+8079eae8	bra #$8079eb60
+8079eaea	nop
+8079eaec	mv_s #$80000000,r0
+8079eaf2	jsr #$8079ef62
+8079eafa	add #$00000014,r12,r0
+8079eafe	mv_s #$00000002,r1
+8079eb00	cmp #$00000000,r0
+8079eb02	bra ge,#$8079eb14
+8079eb04	nop
+8079eb06	add #$00000018,r12,r10
+8079eb0a	bra #$8079eb60
+8079eb0c	mv_s #$80000000,r13
+8079eb12	mv_s r13,r0
+8079eb14	ld_s (r10),r10
+8079eb16	nop
+8079eb18	cmp #$00000000,r10
+8079eb1a	bra ne,#$8079eb2a
+8079eb1c	nop
+	nop
+8079eb20	add #$00000024,r12,r10
+8079eb28	mv_s #$00000001,r13
+8079eb2a	ld_s (r10),r11
+8079eb2c	nop
+8079eb2e	cmp #$00000000,r11
+8079eb30	bra ne,#$8079eb40
+8079eb32	nop
+8079eb34	add #$00000054,r12,r10
+8079eb3c	or #$00000002,r13,r13
+8079eb40	ld_s (r10),r10
+8079eb42	nop
+8079eb44	cmp r10,r11
+8079eb46	lbra cc,#$8079eb4e,nop
+8079eb4a	or #$00000004,r13,r13
+8079eb4e	cmp #$00000001,r0
+8079eb50	bra ne,#$8079eb60
+8079eb52	nop
+8079eb54	mv_s r13,r0
+8079eb56	or #$00000008,r13,r13
+8079eb5a	nop
+	nop
+	mv_s r13,r0
+8079eb60	ld_v (r31),v3
+	add #$00000010,r31
+8079eb66	ld_v (r31),v7
+8079eb6a	nop
+8079eb6c	st_s r29,rz
+8079eb6e	rts
+8079eb70	add #$00000010,r31
+8079eb72	nop
+8079eb74	ld_s rz,r29
+8079eb76	sub #$00000010,r31
+8079eb78	nop
+	st_v v7,(r31)
+	copy r31,r30
+8079eb80	jsr #$8079ed5c
+8079eb88	nop
+8079eb8a	add #$00000014,r0
+8079eb8c	ld_v (r31),v7
+8079eb90	nop
+8079eb92	st_s r29,rz
+8079eb94	rts
+8079eb96	add #$00000010,r31
+8079eb98	nop
+8079eb9a	add r0,r0
+8079eb9c	add r0,r0
+8079eb9e	add r0,r0
+8079eba0	sub #$00000010,r31
+8079eba2	st_v v7,(r31)
+	copy r31,r30
+8079eba8	add #$00000004,r0,r29
+8079ebac	ld_s (r29),r10
+8079ebae	nop
+8079ebb0	cmp #$0000ffff,r10
+8079ebb6	nop
+	nop
+	nop
+	lbra ls,#$8079ec04
+8079ebc0	add #$00000034,r0,r11
+8079ebc8	mv_s #$8079ec10,r10
+8079ebce	st_s r10,(r11)
+8079ebd0	add #$0000003c,r0,r8
+8079ebd8	add #$00000038,r0,r11
+8079ebe0	mv_s #$8079ecb0,r10
+8079ebe6	st_s r10,(r11)
+8079ebe8	ld_s (r29),r29
+8079ebea	ld_s (r0),r11
+8079ebec	sub #$00000004,r29,r10
+8079ebf0	mv_s #$00000000,r0
+8079ebf2	add #$00000004,r11,r29
+8079ebf6	st_s r10,(r29)
+8079ebf8	add #$00000008,r11,r10
+8079ebfc	st_s r0,(r10)
+8079ebfe	bra #$8079ec06
+8079ec00	st_s r29,(r11)
+8079ec02	st_s r11,(r8)
+8079ec04	mv_s #$fffffffc,r0
+8079ec06	ld_v (r31),v7
+8079ec0a	rts
+8079ec0c	add #$00000010,r31
+8079ec0e	nop
+8079ec10	sub #$00000010,r31
+8079ec12	st_v v7,(r31)
+	copy r31,r30
+8079ec18	mul r2,r1
+8079ec1a	nop
+8079ec1c	nop
+	cmp #$00000007,r1
+8079ec20	lbra ls,#$8079ec36
+8079ec24	mv_s r0,r6
+8079ec26	mv_s #$00000000,r0
+8079ec28	add #$00000003,r1,r10
+8079ec2c	bra #$8079ec38
+8079ec2e	and #$fffffffc,r10,r10
+8079ec32	add #$00000004,r10,r1
+8079ec36	mv_s #$0000000c,r1
+8079ec38	ld_s (r6),r29
+8079ec3a	bra #$8079ec44
+8079ec3c	nop
+8079ec3e	mv_s #$00000000,r9
+8079ec40	mv_s r29,r9
+8079ec42	ld_s (r10),r29
+8079ec44	nop
+8079ec46	cmp #$00000000,r29
+8079ec48	lbra eq,#$8079eca6,nop
+8079ec4c	ld_s (r29),r10
+8079ec4e	nop
+8079ec50	cmp r1,r10
+8079ec52	lbra cs,#$8079ec40
+8079ec56	nop
+8079ec58	add #$00000004,r29,r10
+8079ec5c	nop
+	cmp #$00000000,r29
+8079ec60	lbra eq,#$8079eca6,nop
+8079ec64	ld_s (r29),r10
+8079ec66	nop
+8079ec68	sub r1,r10,r8
+8079ec6c	cmp #$00000008,r8
+8079ec6e	lbra ls,#$8079ec8a
+8079ec72	mv_s r29,r0
+8079ec74	add #$00000004,r0,r10
+8079ec78	st_s r1,(r0)
+8079ec7a	ld_s (r10),r11
+8079ec7c	add r1,r0,r29
+8079ec80	add #$00000004,r29,r10
+8079ec84	bra #$8079ec92
+8079ec86	st_s r8,(r29)
+8079ec88	st_s r11,(r10)
+8079ec8a	mv_s r29,r0
+8079ec8c	add #$00000004,r0,r10
+8079ec90	ld_s (r10),r29
+8079ec92	cmp #$00000000,r9
+8079ec94	bra ne,#$8079eca2
+8079ec96	nop
+8079ec98	add #$00000004,r9,r10
+8079ec9c	bra #$8079eca6
+8079ec9e	st_s r29,(r6)
+8079eca0	add #$00000004,r0
+8079eca2	st_s r29,(r10)
+8079eca4	add #$00000004,r0
+8079eca6	ld_v (r31),v7
+8079ecaa	rts
+8079ecac	add #$00000010,r31
+8079ecae	nop
+8079ecb0	sub #$00000010,r31
+8079ecb2	st_v v7,(r31)
+	copy r31,r30
+8079ecb8	ld_s (r0),r10
+8079ecba	nop
+8079ecbc	st_s r10,(r1)
+8079ecbe	sub #$00000004,r1
+8079ecc0	st_s r1,(r0)
+8079ecc2	ld_v (r31),v7
+8079ecc6	rts
+8079ecc8	add #$00000010,r31
+8079ecca	nop
+8079eccc	add r0,r0
+8079ecce	add r0,r0
+8079ecd0	add r0,r0
+8079ecd2	add r0,r0
+8079ecd4	add r0,r0
+8079ecd6	add r0,r0
+8079ecd8	add r0,r0
+8079ecda	add r0,r0
+8079ecdc	add r0,r0
+8079ecde	add r0,r0
+8079ece0	ld_s rz,r29
+8079ece2	sub #$00000010,r31
+8079ece4	st_v v7,(r31)
+	copy r31,r30
+8079ecea	cmp #$00000000,r0
+8079ecec	bra eq,#$8079ed04
+8079ecee	nop
+8079ecf0	add #$0000001c,r0,r11
+8079ecf4	ld_s (r11),r10
+8079ecf6	nop
+8079ecf8	cmp #$00000000,r10
+8079ecfa	bra ne,#$8079ed0a
+8079ecfc	nop
+	mv_s #$00000000,r28
+8079ed00	add #$00000014,r0,r10
+8079ed04	bra #$8079ed4e
+8079ed06	nop
+8079ed08	mv_s #$fffffffe,r0
+8079ed0a	st_s r28,(r10)
+8079ed0c	add #$00000008,r0,r10
+8079ed10	st_s r28,(r10)
+8079ed12	add #$00000018,r0,r10
+8079ed16	st_s r28,(r10)
+8079ed18	ld_s (r11),r29
+8079ed1a	nop
+8079ed1c	add #$0000000c,r29,r10
+8079ed20	ld_s (r10),r10
+8079ed22	nop
+8079ed24	cmp #$00000000,r10
+8079ed26	bra eq,#$8079ed2e
+8079ed28	nop
+8079ed2a	mv_s r28,r8
+8079ed2c	mv_s #$00000007,r8
+8079ed2e	st_s r8,(r29)
+8079ed30	ld_s (r11),r11
+8079ed32	nop
+8079ed34	mv_s r0,r1
+8079ed36	add #$00000014,r11,r10
+8079ed3a	ld_s (r10),r0
+8079ed3c	nop
+	nop
+8079ed40	jsr #$8079f6a0
+8079ed48	nop
+8079ed4a	mv_s r28,r2
+8079ed4c	mv_s r28,r0
+8079ed4e	ld_v (r31),v7
+8079ed52	nop
+8079ed54	st_s r29,rz
+8079ed56	rts
+8079ed58	add #$00000010,r31
+8079ed5a	nop
+8079ed5c	ld_s rz,r29
+8079ed5e	sub #$00000010,r31
+8079ed60	st_v v7,(r31)
+	copy r31,r30
+8079ed66	sub #$00000010,r31
+8079ed68	st_v v3,(r31)
+8079ed6c	mv_s r0,r28
+8079ed6e	cmp #$00000000,r28
+8079ed70	bra eq,#$8079ed98
+8079ed72	nop
+8079ed74	add #$0000001c,r28,r12
+8079ed78	ld_s (r12),r11
+8079ed7a	nop
+8079ed7c	cmp #$00000000,r11
+8079ed7e	bra eq,#$8079ed98
+8079ed80	nop
+8079ed82	add #$00000024,r28,r13
+8079ed8a	ld_s (r13),r10
+8079ed8c	nop
+8079ed8e	cmp #$00000000,r10
+8079ed90	bra ne,#$8079ed9e
+8079ed92	nop
+8079ed94	add #$00000014,r11,r10
+8079ed98	bra #$8079edd8
+8079ed9a	nop
+8079ed9c	mv_s #$fffffffe,r0
+8079ed9e	ld_s (r10),r0
+8079eda0	nop
+8079eda2	cmp #$00000000,r0
+8079eda4	bra eq,#$8079edc8
+8079eda6	nop
+8079eda8	add #$00000028,r28,r10
+8079edb0	jsr #$807a0596
+8079edb8	nop
+8079edba	nop
+	nop
+	mv_s r28,r1
+8079edc0	add #$00000028,r28,r10
+8079edc8	ld_s (r13),r11
+8079edca	ld_s (r10),r0
+8079edcc	ld_s (r12),r1
+8079edce	nop
+8079edd0	jsr (r11),nop
+8079edd4	mv_s #$00000000,r0
+8079edd6	st_s r0,(r12)
+8079edd8	nop
+	ld_v (r31),v3
+	add #$00000010,r31
+8079ede0	ld_v (r31),v7
+8079ede4	nop
+8079ede6	st_s r29,rz
+8079ede8	rts
+8079edea	add #$00000010,r31
+8079edec	nop
+8079edee	ld_s rz,r29
+8079edf0	sub #$00000010,r31
+8079edf2	st_v v7,(r31)
+	copy r31,r30
+8079edf8	sub #$00000010,r31
+8079edfa	st_v v3,(r31)
+8079edfe	cmp #$00000000,r2
+8079ee00	bra eq,#$8079ee20
+8079ee02	mv_s r0,r28
+8079ee04	mv_s r1,r13
+8079ee06	ld_b (r2),r10
+8079ee0a	nop
+8079ee0c	cmp #$31000000,r10
+8079ee12	bra ne,#$8079ee20
+8079ee14	nop
+8079ee16	cmp #$0000003c,r3
+8079ee1a	bra eq,#$8079ee26
+8079ee1c	nop
+8079ee1e	cmp #$00000000,r28
+8079ee20	bra #$8079ef26
+8079ee22	nop
+8079ee24	mv_s #$fffffffa,r0
+8079ee26	bra ne,#$8079ee34
+8079ee28	add #$00000018,r28,r10
+8079ee2c	mv_s #$00000000,r14
+8079ee2e	bra #$8079ef26
+8079ee30	nop
+8079ee32	mv_s #$fffffffe,r0
+8079ee34	st_s r14,(r10)
+8079ee36	nop
+	add #$00000028,r28,r11
+8079ee40	add #$00000020,r28,r10
+8079ee48	ld_s (r11),r0
+8079ee4a	ld_s (r10),r10
+8079ee4c	add #$0000001c,r28,r12
+8079ee50	jsr (r10)
+8079ee54	mv_s #$00000001,r1
+8079ee56	mv_s #$00000018,r2
+8079ee5a	cmp #$00000000,r0
+8079ee5c	lbra eq,#$8079ef24
+8079ee60	nop
+8079ee62	st_s r0,(r12)
+8079ee64	add #$00000014,r0,r10
+8079ee68	st_s r14,(r10)
+8079ee6a	ld_s (r12),r11
+8079ee6c	cmp #$00000000,r13
+8079ee6e	bra ge,#$8079ee82
+8079ee70	add #$0000000c,r11,r10
+8079ee74	st_s r14,(r10)
+8079ee76	ld_s (r12),r10
+8079ee78	neg r13
+8079ee7a	add #$0000000c,r10,r11
+8079ee7e	mv_s #$00000001,r10
+8079ee80	st_s r10,(r11)
+8079ee82	sub #$00000008,r13,r10
+8079ee86	cmp #$00000007,r10
+8079ee88	lbra ls,#$8079ee9e,nop
+8079ee8c	jsr #$8079ed5c
+8079ee94	nop
+8079ee96	mv_s r28,r0
+8079ee98	bra #$8079ef26
+8079ee9a	nop
+8079ee9c	mv_s #$fffffffe,r0
+8079ee9e	ld_s (r12),r11
+8079eea0	nop
+8079eea2	add #$00000010,r11,r10
+8079eea6	st_s r13,(r10)
+8079eea8	add #$00000034,r28,r10
+8079eeb0	ld_s (r10),r4
+8079eeb2	nop
+8079eeb4	cmp #$00000000,r4
+8079eeb6	bra eq,#$8079eec8
+8079eeb8	add #$0000000c,r28,r10
+8079eebc	add #$00000010,r28,r11
+8079eec0	ld_s (r10),r3
+8079eec2	ld_s (r11),r4
+8079eec4	lbra #$8079eeca,nop
+8079eec8	mv_s r4,r3
+8079eeca	ld_s (r12),r11
+8079eecc	nop
+8079eece	add #$0000000c,r11,r10
+8079eed2	ld_s (r10),r10
+8079eed4	nop
+8079eed6	cmp #$00000000,r10
+8079eed8	bra ne,#$8079eee6
+8079eeda	nop
+8079eedc	nop
+	mv_s #$00000000,r1
+8079eee0	mv_s #$807a2840,r1
+8079eee6	sub r13,#$00000000,r10
+8079eeea	mv_s #$00000001,r2
+8079eeec	jsr #$8079f794
+8079eef4	ls r10,r2,r2
+8079eef8	mv_s r28,r0
+8079eefa	ld_s (r12),r12
+8079eefc	cmp #$00000000,r0
+8079eefe	bra eq,#$8079ef18
+8079ef00	add #$00000014,r12,r10
+8079ef04	st_s r0,(r10)
+8079ef06	jsr #$8079ece0
+8079ef0e	nop
+8079ef10	mv_s r28,r0
+8079ef12	bra #$8079ef26
+8079ef14	nop
+8079ef16	mv_s #$00000000,r0
+8079ef18	jsr #$8079ed5c
+8079ef20	nop
+8079ef22	mv_s r28,r0
+8079ef24	mv_s #$fffffffc,r0
+8079ef26	ld_v (r31),v3
+	add #$00000010,r31
+8079ef2c	ld_v (r31),v7
+8079ef30	nop
+8079ef32	st_s r29,rz
+8079ef34	rts
+8079ef36	add #$00000010,r31
+8079ef38	nop
+8079ef3a	ld_s rz,r29
+8079ef3c	nop
+	sub #$00000010,r31
+8079ef40	st_v v7,(r31)
+	copy r31,r30
+8079ef46	mv_s r2,r3
+8079ef48	jsr #$8079edee
+8079ef50	mv_s r1,r2
+8079ef52	mv_s #$0000000f,r1
+8079ef54	ld_v (r31),v7
+8079ef58	nop
+8079ef5a	st_s r29,rz
+8079ef5c	rts
+8079ef5e	add #$00000010,r31
+8079ef60	nop
+8079ef62	ld_s rz,r29
+8079ef64	sub #$00000010,r31
+8079ef66	st_v v7,(r31)
+	copy r31,r30
+8079ef6c	sub #$00000010,r31
+8079ef6e	st_v v3,(r31)
+	sub #$00000010,r31
+8079ef74	st_v v4,(r31)
+8079ef78	mv_s r0,r28
+8079ef7a	cmp #$00000000,r28
+8079ef7c	lbra eq,#$8079f456
+8079ef80	nop
+8079ef82	add #$0000001c,r28,r10
+8079ef86	ld_s (r10),r10
+8079ef88	nop
+8079ef8a	cmp #$00000000,r10
+8079ef8c	lbra eq,#$8079f456,nop
+8079ef90	ld_s (r28),r10
+8079ef92	nop
+8079ef94	cmp #$00000000,r10
+8079ef96	lbra eq,#$8079f456
+8079ef9a	nop
+8079ef9c	cmp #$00000004,r1
+8079ef9e	bra ne,#$8079efa6
+8079efa0	nop
+8079efa2	mv_s #$00000000,r16
+8079efa4	mv_s #$fffffffb,r16
+8079efa6	mv_s #$fffffffb,r14
+8079efa8	add #$0000001c,r28,r12
+8079efac	ld_s (r12),r10
+8079efae	nop
+8079efb0	ld_s (r10),r10
+8079efb2	nop
+8079efb4	cmp #$0000000d,r10
+8079efb6	lbra hi,#$8079f456
+8079efba	nop
+	nop
+	asl #$fffffffe,r10
+8079efc0	add #$807a5ddc,r10
+8079efc6	ld_s (r10),r10
+8079efc8	nop
+8079efca	jmp (r10)
+8079efce	nop
+8079efd0	nop
+8079efd2	add #$00000004,r28,r11
+8079efd6	ld_s (r11),r10
+8079efd8	nop
+8079efda	cmp #$00000000,r10
+8079efdc	lbra eq,#$8079f3d6
+8079efe0	nop
+8079efe2	sub #$00000001,r10
+8079efe4	ld_s (r12),r6
+8079efe6	nop
+8079efe8	add #$00000004,r6,r29
+8079efec	mv_s r16,r14
+8079efee	st_s r10,(r11)
+8079eff0	add #$00000008,r28,r11
+8079eff4	ld_s (r11),r8
+8079eff6	nop
+8079eff8	add #$00000001,r8,r10
+8079effc	st_s r10,(r11)
+8079effe	ld_s (r28),r11
+8079f000	nop
+8079f002	ld_b (r11),r10
+8079f006	nop
+8079f008	lsr #$00000018,r10
+8079f00a	st_s r10,(r29)
+8079f00c	and #$0000000f,r10,r10
+8079f010	cmp #$00000008,r10
+8079f012	bra eq,#$8079f034
+8079f014	add #$00000001,r11
+8079f016	st_s r11,(r28)
+8079f018	ld_s (r12),r11
+8079f01a	add #$00000018,r28,r29
+8079f01e	mv_s #$0000000d,r10
+8079f020	st_s r10,(r11)
+8079f022	mv_s #$807a5d6c,r10
+8079f028	st_s r10,(r29)
+8079f02a	ld_s (r12),r12
+8079f02c	bra #$8079f296
+8079f02e	mv_s #$00000005,r10
+8079f030	add #$00000004,r12,r11
+8079f034	ld_s (r12),r29
+8079f036	nop
+8079f038	add #$00000004,r29,r10
+8079f03c	nop
+	ld_s (r10),r10
+8079f040	add #$00000010,r29,r11
+8079f044	ld_s (r11),r11
+8079f046	lsr #$00000004,r10
+8079f048	add #$00000008,r10
+8079f04a	cmp r11,r10
+8079f04c	lbra ls,#$8079f06a
+8079f050	mv_s #$0000000d,r10
+8079f052	add #$00000018,r28,r11
+8079f056	st_s r10,(r29)
+8079f058	mv_s #$807a5d88,r10
+8079f05e	st_s r10,(r11)
+8079f060	ld_s (r12),r12
+8079f062	bra #$8079f296
+8079f064	mv_s #$00000005,r10
+8079f066	add #$00000004,r12,r11
+8079f06a	mv_s #$00000001,r10
+8079f06c	st_s r10,(r29)
+8079f06e	add #$00000004,r28,r11
+8079f072	ld_s (r11),r10
+8079f074	nop
+8079f076	cmp #$00000000,r10
+8079f078	lbra eq,#$8079f3d6
+8079f07c	nop
+	sub #$00000001,r10
+8079f080	mv_s #$0000001f,r1
+8079f084	st_s r10,(r11)
+8079f086	add #$0000001c,r28,r15
+8079f08a	add #$00000008,r28,r10
+8079f08e	mv_s r16,r14
+8079f090	ld_s (r10),r29
+8079f092	nop
+8079f094	add #$00000001,r29,r11
+8079f098	st_s r11,(r10)
+8079f09a	ld_s (r28),r10
+8079f09c	nop
+	nop
+8079f0a0	ld_b (r10),r11
+8079f0a4	add #$00000001,r10
+8079f0a6	st_s r10,(r28)
+8079f0a8	lsr #$00000018,r11,r13
+8079f0ac	ld_s (r15),r12
+8079f0ae	nop
+8079f0b0	add #$00000004,r12,r10
+8079f0b4	ld_s (r10),r0
+8079f0b6	nop
+8079f0b8	jsr #$8079e8c0
+8079f0c0	asl #$fffffff8,r0
+8079f0c2	or r13,r0
+8079f0c4	cmp #$00000000,r0
+8079f0c6	bra eq,#$8079f0e6
+8079f0c8	mv_s #$0000000d,r10
+8079f0ca	add #$00000018,r28,r11
+8079f0ce	st_s r10,(r12)
+8079f0d0	mv_s #$807a5d9c,r10
+8079f0d6	st_s r10,(r11)
+8079f0d8	ld_s (r15),r15
+8079f0da	nop
+8079f0dc	mv_s #$00000005,r10
+8079f0de	bra #$8079efa8
+8079f0e0	add #$00000004,r15,r11
+8079f0e4	st_s r10,(r11)
+8079f0e6	and #$00000020,r13,r10
+8079f0ee	cmp #$00000000,r10
+8079f0f0	bra ne,#$8079f0fc
+8079f0f2	nop
+8079f0f4	mv_s #$00000007,r10
+8079f0f6	bra #$8079efa8
+8079f0f8	nop
+8079f0fa	st_s r10,(r12)
+8079f0fc	mv_s #$00000002,r10
+8079f0fe	st_s r10,(r12)
+8079f100	add #$00000004,r28,r11
+8079f104	ld_s (r11),r10
+8079f106	nop
+8079f108	cmp #$00000000,r10
+8079f10a	lbra eq,#$8079f3d6
+8079f10e	add #$0000001c,r28,r8
+8079f112	mv_s #$00000003,r9
+8079f114	ld_s (r8),r6
+8079f116	sub #$00000001,r10
+8079f118	add #$00000008,r6,r29
+8079f11c	mv_s r16,r14
+8079f11e	st_s r10,(r11)
+8079f120	add #$00000008,r28,r11
+8079f124	ld_s (r11),r6
+8079f126	nop
+8079f128	add #$00000001,r6,r10
+8079f12c	st_s r10,(r11)
+8079f12e	ld_s (r28),r10
+8079f130	nop
+8079f132	ld_b (r10),r11
+8079f136	add #$00000001,r10
+8079f138	st_s r11,(r29)
+8079f13a	st_s r10,(r28)
+8079f13c	ld_s (r8),r10
+8079f13e	nop
+8079f140	st_s r9,(r10)
+8079f142	add #$00000004,r28,r11
+8079f146	ld_s (r11),r10
+8079f148	nop
+8079f14a	cmp #$00000000,r10
+8079f14c	lbra eq,#$8079f3d6
+8079f150	add #$0000001c,r28,r8
+8079f154	mv_s #$00000004,r6
+8079f156	ld_s (r8),r29
+8079f158	sub #$00000001,r10
+8079f15a	add #$00000008,r29,r9
+8079f15e	mv_s r16,r14
+8079f160	st_s r10,(r11)
+8079f162	add #$00000008,r28,r11
+8079f166	ld_s (r11),r29
+8079f168	nop
+8079f16a	add #$00000001,r29,r10
+8079f16e	st_s r10,(r11)
+8079f170	ld_s (r8),r10
+8079f172	ld_s (r28),r11
+8079f174	add #$00000008,r10,r29
+8079f178	ld_b (r11),r10
+8079f17c	ld_s (r29),r29
+8079f17e	lsr #$00000008,r10
+8079f180	add r29,r10
+8079f182	st_s r10,(r9)
+8079f184	add #$00000001,r11
+8079f186	st_s r11,(r28)
+8079f188	ld_s (r8),r10
+8079f18a	nop
+8079f18c	st_s r6,(r10)
+8079f18e	add #$00000004,r28,r11
+8079f192	ld_s (r11),r10
+8079f194	nop
+8079f196	cmp #$00000000,r10
+8079f198	lbra eq,#$8079f3d6
+8079f19c	add #$0000001c,r28,r8
+8079f1a0	mv_s #$00000005,r6
+8079f1a2	ld_s (r8),r29
+8079f1a4	sub #$00000001,r10
+8079f1a6	add #$00000008,r29,r9
+8079f1aa	mv_s r16,r14
+8079f1ac	st_s r10,(r11)
+8079f1ae	add #$00000008,r28,r11
+8079f1b2	ld_s (r11),r29
+8079f1b4	nop
+8079f1b6	add #$00000001,r29,r10
+8079f1ba	st_s r10,(r11)
+8079f1bc	ld_s (r8),r10
+8079f1be	ld_s (r28),r11
+8079f1c0	add #$00000008,r10,r29
+8079f1c4	ld_b (r11),r10
+8079f1c8	ld_s (r29),r29
+8079f1ca	lsr #$00000010,r10
+8079f1cc	add r29,r10
+8079f1ce	st_s r10,(r9)
+8079f1d0	add #$00000001,r11
+8079f1d2	st_s r11,(r28)
+8079f1d4	ld_s (r8),r10
+8079f1d6	nop
+8079f1d8	st_s r6,(r10)
+8079f1da	add #$00000004,r28,r11
+8079f1de	ld_s (r11),r10
+8079f1e0	nop
+8079f1e2	cmp #$00000000,r10
+8079f1e4	lbra eq,#$8079f3d6
+8079f1e8	add #$0000001c,r28,r8
+8079f1ec	mv_s #$00000006,r7
+8079f1ee	ld_s (r8),r29
+8079f1f0	sub #$00000001,r10
+8079f1f2	add #$00000008,r29,r9
+8079f1f6	st_s r10,(r11)
+8079f1f8	add #$00000008,r28,r11
+8079f1fc	ld_s (r11),r6
+8079f1fe	nop
+8079f200	add #$00000001,r6,r10
+8079f204	st_s r10,(r11)
+8079f206	add #$00000030,r28,r6
+8079f20e	ld_s (r8),r10
+8079f210	ld_s (r28),r11
+8079f212	add #$00000008,r10,r29
+8079f216	ld_b (r11),r10
+8079f21a	ld_s (r29),r29
+8079f21c	lsr #$00000018,r10
+8079f21e	add r29,r10
+8079f220	st_s r10,(r9)
+8079f222	add #$00000001,r11
+8079f224	st_s r11,(r28)
+8079f226	ld_s (r8),r11
+8079f228	nop
+8079f22a	add #$00000008,r11,r10
+8079f22e	ld_s (r10),r10
+8079f230	nop
+8079f232	st_s r10,(r6)
+8079f234	ld_s (r8),r10
+8079f236	bra #$8079f458
+8079f238	mv_s #$00000002,r0
+8079f23a	st_s r7,(r10)
+8079f23c	nop
+	ld_s (r12),r11
+8079f240	add #$00000018,r28,r29
+8079f244	mv_s #$0000000d,r10
+8079f246	st_s r10,(r11)
+8079f248	mv_s #$807a5db4,r10
+8079f24e	st_s r10,(r29)
+8079f250	ld_s (r12),r12
+8079f252	nop
+8079f254	mv_s #$00000000,r10
+8079f256	bra #$8079f456
+8079f258	add #$00000004,r12,r11
+8079f25c	st_s r10,(r11)
+8079f25e	ld_s (r12),r29
+8079f260	nop
+8079f262	add #$00000014,r29,r10
+8079f266	ld_s (r10),r0
+8079f268	nop
+8079f26a	jsr #$8079f8f4
+8079f272	mv_s r14,r2
+8079f274	mv_s r28,r1
+8079f276	mv_s r0,r14
+8079f278	cmp #$fffffffd,r14
+8079f27e	bra ne,#$8079f2a0
+8079f280	nop
+8079f282	cmp #$00000000,r14
+8079f284	ld_s (r12),r11
+8079f286	nop
+8079f288	mv_s #$0000000d,r10
+8079f28a	st_s r10,(r11)
+8079f28c	ld_s (r12),r12
+8079f28e	nop
+8079f290	mv_s #$00000000,r10
+8079f292	add #$00000004,r12,r11
+8079f296	bra #$8079efac
+8079f298	st_s r10,(r11)
+8079f29a	nop
+	add #$0000001c,r28,r12
+8079f2a0	lbra ne,#$8079f2a6,nop
+8079f2a4	mv_s r16,r14
+8079f2a6	cmp #$00000001,r14
+8079f2a8	lbra ne,#$8079f458
+8079f2ac	nop
+8079f2ae	mv_s r14,r0
+8079f2b0	ld_s (r12),r2
+8079f2b2	nop
+8079f2b4	add #$00000014,r2,r10
+8079f2b8	ld_s (r10),r0
+8079f2ba	nop
+	nop
+	nop
+8079f2c0	jsr #$8079f6a0
+8079f2c8	mv_s r28,r1
+8079f2ca	add #$00000004,r2
+8079f2cc	ld_s (r12),r2
+8079f2ce	nop
+8079f2d0	add #$0000000c,r2,r10
+8079f2d4	ld_s (r10),r10
+8079f2d6	nop
+8079f2d8	cmp #$00000000,r10
+8079f2da	bra eq,#$8079f2e6
+8079f2dc	nop
+8079f2de	mv_s r16,r14
+8079f2e0	bra #$8079efa8
+8079f2e2	mv_s #$0000000c,r10
+8079f2e4	st_s r10,(r2)
+8079f2e6	mv_s #$00000008,r10
+8079f2e8	st_s r10,(r2)
+8079f2ea	add #$00000004,r28,r11
+8079f2ee	ld_s (r11),r10
+8079f2f0	nop
+8079f2f2	cmp #$00000000,r10
+8079f2f4	lbra eq,#$8079f3d6
+8079f2f8	add #$0000001c,r28,r8
+8079f2fc	mv_s #$00000009,r9
+8079f2fe	ld_s (r8),r6
+8079f300	sub #$00000001,r10
+8079f302	add #$00000008,r6,r29
+8079f306	mv_s r16,r14
+8079f308	st_s r10,(r11)
+8079f30a	add #$00000008,r28,r11
+8079f30e	ld_s (r11),r6
+8079f310	nop
+8079f312	add #$00000001,r6,r10
+8079f316	st_s r10,(r11)
+8079f318	ld_s (r28),r10
+8079f31a	nop
+8079f31c	ld_b (r10),r11
+8079f320	add #$00000001,r10
+8079f322	st_s r11,(r29)
+8079f324	st_s r10,(r28)
+8079f326	ld_s (r8),r10
+8079f328	nop
+8079f32a	st_s r9,(r10)
+8079f32c	add #$00000004,r28,r11
+8079f330	ld_s (r11),r10
+8079f332	nop
+8079f334	cmp #$00000000,r10
+8079f336	lbra eq,#$8079f3d6
+8079f33a	add #$0000001c,r28,r8
+8079f33e	mv_s #$0000000a,r6
+8079f340	ld_s (r8),r29
+8079f342	sub #$00000001,r10
+8079f344	add #$00000008,r29,r9
+8079f348	mv_s r16,r14
+8079f34a	st_s r10,(r11)
+8079f34c	add #$00000008,r28,r11
+8079f350	ld_s (r11),r29
+8079f352	nop
+8079f354	add #$00000001,r29,r10
+8079f358	st_s r10,(r11)
+8079f35a	ld_s (r8),r10
+8079f35c	nop
+	ld_s (r28),r11
+8079f360	add #$00000008,r10,r29
+8079f364	ld_b (r11),r10
+8079f368	ld_s (r29),r29
+8079f36a	lsr #$00000008,r10
+8079f36c	add r29,r10
+8079f36e	st_s r10,(r9)
+8079f370	add #$00000001,r11
+8079f372	st_s r11,(r28)
+8079f374	ld_s (r8),r10
+8079f376	nop
+8079f378	st_s r6,(r10)
+8079f37a	add #$00000004,r28,r11
+8079f37e	ld_s (r11),r10
+8079f380	nop
+8079f382	cmp #$00000000,r10
+8079f384	bra eq,#$8079f3d6
+8079f386	add #$0000001c,r28,r8
+8079f38a	mv_s #$0000000b,r6
+8079f38c	ld_s (r8),r29
+8079f38e	sub #$00000001,r10
+8079f390	add #$00000008,r29,r9
+8079f394	mv_s r16,r14
+8079f396	st_s r10,(r11)
+8079f398	add #$00000008,r28,r11
+8079f39c	ld_s (r11),r29
+8079f39e	nop
+8079f3a0	add #$00000001,r29,r10
+8079f3a4	st_s r10,(r11)
+8079f3a6	ld_s (r8),r10
+8079f3a8	ld_s (r28),r11
+8079f3aa	add #$00000008,r10,r29
+8079f3ae	ld_b (r11),r10
+8079f3b2	ld_s (r29),r29
+8079f3b4	lsr #$00000010,r10
+8079f3b6	add r29,r10
+8079f3b8	st_s r10,(r9)
+8079f3ba	add #$00000001,r11
+8079f3bc	st_s r11,(r28)
+8079f3be	ld_s (r8),r10
+8079f3c0	nop
+8079f3c2	st_s r6,(r10)
+8079f3c4	add #$00000004,r28,r11
+8079f3c8	ld_s (r11),r10
+8079f3ca	nop
+8079f3cc	cmp #$00000000,r10
+8079f3ce	bra ne,#$8079f3dc
+8079f3d0	add #$0000001c,r28,r9
+8079f3d4	sub #$00000001,r10
+8079f3d6	bra #$8079f458
+8079f3d8	nop
+8079f3da	mv_s r14,r0
+8079f3dc	ld_s (r9),r29
+8079f3de	nop
+8079f3e0	add #$00000008,r29,r8
+8079f3e4	st_s r10,(r11)
+8079f3e6	add #$00000008,r28,r11
+8079f3ea	ld_s (r11),r6
+8079f3ec	nop
+8079f3ee	add #$00000001,r6,r10
+8079f3f2	st_s r10,(r11)
+8079f3f4	ld_s (r9),r10
+8079f3f6	ld_s (r28),r11
+8079f3f8	add #$00000008,r10,r29
+8079f3fc	ld_b (r11),r10
+8079f400	ld_s (r29),r29
+8079f402	lsr #$00000018,r10
+8079f404	add r29,r10
+8079f406	st_s r10,(r8)
+8079f408	add #$00000001,r11
+8079f40a	st_s r11,(r28)
+8079f40c	ld_s (r9),r29
+8079f40e	nop
+8079f410	add #$00000004,r29,r11
+8079f414	add #$00000008,r29,r10
+8079f418	ld_s (r11),r11
+8079f41a	ld_s (r10),r10
+8079f41c	nop
+8079f41e	cmp r10,r11
+8079f420	bra eq,#$8079f446
+8079f422	nop
+8079f424	mv_s r16,r14
+8079f426	mv_s #$0000000d,r10
+8079f428	add #$00000018,r28,r11
+8079f42c	st_s r10,(r29)
+8079f42e	mv_s #$807a5dc4,r10
+8079f434	st_s r10,(r11)
+8079f436	ld_s (r9),r9
+8079f438	nop
+8079f43a	mv_s #$00000005,r10
+8079f43c	lbra #$8079efa8
+8079f440	add #$00000004,r9,r11
+8079f444	st_s r10,(r11)
+8079f446	mv_s #$0000000c,r10
+8079f448	st_s r10,(r29)
+8079f44a	bra #$8079f458
+8079f44c	nop
+8079f44e	mv_s #$00000001,r0
+8079f450	bra #$8079f458
+8079f452	nop
+8079f454	mv_s #$fffffffd,r0
+8079f456	mv_s #$fffffffe,r0
+8079f458	nop
+	ld_v (r31),v4
+	add #$00000010,r31
+8079f460	ld_v (r31),v3
+	add #$00000010,r31
+8079f466	ld_v (r31),v7
+8079f46a	nop
+8079f46c	st_s r29,rz
+8079f46e	rts
+8079f470	add #$00000010,r31
+8079f472	nop
+8079f474	ld_s rz,r29
+8079f476	sub #$00000010,r31
+8079f478	st_v v7,(r31)
+	copy r31,r30
+8079f47e	sub #$00000010,r31
+8079f480	st_v v3,(r31)
+8079f484	mv_s r2,r12
+8079f486	mv_s r0,r28
+8079f488	cmp #$00000000,r28
+8079f48a	bra eq,#$8079f4ae
+8079f48c	mv_s r12,r15
+8079f48e	mv_s r1,r13
+8079f490	add #$0000001c,r28,r14
+8079f494	ld_s (r14),r10
+8079f496	nop
+8079f498	cmp #$00000000,r10
+8079f49a	lbra eq,#$8079f520
+8079f49e	nop
+8079f4a0	mv_s #$fffffffe,r0
+8079f4a2	ld_s (r10),r10
+8079f4a4	nop
+8079f4a6	cmp #$00000006,r10
+8079f4a8	bra eq,#$8079f4b4
+8079f4aa	nop
+8079f4ac	mv_s #$00000001,r0
+8079f4ae	bra #$8079f520
+8079f4b0	nop
+8079f4b2	mv_s #$fffffffe,r0
+8079f4b4	jsr #$807a2840
+8079f4bc	mv_s r13,r1
+8079f4be	mv_s r12,r2
+8079f4c0	add #$00000030,r28,r10
+8079f4c8	ld_s (r10),r11
+8079f4ca	nop
+8079f4cc	cmp r11,r0
+8079f4ce	bra ne,#$8079f520
+8079f4d0	nop
+8079f4d2	mv_s #$fffffffd,r0
+8079f4d4	mv_s #$00000001,r8
+8079f4d6	st_s r8,(r10)
+8079f4d8	ld_s (r14),r29
+8079f4da	nop
+8079f4dc	add #$00000010,r29,r10
+8079f4e0	ld_s (r10),r11
+8079f4e2	nop
+8079f4e4	ls r11,r12,r10
+8079f4e8	cmp #$00000000,r10
+8079f4ea	bra eq,#$8079f500
+8079f4ec	sub r11,#$00000000,r10
+8079f4f0	ls r10,r8,r10
+8079f4f4	sub #$00000001,r10,r12
+8079f4f8	sub r12,r15,r10
+8079f4fc	nop
+	add r10,r13
+8079f500	add #$00000014,r29,r10
+8079f504	ld_s (r10),r0
+8079f506	nop
+8079f508	jsr #$807a0624
+8079f510	mv_s r13,r1
+8079f512	mv_s r12,r2
+8079f514	ld_s (r14),r11
+8079f516	nop
+8079f518	mv_s #$00000007,r10
+8079f51a	st_s r10,(r11)
+8079f51c	nop
+	mv_s #$00000000,r0
+8079f520	ld_v (r31),v3
+	add #$00000010,r31
+8079f526	ld_v (r31),v7
+8079f52a	nop
+8079f52c	st_s r29,rz
+8079f52e	rts
+8079f530	add #$00000010,r31
+8079f532	nop
+8079f534	ld_s rz,r29
+8079f536	sub #$00000010,r31
+8079f538	st_v v7,(r31)
+	copy r31,r30
+8079f53e	sub #$00000010,r31
+8079f540	st_v v3,(r31)
+8079f544	cmp #$00000000,r0
+8079f546	bra eq,#$8079f558
+8079f548	nop
+8079f54a	add #$0000001c,r0,r15
+8079f54e	ld_s (r15),r11
+8079f550	nop
+8079f552	cmp #$00000000,r11
+8079f554	lbra ne,#$8079f55e,nop
+8079f558	bra #$8079f62e
+8079f55a	nop
+8079f55c	mv_s #$fffffffe,r0
+8079f55e	ld_s (r11),r5
+8079f560	nop
+8079f562	cmp #$0000000d,r5
+8079f564	bra eq,#$8079f578
+8079f566	nop
+8079f568	mv_s #$0000000d,r10
+8079f56a	st_s r10,(r11)
+8079f56c	ld_s (r15),r10
+8079f56e	nop
+8079f570	add #$00000004,r10,r11
+8079f574	mv_s #$00000000,r10
+8079f576	st_s r10,(r11)
+8079f578	add #$00000004,r0,r7
+8079f57c	ld_s (r7),r6
+8079f57e	nop
+8079f580	cmp #$00000000,r6
+8079f582	lbra ne,#$8079f58c,nop
+8079f586	bra #$8079f62e
+8079f588	nop
+8079f58a	mv_s #$fffffffb,r0
+8079f58c	ld_s (r15),r11
+8079f58e	ld_s (r0),r9
+8079f590	add #$00000004,r11,r10
+8079f594	ld_s (r10),r29
+8079f596	nop
+8079f598	cmp #$00000003,r29
+8079f59a	lbra hi,#$8079f5ee
+8079f59e	nop
+8079f5a0	mv_s r9,r4
+8079f5a2	ld_b (r9),r11
+8079f5a6	add #$807a5e14,r29,r10
+8079f5ae	ld_b (r10),r10
+8079f5b2	asr #$00000018,r11,r8
+8079f5b6	mv_s r8,r11
+8079f5b8	lsr #$00000018,r10
+8079f5ba	bits #$00000007,>>#0,r11
+8079f5be	cmp r10,r11
+8079f5c0	bra ne,#$8079f5ce
+8079f5c2	mv_s r8,r10
+8079f5c4	bits #$00000007,>>#0,r10
+8079f5c8	bra #$8079f5e0
+8079f5ca	add #$00000001,r29
+8079f5cc	add #$00000001,r9
+8079f5ce	cmp #$00000000,r10
+8079f5d0	bra eq,#$8079f5de
+8079f5d2	nop
+8079f5d4	sub r29,#$00000004,r29
+8079f5d8	bra #$8079f5e0
+8079f5da	mv_s #$00000000,r29
+8079f5dc	add #$00000001,r9
+8079f5de	add #$00000001,r9
+8079f5e0	sub #$00000001,r6
+8079f5e2	cmp #$00000000,r6
+8079f5e4	bra eq,#$8079f5ee
+8079f5e6	nop
+8079f5e8	cmp #$00000003,r29
+8079f5ea	lbra ls,#$8079f5a2,nop
+8079f5ee	add #$00000008,r0,r14
+8079f5f2	ld_s (r14),r5
+8079f5f4	sub r4,r9,r10
+8079f5f8	add r5,r10
+8079f5fa	st_s r10,(r14)
+8079f5fc	st_s r9,(r0)
+8079f5fe	st_s r6,(r7)
+8079f600	ld_s (r15),r11
+8079f602	cmp #$00000004,r29
+8079f604	bra ne,#$8079f62c
+8079f606	add #$00000004,r11,r10
+8079f60a	st_s r29,(r10)
+8079f60c	add #$00000014,r0,r28
+8079f610	ld_s (r14),r12
+8079f612	ld_s (r28),r13
+8079f614	jsr #$8079ece0,nop
+8079f61c	st_s r12,(r14)
+8079f61e	st_s r13,(r28)
+8079f620	ld_s (r15),r11
+8079f622	nop
+8079f624	mv_s #$00000007,r10
+8079f626	bra #$8079f62e
+8079f628	st_s r10,(r11)
+8079f62a	mv_s #$00000000,r0
+8079f62c	mv_s #$fffffffd,r0
+8079f62e	ld_v (r31),v3
+	add #$00000010,r31
+8079f634	ld_v (r31),v7
+8079f638	nop
+8079f63a	st_s r29,rz
+8079f63c	rts
+8079f63e	add #$00000010,r31
+8079f640	nop
+8079f642	ld_s rz,r29
+8079f644	sub #$00000010,r31
+8079f646	st_v v7,(r31)
+	copy r31,r30
+8079f64c	cmp #$00000000,r0
+8079f64e	bra eq,#$8079f66e
+8079f650	nop
+8079f652	add #$0000001c,r0,r10
+8079f656	ld_s (r10),r0
+8079f658	nop
+8079f65a	cmp #$00000000,r0
+8079f65c	bra eq,#$8079f66e
+8079f65e	nop
+8079f660	add #$00000014,r0,r10
+8079f664	ld_s (r10),r0
+8079f666	nop
+8079f668	cmp #$00000000,r0
+8079f66a	lbra ne,#$8079f674,nop
+8079f66e	bra #$8079f67c
+8079f670	nop
+8079f672	mv_s #$fffffffe,r0
+8079f674	jsr #$807a0678,nop
+8079f67c	ld_v (r31),v7
+8079f680	nop
+8079f682	st_s r29,rz
+8079f684	rts
+8079f686	add #$00000010,r31
+8079f688	nop
+8079f68a	add r0,r0
+8079f68c	add r0,r0
+8079f68e	add r0,r0
+8079f690	add r0,r0
+8079f692	add r0,r0
+8079f694	add r0,r0
+8079f696	add r0,r0
+8079f698	add r0,r0
+8079f69a	add r0,r0
+8079f69c	add r0,r0
+8079f69e	add r0,r0
+8079f6a0	ld_s rz,r29
+8079f6a2	sub #$00000010,r31
+8079f6a4	st_v v7,(r31)
+	copy r31,r30
+8079f6aa	sub #$00000010,r31
+8079f6ac	st_v v3,(r31)
+8079f6b0	cmp #$00000000,r2
+8079f6b2	bra eq,#$8079f6c6
+8079f6b4	mv_s r0,r28
+8079f6b6	mv_s r1,r12
+8079f6b8	add #$00000040,r28,r10
+8079f6c0	ld_s (r10),r10
+8079f6c2	nop
+8079f6c4	st_s r10,(r2)
+8079f6c6	ld_s (r28),r11
+8079f6c8	nop
+8079f6ca	sub #$00000004,r11,r10
+8079f6ce	cmp #$00000001,r10
+8079f6d0	lbra hi,#$8079f6f8
+8079f6d4	nop
+	nop
+	add #$00000024,r12,r10
+8079f6e0	add #$00000028,r12,r11
+8079f6e8	ld_s (r10),r29
+8079f6ea	ld_s (r11),r0
+8079f6ec	add #$0000000c,r28,r10
+8079f6f0	ld_s (r10),r1
+8079f6f2	nop
+8079f6f4	jsr (r29),nop
+8079f6f8	ld_s (r28),r10
+8079f6fa	nop
+8079f6fc	cmp #$00000006,r10
+8079f6fe	bra ne,#$8079f720
+8079f700	mv_s #$00000000,r0
+8079f702	add #$0000001c,r28,r10
+8079f706	add #$00000004,r28,r10
+8079f70a	ld_s (r10),r0
+8079f70c	nop
+8079f70e	jsr #$807a1860
+8079f716	nop
+8079f718	mv_s r12,r1
+8079f71a	mv_s #$00000000,r0
+8079f71c	add #$0000001c,r28,r10
+8079f720	st_s r0,(r28)
+8079f722	add #$00000020,r28,r11
+8079f72a	st_s r0,(r10)
+8079f72c	add #$00000038,r28,r8
+8079f734	st_s r0,(r11)
+8079f736	add #$0000002c,r28,r10
+8079f73e	ld_s (r10),r10
+8079f740	add #$00000034,r28,r11
+8079f748	add #$0000003c,r28,r29
+8079f750	st_s r10,(r8)
+8079f752	st_s r10,(r11)
+8079f754	ld_s (r29),r29
+8079f756	nop
+8079f758	cmp #$00000000,r29
+8079f75a	nop
+	lbra eq,#$8079f780,nop
+8079f760	jsr (r29)
+8079f764	mv_s r0,r1
+8079f766	mv_s r0,r2
+8079f768	add #$00000040,r28,r10
+8079f770	add #$00000030,r12,r11
+8079f778	st_s r0,(r10)
+8079f77a	nop
+	nop
+	st_s r0,(r11)
+8079f780	ld_v (r31),v3
+	add #$00000010,r31
+8079f786	ld_v (r31),v7
+8079f78a	nop
+8079f78c	st_s r29,rz
+8079f78e	rts
+8079f790	add #$00000010,r31
+8079f792	nop
+8079f794	ld_s rz,r29
+8079f796	sub #$00000010,r31
+8079f798	st_v v7,(r31)
+	copy r31,r30
+8079f79e	sub #$00000010,r31
+8079f7a0	st_v v3,(r31)
+	sub #$00000010,r31
+8079f7a6	st_v v4,(r31)
+	sub #$00000010,r31
+8079f7ac	st_v v5,(r31)
+8079f7b0	mv_s r0,r16
+8079f7b2	add #$00000020,r16,r15
+8079f7ba	nop
+	nop
+	mv_s r1,r20
+8079f7c0	add #$00000028,r16,r14
+8079f7c8	mv_s r2,r19
+8079f7ca	ld_s (r15),r10
+8079f7cc	ld_s (r14),r0
+8079f7ce	nop
+8079f7d0	mv_s r3,r13
+8079f7d2	mv_s r4,r18
+8079f7d4	jsr (r10)
+8079f7d8	mv_s #$00000001,r1
+8079f7da	mv_s #$00000044,r2
+8079f7de	mv_s r0,r12
+8079f7e0	cmp #$00000000,r12
+8079f7e2	lbra eq,#$8079f8d0
+8079f7e6	nop
+8079f7e8	add #$00000024,r12,r17
+8079f7f0	ld_s (r15),r10
+8079f7f2	ld_s (r14),r0
+8079f7f4	nop
+8079f7f6	jsr (r10)
+8079f7fa	mv_s #$00000008,r1
+8079f7fc	mv_s #$000005a0,r2
+8079f800	mv_s r0,r28
+8079f802	cmp #$00000000,r28
+8079f804	bra ne,#$8079f81a
+8079f806	nop
+8079f808	st_s r28,(r17)
+8079f80a	add #$00000024,r16,r10
+8079f812	ld_s (r14),r0
+8079f814	ld_s (r10),r10
+8079f816	lbra #$8079f882,nop
+8079f81a	cmp #$00000000,r13
+8079f81c	nop
+	bra eq,#$8079f84a
+8079f820	add #$0000002c,r12,r10
+8079f828	mv_s #$00000000,r29
+8079f82a	st_s r13,(r10)
+8079f82c	add r18,r13,r11
+8079f830	add #$00000030,r12,r10
+8079f838	st_s r11,(r10)
+8079f83a	nop
+	nop
+	bra #$8079f8b2
+8079f840	add #$00000028,r12,r10
+8079f848	st_s r29,(r10)
+8079f84a	ld_s (r15),r10
+8079f84c	ld_s (r14),r0
+8079f84e	nop
+8079f850	jsr (r10)
+8079f854	mv_s #$00000001,r1
+8079f856	mv_s r19,r2
+8079f858	mv_s r0,r13
+8079f85a	cmp #$00000000,r13
+8079f85c	nop
+	bra ne,#$8079f892
+8079f860	add #$0000002c,r12,r29
+8079f868	st_s r13,(r29)
+8079f86a	add #$00000024,r16,r28
+8079f872	ld_s (r17),r1
+8079f874	ld_s (r14),r0
+8079f876	ld_s (r28),r10
+8079f878	nop
+8079f87a	jsr (r10),nop
+8079f87e	ld_s (r14),r0
+8079f880	ld_s (r28),r10
+8079f882	nop
+8079f884	jsr (r10)
+8079f888	nop
+8079f88a	mv_s r12,r1
+8079f88c	bra #$8079f8d0
+8079f88e	nop
+8079f890	mv_s #$00000000,r0
+8079f892	add #$00000028,r12,r10
+8079f89a	nop
+	nop
+	st_s r13,(r10)
+8079f8a0	add #$00000030,r12,r11
+8079f8a8	ld_s (r29),r29
+8079f8aa	nop
+8079f8ac	add r19,r29,r10
+8079f8b0	st_s r10,(r11)
+8079f8b2	add #$0000003c,r12,r10
+8079f8ba	mv_s #$00000000,r11
+8079f8bc	st_s r20,(r10)
+8079f8be	mv_s r12,r0
+8079f8c0	mv_s r16,r1
+8079f8c2	jsr #$8079f6a0
+8079f8ca	mv_s r11,r2
+8079f8cc	st_s r11,(r12)
+8079f8ce	mv_s r12,r0
+8079f8d0	ld_v (r31),v5
+	add #$00000010,r31
+8079f8d6	nop
+	nop
+	ld_v (r31),v4
+	add #$00000010,r31
+8079f8e0	ld_v (r31),v3
+	add #$00000010,r31
+8079f8e6	ld_v (r31),v7
+8079f8ea	nop
+8079f8ec	st_s r29,rz
+8079f8ee	rts
+8079f8f0	add #$00000010,r31
+8079f8f2	nop
+8079f8f4	ld_s rz,r29
+8079f8f6	sub #$00000010,r31
+8079f8f8	nop
+	st_v v7,(r31)
+	copy r31,r30
+8079f900	sub #$00000040,r31
+8079f904	st_v v3,(r31)
+	sub #$00000010,r31
+8079f90a	st_v v4,(r31)
+	sub #$00000010,r31
+8079f910	st_v v5,(r31)
+	sub #$00000010,r31
+8079f916	st_v v6,(r31)
+8079f91a	nop
+	nop
+	mv_s r0,r15
+8079f920	sub #$00000028,r30,r8
+8079f928	add #$00000020,r15,r11
+8079f930	mv_s r1,r16
+8079f932	mv_s r11,r10
+8079f934	sub #$00000024,r30,r29
+8079f93c	nop
+	st_s r10,(r8)
+8079f940	sub #$0000002c,r30,r11
+8079f948	add #$00000004,r16,r10
+8079f94c	mv_s r10,r8
+8079f94e	st_s r8,(r29)
+8079f950	add #$0000001c,r15,r8
+8079f954	ld_s (r16),r19
+8079f956	nop
+8079f958	mv_s r8,r29
+8079f95a	st_s r29,(r11)
+8079f95c	nop
+	ld_s (r10),r21
+8079f960	sub #$00000028,r30,r29
+8079f968	ld_s (r29),r29
+8079f96a	add #$00000038,r15,r11
+8079f972	add #$00000034,r15,r10
+8079f97a	ld_s (r11),r22
+8079f97c	ld_s (r29),r18
+8079f97e	ld_s (r10),r10
+8079f980	ld_s (r8),r17
+8079f982	cmp r10,r22
+8079f984	lbra cc,#$8079f994
+8079f988	nop
+8079f98a	mv_s r2,r23
+8079f98c	bra #$8079f9a4
+8079f98e	sub r22,r10
+8079f990	sub #$00000001,r10,r20
+8079f994	add #$00000030,r15,r10
+8079f99c	ld_s (r10),r10
+8079f99e	nop
+8079f9a0	sub r22,r10,r20
+8079f9a4	ld_s (r15),r10
+8079f9a6	nop
+8079f9a8	cmp #$00000009,r10
+8079f9aa	lbra hi,#$807a0526
+8079f9ae	asl #$fffffffe,r10
+8079f9b0	add #$807a5ed8,r10
+8079f9b6	ld_s (r10),r10
+8079f9b8	nop
+8079f9ba	jmp (r10)
+8079f9be	nop
+8079f9c0	nop
+8079f9c2	cmp #$00000002,r17
+8079f9c4	lbra hi,#$8079f9fa
+8079f9c8	nop
+8079f9ca	sub r17,#$00000000,r11
+8079f9ce	cmp #$00000000,r21
+8079f9d0	lbra eq,#$807a04a0
+8079f9d4	add #$00000020,r15,r10
+8079f9dc	nop
+	mv_s r15,r0
+8079f9e0	ld_b (r19),r10
+8079f9e4	sub #$00000001,r21
+8079f9e6	add #$00000008,r17
+8079f9e8	lsr #$00000018,r10
+8079f9ea	mv_s #$00000000,r23
+8079f9ec	or r10,>>r11,r18
+8079f9f0	cmp #$00000002,r17
+8079f9f2	lbra ls,#$8079f9ce
+8079f9f6	add #$00000001,r19
+8079f9f8	sub #$00000008,r11
+8079f9fa	add #$00000018,r15,r11
+8079f9fe	mv_s r18,r29
+8079fa00	bits #$00000001,>>#1,r29
+8079fa04	cmp #$00000001,r29
+8079fa06	bra eq,#$8079fa44
+8079fa08	and #$00000001,r18,r10
+8079fa0c	st_s r10,(r11)
+8079fa0e	cmp #$00000001,r29
+8079fa10	lbra cs,#$8079fa2e
+8079fa14	nop
+8079fa16	cmp #$00000002,r29
+8079fa18	lbra eq,#$8079fac0
+8079fa1c	nop
+8079fa1e	cmp #$00000003,r29
+8079fa20	lbra eq,#$8079faca
+8079fa24	mv_s #$00000009,r10
+8079fa26	add #$00000018,r16,r29
+8079fa2a	lbra #$8079f9a4,nop
+8079fa2e	sub #$00000003,r17
+8079fa30	mv_s #$00000001,r10
+8079fa32	and #$00000007,r17,r12
+8079fa36	st_s r10,(r15)
+8079fa38	lsr #$00000003,r18
+8079fa3a	bra #$8079f9a4
+8079fa3c	nop
+	sub r12,r17
+8079fa40	ls r12,r18,r18
+8079fa44	sub #$00000004,r30,r14
+8079fa48	mv_s r16,r4
+8079fa4a	sub #$00000008,r30,r13
+8079fa4e	mv_s r14,r0
+8079fa50	sub #$0000000c,r30,r12
+8079fa54	mv_s r13,r1
+8079fa56	nop
+	nop
+	nop
+	sub #$00000010,r30,r28
+8079fa60	jsr #$807a0e9c
+8079fa68	mv_s r12,r2
+8079fa6a	mv_s r28,r3
+8079fa6c	ld_s (r14),r0
+8079fa6e	ld_s (r13),r1
+8079fa70	ld_s (r12),r2
+8079fa72	ld_s (r28),r3
+8079fa74	nop
+8079fa76	jsr #$807a0ee0
+8079fa7e	nop
+8079fa80	mv_s r16,r4
+8079fa82	cmp #$00000000,r0
+8079fa84	bra ne,#$8079faba
+8079fa86	add #$00000004,r15,r10
+8079fa8a	st_s r0,(r10)
+8079fa8c	add #$00000020,r15,r10
+8079fa94	mv_s r15,r0
+8079fa96	st_s r18,(r10)
+8079fa98	add #$00000008,r16,r11
+8079fa9c	add #$0000001c,r15,r10
+8079faa0	mv_s r16,r1
+8079faa2	st_s r17,(r10)
+8079faa4	add #$00000004,r16,r10
+8079faa8	mv_s #$fffffffc,r2
+8079faaa	st_s r21,(r10)
+8079faac	ld_s (r16),r29
+8079faae	ld_s (r11),r8
+8079fab0	lbra #$807a0552
+8079fab4	sub r29,r19,r10
+8079fab8	add r8,r10
+8079faba	bra #$8079fac4
+8079fabc	mv_s #$00000006,r10
+8079fabe	lsr #$00000003,r18
+8079fac0	mv_s #$00000003,r10
+8079fac2	lsr #$00000003,r18
+8079fac4	bra #$8079f9a4
+8079fac6	st_s r10,(r15)
+8079fac8	sub #$00000003,r17
+8079faca	st_s r10,(r15)
+8079facc	add #$00000020,r15,r11
+8079fad4	mv_s #$807a5e64,r10
+8079fada	lsr #$00000003,r18
+8079fadc	st_s r10,(r29)
+8079fade	sub #$00000003,r17
+8079fae0	st_s r18,(r11)
+8079fae2	add #$0000001c,r15,r10
+8079fae6	st_s r17,(r10)
+8079fae8	add #$00000008,r16,r11
+8079faec	add #$00000004,r16,r10
+8079faf0	mv_s r15,r0
+8079faf2	st_s r21,(r10)
+8079faf4	ld_s (r16),r29
+8079faf6	ld_s (r11),r8
+8079faf8	sub r29,r19,r10
+8079fafc	nop
+	mv_s r16,r1
+8079fb00	lbra #$807a0552
+8079fb04	add r8,r10
+8079fb06	mv_s #$fffffffd,r2
+8079fb08	cmp #$0000001f,r17
+8079fb0a	lbra hi,#$8079fb44
+8079fb0e	nop
+8079fb10	sub r17,#$00000000,r11
+8079fb14	cmp #$00000000,r21
+8079fb16	nop
+	nop
+	nop
+	lbra eq,#$807a04b6
+8079fb20	add #$00000020,r15,r10
+8079fb28	mv_s r15,r0
+8079fb2a	ld_b (r19),r10
+8079fb2e	sub #$00000001,r21
+8079fb30	add #$00000008,r17
+8079fb32	lsr #$00000018,r10
+8079fb34	mv_s #$00000000,r23
+8079fb36	or r10,>>r11,r18
+8079fb3a	cmp #$0000001f,r17
+8079fb3c	lbra ls,#$8079fb14
+8079fb40	add #$00000001,r19
+8079fb42	sub #$00000008,r11
+8079fb44	mv_s r18,r10
+8079fb46	mv_s r18,r11
+8079fb48	eor #$ffffffff,r10
+8079fb4a	bits #$0000000f,>>#0,r11
+8079fb4e	lsr #$00000010,r10,r29
+8079fb52	cmp r11,r29
+8079fb54	bra eq,#$8079fba8
+8079fb56	mv_s #$00000009,r10
+8079fb58	add #$00000018,r16,r11
+8079fb5c	nop
+	st_s r10,(r15)
+8079fb60	add #$00000020,r15,r29
+8079fb68	mv_s #$807a5e78,r10
+8079fb6e	add #$0000001c,r15,r8
+8079fb72	st_s r10,(r11)
+8079fb74	st_s r18,(r29)
+8079fb76	add #$00000004,r16,r10
+8079fb7a	st_s r17,(r8)
+8079fb7c	add #$00000008,r16,r11
+8079fb80	st_s r21,(r10)
+8079fb82	add #$00000038,r15,r29
+8079fb8a	ld_s (r16),r8
+8079fb8c	nop
+8079fb8e	sub r8,r19,r10
+8079fb92	mv_s r15,r0
+8079fb94	ld_s (r11),r8
+8079fb96	nop
+8079fb98	add r8,r10
+8079fb9a	mv_s r16,r1
+8079fb9c	st_s r10,(r11)
+8079fb9e	st_s r19,(r16)
+8079fba0	lbra #$807a0560
+8079fba4	st_s r22,(r29)
+8079fba6	mv_s #$fffffffd,r2
+8079fba8	add #$00000004,r15,r10
+8079fbac	mv_s #$00000000,r17
+8079fbae	cmp #$00000000,r29
+8079fbb0	bra ne,#$8079fbbe
+8079fbb2	st_s r29,(r10)
+8079fbb4	mv_s r17,r18
+8079fbb6	bra #$8079fd58
+8079fbb8	add #$00000018,r15,r10
+8079fbbc	mv_s r17,r11
+8079fbbe	bra #$8079f9a4
+8079fbc0	mv_s #$00000002,r11
+8079fbc2	st_s r11,(r15)
+8079fbc4	cmp #$00000000,r21
+8079fbc6	bra ne,#$8079fbfa
+8079fbc8	nop
+8079fbca	cmp #$00000000,r20
+8079fbcc	add #$00000020,r15,r10
+8079fbd4	mv_s r15,r0
+8079fbd6	st_s r18,(r10)
+8079fbd8	add #$00000008,r16,r11
+8079fbdc	add #$0000001c,r15,r10
+8079fbe0	mv_s r16,r1
+8079fbe2	st_s r17,(r10)
+8079fbe4	add #$00000004,r16,r10
+8079fbe8	mv_s r23,r2
+8079fbea	st_s r21,(r10)
+8079fbec	ld_s (r16),r29
+8079fbee	ld_s (r11),r8
+8079fbf0	lbra #$807a0552
+8079fbf4	sub r29,r19,r10
+8079fbf8	add r8,r10
+8079fbfa	lbra ne,#$8079fd12
+8079fbfe	nop
+8079fc00	add #$00000004,r15,r28
+8079fc04	add #$00000030,r15,r12
+8079fc0c	ld_s (r12),r29
+8079fc0e	nop
+8079fc10	cmp r29,r22
+8079fc12	bra ne,#$8079fc48
+8079fc14	nop
+8079fc16	add #$00000034,r15,r10
+8079fc1e	ld_s (r10),r11
+8079fc20	add #$0000002c,r15,r10
+8079fc28	ld_s (r10),r10
+8079fc2a	nop
+8079fc2c	cmp r10,r11
+8079fc2e	lbra eq,#$8079fc48,nop
+8079fc32	mv_s r10,r22
+8079fc34	cmp r11,r10
+8079fc36	lbra cs,#$8079fc48
+8079fc3a	nop
+	sub r22,r11,r10
+8079fc40	sub #$00000001,r10,r20
+8079fc44	sub r22,r29,r20
+8079fc48	cmp #$00000000,r20
+8079fc4a	lbra ne,#$8079fd12
+8079fc4e	nop
+8079fc50	add #$00000004,r15,r28
+8079fc54	add #$00000038,r15,r28
+8079fc5c	mv_s r23,r2
+8079fc5e	st_s r22,(r28)
+8079fc60	mv_s #$807a18a0,r13
+8079fc66	jsr (r13)
+8079fc6a	mv_s r15,r0
+8079fc6c	mv_s r16,r1
+8079fc6e	add #$00000034,r15,r11
+8079fc76	ld_s (r28),r22
+8079fc78	ld_s (r11),r10
+8079fc7a	nop
+8079fc7c	nop
+	cmp r10,r22
+8079fc80	lbra cc,#$8079fc90
+8079fc84	nop
+8079fc86	mv_s r0,r23
+8079fc88	bra #$8079fc98
+8079fc8a	sub r22,r10
+8079fc8c	sub #$00000001,r10,r20
+8079fc90	ld_s (r12),r12
+8079fc92	nop
+8079fc94	sub r22,r12,r20
+8079fc98	add #$00000030,r15,r10
+8079fca0	ld_s (r10),r29
+8079fca2	nop
+8079fca4	cmp r29,r22
+8079fca6	bra ne,#$8079fcd2
+8079fca8	nop
+8079fcaa	add #$0000002c,r15,r10
+8079fcb2	ld_s (r11),r11
+8079fcb4	ld_s (r10),r10
+8079fcb6	nop
+8079fcb8	cmp r10,r11
+8079fcba	lbra eq,#$8079fcd2,nop
+8079fcbe	mv_s r10,r22
+8079fcc0	cmp r11,r10
+8079fcc2	lbra cs,#$8079fcd2
+8079fcc6	sub r22,r11,r10
+8079fcca	sub #$00000001,r10,r20
+8079fcce	sub r22,r29,r20
+8079fcd2	cmp #$00000000,r20
+8079fcd4	bra ne,#$8079fd0e
+8079fcd6	add #$00000020,r15,r10
+8079fcde	mv_s r15,r0
+8079fce0	st_s r18,(r10)
+8079fce2	add #$00000008,r16,r11
+8079fce6	add #$0000001c,r15,r10
+8079fcea	mv_s r16,r1
+8079fcec	st_s r17,(r10)
+8079fcee	add #$00000004,r16,r10
+8079fcf2	mv_s r23,r2
+8079fcf4	st_s r21,(r10)
+8079fcf6	ld_s (r16),r29
+8079fcf8	ld_s (r11),r8
+8079fcfa	sub r29,r19,r10
+8079fcfe	add r8,r10
+8079fd00	st_s r10,(r11)
+8079fd02	jsr (r13)
+8079fd06	st_s r19,(r16)
+8079fd08	st_s r22,(r28)
+8079fd0a	lbra #$807a0568,nop
+8079fd0e	add #$00000004,r15,r28
+8079fd12	ld_s (r28),r12
+8079fd14	nop
+8079fd16	cmp r21,r12
+8079fd18	lbra ls,#$8079fd22
+8079fd1c	nop
+8079fd1e	mv_s #$00000000,r23
+8079fd20	mv_s r21,r12
+8079fd22	cmp r20,r12
+8079fd24	lbra ls,#$8079fd2e
+8079fd28	nop
+8079fd2a	mv_s r19,r0
+8079fd2c	mv_s r20,r12
+8079fd2e	sub r12,r21
+8079fd30	mv_s r22,r1
+8079fd32	add r12,r19
+8079fd34	jsr #$80789fc0
+8079fd3c	mv_s r12,r2
+8079fd3e	add r12,r22
+8079fd40	ld_s (r28),r11
+8079fd42	nop
+8079fd44	sub r12,r11,r10
+8079fd48	cmp #$00000000,r10
+8079fd4a	lbra ne,#$8079f9a4
+8079fd4e	sub r12,r20
+8079fd50	st_s r10,(r28)
+8079fd52	add #$00000018,r15,r10
+8079fd56	mv_s r23,r11
+8079fd58	ld_s (r10),r10
+8079fd5a	nop
+8079fd5c	nop
+	cmp #$00000000,r10
+8079fd60	lbra eq,#$8079fd66,nop
+8079fd64	mv_s #$00000007,r11
+8079fd66	bra #$8079f9a4
+8079fd68	nop
+8079fd6a	st_s r11,(r15)
+8079fd6c	cmp #$0000000d,r17
+8079fd6e	lbra hi,#$8079fdba
+8079fd72	add #$00000004,r15,r10
+8079fd76	nop
+	and #$0000001f,r18,r29
+8079fd80	sub r17,#$00000000,r11
+8079fd84	cmp #$00000000,r21
+8079fd86	lbra eq,#$807a04cc
+8079fd8a	add #$00000020,r15,r10
+8079fd92	mv_s r15,r0
+8079fd94	ld_b (r19),r10
+8079fd98	sub #$00000001,r21
+8079fd9a	add #$00000008,r17
+8079fd9c	lsr #$00000018,r10
+8079fd9e	mv_s #$00000000,r23
+8079fda0	or r10,>>r11,r18
+8079fda4	cmp #$0000000d,r17
+8079fda6	lbra ls,#$8079fd84
+8079fdaa	add #$00000001,r19
+8079fdac	sub #$00000008,r11
+8079fdae	add #$00000004,r15,r10
+8079fdb2	and #$0000001f,r18,r29
+8079fdba	cmp #$0000001d,r29
+8079fdbc	lbra hi,#$8079fde8
+8079fdc0	and #$00003fff,r18,r12
+8079fdc8	st_s r12,(r10)
+8079fdca	mv_s r12,r0
+8079fdcc	bits #$00000004,>>#5,r0
+8079fdd0	cmp #$0000001d,r0
+8079fdd2	lbra ls,#$8079fe40
+8079fdd6	nop
+	add #$00000102,r0,r1
+8079fde0	add #$00000028,r16,r11
+8079fde8	mv_s #$00000009,r10
+8079fdea	add #$00000018,r16,r11
+8079fdee	st_s r10,(r15)
+8079fdf0	add #$00000020,r15,r29
+8079fdf8	nop
+	mv_s #$807a5e98,r10
+8079fe00	add #$0000001c,r15,r8
+8079fe04	st_s r10,(r11)
+8079fe06	st_s r18,(r29)
+8079fe08	add #$00000004,r16,r10
+8079fe0c	st_s r17,(r8)
+8079fe0e	add #$00000008,r16,r11
+8079fe12	st_s r21,(r10)
+8079fe14	add #$00000038,r15,r29
+8079fe1c	ld_s (r16),r8
+8079fe1e	nop
+8079fe20	sub r8,r19,r10
+8079fe24	mv_s r15,r0
+8079fe26	ld_s (r11),r8
+8079fe28	nop
+8079fe2a	add r8,r10
+8079fe2c	mv_s r16,r1
+8079fe2e	st_s r10,(r11)
+8079fe30	st_s r19,(r16)
+8079fe32	lbra #$807a0560
+8079fe36	st_s r22,(r29)
+8079fe38	nop
+	nop
+	nop
+	mv_s #$fffffffd,r2
+8079fe40	add #$00000020,r16,r10
+8079fe48	ld_s (r11),r0
+8079fe4a	ld_s (r10),r10
+8079fe4c	nop
+8079fe4e	jsr (r10)
+8079fe52	mv_s #$00000004,r2
+8079fe54	add r29,r1
+8079fe56	cmp #$00000000,r0
+8079fe58	bra ne,#$8079fe8e
+8079fe5a	add #$0000000c,r15,r10
+8079fe5e	st_s r0,(r10)
+8079fe60	add #$00000020,r15,r10
+8079fe68	mv_s r15,r0
+8079fe6a	st_s r18,(r10)
+8079fe6c	add #$00000008,r16,r11
+8079fe70	add #$0000001c,r15,r10
+8079fe74	mv_s r16,r1
+8079fe76	st_s r17,(r10)
+8079fe78	add #$00000004,r16,r10
+8079fe7c	mv_s #$fffffffc,r2
+8079fe7e	st_s r21,(r10)
+8079fe80	ld_s (r16),r29
+8079fe82	ld_s (r11),r8
+8079fe84	lbra #$807a0552
+8079fe88	sub r29,r19,r10
+8079fe8c	add r8,r10
+8079fe8e	add #$00000008,r15,r10
+8079fe92	mv_s #$00000000,r11
+8079fe94	st_s r11,(r10)
+8079fe96	lsr #$0000000e,r18
+8079fe98	mv_s #$00000004,r10
+8079fe9a	sub #$0000000e,r17
+8079fe9c	nop
+	st_s r10,(r15)
+8079fea0	add #$00000004,r15,r6
+8079fea4	ld_s (r6),r10
+8079fea6	add #$00000008,r15,r9
+8079feaa	ld_s (r9),r11
+8079feac	bra #$8079ff16
+8079feae	lsr #$0000000a,r10
+8079feb0	add #$00000004,r10
+8079feb2	lbra hi,#$8079fee8
+8079feb6	nop
+8079feb8	sub r17,#$00000000,r11
+8079febc	nop
+	cmp #$00000000,r21
+8079fec0	lbra eq,#$807a04e2
+8079fec4	add #$00000020,r15,r10
+8079fecc	mv_s r15,r0
+8079fece	ld_b (r19),r10
+8079fed2	sub #$00000001,r21
+8079fed4	add #$00000008,r17
+8079fed6	lsr #$00000018,r10
+8079fed8	mv_s #$00000000,r23
+8079feda	or r10,>>r11,r18
+8079fede	cmp #$00000002,r17
+8079fee0	lbra ls,#$8079febc
+8079fee4	add #$00000001,r19
+8079fee6	sub #$00000008,r11
+8079fee8	ld_s (r9),r11
+8079feea	add #$0000000c,r15,r29
+8079feee	ld_s (r29),r29
+8079fef0	and #$00000007,r18,r8
+8079fef4	asl #$fffffffe,r11,r10
+8079fef8	add #$807a5e18,r10
+8079fefe	ld_s (r10),r10
+8079ff00	add #$00000001,r11
+8079ff02	lsr #$00000003,r18
+8079ff04	asl #$fffffffe,r10
+8079ff06	add r29,r10
+8079ff08	st_s r8,(r10)
+8079ff0a	sub #$00000003,r17
+8079ff0c	st_s r11,(r9)
+8079ff0e	ld_s (r6),r10
+8079ff10	nop
+8079ff12	lsr #$0000000a,r10
+8079ff14	add #$00000004,r10
+8079ff16	cmp r10,r11
+8079ff18	lbra cs,#$8079feb2
+8079ff1c	nop
+8079ff1e	cmp #$00000002,r17
+8079ff20	add #$00000008,r15,r28
+8079ff24	ld_s (r28),r29
+8079ff26	nop
+8079ff28	cmp #$00000012,r29
+8079ff2a	lbra hi,#$8079ff5a
+8079ff2e	nop
+8079ff30	mv_s r28,r9
+8079ff32	ld_s (r9),r11
+8079ff34	add #$0000000c,r15,r8
+8079ff38	ld_s (r8),r8
+8079ff3a	nop
+	asl #$fffffffe,r11,r10
+8079ff40	add #$807a5e18,r10
+8079ff46	mv_s #$00000000,r29
+8079ff48	ld_s (r10),r10
+8079ff4a	add #$00000001,r11
+8079ff4c	asl #$fffffffe,r10
+8079ff4e	add r8,r10
+8079ff50	cmp #$00000012,r11
+8079ff52	lbra ls,#$8079ff32
+8079ff56	st_s r29,(r10)
+8079ff58	st_s r11,(r9)
+8079ff5a	add #$00000010,r15,r1
+8079ff5e	mv_s #$00000007,r10
+8079ff60	st_s r10,(r1)
+8079ff62	add #$0000000c,r15,r13
+8079ff66	add #$00000024,r15,r10
+8079ff6e	ld_s (r13),r0
+8079ff70	ld_s (r10),r3
+8079ff72	nop
+8079ff74	jsr #$807a0bd8
+8079ff7c	add #$00000014,r15,r2
+8079ff80	mv_s r16,r4
+8079ff82	mv_s r0,r12
+8079ff84	cmp #$00000000,r12
+8079ff86	bra eq,#$8079ffda
+8079ff88	nop
+8079ff8a	add #$00000028,r16,r11
+8079ff92	ld_s (r13),r1
+8079ff94	add #$00000024,r16,r10
+8079ff9c	ld_s (r11),r0
+8079ff9e	ld_s (r10),r10
+8079ffa0	nop
+8079ffa2	jsr (r10)
+8079ffa6	nop
+8079ffa8	mv_s r12,r23
+8079ffaa	cmp #$fffffffd,r23
+8079ffb0	lbra ne,#$8079ffb8,nop
+8079ffb4	mv_s #$00000009,r10
+8079ffb6	st_s r10,(r15)
+8079ffb8	add #$00000020,r15,r10
+8079ffc0	mv_s r15,r0
+8079ffc2	st_s r18,(r10)
+8079ffc4	add #$00000008,r16,r11
+8079ffc8	add #$0000001c,r15,r10
+8079ffcc	mv_s r16,r1
+8079ffce	st_s r17,(r10)
+8079ffd0	lbra #$807a0546
+8079ffd4	add #$00000004,r16,r10
+8079ffd8	mv_s r23,r2
+8079ffda	st_s r12,(r28)
+8079ffdc	bra #$807a01bc
+8079ffde	mv_s #$00000005,r10
+8079ffe0	st_s r10,(r15)
+8079ffe2	ld_s (r10),r12
+8079ffe4	nop
+8079ffe6	cmp r12,r17
+8079ffe8	lbra cc,#$807a0020
+8079ffec	nop
+8079ffee	sub r17,#$00000000,r11
+8079fff2	cmp #$00000000,r21
+8079fff4	lbra eq,#$807a04f8
+8079fff8	add #$00000020,r15,r10
+807a0000	mv_s r15,r0
+807a0002	ld_b (r19),r10
+807a0006	sub #$00000001,r21
+807a0008	add #$00000008,r17
+807a000a	lsr #$00000018,r10
+807a000c	mv_s #$00000000,r23
+807a000e	or r10,>>r11,r18
+807a0012	cmp r12,r17
+807a0014	lbra cs,#$8079fff2
+807a0018	add #$00000001,r19
+807a001a	nop
+	nop
+	sub #$00000008,r11
+807a0020	mv_s #$807842bc,r7
+807a0026	add #$00000014,r15,r11
+807a002a	mv_s r7,r10
+807a002c	add r12,>>#-2,r10
+807a0030	ld_s (r11),r11
+807a0032	ld_s (r10),r10
+807a0034	nop
+807a0036	and r18,r10
+807a0038	add r10,>>#-3,r11
+807a003c	add #$00000004,r11,r10
+807a0040	ld_s (r11),r12
+807a0042	ld_s (r10),r9
+807a0044	nop
+807a0046	cmp #$0000000f,r9
+807a0048	lbra hi,#$807a0072
+807a004c	nop
+807a004e	bits #$00000007,>>#16,r12
+807a0052	add #$00000008,r15,r8
+807a0056	ld_s (r8),r11
+807a0058	add #$0000000c,r15,r29
+807a005c	ld_s (r29),r29
+807a005e	sub r12,r17
+807a0060	asl #$fffffffe,r11,r10
+807a0064	add r29,r10
+807a0066	st_s r9,(r10)
+807a0068	add #$00000001,r11
+807a006a	bra #$807a01bc
+807a006c	st_s r11,(r8)
+807a006e	ls r12,r18,r18
+807a0072	cmp #$00000012,r9
+807a0074	bra eq,#$807a007e
+807a0076	nop
+807a0078	mv_s #$00000007,r29
+807a007a	sub #$0000000e,r9,r29
+807a007e	cmp #$00000012,r9
+807a0080	bra ne,#$807a0088
+807a0082	nop
+807a0084	mv_s #$00000003,r6
+807a0086	mv_s #$0000000b,r6
+807a0088	add r29,r12,r8
+807a008c	cmp r8,r17
+807a008e	lbra cc,#$807a00c4
+807a0092	nop
+807a0094	sub r17,#$00000000,r11
+807a0098	cmp #$00000000,r21
+807a009a	nop
+	lbra eq,#$807a0510
+807a00a0	add #$00000020,r15,r10
+807a00a8	mv_s r15,r0
+807a00aa	ld_b (r19),r10
+807a00ae	sub #$00000001,r21
+807a00b0	add #$00000008,r17
+807a00b2	lsr #$00000018,r10
+807a00b4	mv_s #$00000000,r23
+807a00b6	or r10,>>r11,r18
+807a00ba	cmp r8,r17
+807a00bc	lbra cs,#$807a0098
+807a00c0	add #$00000001,r19
+807a00c2	sub #$00000008,r11
+807a00c4	mv_s r7,r11
+807a00c6	ls r12,r18,r18
+807a00ca	add r29,>>#-2,r11
+807a00ce	sub r12,r17
+807a00d0	ld_s (r11),r11
+807a00d2	add #$00000004,r15,r10
+807a00d6	ld_s (r10),r12
+807a00d8	sub r29,r17
+807a00da	nop
+	add #$00000008,r15,r7
+807a00e0	and r11,r18,r10
+807a00e4	and #$0000001f,r12,r11
+807a00ec	add r10,r6
+807a00ee	ls r29,r18,r18
+807a00f2	bits #$00000004,>>#5,r12
+807a00f6	ld_s (r7),r29
+807a00f8	add #$00000102,r12,r10
+807a0100	add r10,r11
+807a0102	add r6,r29,r10
+807a0106	cmp r11,r10
+807a0108	lbra hi,#$807a0124
+807a010c	nop
+807a010e	cmp #$00000010,r9
+807a0110	lbra ne,#$807a01a8
+807a0114	mv_s #$00000000,r8
+807a0116	add #$0000000c,r15,r11
+807a011a	cmp #$00000000,r29
+807a011c	bra ne,#$807a0192
+807a011e	nop
+807a0120	asl #$fffffffe,r29,r10
+807a0124	add #$00000024,r16,r10
+807a012c	ld_s (r10),r29
+807a012e	add #$00000028,r16,r11
+807a0136	ld_s (r11),r0
+807a0138	add #$0000000c,r15,r10
+807a013c	ld_s (r10),r1
+807a013e	nop
+807a0140	jsr (r29),nop
+807a0144	mv_s #$00000009,r10
+807a0146	add #$00000018,r16,r11
+807a014a	st_s r10,(r15)
+807a014c	add #$00000020,r15,r29
+807a0154	mv_s #$807a5ebc,r10
+807a015a	add #$0000001c,r15,r8
+807a015e	st_s r10,(r11)
+807a0160	st_s r18,(r29)
+807a0162	add #$00000004,r16,r10
+807a0166	st_s r17,(r8)
+807a0168	add #$00000008,r16,r11
+807a016c	st_s r21,(r10)
+807a016e	add #$00000038,r15,r29
+807a0176	ld_s (r16),r8
+807a0178	nop
+807a017a	sub r8,r19,r10
+807a017e	mv_s r15,r0
+807a0180	ld_s (r11),r8
+807a0182	nop
+807a0184	add r8,r10
+807a0186	mv_s r16,r1
+807a0188	st_s r10,(r11)
+807a018a	st_s r19,(r16)
+807a018c	bra #$807a0560
+807a018e	st_s r22,(r29)
+807a0190	mv_s #$fffffffd,r2
+807a0192	ld_s (r11),r11
+807a0194	nop
+807a0196	add r11,r10
+807a0198	sub #$00000004,r10
+807a019a	ld_s (r10),r8
+807a019c	bra #$807a01a8
+807a019e	nop
+807a01a0	add #$0000000c,r15,r11
+807a01a4	add #$0000000c,r15,r11
+807a01a8	ld_s (r11),r11
+807a01aa	asl #$fffffffe,r29,r10
+807a01ae	add #$00000001,r29
+807a01b0	sub #$00000001,r6
+807a01b2	cmp #$00000000,r6
+807a01b4	bra ne,#$807a01a4
+807a01b6	add r11,r10
+807a01b8	st_s r8,(r10)
+807a01ba	st_s r29,(r7)
+807a01bc	add #$00000004,r15,r10
+807a01c0	ld_s (r10),r12
+807a01c2	add #$00000008,r15,r29
+807a01c6	ld_s (r29),r29
+807a01c8	and #$0000001f,r12,r10
+807a01d0	bits #$00000004,>>#5,r12
+807a01d4	add #$00000102,r12,r11
+807a01dc	add r11,r10
+807a01de	cmp r10,r29
+807a01e0	lbra cs,#$8079ffe2
+807a01e4	nop
+807a01e6	add #$00000010,r15,r10
+807a01ea	add #$00000014,r15,r11
+807a01ee	mv_s #$00000000,r10
+807a01f0	st_s r10,(r11)
+807a01f2	add #$00000004,r15,r25
+807a01f6	ld_s (r25),r12
+807a01f8	nop
+	nop
+	sub #$00000014,r30,r14
+807a0200	add #$00000024,r15,r10
+807a0208	mv_s #$00000009,r26
+807a020a	add #$0000000c,r15,r28
+807a020e	st_s r26,(r14)
+807a0210	and #$0000001f,r12,r0
+807a0218	ld_s (r10),r7
+807a021a	ld_s (r28),r2
+807a021c	sub #$00000018,r30,r13
+807a0220	bits #$00000004,>>#5,r12
+807a0224	mv_s #$00000006,r27
+807a0226	sub #$0000001c,r30,r24
+807a022a	st_s r27,(r13)
+807a022c	sub #$00000020,r30,r20
+807a0234	mv_s r24,r5
+807a0236	add #$00000001,r12,r1
+807a023a	mv_s r20,r6
+807a023c	add #$00000101,r0
+807a0240	mv_s r14,r3
+807a0242	jsr #$807a0cde
+807a024a	mv_s r13,r4
+807a024c	mv_s r16,r8
+807a024e	mv_s r0,r12
+807a0250	add #$00000024,r16,r10
+807a0258	add #$00000028,r16,r11
+807a0260	ld_s (r10),r10
+807a0262	ld_s (r11),r0
+807a0264	ld_s (r28),r1
+807a0266	nop
+807a0268	jsr (r10),nop
+807a026c	cmp #$00000000,r12
+807a026e	bra eq,#$807a02ac
+807a0270	nop
+807a0272	cmp #$fffffffd,r12
+807a0278	lbra ne,#$807a0280,nop
+807a027c	nop
+	st_s r26,(r15)
+807a0280	add #$00000020,r15,r10
+807a0288	mv_s r15,r0
+807a028a	st_s r18,(r10)
+807a028c	add #$00000008,r16,r11
+807a0290	add #$0000001c,r15,r10
+807a0294	mv_s r16,r1
+807a0296	st_s r17,(r10)
+807a0298	add #$00000004,r16,r10
+807a029c	mv_s r12,r2
+807a029e	st_s r21,(r10)
+807a02a0	ld_s (r16),r29
+807a02a2	ld_s (r11),r8
+807a02a4	bra #$807a0552
+807a02a6	sub r29,r19,r10
+807a02aa	add r8,r10
+807a02ac	ld_s (r14),r0
+807a02ae	ld_s (r13),r1
+807a02b0	ld_s (r24),r2
+807a02b2	ld_s (r20),r3
+807a02b4	nop
+807a02b6	jsr #$807a0ee0
+807a02be	nop
+807a02c0	mv_s r16,r4
+807a02c2	cmp #$00000000,r0
+807a02c4	bra ne,#$807a02f4
+807a02c6	add #$00000020,r15,r10
+807a02ce	add #$00000008,r16,r11
+807a02d2	mv_s r15,r0
+807a02d4	st_s r18,(r10)
+807a02d6	add #$0000001c,r15,r10
+807a02da	mv_s r16,r1
+807a02dc	nop
+	st_s r17,(r10)
+807a02e0	add #$00000004,r16,r10
+807a02e4	mv_s #$fffffffc,r2
+807a02e6	st_s r21,(r10)
+807a02e8	ld_s (r16),r29
+807a02ea	ld_s (r11),r8
+807a02ec	bra #$807a0552
+807a02ee	sub r29,r19,r10
+807a02f2	add r8,r10
+807a02f4	st_s r0,(r25)
+807a02f6	st_s r27,(r15)
+807a02f8	sub #$00000028,r30,r10
+807a0300	mv_s r23,r2
+807a0302	ld_s (r10),r10
+807a0304	sub #$0000002c,r30,r29
+807a030c	sub #$00000024,r30,r8
+807a0314	st_s r18,(r10)
+807a0316	add #$00000008,r16,r11
+807a031a	nop
+	nop
+	ld_s (r29),r29
+807a0320	add #$00000038,r15,r28
+807a0328	st_s r17,(r29)
+807a032a	ld_s (r8),r8
+807a032c	nop
+807a032e	st_s r21,(r8)
+807a0330	ld_s (r16),r29
+807a0332	ld_s (r11),r8
+807a0334	sub r29,r19,r10
+807a0338	mv_s r15,r0
+807a033a	add r8,r10
+807a033c	mv_s r16,r1
+807a033e	st_s r10,(r11)
+807a0340	jsr #$807a0f66
+807a0348	st_s r19,(r16)
+807a034a	st_s r22,(r28)
+807a034c	mv_s r0,r23
+807a034e	cmp #$00000001,r23
+807a0350	bra eq,#$807a035c
+807a0352	mv_s r15,r0
+807a0354	mv_s r16,r1
+807a0356	bra #$807a0560
+807a0358	nop
+807a035a	mv_s r23,r2
+807a035c	add #$00000004,r15,r10
+807a0360	ld_s (r10),r0
+807a0362	nop
+807a0364	jsr #$807a1860
+807a036c	mv_s r16,r1
+807a036e	mv_s #$00000000,r23
+807a0370	sub #$00000024,r30,r11
+807a0378	nop
+	nop
+	nop
+	ld_s (r28),r22
+807a0380	sub #$00000028,r30,r29
+807a0388	ld_s (r11),r11
+807a038a	sub #$0000002c,r30,r8
+807a0392	ld_s (r29),r29
+807a0394	ld_s (r8),r8
+807a0396	add #$00000034,r15,r10
+807a039e	ld_s (r10),r10
+807a03a0	ld_s (r16),r19
+807a03a2	ld_s (r11),r21
+807a03a4	ld_s (r29),r18
+807a03a6	ld_s (r8),r17
+807a03a8	cmp r10,r22
+807a03aa	lbra cs,#$807a03c4
+807a03ae	sub r22,r10
+807a03b0	sub #$00000001,r10,r20
+807a03b4	add #$00000030,r15,r10
+807a03bc	ld_s (r10),r10
+807a03be	nop
+807a03c0	sub r22,r10,r20
+807a03c4	add #$00000018,r15,r10
+807a03c8	ld_s (r10),r10
+807a03ca	nop
+807a03cc	cmp #$00000000,r10
+807a03ce	lbra ne,#$807a03da,nop
+807a03d2	lbra #$8079f9a4
+807a03d6	nop
+807a03d8	st_s r10,(r15)
+807a03da	mv_s #$00000007,r10
+807a03dc	nop
+	st_s r10,(r15)
+807a03e0	add #$00000038,r15,r28
+807a03e8	mv_s r23,r2
+807a03ea	st_s r22,(r28)
+807a03ec	mv_s #$807a18a0,r12
+807a03f2	jsr (r12)
+807a03f6	mv_s r15,r0
+807a03f8	nop
+	nop
+	nop
+	mv_s r16,r1
+807a0400	add #$00000034,r15,r10
+807a0408	ld_s (r28),r22
+807a040a	ld_s (r10),r11
+807a040c	ld_s (r10),r10
+807a040e	ld_s (r28),r29
+807a0410	nop
+807a0412	cmp r29,r10
+807a0414	bra eq,#$807a0458
+807a0416	nop
+807a0418	nop
+	nop
+	nop
+	mv_s r0,r23
+807a0420	add #$00000020,r15,r10
+807a0428	mv_s r15,r0
+807a042a	st_s r18,(r10)
+807a042c	add #$00000008,r16,r11
+807a0430	add #$0000001c,r15,r10
+807a0434	mv_s r16,r1
+807a0436	st_s r17,(r10)
+807a0438	add #$00000004,r16,r10
+807a043c	mv_s r23,r2
+807a043e	st_s r21,(r10)
+807a0440	ld_s (r16),r8
+807a0442	ld_s (r11),r29
+807a0444	sub r8,r19,r10
+807a0448	add r29,r10
+807a044a	st_s r10,(r11)
+807a044c	jsr (r12)
+807a0450	st_s r19,(r16)
+807a0452	st_s r22,(r28)
+807a0454	lbra #$807a0568,nop
+807a0458	mv_s #$00000008,r10
+807a045a	nop
+	nop
+	st_s r10,(r15)
+807a0460	add #$00000020,r15,r10
+807a0468	mv_s r15,r0
+807a046a	st_s r18,(r10)
+807a046c	add #$00000008,r16,r11
+807a0470	add #$0000001c,r15,r10
+807a0474	mv_s r16,r1
+807a0476	st_s r17,(r10)
+807a0478	bra #$807a0546
+807a047a	add #$00000004,r16,r10
+807a047e	mv_s #$00000001,r2
+807a0480	add #$00000020,r15,r10
+807a0488	mv_s r15,r0
+807a048a	st_s r18,(r10)
+807a048c	add #$00000008,r16,r11
+807a0490	add #$0000001c,r15,r10
+807a0494	mv_s r16,r1
+807a0496	st_s r17,(r10)
+807a0498	bra #$807a0546
+807a049a	add #$00000004,r16,r10
+807a049e	mv_s #$fffffffd,r2
+807a04a0	st_s r18,(r10)
+807a04a2	add #$00000008,r16,r11
+807a04a6	add #$0000001c,r15,r10
+807a04aa	mv_s r16,r1
+807a04ac	st_s r17,(r10)
+807a04ae	bra #$807a0546
+807a04b0	add #$00000004,r16,r10
+807a04b4	mv_s r23,r2
+807a04b6	st_s r18,(r10)
+807a04b8	add #$00000008,r16,r11
+807a04bc	add #$0000001c,r15,r10
+807a04c0	mv_s r16,r1
+807a04c2	st_s r17,(r10)
+807a04c4	bra #$807a0546
+807a04c6	add #$00000004,r16,r10
+807a04ca	mv_s r23,r2
+807a04cc	st_s r18,(r10)
+807a04ce	add #$00000008,r16,r11
+807a04d2	add #$0000001c,r15,r10
+807a04d6	mv_s r16,r1
+807a04d8	st_s r17,(r10)
+807a04da	bra #$807a0546
+807a04dc	add #$00000004,r16,r10
+807a04e0	mv_s r23,r2
+807a04e2	st_s r18,(r10)
+807a04e4	add #$00000008,r16,r11
+807a04e8	add #$0000001c,r15,r10
+807a04ec	mv_s r16,r1
+807a04ee	st_s r17,(r10)
+807a04f0	bra #$807a0546
+807a04f2	add #$00000004,r16,r10
+807a04f6	mv_s r23,r2
+807a04f8	st_s r18,(r10)
+807a04fa	nop
+	add #$00000008,r16,r11
+807a0500	add #$0000001c,r15,r10
+807a0504	mv_s r16,r1
+807a0506	st_s r17,(r10)
+807a0508	bra #$807a0546
+807a050a	add #$00000004,r16,r10
+807a050e	mv_s r23,r2
+807a0510	st_s r18,(r10)
+807a0512	add #$00000008,r16,r11
+807a0516	add #$0000001c,r15,r10
+807a051a	mv_s r16,r1
+807a051c	st_s r17,(r10)
+807a051e	bra #$807a0546
+807a0520	add #$00000004,r16,r10
+807a0524	mv_s r23,r2
+807a0526	add #$00000020,r15,r10
+807a052e	mv_s r15,r0
+807a0530	st_s r18,(r10)
+807a0532	add #$00000008,r16,r11
+807a0536	add #$0000001c,r15,r10
+807a053a	mv_s r16,r1
+807a053c	nop
+	st_s r17,(r10)
+807a0540	add #$00000004,r16,r10
+807a0544	mv_s #$fffffffe,r2
+807a0546	st_s r21,(r10)
+807a0548	ld_s (r16),r8
+807a054a	ld_s (r11),r29
+807a054c	sub r8,r19,r10
+807a0550	add r29,r10
+807a0552	st_s r10,(r11)
+807a0554	add #$00000038,r15,r10
+807a055c	st_s r19,(r16)
+807a055e	st_s r22,(r10)
+807a0560	jsr #$807a18a0,nop
+807a0568	ld_v (r31),v6
+	add #$00000010,r31
+807a056e	ld_v (r31),v5
+	add #$00000010,r31
+807a0574	nop
+	nop
+	nop
+	ld_v (r31),v4
+	add #$00000010,r31
+807a0580	ld_v (r31),v3
+	add #$00000040,r31
+807a0588	ld_v (r31),v7
+807a058c	nop
+807a058e	st_s r29,rz
+807a0590	rts
+807a0592	add #$00000010,r31
+807a0594	nop
+807a0596	ld_s rz,r29
+807a0598	sub #$00000010,r31
+807a059a	st_v v7,(r31)
+	copy r31,r30
+807a05a0	sub #$00000010,r31
+807a05a2	st_v v3,(r31)
+807a05a6	mv_s r0,r13
+807a05a8	jsr #$8079f6a0
+807a05b0	mv_s r1,r12
+807a05b2	mv_s #$00000000,r2
+807a05b4	add #$00000028,r13,r10
+807a05bc	ld_s (r10),r1
+807a05be	nop
+807a05c0	cmp #$00000000,r1
+807a05c2	bra eq,#$807a05e0
+807a05c4	add #$00000024,r12,r10
+807a05cc	add #$00000028,r12,r11
+807a05d4	ld_s (r10),r10
+807a05d6	ld_s (r11),r0
+807a05d8	nop
+807a05da	nop
+	jsr (r10),nop
+807a05e0	add #$00000028,r12,r28
+807a05e8	add #$00000024,r13,r10
+807a05f0	ld_s (r28),r0
+807a05f2	add #$00000024,r12
+807a05f6	ld_s (r10),r1
+807a05f8	ld_s (r12),r11
+807a05fa	nop
+807a05fc	jsr (r11),nop
+807a0600	ld_s (r28),r0
+807a0602	ld_s (r12),r10
+807a0604	nop
+807a0606	jsr (r10)
+807a060a	nop
+807a060c	mv_s r13,r1
+807a060e	mv_s #$00000000,r0
+807a0610	ld_v (r31),v3
+	add #$00000010,r31
+807a0616	ld_v (r31),v7
+807a061a	nop
+807a061c	st_s r29,rz
+807a061e	rts
+807a0620	add #$00000010,r31
+807a0622	nop
+807a0624	ld_s rz,r29
+807a0626	sub #$00000010,r31
+807a0628	st_v v7,(r31)
+	copy r31,r30
+807a062e	sub #$00000010,r31
+807a0630	st_v v3,(r31)
+807a0634	mv_s r0,r12
+807a0636	add #$0000002c,r12,r13
+807a063e	mv_s r1,r0
+807a0640	ld_s (r13),r1
+807a0642	nop
+807a0644	jsr #$80789fc0
+807a064c	nop
+807a064e	mv_s r2,r28
+807a0650	ld_s (r13),r13
+807a0652	add #$00000038,r12,r10
+807a065a	add #$00000034,r12
+807a065e	add r13,r28
+807a0660	st_s r28,(r10)
+807a0662	st_s r28,(r12)
+807a0664	ld_v (r31),v3
+	add #$00000010,r31
+807a066a	ld_v (r31),v7
+807a066e	nop
+807a0670	st_s r29,rz
+807a0672	rts
+807a0674	add #$00000010,r31
+807a0676	nop
+807a0678	sub #$00000010,r31
+807a067a	st_v v7,(r31)
+	copy r31,r30
+807a0680	ld_s (r0),r0
+807a0682	nop
+807a0684	eor #$00000001,r0
+807a0686	abs r0
+807a0688	sub #$00000001,r0
+807a068a	lsr #$0000001f,r0
+807a068c	ld_v (r31),v7
+807a0690	rts
+807a0692	add #$00000010,r31
+807a0694	nop
+807a0696	add r0,r0
+807a0698	add r0,r0
+807a069a	add r0,r0
+807a069c	add r0,r0
+807a069e	add r0,r0
+807a06a0	sub #$00000010,r31
+807a06a2	st_v v7,(r31)
+	copy r31,r30
+807a06a8	sub #$000000e0,r31
+807a06ac	st_v v3,(r31)
+	sub #$00000010,r31
+807a06b2	st_v v4,(r31)
+	sub #$00000010,r31
+807a06b8	nop
+	st_v v5,(r31)
+	sub #$00000010,r31
+807a06c0	st_v v6,(r31)
+807a06c4	sub #$00000040,r30,r28
+807a06cc	mv_s #$00000000,r10
+807a06ce	mv_s r28,r29
+807a06d0	sub #$0000003c,r30,r28
+807a06d8	st_s r10,(r29)
+807a06da	mv_s r28,r14
+807a06dc	nop
+	st_s r10,(r14)
+807a06e0	sub #$00000038,r30,r28
+807a06e8	st_s r10,(r28)
+807a06ea	sub #$00000034,r30,r28
+807a06f2	mv_s r3,r11
+807a06f4	st_s r10,(r28)
+807a06f6	sub #$00000030,r30,r28
+807a06fe	mv_s r0,r15
+807a0700	st_s r10,(r28)
+807a0702	sub #$000000c0,r30,r0
+807a070a	sub #$0000002c,r30,r28
+807a0712	mv_s r2,r27
+807a0714	st_s r10,(r28)
+807a0716	mv_s r11,r2
+807a0718	sub #$00000028,r30,r28
+807a0720	st_s r2,(r0)
+807a0722	mv_s r4,r3
+807a0724	sub #$000000c4,r30,r0
+807a072c	st_s r10,(r28)
+807a072e	sub #$000000c8,r30,r4
+807a0736	mv_s r3,r2
+807a0738	sub #$00000024,r30,r28
+807a0740	st_s r2,(r0)
+807a0742	st_s r10,(r28)
+807a0744	sub #$00000020,r30,r28
+807a074c	mv_s r5,r26
+807a074e	st_s r10,(r28)
+807a0750	sub #$0000001c,r30,r28
+807a0754	mv_s r7,r11
+807a0756	st_s r10,(r28)
+807a0758	mv_s r11,r5
+807a075a	sub #$00000018,r30,r28
+807a075e	st_s r5,(r4)
+807a0760	st_s r10,(r28)
+807a0762	sub #$00000014,r30,r28
+807a0766	mv_s r8,r25
+807a0768	st_s r10,(r28)
+807a076a	sub #$00000010,r30,r28
+807a076e	mv_s r1,r22
+807a0770	st_s r10,(r28)
+807a0772	sub #$0000000c,r30,r28
+807a0776	mv_s r9,r23
+807a0778	st_s r10,(r28)
+807a077a	sub #$00000008,r30,r28
+807a077e	mv_s r22,r0
+807a0780	st_s r10,(r28)
+807a0782	sub #$00000004,r30,r28
+807a0786	mv_s r28,r8
+807a0788	st_s r10,(r8)
+807a078a	mv_s r15,r28
+807a078c	ld_s (r28),r10
+807a078e	sub #$00000001,r0
+807a0790	mv_s r29,r11
+807a0792	add #$00000004,r28
+807a0794	add r10,>>#-2,r11
+807a0798	ld_s (r11),r2
+807a079a	cmp #$00000000,r0
+807a079c	nop
+	bra ne,#$807a078c
+807a07a0	add #$00000001,r2,r10
+807a07a4	st_s r10,(r11)
+807a07a6	ld_s (r29),r3
+807a07a8	nop
+807a07aa	cmp r22,r3
+807a07ac	lbra ne,#$807a07b8,nop
+807a07b0	lbra #$807a0bb2
+807a07b4	st_s r0,(r26)
+807a07b6	st_s r0,(r6)
+807a07b8	ld_s (r6),r4
+807a07ba	ld_s (r14),r10
+807a07bc	nop
+807a07be	cmp #$00000000,r10
+807a07c0	bra ne,#$807a07e2
+807a07c2	nop
+807a07c4	mv_s #$00000001,r9
+807a07c6	add #$00000001,r9
+807a07c8	cmp #$0000000f,r9
+807a07ca	lbra hi,#$807a07e2
+807a07ce	mv_s r29,r10
+807a07d0	add r9,>>#-2,r10
+807a07d4	ld_s (r10),r10
+807a07d6	nop
+807a07d8	cmp #$00000000,r10
+807a07da	bra eq,#$807a07c8
+807a07dc	nop
+807a07de	add #$00000001,r9
+807a07e0	sub #$00000001,r9
+807a07e2	mv_s r9,r5
+807a07e4	cmp r5,r4
+807a07e6	lbra cc,#$807a07ec,nop
+807a07ea	mv_s r5,r4
+807a07ec	ld_s (r8),r10
+807a07ee	nop
+807a07f0	cmp #$00000000,r10
+807a07f2	bra ne,#$807a081a
+807a07f4	nop
+807a07f6	mv_s #$0000000f,r0
+807a07f8	sub #$00000001,r0
+807a07fa	cmp #$00000000,r0
+807a07fc	nop
+	bra eq,#$807a081a
+807a0800	sub #$00000040,r30,r10
+807a0808	add r0,>>#-2,r10
+807a080c	ld_s (r10),r10
+807a080e	nop
+807a0810	cmp #$00000000,r10
+807a0812	bra eq,#$807a07fa
+807a0814	nop
+807a0816	sub #$00000001,r0
+807a0818	add #$00000001,r0
+807a081a	mv_s r0,r1
+807a081c	nop
+	cmp r1,r4
+807a0820	lbra ls,#$807a082c
+807a0824	mv_s #$00000001,r11
+807a0826	sub r9,#$00000000,r10
+807a082a	mv_s r1,r4
+807a082c	cmp r1,r9
+807a082e	lbra cc,#$807a0860
+807a0832	ls r10,r11,r3
+807a0836	st_s r4,(r6)
+807a0838	sub #$00000040,r30,r10
+807a0840	add r9,>>#-2,r10
+807a0844	ld_s (r10),r10
+807a0846	nop
+807a0848	sub r10,r3
+807a084a	cmp #$00000000,r3
+807a084c	bra lt,#$807a087a
+807a084e	add #$00000001,r9
+807a0850	cmp r0,r9
+807a0852	lbra cs,#$807a0838
+807a0856	nop
+807a0858	nop
+	nop
+	nop
+	asl #$ffffffff,r3
+807a0860	sub #$00000040,r30,r11
+807a0868	add r0,>>#-2,r11
+807a086c	ld_s (r11),r10
+807a086e	nop
+807a0870	sub r10,r3
+807a0872	cmp #$00000000,r3
+807a0874	bra ge,#$807a0886
+807a0876	add r3,r10
+807a0878	mv_s #$00000000,r9
+807a087a	bra #$807a0bb2
+807a087c	nop
+807a087e	mv_s #$fffffffd,r0
+807a0880	bra #$807a0bb2
+807a0882	nop
+807a0884	mv_s #$fffffffc,r0
+807a0886	st_s r10,(r11)
+807a0888	sub #$00000001,r0
+807a088a	sub #$000000b8,r30,r10
+807a0892	mv_s r14,r28
+807a0894	cmp #$00000000,r0
+807a0896	bra eq,#$807a08b8
+807a0898	nop
+	nop
+	nop
+	st_s r9,(r10)
+807a08a0	sub #$000000b4,r30,r11
+807a08a8	ld_s (r28),r8
+807a08aa	sub #$00000001,r0
+807a08ac	add r8,r9
+807a08ae	st_s r9,(r11)
+807a08b0	cmp #$00000000,r0
+807a08b2	bra ne,#$807a08a8
+807a08b4	add #$00000004,r28
+807a08b6	add #$00000004,r11
+807a08b8	mv_s r15,r28
+807a08ba	mv_s #$00000000,r0
+807a08bc	ld_s (r28),r9
+807a08be	nop
+807a08c0	cmp #$00000000,r9
+807a08c2	bra eq,#$807a08e4
+807a08c4	nop
+807a08c6	add #$00000004,r28
+807a08c8	sub #$000000bc,r30,r29
+807a08d0	mv_s r23,r11
+807a08d2	add r9,>>#-2,r29
+807a08d6	ld_s (r29),r10
+807a08d8	nop
+807a08da	add r10,>>#-2,r11
+807a08de	add #$00000001,r10
+807a08e0	st_s r0,(r11)
+807a08e2	st_s r10,(r29)
+807a08e4	add #$00000001,r0
+807a08e6	cmp r22,r0
+807a08e8	lbra cs,#$807a08bc
+807a08ec	sub #$0000007c,r30,r21
+807a08f4	sub r4,#$00000000,r6
+807a08f8	sub #$000000bc,r30,r11
+807a0900	mv_s #$00000000,r0
+807a0902	mv_s r11,r10
+807a0904	add r1,>>#-2,r10
+807a0908	mv_s r23,r28
+807a090a	ld_s (r10),r22
+807a090c	st_s r0,(r11)
+807a090e	mv_s #$ffffffff,r19
+807a0910	st_s r0,(r21)
+807a0912	cmp r1,r5
+807a0914	lbra gt,#$807a0ba2
+807a0918	mv_s r0,r17
+807a091a	mv_s r0,r16
+807a091c	asl #$fffffffe,r5,r20
+807a0920	sub #$00000040,r30,r24
+807a0928	add r20,r24,r10
+807a092c	ld_s (r10),r10
+807a092e	nop
+807a0930	sub #$00000001,r10,r18
+807a0934	cmp #$ffffffff,r18
+807a093a	lbra eq,#$807a0b96
+807a093e	nop
+807a0940	add r4,r6,r7
+807a0944	asl #$fffffffe,r19,r2
+807a0948	cmp r7,r5
+807a094a	lbra le,#$807a0a5a
+807a094e	asl #$fffffffe,r19,r10
+807a0952	sub #$00000004,r10
+807a0954	add r21,r10,r15
+807a0958	sub r4,r7,r14
+807a095c	mv_s r7,r6
+807a095e	add #$00000004,r15
+807a0960	sub r6,r1,r16
+807a0964	cmp r4,r16
+807a0966	lbra ls,#$807a0970
+807a096a	add #$00000004,r2
+807a096c	add #$00000001,r19
+807a096e	mv_s r4,r16
+807a0970	sub r6,r5,r9
+807a0974	mv_s #$00000001,r10
+807a0976	sub r9,#$00000000,r11
+807a097a	nop
+	ls r11,r10,r29
+807a0980	add #$00000001,r18,r10
+807a0984	cmp r10,r29
+807a0986	lbra ls,#$807a09bc
+807a098a	sub #$00000001,r29,r10
+807a098e	cmp r16,r9
+807a0990	lbra cc,#$807a09bc
+807a0994	sub r18,r10,r29
+807a0998	add r20,r24,r11
+807a099c	bra #$807a09a4
+807a099e	nop
+807a09a0	add #$00000001,r9
+807a09a2	add #$00000001,r9
+807a09a4	cmp r16,r9
+807a09a6	lbra cc,#$807a09bc
+807a09aa	add #$00000004,r11
+807a09ac	asl #$ffffffff,r29
+807a09ae	ld_s (r11),r10
+807a09b0	nop
+807a09b2	cmp r10,r29
+807a09b4	lbra hi,#$807a09a2
+807a09b8	nop
+807a09ba	sub r10,r29
+807a09bc	nop
+	mv_s #$00000001,r11
+807a09c0	sub r9,#$00000000,r10
+807a09c4	ld_s (r25),r29
+807a09c6	ls r10,r11,r16
+807a09ca	add r16,r29,r11
+807a09ce	cmp #$000005a0,r11
+807a09d4	lbra hi,#$807a0880
+807a09d8	nop
+	nop
+	nop
+	nop
+807a09e0	sub #$000000c8,r30,r10
+807a09e8	ld_s (r10),r10
+807a09ea	nop
+807a09ec	mv_s r10,r17
+807a09ee	add r2,r21,r10
+807a09f2	st_s r11,(r25)
+807a09f4	cmp #$00000000,r19
+807a09f6	bra eq,#$807a0a4c
+807a09f8	add r29,>>#-3,r17
+807a09fc	nop
+	st_s r17,(r10)
+807a0a00	sub #$000000bc,r30,r10
+807a0a08	mv_s r4,r29
+807a0a0a	add r2,r10
+807a0a0c	st_s r0,(r10)
+807a0a0e	bits #$00000007,>>#0,r29
+807a0a12	and #$ff00ffff,r12,r10
+807a0a1a	ld_s (r15),r11
+807a0a1c	or r29,>>#-16,r10
+807a0a20	mv_s r10,r12
+807a0a22	asl #$ffffffe8,r9,r8
+807a0a26	and #$00ffffff,r12,r29
+807a0a2e	ls r14,r0,r9
+807a0a32	sub r11,r17,r10
+807a0a36	add r9,>>#-3,r11
+807a0a3a	or r8,r29
+807a0a3c	st_s r29,(r11)
+807a0a3e	asr #$00000003,r10
+807a0a40	sub r9,r10
+807a0a42	mv_s r29,r12
+807a0a44	add #$00000004,r11
+807a0a46	bra #$807a0a4e
+807a0a48	mv_s r10,r13
+807a0a4a	st_s r10,(r11)
+807a0a4c	st_s r17,(r26)
+807a0a4e	add r4,r7
+807a0a50	cmp r7,r5
+807a0a52	lbra gt,#$807a095c
+807a0a56	nop
+807a0a58	add r4,r14
+807a0a5a	sub r6,r5,r8
+807a0a5e	mv_s r23,r10
+807a0a60	mv_s r8,r29
+807a0a62	and #$ff00ffff,r12,r11
+807a0a6a	bits #$00000007,>>#0,r29
+807a0a6e	add r22,>>#-2,r10
+807a0a72	cmp r10,r28
+807a0a74	lbra cs,#$807a0a90
+807a0a78	or r29,>>#-16,r11
+807a0a7c	mv_s r11,r12
+807a0a7e	bra #$807a0af8
+807a0a80	and #$00ffffff,r12,r10
+807a0a88	or #$c0000000,r10,r12
+807a0a90	ld_s (r28),r29
+807a0a92	nop
+807a0a94	cmp r27,r29
+807a0a96	lbra cc,#$807a0ac0
+807a0a9a	nop
+807a0a9c	cmp #$000000ff,r29
+807a0aa0	lbra ls,#$807a0aac
+807a0aa4	nop
+807a0aa6	mv_s #$00000000,r11
+807a0aa8	mv_s #$00000060,r11
+807a0aac	asl #$ffffffe8,r11
+807a0aae	and #$00ffffff,r12,r10
+807a0ab6	bra #$807a0af6
+807a0ab8	or r11,r10,r12
+807a0abc	nop
+	mv_s r29,r13
+807a0ac0	sub #$000000c4,r30,r11
+807a0ac8	ld_s (r11),r11
+807a0aca	sub r27,r29
+807a0acc	asl #$fffffffe,r29
+807a0ace	add r11,r29,r10
+807a0ad2	ld_s (r10),r10
+807a0ad4	sub #$000000c0,r30,r9
+807a0adc	nop
+	ld_s (r9),r9
+807a0ae0	and #$00ffffff,r12,r11
+807a0ae8	add #$00000050,r10
+807a0aec	asl #$ffffffe8,r10
+807a0aee	or r10,r11,r12
+807a0af2	add r9,r29
+807a0af4	ld_s (r29),r13
+807a0af6	add #$00000004,r28
+807a0af8	sub r8,#$00000000,r11
+807a0afc	ls r6,r0,r9
+807a0b00	cmp r16,r9
+807a0b02	lbra cc,#$807a0b22
+807a0b06	mv_s #$00000001,r10
+807a0b08	ls r11,r10,r29
+807a0b0c	mv_s r17,r10
+807a0b0e	add r9,>>#-3,r10
+807a0b12	add #$00000004,r10,r11
+807a0b16	add r29,r9
+807a0b18	cmp r16,r9
+807a0b1a	lbra cs,#$807a0b0c
+807a0b1e	st_s r12,(r10)
+807a0b20	st_s r13,(r11)
+807a0b22	sub #$00000001,r5,r10
+807a0b26	mv_s #$00000001,r11
+807a0b28	bra #$807a0b34
+807a0b2a	neg r10
+807a0b2c	ls r10,r11,r9
+807a0b30	eor r9,r0
+807a0b32	lsr #$00000001,r9
+807a0b34	and r9,r0,r10
+807a0b38	cmp #$00000000,r10
+807a0b3a	bra ne,#$807a0b30
+807a0b3c	sub r6,#$00000000,r11
+807a0b40	mv_s #$00000001,r10
+807a0b42	ls r11,r10,r10
+807a0b46	sub #$00000001,r10
+807a0b48	eor r9,r0
+807a0b4a	sub #$000000bc,r30,r29
+807a0b52	and r10,r0,r11
+807a0b56	add r2,r29,r10
+807a0b5a	ld_s (r10),r10
+807a0b5c	nop
+807a0b5e	cmp r10,r11
+807a0b60	lbra eq,#$807a0b84,nop
+807a0b64	add r19,>>#-2,r29
+807a0b68	sub r4,r6
+807a0b6a	mv_s #$00000001,r10
+807a0b6c	sub r6,#$00000000,r11
+807a0b70	ls r11,r10,r10
+807a0b74	sub #$00000004,r29
+807a0b76	sub #$00000001,r10
+807a0b78	ld_s (r29),r11
+807a0b7a	and r0,r10
+807a0b7c	cmp r11,r10
+807a0b7e	bra ne,#$807a0b68
+807a0b80	sub #$00000004,r2
+807a0b82	sub #$00000001,r19
+807a0b84	sub #$00000001,r18
+807a0b86	cmp #$ffffffff,r18
+807a0b8c	lbra ne,#$807a0948
+807a0b90	nop
+807a0b92	add r4,r6,r7
+807a0b96	add #$00000001,r5
+807a0b98	cmp r1,r5
+807a0b9a	lbra le,#$807a0920
+807a0b9e	nop
+807a0ba0	add #$00000004,r20
+807a0ba2	cmp #$00000000,r3
+807a0ba4	bra eq,#$807a0bb2
+807a0ba6	nop
+807a0ba8	mv_s #$00000000,r0
+807a0baa	cmp #$00000001,r1
+807a0bac	lbra eq,#$807a0bb2,nop
+807a0bb0	mv_s #$fffffffb,r0
+807a0bb2	ld_v (r31),v6
+	add #$00000010,r31
+807a0bb8	nop
+	ld_v (r31),v5
+	add #$00000010,r31
+807a0bc0	ld_v (r31),v4
+	add #$00000010,r31
+807a0bc6	ld_v (r31),v3
+	add #$000000e0,r31
+807a0bce	ld_v (r31),v7
+807a0bd2	rts
+807a0bd4	add #$00000010,r31
+807a0bd6	nop
+807a0bd8	ld_s rz,r29
+807a0bda	nop
+	nop
+	sub #$00000010,r31
+807a0be0	st_v v7,(r31)
+	copy r31,r30
+807a0be6	sub #$00000020,r31
+807a0bea	st_v v3,(r31)
+	sub #$00000010,r31
+807a0bf0	st_v v4,(r31)
+807a0bf4	mv_s r4,r12
+807a0bf6	nop
+	nop
+	nop
+	sub #$00000004,r30,r15
+807a0c00	add #$00000028,r12,r19
+807a0c08	mv_s r0,r17
+807a0c0a	add #$00000020,r12,r10
+807a0c12	ld_s (r19),r0
+807a0c14	ld_s (r10),r10
+807a0c16	nop
+807a0c18	mv_s r1,r18
+807a0c1a	mv_s r2,r16
+807a0c1c	mv_s #$00000000,r14
+807a0c1e	mv_s r3,r28
+807a0c20	st_s r14,(r15)
+807a0c22	jsr (r10)
+807a0c26	mv_s #$00000013,r1
+807a0c2a	mv_s #$00000004,r2
+807a0c2c	mv_s r0,r13
+807a0c2e	cmp #$00000000,r13
+807a0c30	bra ne,#$807a0c3c
+807a0c32	mv_s r14,r3
+807a0c34	mv_s r28,r7
+807a0c36	bra #$807a0cc2
+807a0c38	nop
+807a0c3a	mv_s #$fffffffc,r0
+807a0c3c	mv_s r17,r0
+807a0c3e	mv_s r16,r5
+807a0c40	mv_s r15,r8
+807a0c42	mv_s #$00000013,r1
+807a0c46	mv_s #$00000013,r2
+807a0c4a	mv_s r3,r4
+807a0c4c	jsr #$807a06a0
+807a0c54	mv_s r18,r6
+807a0c56	mv_s r13,r9
+807a0c58	mv_s r0,r28
+807a0c5a	cmp #$fffffffd,r28
+807a0c60	bra ne,#$807a0c78
+807a0c62	nop
+807a0c64	cmp #$fffffffb,r28
+807a0c6a	add #$00000018,r12,r11
+807a0c6e	bra #$807a0caa
+807a0c70	mv_s #$807a6118,r10
+807a0c76	st_s r10,(r11)
+807a0c78	bra eq,#$807a0ca6
+807a0c7a	nop
+	add #$00000018,r12,r11
+807a0c80	mv_s #$807a6140,r10
+807a0c86	ld_s (r18),r10
+807a0c88	nop
+807a0c8a	cmp #$00000000,r10
+807a0c8c	bra ne,#$807a0cb2
+807a0c8e	nop
+807a0c90	add #$00000024,r12,r10
+807a0c98	nop
+	nop
+	add #$00000018,r12,r11
+807a0ca0	mv_s #$807a6140,r10
+807a0ca6	st_s r10,(r11)
+807a0ca8	mv_s #$fffffffd,r28
+807a0caa	add #$00000024,r12,r10
+807a0cb2	ld_s (r19),r0
+807a0cb4	ld_s (r10),r10
+807a0cb6	nop
+807a0cb8	jsr (r10)
+807a0cbc	nop
+807a0cbe	mv_s r13,r1
+807a0cc0	mv_s r28,r0
+807a0cc2	ld_v (r31),v4
+	add #$00000010,r31
+807a0cc8	ld_v (r31),v3
+	add #$00000020,r31
+807a0cd0	ld_v (r31),v7
+807a0cd4	nop
+807a0cd6	st_s r29,rz
+807a0cd8	rts
+807a0cda	add #$00000010,r31
+807a0cdc	nop
+807a0cde	ld_s rz,r29
+807a0ce0	sub #$00000010,r31
+807a0ce2	st_v v7,(r31)
+	copy r31,r30
+807a0ce8	sub #$00000020,r31
+807a0cec	st_v v3,(r31)
+	sub #$00000010,r31
+807a0cf2	st_v v4,(r31)
+	sub #$00000010,r31
+807a0cf8	st_v v5,(r31)
+807a0cfc	nop
+	mv_s r8,r12
+807a0d00	sub #$00000004,r30,r13
+807a0d04	add #$00000020,r12,r10
+807a0d0c	mv_s r0,r15
+807a0d0e	ld_s (r10),r11
+807a0d10	add #$00000028,r12,r17
+807a0d18	ld_s (r17),r0
+807a0d1a	nop
+807a0d1c	mv_s #$00000000,r10
+807a0d1e	mv_s r1,r23
+807a0d20	mv_s r2,r19
+807a0d22	mv_s r3,r16
+807a0d24	mv_s r4,r20
+807a0d26	mv_s r5,r28
+807a0d28	mv_s r6,r21
+807a0d2a	mv_s r7,r18
+807a0d2c	st_s r10,(r13)
+807a0d2e	jsr (r11)
+807a0d32	mv_s #$00000120,r1
+807a0d36	mv_s #$00000004,r2
+807a0d38	mv_s r0,r14
+807a0d3a	cmp #$00000000,r14
+807a0d3c	bra ne,#$807a0d4c
+807a0d3e	mv_s r28,r5
+807a0d40	mv_s #$807a06a0,r22
+807a0d46	bra #$807a0e78
+807a0d48	nop
+807a0d4a	mv_s #$fffffffc,r0
+807a0d4c	mv_s r19,r0
+807a0d4e	mv_s r15,r1
+807a0d50	mv_s #$00000101,r2
+807a0d54	mv_s #$807a5f30,r3
+807a0d5a	mv_s #$807a5fac,r4
+807a0d60	mv_s r16,r6
+807a0d62	mv_s r18,r7
+807a0d64	jsr (r22)
+807a0d68	mv_s r13,r8
+807a0d6a	mv_s r14,r9
+807a0d6c	mv_s r0,r28
+807a0d6e	cmp #$00000000,r28
+807a0d70	lbra ne,#$807a0d80,nop
+807a0d74	ld_s (r16),r10
+807a0d76	nop
+807a0d78	cmp #$00000000,r10
+807a0d7a	bra ne,#$807a0db4
+807a0d7c	mv_s r19,r0
+807a0d7e	mv_s r28,r2
+807a0d80	cmp #$fffffffd,r28
+807a0d86	bra ne,#$807a0da0
+807a0d88	nop
+807a0d8a	cmp #$fffffffc,r28
+807a0d90	add #$00000018,r12,r11
+807a0d94	bra #$807a0e40
+807a0d96	mv_s #$807a6164,r10
+807a0d9c	nop
+	st_s r10,(r11)
+807a0da0	lbra eq,#$807a0e40
+807a0da4	add #$00000018,r12,r11
+807a0da8	mv_s #$807a6188,r10
+807a0dae	bra #$807a0e40
+807a0db0	st_s r10,(r11)
+807a0db2	mv_s #$fffffffd,r28
+807a0db4	add r15,>>#-2,r0
+807a0db8	mv_s r23,r1
+807a0dba	mv_s r21,r5
+807a0dbc	mv_s r18,r7
+807a0dbe	mv_s r13,r8
+807a0dc0	mv_s #$807a6028,r3
+807a0dc6	mv_s #$807a60a0,r4
+807a0dcc	jsr (r22)
+807a0dd0	mv_s r20,r6
+807a0dd2	mv_s r14,r9
+807a0dd4	mv_s r0,r28
+807a0dd6	cmp #$00000000,r28
+807a0dd8	lbra ne,#$807a0df8,nop
+807a0ddc	ld_s (r20),r10
+807a0dde	nop
+807a0de0	cmp #$00000000,r10
+807a0de2	bra ne,#$807a0e60
+807a0de4	nop
+807a0de6	cmp #$00000101,r15
+807a0dea	lbra ls,#$807a0e68
+807a0dee	nop
+807a0df0	add #$00000024,r12,r10
+807a0df8	cmp #$fffffffd,r28
+807a0dfe	bra ne,#$807a0e16
+807a0e00	nop
+807a0e02	cmp #$fffffffb,r28
+807a0e08	add #$00000018,r12,r11
+807a0e0c	bra #$807a0e40
+807a0e0e	mv_s #$807a61a8,r10
+807a0e14	st_s r10,(r11)
+807a0e16	bra ne,#$807a0e2c
+807a0e18	nop
+807a0e1a	cmp #$fffffffc,r28
+807a0e20	bra #$807a0e38
+807a0e22	add #$00000018,r12,r11
+807a0e26	mv_s #$807a61c8,r10
+807a0e2c	bra eq,#$807a0e40
+807a0e2e	add #$00000018,r12,r11
+807a0e32	mv_s #$807a61e4,r10
+807a0e38	st_s r10,(r11)
+807a0e3a	nop
+	nop
+	mv_s #$fffffffd,r28
+807a0e40	add #$00000024,r12,r10
+807a0e48	ld_s (r17),r0
+807a0e4a	ld_s (r10),r10
+807a0e4c	nop
+807a0e4e	jsr (r10)
+807a0e52	nop
+807a0e54	mv_s r14,r1
+807a0e56	bra #$807a0e78
+807a0e58	nop
+807a0e5a	nop
+	nop
+	mv_s r28,r0
+807a0e60	add #$00000024,r12,r10
+807a0e68	ld_s (r17),r0
+807a0e6a	ld_s (r10),r10
+807a0e6c	nop
+807a0e6e	jsr (r10)
+807a0e72	nop
+807a0e74	mv_s r14,r1
+807a0e76	mv_s #$00000000,r0
+807a0e78	nop
+	ld_v (r31),v5
+	add #$00000010,r31
+807a0e80	ld_v (r31),v4
+	add #$00000010,r31
+807a0e86	ld_v (r31),v3
+	add #$00000020,r31
+807a0e8e	ld_v (r31),v7
+807a0e92	nop
+807a0e94	st_s r29,rz
+807a0e96	rts
+807a0e98	add #$00000010,r31
+807a0e9a	nop
+807a0e9c	nop
+	sub #$00000010,r31
+807a0ea0	st_v v7,(r31)
+	copy r31,r30
+807a0ea6	mv_s #$807831b4,r10
+807a0eac	ld_s (r10),r10
+807a0eae	nop
+807a0eb0	st_s r10,(r0)
+807a0eb2	mv_s #$807831b8,r10
+807a0eb8	ld_s (r10),r10
+807a0eba	nop
+807a0ebc	nop
+	st_s r10,(r1)
+807a0ec0	mv_s #$807831bc,r10
+807a0ec6	st_s r10,(r2)
+807a0ec8	mv_s #$807841bc,r10
+807a0ece	st_s r10,(r3)
+807a0ed0	mv_s #$00000000,r0
+807a0ed2	ld_v (r31),v7
+807a0ed6	rts
+807a0ed8	add #$00000010,r31
+807a0eda	nop
+807a0edc	add r0,r0
+807a0ede	add r0,r0
+807a0ee0	ld_s rz,r29
+807a0ee2	sub #$00000010,r31
+807a0ee4	st_v v7,(r31)
+	copy r31,r30
+807a0eea	sub #$00000010,r31
+807a0eec	st_v v3,(r31)
+807a0ef0	add #$00000028,r4,r11
+807a0ef8	mv_s r0,r28
+807a0efa	add #$00000020,r4
+807a0efe	mv_s r1,r12
+807a0f00	mv_s r2,r14
+807a0f02	ld_s (r4),r10
+807a0f04	ld_s (r11),r0
+807a0f06	nop
+807a0f08	mv_s r3,r13
+807a0f0a	jsr (r10)
+807a0f0e	mv_s #$00000001,r1
+807a0f10	mv_s #$0000001c,r2
+807a0f14	cmp #$00000000,r0
+807a0f16	bra eq,#$807a0f52
+807a0f18	mv_s #$00000000,r10
+807a0f1a	add #$00000010,r0,r29
+807a0f1e	st_s r10,(r0)
+807a0f20	asl #$ffffffe8,r28,r11
+807a0f24	ld_s (r29),r8
+807a0f26	nop
+807a0f28	and #$00ffffff,r8,r10
+807a0f30	or r11,r10
+807a0f32	mv_s r12,r11
+807a0f34	and #$ff00ffff,r10,r10
+807a0f3c	bits #$00000007,>>#0,r11
+807a0f40	or r11,>>#-16,r10
+807a0f44	st_s r10,(r29)
+807a0f46	add #$00000014,r0,r10
+807a0f4a	st_s r14,(r10)
+807a0f4c	add #$00000018,r0,r10
+807a0f50	st_s r13,(r10)
+807a0f52	ld_v (r31),v3
+	add #$00000010,r31
+807a0f58	ld_v (r31),v7
+807a0f5c	nop
+807a0f5e	st_s r29,rz
+807a0f60	rts
+807a0f62	add #$00000010,r31
+807a0f64	nop
+807a0f66	ld_s rz,r29
+807a0f68	sub #$00000010,r31
+807a0f6a	st_v v7,(r31)
+	copy r31,r30
+807a0f70	sub #$00000010,r31
+807a0f72	st_v v3,(r31)
+	sub #$00000010,r31
+807a0f78	nop
+	st_v v4,(r31)
+	sub #$00000010,r31
+807a0f80	st_v v5,(r31)
+807a0f84	mv_s r0,r28
+807a0f86	add #$00000004,r28,r10
+807a0f8a	mv_s r1,r12
+807a0f8c	ld_s (r10),r14
+807a0f8e	add #$00000020,r28,r11
+807a0f96	ld_s (r11),r15
+807a0f98	ld_s (r12),r16
+807a0f9a	add #$00000004,r12,r10
+807a0f9e	ld_s (r10),r18
+807a0fa0	add #$00000038,r28,r11
+807a0fa8	ld_s (r11),r6
+807a0faa	add #$0000001c,r28,r10
+807a0fae	ld_s (r10),r13
+807a0fb0	add #$00000034,r28,r10
+807a0fb8	ld_s (r10),r10
+807a0fba	nop
+807a0fbc	nop
+	cmp r10,r6
+807a0fc0	lbra cs,#$807a0fda
+807a0fc4	sub r6,r10
+807a0fc6	sub #$00000001,r10,r7
+807a0fca	add #$00000030,r28,r10
+807a0fd2	ld_s (r10),r10
+807a0fd4	nop
+807a0fd6	sub r6,r10,r7
+807a0fda	ld_s (r14),r10
+807a0fdc	nop
+807a0fde	cmp #$00000009,r10
+807a0fe0	lbra hi,#$807a1800
+807a0fe4	asl #$fffffffe,r10
+807a0fe6	add #$807a623c,r10
+807a0fec	ld_s (r10),r10
+807a0fee	nop
+807a0ff0	jmp (r10)
+807a0ff4	nop
+807a0ff6	nop
+807a0ff8	cmp #$00000101,r7
+807a0ffc	lbra ls,#$807a10e2
+807a1000	nop
+807a1002	cmp #$00000009,r18
+807a1004	lbra ls,#$807a10e2
+807a1008	add #$00000020,r28,r20
+807a1010	add #$0000001c,r28,r19
+807a1014	st_s r15,(r20)
+807a1016	st_s r13,(r19)
+807a1018	add #$00000008,r12,r11
+807a101c	add #$00000004,r12,r13
+807a1020	st_s r18,(r13)
+807a1022	add #$00000038,r28,r17
+807a102a	ld_s (r12),r8
+807a102c	ld_s (r11),r29
+807a102e	sub r8,r16,r10
+807a1032	add r29,r10
+807a1034	st_s r10,(r11)
+807a1036	st_s r16,(r12)
+807a1038	add #$00000034,r12,r10
+807a1040	st_s r6,(r17)
+807a1042	ld_s (r10),r10
+807a1044	nop
+807a1046	cmp #$00000000,r10
+807a1048	bra eq,#$807a1078
+807a104a	add #$00000010,r14,r10
+807a104e	mv_s r28,r4
+807a1050	ld_s (r10),r0
+807a1052	add #$00000018,r14,r11
+807a1056	ld_s (r11),r3
+807a1058	add #$00000014,r14,r10
+807a105c	ld_s (r10),r2
+807a105e	nop
+807a1060	mv_s r0,r1
+807a1062	bits #$00000007,>>#16,r1
+807a1066	jsr #$807a1ae0
+807a106e	mv_s r12,r5
+807a1070	lsr #$00000018,r0
+807a1072	bra #$807a109c
+807a1074	nop
+807a1076	mv_s r0,r2
+807a1078	ld_s (r10),r0
+807a107a	add #$00000018,r14,r11
+807a107e	ld_s (r11),r3
+807a1080	add #$00000014,r14,r10
+807a1084	ld_s (r10),r2
+807a1086	nop
+807a1088	mv_s r0,r1
+807a108a	bits #$00000007,>>#16,r1
+807a108e	jsr #$807a207a
+807a1096	mv_s r12,r5
+807a1098	lsr #$00000018,r0
+807a109a	mv_s r0,r2
+807a109c	nop
+	ld_s (r13),r18
+807a10a0	add #$00000034,r28,r10
+807a10a8	ld_s (r10),r10
+807a10aa	ld_s (r20),r15
+807a10ac	ld_s (r19),r13
+807a10ae	ld_s (r17),r6
+807a10b0	ld_s (r12),r16
+807a10b2	cmp r10,r6
+807a10b4	lbra cs,#$807a10d0
+807a10b8	sub r6,r10
+807a10ba	nop
+	sub #$00000001,r10,r7
+807a10c0	add #$00000030,r28,r10
+807a10c8	ld_s (r10),r10
+807a10ca	nop
+807a10cc	sub r6,r10,r7
+807a10d0	cmp #$00000000,r2
+807a10d2	bra eq,#$807a10e2
+807a10d4	nop
+807a10d6	cmp #$00000001,r2
+807a10d8	lbra eq,#$807a11d8,nop
+807a10dc	bra #$807a0fda
+807a10de	mv_s #$00000009,r10
+807a10e0	st_s r10,(r14)
+807a10e2	add #$00000010,r14,r10
+807a10e6	mv_s #$00000001,r8
+807a10e8	ld_s (r10),r10
+807a10ea	add #$0000000c,r14,r11
+807a10ee	add #$00000014,r14,r29
+807a10f2	lsr #$00000018,r10
+807a10f4	st_s r10,(r11)
+807a10f6	ld_s (r29),r10
+807a10f8	add #$00000008,r14,r11
+807a10fc	st_s r10,(r11)
+807a10fe	st_s r8,(r14)
+807a1100	add #$0000000c,r14,r4
+807a1104	ld_s (r4),r9
+807a1106	nop
+807a1108	cmp r9,r13
+807a110a	lbra cc,#$807a1144
+807a110e	nop
+807a1110	sub r13,#$00000000,r11
+807a1114	cmp #$00000000,r18
+807a1116	nop
+	nop
+	nop
+	lbra eq,#$807a1780
+807a1120	add #$00000020,r28,r10
+807a1128	mv_s r28,r0
+807a112a	ld_b (r16),r10
+807a112e	sub #$00000001,r18
+807a1130	add #$00000008,r13
+807a1132	lsr #$00000018,r10
+807a1134	mv_s #$00000000,r2
+807a1136	or r10,>>r11,r15
+807a113a	cmp r9,r13
+807a113c	lbra cs,#$807a1114
+807a1140	add #$00000001,r16
+807a1142	sub #$00000008,r11
+807a1144	asl #$fffffffe,r9,r10
+807a1148	add #$807842bc,r10
+807a114e	add #$00000008,r14,r9
+807a1152	ld_s (r10),r10
+807a1154	ld_s (r9),r8
+807a1156	and r15,r10
+807a1158	add r10,>>#-3,r8
+807a115c	ld_s (r8),r10
+807a115e	nop
+807a1160	mv_s r10,r11
+807a1162	lsr #$00000018,r10,r29
+807a1166	bits #$00000007,>>#16,r11
+807a116a	bits #$00000007,>>#16,r10
+807a116e	cmp #$00000000,r29
+807a1170	bra ne,#$807a1186
+807a1172	ls r11,r15,r15
+807a1176	sub r10,r13
+807a1178	add #$00000004,r8,r10
+807a117c	mv_s #$00000006,r11
+807a117e	ld_s (r10),r10
+807a1180	bra #$807a0fda
+807a1182	st_s r10,(r9)
+807a1184	st_s r11,(r14)
+807a1186	and #$00000010,r29,r10
+807a118e	cmp #$00000000,r10
+807a1190	bra eq,#$807a11ac
+807a1192	nop
+807a1194	and #$0000000f,r29,r10
+807a1198	st_s r10,(r9)
+807a119a	add #$00000004,r8,r10
+807a119e	mv_s #$00000002,r29
+807a11a0	ld_s (r10),r11
+807a11a2	add #$00000004,r14,r10
+807a11a6	bra #$807a0fda
+807a11a8	st_s r11,(r10)
+807a11aa	st_s r29,(r14)
+807a11ac	and #$00000040,r29,r10
+807a11b4	cmp #$00000000,r10
+807a11b6	nop
+	nop
+	nop
+	lbra eq,#$807a1346
+807a11c0	and #$00000020,r29,r10
+807a11c8	cmp #$00000000,r10
+807a11ca	bra eq,#$807a11de
+807a11cc	add #$00000018,r12,r11
+807a11d0	add #$00000020,r28,r29
+807a11d8	bra #$807a0fda
+807a11da	mv_s #$00000007,r10
+807a11dc	st_s r10,(r14)
+807a11de	mv_s #$00000009,r10
+807a11e0	st_s r10,(r14)
+807a11e2	mv_s #$807a6208,r10
+807a11e8	add #$0000001c,r28,r8
+807a11ec	st_s r10,(r11)
+807a11ee	st_s r15,(r29)
+807a11f0	add #$00000004,r12,r10
+807a11f4	st_s r13,(r8)
+807a11f6	add #$00000008,r12,r11
+807a11fa	nop
+	nop
+	st_s r18,(r10)
+807a1200	add #$00000038,r28,r29
+807a1208	ld_s (r12),r8
+807a120a	nop
+807a120c	sub r8,r16,r10
+807a1210	mv_s r28,r0
+807a1212	ld_s (r11),r8
+807a1214	nop
+807a1216	add r8,r10
+807a1218	mv_s r12,r1
+807a121a	st_s r10,(r11)
+807a121c	nop
+	st_s r16,(r12)
+807a1220	lbra #$807a1838
+807a1224	st_s r6,(r29)
+807a1226	mv_s #$fffffffd,r2
+807a1228	add #$00000008,r14,r4
+807a122c	ld_s (r4),r9
+807a122e	nop
+807a1230	cmp r9,r13
+807a1232	lbra cc,#$807a1268
+807a1236	nop
+807a1238	sub r13,#$00000000,r11
+807a123c	nop
+	cmp #$00000000,r18
+807a1240	lbra eq,#$807a1794
+807a1244	add #$00000020,r28,r10
+807a124c	mv_s r28,r0
+807a124e	ld_b (r16),r10
+807a1252	sub #$00000001,r18
+807a1254	add #$00000008,r13
+807a1256	lsr #$00000018,r10
+807a1258	mv_s #$00000000,r2
+807a125a	or r10,>>r11,r15
+807a125e	cmp r9,r13
+807a1260	lbra cs,#$807a123c
+807a1264	add #$00000001,r16
+807a1266	sub #$00000008,r11
+807a1268	asl #$fffffffe,r9,r10
+807a126c	mv_s #$00000003,r8
+807a126e	add #$807842bc,r10
+807a1274	ld_s (r10),r10
+807a1276	add #$00000004,r14,r11
+807a127a	ld_s (r11),r29
+807a127c	sub r9,r13
+807a127e	and r15,r10
+807a1280	add r29,r10
+807a1282	st_s r10,(r11)
+807a1284	add #$00000018,r14,r29
+807a1288	add #$00000010,r14,r10
+807a128c	ld_s (r10),r10
+807a128e	add #$0000000c,r14,r11
+807a1292	ls r9,r15,r15
+807a1296	bits #$00000007,>>#16,r10
+807a129a	st_s r10,(r11)
+807a129c	ld_s (r29),r10
+807a129e	nop
+807a12a0	st_s r10,(r4)
+807a12a2	st_s r8,(r14)
+807a12a4	add #$0000000c,r14,r4
+807a12a8	ld_s (r4),r9
+807a12aa	nop
+807a12ac	cmp r9,r13
+807a12ae	lbra cc,#$807a12e4
+807a12b2	nop
+807a12b4	sub r13,#$00000000,r11
+807a12b8	cmp #$00000000,r18
+807a12ba	nop
+	lbra eq,#$807a17a8
+807a12c0	add #$00000020,r28,r10
+807a12c8	mv_s r28,r0
+807a12ca	ld_b (r16),r10
+807a12ce	sub #$00000001,r18
+807a12d0	add #$00000008,r13
+807a12d2	lsr #$00000018,r10
+807a12d4	mv_s #$00000000,r2
+807a12d6	or r10,>>r11,r15
+807a12da	cmp r9,r13
+807a12dc	lbra cs,#$807a12b8
+807a12e0	add #$00000001,r16
+807a12e2	sub #$00000008,r11
+807a12e4	asl #$fffffffe,r9,r10
+807a12e8	add #$807842bc,r10
+807a12ee	add #$00000008,r14,r9
+807a12f2	ld_s (r10),r10
+807a12f4	ld_s (r9),r8
+807a12f6	and r15,r10
+807a12f8	add r10,>>#-3,r8
+807a12fc	ld_s (r8),r10
+807a12fe	nop
+807a1300	mv_s r10,r11
+807a1302	lsr #$00000018,r10,r29
+807a1306	bits #$00000007,>>#16,r10
+807a130a	sub r10,r13
+807a130c	and #$00000010,r29,r10
+807a1314	cmp #$00000000,r10
+807a1316	bra eq,#$807a1334
+807a1318	bits #$00000007,>>#16,r11
+807a131c	ls r11,r15,r15
+807a1320	and #$0000000f,r29,r10
+807a1324	mv_s #$00000004,r11
+807a1326	st_s r10,(r9)
+807a1328	add #$00000004,r8,r10
+807a132c	ld_s (r10),r10
+807a132e	bra #$807a0fda
+807a1330	st_s r10,(r4)
+807a1332	st_s r11,(r14)
+807a1334	and #$00000040,r29,r10
+807a133c	cmp #$00000000,r10
+807a133e	bra ne,#$807a1356
+807a1340	mv_s #$00000009,r10
+807a1342	add #$00000018,r12,r11
+807a1346	st_s r29,(r4)
+807a1348	add #$00000004,r8,r10
+807a134c	ld_s (r10),r10
+807a134e	bra #$807a0fda
+807a1350	add r10,>>#-3,r8
+807a1354	st_s r8,(r9)
+807a1356	st_s r10,(r14)
+807a1358	add #$00000020,r28,r29
+807a1360	mv_s #$807a6224,r10
+807a1366	add #$0000001c,r28,r8
+807a136a	st_s r10,(r11)
+807a136c	st_s r15,(r29)
+807a136e	add #$00000004,r12,r10
+807a1372	st_s r13,(r8)
+807a1374	add #$00000008,r12,r11
+807a1378	nop
+	nop
+	nop
+	st_s r18,(r10)
+807a1380	add #$00000038,r28,r29
+807a1388	ld_s (r12),r8
+807a138a	nop
+807a138c	sub r8,r16,r10
+807a1390	mv_s r28,r0
+807a1392	ld_s (r11),r8
+807a1394	nop
+807a1396	add r8,r10
+807a1398	mv_s r12,r1
+807a139a	st_s r10,(r11)
+807a139c	nop
+	st_s r16,(r12)
+807a13a0	lbra #$807a1838
+807a13a4	st_s r6,(r29)
+807a13a6	mv_s #$fffffffd,r2
+807a13a8	add #$00000008,r14,r10
+807a13ac	ld_s (r10),r9
+807a13ae	nop
+807a13b0	cmp r9,r13
+807a13b2	lbra cc,#$807a13e8
+807a13b6	nop
+807a13b8	sub r13,#$00000000,r11
+807a13bc	nop
+	cmp #$00000000,r18
+807a13c0	lbra eq,#$807a17bc
+807a13c4	add #$00000020,r28,r10
+807a13cc	mv_s r28,r0
+807a13ce	ld_b (r16),r10
+807a13d2	sub #$00000001,r18
+807a13d4	add #$00000008,r13
+807a13d6	lsr #$00000018,r10
+807a13d8	mv_s #$00000000,r2
+807a13da	or r10,>>r11,r15
+807a13de	cmp r9,r13
+807a13e0	lbra cs,#$807a13bc
+807a13e4	add #$00000001,r16
+807a13e6	sub #$00000008,r11
+807a13e8	asl #$fffffffe,r9,r10
+807a13ec	mv_s #$00000005,r29
+807a13ee	add #$807842bc,r10
+807a13f4	ld_s (r10),r10
+807a13f6	add #$0000000c,r14,r11
+807a13fa	ld_s (r11),r8
+807a13fc	sub r9,r13
+807a13fe	and r15,r10
+807a1400	add r8,r10
+807a1402	st_s r10,(r11)
+807a1404	ls r9,r15,r15
+807a1408	st_s r29,(r14)
+807a140a	add #$0000000c,r14,r10
+807a140e	ld_s (r10),r11
+807a1410	add #$0000002c,r28,r10
+807a1418	ld_s (r10),r10
+807a141a	nop
+807a141c	sub r10,r6,r10
+807a1420	cmp r11,r10
+807a1422	lbra cc,#$807a1444
+807a1426	sub r11,r6,r17
+807a142a	add #$00000004,r14,r20
+807a142e	sub r10,r11
+807a1430	add #$00000030,r28,r10
+807a1438	ld_s (r10),r10
+807a143a	nop
+807a143c	sub r11,r10,r17
+807a1440	add #$00000004,r14,r20
+807a1444	ld_s (r20),r10
+807a1446	nop
+807a1448	cmp #$00000000,r10
+807a144a	lbra eq,#$807a157c,nop
+807a144e	cmp #$00000000,r7
+807a1450	lbra ne,#$807a152a
+807a1454	nop
+807a1456	add #$00000030,r28,r21
+807a145e	ld_s (r21),r29
+807a1460	nop
+807a1462	cmp r29,r6
+807a1464	bra ne,#$807a1498
+807a1466	nop
+807a1468	add #$00000034,r28,r10
+807a1470	ld_s (r10),r11
+807a1472	add #$0000002c,r28,r10
+807a147a	ld_s (r10),r10
+807a147c	nop
+807a147e	cmp r10,r11
+807a1480	lbra eq,#$807a1498,nop
+807a1484	mv_s r10,r6
+807a1486	cmp r11,r10
+807a1488	lbra cs,#$807a1498
+807a148c	sub r6,r11,r10
+807a1490	sub #$00000001,r10,r7
+807a1494	sub r6,r29,r7
+807a1498	cmp #$00000000,r7
+807a149a	nop
+	lbra ne,#$807a152a,nop
+807a14a0	add #$00000038,r28,r19
+807a14a8	mv_s #$807a18a0,r22
+807a14ae	st_s r6,(r19)
+807a14b0	jsr (r22)
+807a14b4	mv_s r28,r0
+807a14b6	mv_s r12,r1
+807a14b8	add #$00000034,r28,r11
+807a14c0	ld_s (r19),r6
+807a14c2	ld_s (r11),r10
+807a14c4	nop
+807a14c6	cmp r10,r6
+807a14c8	lbra cc,#$807a14d8
+807a14cc	nop
+807a14ce	mv_s r0,r2
+807a14d0	bra #$807a14e0
+807a14d2	sub r6,r10
+807a14d4	sub #$00000001,r10,r7
+807a14d8	ld_s (r21),r21
+807a14da	nop
+807a14dc	sub r6,r21,r7
+807a14e0	add #$00000030,r28,r10
+807a14e8	ld_s (r10),r29
+807a14ea	nop
+807a14ec	cmp r29,r6
+807a14ee	bra ne,#$807a151a
+807a14f0	nop
+807a14f2	add #$0000002c,r28,r10
+807a14fa	ld_s (r11),r11
+807a14fc	ld_s (r10),r10
+807a14fe	nop
+807a1500	cmp r10,r11
+807a1502	lbra eq,#$807a151a,nop
+807a1506	mv_s r10,r6
+807a1508	cmp r11,r10
+807a150a	lbra cs,#$807a151a
+807a150e	sub r6,r11,r10
+807a1512	sub #$00000001,r10,r7
+807a1516	sub r6,r29,r7
+807a151a	cmp #$00000000,r7
+807a151c	lbra eq,#$807a17d2
+807a1520	add #$00000020,r28,r10
+807a1528	mv_s r28,r0
+807a152a	ld_s (r6),r10
+807a152c	ld_b (r17),r8
+807a1530	asl #$fffffffd,r6,r29
+807a1534	mv_s #$00ffffff,r11
+807a153a	add #$00000001,r17
+807a153c	and r11,<>r29,r10
+807a1540	mv_s #$00000000,r2
+807a1542	or r8,<>r29,r10
+807a1546	st_s r10,(r6)
+807a1548	add #$00000030,r28,r10
+807a1550	ld_s (r10),r10
+807a1552	nop
+807a1554	cmp r10,r17
+807a1556	bra ne,#$807a156a
+807a1558	sub #$00000001,r7
+807a155a	nop
+	nop
+	add #$00000001,r6
+807a1560	add #$0000002c,r28,r10
+807a1568	ld_s (r10),r17
+807a156a	ld_s (r20),r11
+807a156c	nop
+807a156e	sub #$00000001,r11,r10
+807a1572	cmp #$00000000,r10
+807a1574	lbra ne,#$807a144e
+807a1578	nop
+807a157a	st_s r10,(r20)
+807a157c	lbra #$807a0fda
+807a1580	mv_s #$00000000,r10
+807a1582	st_s r10,(r14)
+807a1584	cmp #$00000000,r7
+807a1586	lbra ne,#$807a169a
+807a158a	nop
+807a158c	add #$00000008,r14,r11
+807a1590	add #$00000030,r28,r19
+807a1598	ld_s (r19),r29
+807a159a	nop
+807a159c	cmp r29,r6
+807a159e	bra ne,#$807a15d2
+807a15a0	nop
+807a15a2	add #$00000034,r28,r10
+807a15aa	ld_s (r10),r11
+807a15ac	add #$0000002c,r28,r10
+807a15b4	ld_s (r10),r10
+807a15b6	nop
+807a15b8	cmp r10,r11
+807a15ba	lbra eq,#$807a15d2,nop
+807a15be	mv_s r10,r6
+807a15c0	cmp r11,r10
+807a15c2	lbra cs,#$807a15d2
+807a15c6	sub r6,r11,r10
+807a15ca	sub #$00000001,r10,r7
+807a15ce	sub r6,r29,r7
+807a15d2	cmp #$00000000,r7
+807a15d4	lbra ne,#$807a169a
+807a15d8	nop
+807a15da	nop
+	add #$00000008,r14,r11
+807a15e0	add #$00000038,r28,r17
+807a15e8	mv_s #$807a18a0,r20
+807a15ee	st_s r6,(r17)
+807a15f0	jsr (r20)
+807a15f4	mv_s r28,r0
+807a15f6	mv_s r12,r1
+807a15f8	add #$00000034,r28,r11
+807a1600	ld_s (r17),r6
+807a1602	ld_s (r11),r10
+807a1604	nop
+807a1606	cmp r10,r6
+807a1608	lbra cc,#$807a1618
+807a160c	nop
+807a160e	mv_s r0,r2
+807a1610	bra #$807a1620
+807a1612	sub r6,r10
+807a1614	sub #$00000001,r10,r7
+807a1618	ld_s (r19),r19
+807a161a	nop
+807a161c	sub r6,r19,r7
+807a1620	add #$00000030,r28,r10
+807a1628	ld_s (r10),r29
+807a162a	nop
+807a162c	cmp r29,r6
+807a162e	bra ne,#$807a165a
+807a1630	nop
+807a1632	add #$0000002c,r28,r10
+807a163a	ld_s (r11),r11
+807a163c	ld_s (r10),r10
+807a163e	nop
+807a1640	cmp r10,r11
+807a1642	lbra eq,#$807a165a,nop
+807a1646	mv_s r10,r6
+807a1648	cmp r11,r10
+807a164a	lbra cs,#$807a165a
+807a164e	sub r6,r11,r10
+807a1652	sub #$00000001,r10,r7
+807a1656	sub r6,r29,r7
+807a165a	cmp #$00000000,r7
+807a165c	bra ne,#$807a169a
+807a165e	nop
+807a1660	add #$00000008,r14,r11
+807a1664	add #$00000020,r28,r10
+807a166c	mv_s r28,r0
+807a166e	st_s r15,(r10)
+807a1670	add #$00000008,r12,r11
+807a1674	add #$0000001c,r28,r10
+807a1678	mv_s r12,r1
+807a167a	st_s r13,(r10)
+807a167c	add #$00000004,r12,r10
+807a1680	st_s r18,(r10)
+807a1682	ld_s (r12),r29
+807a1684	ld_s (r11),r8
+807a1686	sub r29,r16,r10
+807a168a	add r8,r10
+807a168c	st_s r10,(r11)
+807a168e	jsr (r20)
+807a1692	st_s r16,(r12)
+807a1694	st_s r6,(r17)
+807a1696	lbra #$807a1840,nop
+807a169a	ld_s (r6),r10
+807a169c	nop
+	ld_s (r11),r11
+807a16a0	asl #$fffffffd,r6,r8
+807a16a4	sub #$00000001,r7
+807a16a6	mv_s #$00ffffff,r29
+807a16ac	asl #$ffffffe8,r11
+807a16ae	and r29,<>r8,r10
+807a16b2	mv_s #$00000000,r2
+807a16b4	or r11,<>r8,r10
+807a16b8	st_s r10,(r6)
+807a16ba	lbra #$807a0fda
+807a16be	add #$00000001,r6
+807a16c0	st_s r2,(r14)
+807a16c2	cmp #$00000007,r13
+807a16c4	lbra ls,#$807a16dc
+807a16c8	add #$00000038,r28,r17
+807a16d0	mv_s #$807a18a0,r19
+807a16d6	sub #$00000008,r13
+807a16d8	add #$00000001,r18
+807a16da	sub #$00000001,r16
+807a16dc	nop
+	st_s r6,(r17)
+807a16e0	jsr (r19)
+807a16e4	mv_s r28,r0
+807a16e6	mv_s r12,r1
+807a16e8	add #$00000034,r28,r10
+807a16f0	ld_s (r17),r6
+807a16f2	ld_s (r10),r11
+807a16f4	ld_s (r10),r10
+807a16f6	ld_s (r17),r29
+807a16f8	nop
+807a16fa	cmp r29,r10
+807a16fc	bra eq,#$807a1738
+807a16fe	nop
+807a1700	mv_s r0,r2
+807a1702	add #$00000020,r28,r10
+807a170a	mv_s r28,r0
+807a170c	st_s r15,(r10)
+807a170e	add #$00000008,r12,r11
+807a1712	add #$0000001c,r28,r10
+807a1716	mv_s r12,r1
+807a1718	st_s r13,(r10)
+807a171a	add #$00000004,r12,r10
+807a171e	st_s r18,(r10)
+807a1720	ld_s (r12),r8
+807a1722	ld_s (r11),r29
+807a1724	sub r8,r16,r10
+807a1728	add r29,r10
+807a172a	st_s r10,(r11)
+807a172c	jsr (r19)
+807a1730	st_s r16,(r12)
+807a1732	st_s r6,(r17)
+807a1734	lbra #$807a1840,nop
+807a1738	mv_s #$00000008,r10
+807a173a	nop
+	nop
+	st_s r10,(r14)
+807a1740	add #$00000020,r28,r10
+807a1748	mv_s r28,r0
+807a174a	st_s r15,(r10)
+807a174c	add #$00000008,r12,r11
+807a1750	add #$0000001c,r28,r10
+807a1754	mv_s r12,r1
+807a1756	st_s r13,(r10)
+807a1758	bra #$807a181e
+807a175a	add #$00000004,r12,r10
+807a175e	mv_s #$00000001,r2
+807a1760	add #$00000020,r28,r10
+807a1768	mv_s r28,r0
+807a176a	st_s r15,(r10)
+807a176c	add #$00000008,r12,r11
+807a1770	add #$0000001c,r28,r10
+807a1774	mv_s r12,r1
+807a1776	st_s r13,(r10)
+807a1778	bra #$807a181e
+807a177a	add #$00000004,r12,r10
+807a177e	mv_s #$fffffffd,r2
+807a1780	st_s r15,(r10)
+807a1782	add #$00000008,r12,r11
+807a1786	add #$0000001c,r28,r10
+807a178a	mv_s r12,r1
+807a178c	bra #$807a181e
+807a178e	st_s r13,(r10)
+807a1790	add #$00000004,r12,r10
+807a1794	st_s r15,(r10)
+807a1796	add #$00000008,r12,r11
+807a179a	add #$0000001c,r28,r10
+807a179e	mv_s r12,r1
+807a17a0	bra #$807a181e
+807a17a2	st_s r13,(r10)
+807a17a4	add #$00000004,r12,r10
+807a17a8	st_s r15,(r10)
+807a17aa	add #$00000008,r12,r11
+807a17ae	add #$0000001c,r28,r10
+807a17b2	mv_s r12,r1
+807a17b4	bra #$807a181e
+807a17b6	st_s r13,(r10)
+807a17b8	add #$00000004,r12,r10
+807a17bc	nop
+	st_s r15,(r10)
+807a17c0	add #$00000008,r12,r11
+807a17c4	add #$0000001c,r28,r10
+807a17c8	mv_s r12,r1
+807a17ca	bra #$807a181e
+807a17cc	st_s r13,(r10)
+807a17ce	add #$00000004,r12,r10
+807a17d2	st_s r15,(r10)
+807a17d4	add #$00000008,r12,r11
+807a17d8	add #$0000001c,r28,r10
+807a17dc	mv_s r12,r1
+807a17de	st_s r13,(r10)
+807a17e0	add #$00000004,r12,r10
+807a17e4	st_s r18,(r10)
+807a17e6	ld_s (r12),r8
+807a17e8	ld_s (r11),r29
+807a17ea	sub r8,r16,r10
+807a17ee	add r29,r10
+807a17f0	st_s r10,(r11)
+807a17f2	jsr (r22)
+807a17f6	st_s r16,(r12)
+807a17f8	st_s r6,(r19)
+807a17fa	nop
+	lbra #$807a1840,nop
+807a1800	add #$00000020,r28,r10
+807a1808	mv_s r28,r0
+807a180a	st_s r15,(r10)
+807a180c	add #$00000008,r12,r11
+807a1810	add #$0000001c,r28,r10
+807a1814	mv_s r12,r1
+807a1816	st_s r13,(r10)
+807a1818	add #$00000004,r12,r10
+807a181c	mv_s #$fffffffe,r2
+807a181e	st_s r18,(r10)
+807a1820	ld_s (r12),r8
+807a1822	ld_s (r11),r29
+807a1824	sub r8,r16,r10
+807a1828	add r29,r10
+807a182a	st_s r10,(r11)
+807a182c	add #$00000038,r28,r10
+807a1834	st_s r16,(r12)
+807a1836	st_s r6,(r10)
+807a1838	jsr #$807a18a0,nop
+807a1840	ld_v (r31),v5
+	add #$00000010,r31
+807a1846	ld_v (r31),v4
+	add #$00000010,r31
+807a184c	ld_v (r31),v3
+	add #$00000010,r31
+807a1852	ld_v (r31),v7
+807a1856	nop
+807a1858	st_s r29,rz
+807a185a	rts
+807a185c	add #$00000010,r31
+807a185e	nop
+807a1860	ld_s rz,r29
+807a1862	sub #$00000010,r31
+807a1864	st_v v7,(r31)
+	copy r31,r30
+807a186a	add #$00000028,r1,r10
+807a1872	mv_s r0,r11
+807a1874	ld_s (r10),r0
+807a1876	add #$00000024,r1
+807a187a	ld_s (r1),r10
+807a187c	nop
+	nop
+807a1880	jsr (r10)
+807a1884	nop
+807a1886	mv_s r11,r1
+807a1888	ld_v (r31),v7
+807a188c	nop
+807a188e	st_s r29,rz
+807a1890	rts
+807a1892	add #$00000010,r31
+807a1894	nop
+807a1896	add r0,r0
+807a1898	add r0,r0
+807a189a	add r0,r0
+807a189c	add r0,r0
+807a189e	add r0,r0
+807a18a0	ld_s rz,r29
+807a18a2	sub #$00000010,r31
+807a18a4	st_v v7,(r31)
+	copy r31,r30
+807a18aa	sub #$00000010,r31
+807a18ac	st_v v3,(r31)
+	sub #$00000010,r31
+807a18b2	st_v v4,(r31)
+	sub #$00000010,r31
+807a18b8	nop
+	st_v v5,(r31)
+	sub #$00000010,r31
+807a18c0	st_v v6,(r31)
+807a18c4	mv_s r1,r15
+807a18c6	mv_s r0,r14
+807a18c8	add #$0000000c,r15,r24
+807a18cc	add #$00000034,r14,r21
+807a18d4	ld_s (r24),r16
+807a18d6	add #$00000034,r15,r10
+807a18de	ld_s (r21),r13
+807a18e0	ld_s (r10),r10
+807a18e2	nop
+807a18e4	cmp #$00000000,r10
+807a18e6	bra eq,#$807a1950
+807a18e8	nop
+807a18ea	mv_s r2,r20
+807a18ec	add #$00000038,r14,r29
+807a18f4	ld_s (r29),r8
+807a18f6	add #$00000010,r15,r11
+807a18fa	sub r13,r8,r12
+807a18fe	ld_s (r11),r8
+807a1900	nop
+807a1902	sub r12,r8,r10
+807a1906	st_s r10,(r11)
+807a1908	add #$00000014,r15,r11
+807a190c	ld_s (r11),r8
+807a190e	nop
+807a1910	add r12,r8,r10
+807a1914	st_s r10,(r11)
+807a1916	ld_s (r29),r10
+807a1918	add #$0000003c,r14,r11
+807a1920	st_s r10,(r21)
+807a1922	ld_s (r11),r11
+807a1924	nop
+807a1926	cmp #$00000000,r11
+807a1928	lbra eq,#$807a1a9e
+807a192c	nop
+807a192e	add #$00000040,r14,r28
+807a1936	ld_s (r28),r0
+807a1938	nop
+807a193a	jsr (r11)
+807a193e	mv_s r13,r1
+807a1940	mv_s r12,r2
+807a1942	add #$00000030,r15,r10
+807a194a	bra #$807a1a9e
+807a194c	st_s r0,(r28)
+807a194e	st_s r0,(r10)
+807a1950	add #$00000038,r14,r19
+807a1958	ld_s (r19),r2
+807a195a	nop
+807a195c	nop
+	cmp r2,r13
+807a1960	lbra ls,#$807a1980
+807a1964	sub r13,r2,r12
+807a1968	add #$00000010,r15,r17
+807a196c	add #$00000030,r14,r10
+807a1974	ld_s (r10),r10
+807a1976	nop
+807a1978	sub r13,r10,r12
+807a197c	add #$00000010,r15,r17
+807a1980	ld_s (r17),r10
+807a1982	nop
+807a1984	cmp r10,r12
+807a1986	lbra ls,#$807a198c,nop
+807a198a	mv_s r10,r12
+807a198c	cmp #$00000000,r12
+807a198e	bra eq,#$807a199e
+807a1990	nop
+807a1992	cmp #$fffffffb,r20
+807a1998	lbra ne,#$807a199e,nop
+807a199c	mv_s #$00000000,r20
+807a199e	ld_s (r17),r11
+807a19a0	add #$00000014,r15,r18
+807a19a4	add #$0000003c,r14,r22
+807a19ac	sub r12,r11,r10
+807a19b0	st_s r10,(r17)
+807a19b2	ld_s (r18),r8
+807a19b4	nop
+807a19b6	add r12,r8,r10
+807a19ba	st_s r10,(r18)
+807a19bc	ld_s (r22),r10
+807a19be	nop
+807a19c0	cmp #$00000000,r10
+807a19c2	bra eq,#$807a19ec
+807a19c4	nop
+807a19c6	add #$00000040,r14,r28
+807a19ce	ld_s (r28),r0
+807a19d0	nop
+807a19d2	jsr (r10)
+807a19d6	mv_s r13,r1
+807a19d8	nop
+	nop
+	nop
+	mv_s r12,r2
+807a19e0	add #$00000030,r15,r10
+807a19e8	st_s r0,(r28)
+807a19ea	st_s r0,(r10)
+807a19ec	mv_s r13,r0
+807a19ee	mv_s r16,r1
+807a19f0	add r12,r13
+807a19f2	mv_s #$80789fc0,r23
+807a19f8	jsr (r23)
+807a19fc	add r12,r16
+807a19fe	mv_s r12,r2
+807a1a00	add #$00000030,r14,r10
+807a1a08	ld_s (r10),r11
+807a1a0a	nop
+807a1a0c	cmp r11,r13
+807a1a0e	lbra ne,#$807a1a9a
+807a1a12	nop
+807a1a14	add #$0000002c,r14,r10
+807a1a1c	ld_s (r10),r13
+807a1a1e	ld_s (r19),r10
+807a1a20	nop
+807a1a22	cmp r11,r10
+807a1a24	lbra ne,#$807a1a2a,nop
+807a1a28	st_s r13,(r19)
+807a1a2a	ld_s (r19),r19
+807a1a2c	ld_s (r17),r10
+807a1a2e	sub r13,r19,r12
+807a1a32	cmp r10,r12
+807a1a34	lbra ls,#$807a1a3a,nop
+807a1a38	mv_s r10,r12
+807a1a3a	cmp #$00000000,r12
+807a1a3c	bra eq,#$807a1a4c
+807a1a3e	nop
+807a1a40	cmp #$fffffffb,r20
+807a1a46	lbra ne,#$807a1a4c,nop
+807a1a4a	mv_s #$00000000,r20
+807a1a4c	ld_s (r17),r11
+807a1a4e	nop
+807a1a50	sub r12,r11,r10
+807a1a54	st_s r10,(r17)
+807a1a56	ld_s (r18),r8
+807a1a58	nop
+807a1a5a	add r12,r8,r10
+807a1a5e	st_s r10,(r18)
+807a1a60	ld_s (r22),r10
+807a1a62	nop
+807a1a64	cmp #$00000000,r10
+807a1a66	bra eq,#$807a1a8c
+807a1a68	nop
+807a1a6a	add #$00000040,r14,r28
+807a1a72	ld_s (r28),r0
+807a1a74	nop
+807a1a76	jsr (r10)
+807a1a7a	mv_s r13,r1
+807a1a7c	nop
+	mv_s r12,r2
+807a1a80	add #$00000030,r15,r10
+807a1a88	st_s r0,(r28)
+807a1a8a	st_s r0,(r10)
+807a1a8c	mv_s r13,r0
+807a1a8e	mv_s r16,r1
+807a1a90	add r12,r13
+807a1a92	jsr (r23)
+807a1a96	mv_s r12,r2
+807a1a98	add r12,r16
+807a1a9a	st_s r16,(r24)
+807a1a9c	st_s r13,(r21)
+807a1a9e	mv_s r20,r0
+807a1aa0	ld_v (r31),v6
+	add #$00000010,r31
+807a1aa6	ld_v (r31),v5
+	add #$00000010,r31
+807a1aac	ld_v (r31),v4
+	add #$00000010,r31
+807a1ab2	ld_v (r31),v3
+	add #$00000010,r31
+807a1ab8	ld_v (r31),v7
+807a1abc	nop
+807a1abe	st_s r29,rz
+807a1ac0	rts
+807a1ac2	add #$00000010,r31
+807a1ac4	nop
+807a1ac6	add r0,r0
+807a1ac8	add r0,r0
+807a1aca	add r0,r0
+807a1acc	add r0,r0
+807a1ace	add r0,r0
+807a1ad0	add r0,r0
+807a1ad2	add r0,r0
+807a1ad4	add r0,r0
+807a1ad6	add r0,r0
+807a1ad8	add r0,r0
+807a1ada	add r0,r0
+807a1adc	add r0,r0
+807a1ade	add r0,r0
+807a1ae0	push v2
+807a1ae2	push v3
+807a1ae4	push v4
+807a1ae6	push v5
+807a1ae8	push v6,rz
+807a1aea	mv_s r2,r11
+	copy r3,r12
+807a1aee	mv_s r4,r13
+	copy r5,r14
+807a1af2	mv_s #$00000000,r23
+807a1af4	mv_s #$807a1f90,r2
+807a1afa	mv_s r2,r3
+	add r0,>>#-2,r2
+807a1b00	ld_s (r2),r6
+	add r1,>>#-2,r3
+807a1b06	ld_s (r3),r7
+807a1b08	add #$00000000,r14,r0
+807a1b0c	ld_s (r0),r15
+807a1b0e	add #$00000004,r14,r0
+807a1b12	ld_s (r0),r19
+807a1b14	add #$00000038,r13,r0
+807a1b1c	nop
+	ld_s (r0),r16
+807a1b20	add #$00000010,r14,r0
+807a1b24	ld_s (r0),r18
+807a1b26	add #$0000001c,r13,r0
+807a1b2a	ld_s (r0),r10
+807a1b2c	add #$00000020,r13,r0
+807a1b34	ld_s (r0),r9
+807a1b36	and #$00000003,r16,r21
+	ld_s (r16),r20
+807a1b3c	asl #$fffffffd,r21
+807a1b3e	mv_s #$ffffffff,r1
+807a1b40	ls r21,r1,r1
+807a1b44	sub #$00000018,r21
+807a1b46	eor #$ffffffff,r1
+807a1b48	and r1,r20
+807a1b4a	mv_s #$00000000,r22
+807a1b4c	sub #$00000102,r18
+807a1b50	sub #$00000008,r19
+807a1b52	sub #$00000014,r10,r0
+807a1b56	bra ge,#$807a1b8e
+	mv_s #$00000001,r4
+807a1b5a	nop
+	nop
+	mv_s #$00000008,r2
+807a1b60	and r6,r9,r1
+	mv_s r11,r5
+807a1b66	ld_b (r15),r1
+	addm r4,r15,r15
+	add #$00000008,r0
+807a1b70	nop
+	nop
+	nop
+	bra lt,#$807a1b66
+	subm r4,r19,r19
+	sub r10,#$00000018,r3
+807a1b80	addm r2,r10,r10
+	or r1,>>r3,r9
+807a1b88	and r6,r9,r1
+	mv_s r11,r5
+807a1b8e	add r1,>>#-3,r5
+	mv_s #$00000000,r4
+807a1b94	ld_s (r5),r8
+	add #$00000004,r5,r1
+807a1b9a	nop
+	nop
+	ld_s (r1),r17
+807a1ba0	addm r8,r4,r4
+	bits #$00000007,>>#24,r8
+807a1ba8	bra ne,#$807a1c12
+	bits #$00000007,>>#16,r4
+807a1bae	ls r4,r9,r9
+	subm r4,r10,r10
+807a1bb6	nop
+	nop
+	mv_s #$00000001,r1
+	add #$00000008,r21,r0
+807a1bc0	bra gt,#$807a1bea
+	or r17,>>r21,r20
+	mv_s r0,r21
+	addm r1,r22,r22
+807a1bcc	subm r1,r18,r18
+	cmp #$00000000,r19
+807a1bd2	lbra le,#$807a1eda
+	cmp #$00000000,r18
+807a1bd8	nop
+	nop
+	lbra gt,#$807a1b56
+807a1be0	bra #$807a1eda
+	sub #$00000014,r10,r0
+807a1be6	nop
+807a1be8	nop
+807a1bea	st_s r20,(r16)
+	and #$00000000,r20,r20
+	addm r22,r16,r16
+807a1bf4	and #$00000000,r22,r22
+	mv_s #$ffffffe8,r21
+807a1bfc	nop
+	cmp #$00000000,r19
+807a1c00	lbra le,#$807a1eda
+	cmp #$00000000,r18
+807a1c06	lbra le,#$807a1eda
+807a1c0a	bra #$807a1b56
+807a1c0c	nop
+807a1c0e	sub #$00000014,r10,r0
+807a1c12	btst #$00000004,r8
+807a1c14	nop
+	nop
+	nop
+	nop
+	lbra eq,#$807a1e58
+807a1c20	and #$0000000f,r8,r1
+	mv_s #$807a1f90,r0
+807a1c2a	add r1,>>#-2,r0
+	mv_s #$00000001,r3
+807a1c30	ld_s (r0),r1
+	subm r1,r10,r10
+	copy r1,r8
+807a1c38	nop
+	nop
+	sub #$00000018,r10,r0
+807a1c40	bra ge,#$807a1c7a
+	and r1,r9,r4
+	mv_s r12,r5
+807a1c48	addm r17,r4,r4
+	ls r8,r9,r9
+807a1c50	mv_s #$00000008,r2
+	and r7,r9,r1
+807a1c56	ld_b (r15),r1
+	subm r3,r19,r19
+	add r2,r0
+807a1c60	bra lt,#$807a1c56
+	sub r10,#$00000018,r3
+807a1c66	addm r2,r10,r10
+	or r1,>>r3,r9
+	mv_s #$00000001,r3
+807a1c70	addm r3,r15,r15
+	mv_s r12,r5
+	and r7,r9,r1
+807a1c7a	nop
+	add r1,>>#-3,r5
+807a1c80	ld_s (r5),r3
+	add #$00000004,r5,r0
+807a1c86	ld_s (r0),r17
+807a1c88	lsr #$00000018,r3,r8
+807a1c8c	btst #$00000004,r8
+807a1c8e	lbra eq,#$807a1e34
+	bits #$00000007,>>#16,r3
+807a1c96	nop
+	ls r3,r9,r9
+	subm r3,r10,r10
+807a1ca0	mv_s #$807a1f90,r0
+	and #$0000000f,r8,r1
+807a1caa	add r1,>>#-2,r0
+	mv_s r1,r8
+	subm r3,r3,r3
+807a1cb4	ld_s (r0),r0
+807a1cb6	sub r8,r10
+807a1cb8	nop
+	nop
+	and r9,r0,r3
+807a1cc0	ls r8,r9,r9
+	addm r17,r3,r3
+807a1cc8	st_s r20,(r16)
+	addm r22,r16,r16
+	and #$00000000,r22,r22
+807a1cd2	nop
+	nop
+	nop
+	subm r4,r18,r18
+	mv_s r16,r1
+	cmp #$00000001,r3
+807a1ce0	lbra eq,#$807a1f52
+	mv_s #$00000008,r2
+	add #$00000018,r21
+807a1ce8	cmp #$00000003,r3
+807a1cea	lbra le,#$807a1e00
+	st_s r4,rc0
+	subm r3,r1,r1
+	cmp #$0000000a,r4
+807a1cf6	nop
+	nop
+	lbra lt,#$807a1da8
+	mv_s #$00000001,r3
+807a1d00	ld_b (r1),r0
+	dec
+dec rc0
+	cmp #$00000018,r21
+807a1d08	nop
+807a1d0a	add r16,r4,r22
+807a1d0e	mv_s #$ffffffff,r24
+	and #$00000003,r1,r0
+807a1d14	asl #$fffffffd,r0
+807a1d16	nop
+	nop
+	sub r0,r21,r5
+	mv_s #$00000004,r3
+807a1d20	bra lt,#$807a1d32
+	ls r21,r24,r24
+807a1d26	bra #$807a1d3c
+807a1d28	mv_s r5,r8
+807a1d2a	mv_s #$00000000,r17
+	sub #$00000020,r5
+807a1d32	ld_s (r1),r17
+	addm r3,r1,r1
+	add #$00000020,r8
+807a1d3c	add #$00000003,r4,r0
+807a1d40	addm r16,r0,r0
+	and #$fffffffc,r16,r2
+807a1d48	and #$fffffffc,r0,r0
+807a1d4c	sub r2,r0
+807a1d4e	lsr #$00000002,r0
+807a1d50	st_s r0,rc0
+807a1d52	ld_s (r1),r0
+807a1d54	ls r5,r17,r2
+807a1d58	or r0,>>r8,r2
+807a1d5c	dec
+dec rc0
+	and r24,r2
+807a1d60	lbra c0eq,#$807a1d8c
+	or r2,r20
+807a1d66	st_s r20,(r16)
+	addm r3,r16,r16
+807a1d6c	ld_s (r1),r17
+	addm r3,r1,r1
+807a1d72	ld_s (r1),r0
+	dec
+dec rc0
+807a1d76	ls r5,r17,r20
+807a1d7a	or r0,>>r8,r20
+	bra c0ne,#$807a1d72
+807a1d80	st_s r20,(r16)
+	addm r3,r16,r16
+807a1d86	ld_s (r1),r17
+	addm r3,r1,r1
+807a1d8c	and #$00000003,r22,r21
+807a1d90	mv_s r22,r16
+	subm r22,r22,r22
+	asl #$fffffffd,r21
+807a1d98	mv_s #$ffffffff,r0
+807a1d9a	ld_s (r16),r20
+	ls r21,r0,r0
+807a1da0	bra #$807a1dea
+	eor #$ffffffff,r0
+807a1da4	and r0,r20
+807a1da6	st_s r20,(r16)
+807a1da8	bra ge,#$807a1dca
+	addm r3,r1,r1
+	add #$00000001,r22
+807a1db0	bra c0ne,#$807a1da8
+	or r0,>>r21,r20
+807a1db6	nop
+	nop
+	bra #$807a1dec
+	addm r2,r21,r21
+807a1dc0	ld_b (r1),r0
+	dec
+dec rc0
+	cmp #$00000018,r21
+807a1dc8	sub #$00000018,r21
+807a1dca	bra c0ne,#$807a1db0
+	st_s r20,(r16)
+	addm r22,r16,r16
+	and #$00000000,r22,r22
+807a1dd6	subm r21,r21,r21
+	ld_b (r1),r0
+	sub r20,r20
+807a1de0	addm r3,r1,r1
+	dec
+dec rc0
+	add #$00000001,r22
+807a1de8	sub #$00000001,r22
+807a1dea	sub #$00000018,r21
+807a1dec	cmp #$00000000,r18
+807a1dee	lbra le,#$807a1eda
+	cmp #$00000000,r19
+807a1df4	lbra le,#$807a1eda
+807a1df8	bra #$807a1b56
+807a1dfa	nop
+807a1dfc	sub #$00000014,r10,r0
+807a1e00	addm r3,r1,r1
+807a1e04	bra lt,#$807a1e26
+	ls r21,r0,r0
+	addm r2,r21,r21
+807a1e0e	addm r3,r22,r22
+	or r0,r20
+807a1e14	st_s r20,(r16)
+807a1e16	nop
+	addm r22,r16,r16
+	and #$00000000,r22,r22
+807a1e20	mv_s #$00000000,r21
+	and #$00000000,r20,r20
+807a1e26	bra c0ne,#$807a1e00
+807a1e28	ld_b (r1),r0
+	bra #$807a1dea
+	dec
+dec rc0
+807a1e30	cmp #$00000018,r21
+807a1e32	nop
+807a1e34	btst #$00000005,r8
+807a1e36	nop
+	nop
+	nop
+	lbra ne,#$807a1ee0
+807a1e40	mv_s #$807a1f90,r0
+	add r17,>>#-3,r5
+807a1e4a	add r8,>>#-2,r0
+807a1e4e	ld_s (r0),r0
+	bra #$807a1c7a
+807a1e52	nop
+807a1e54	and r0,r9,r1
+807a1e58	btst #$00000006,r8
+807a1e5a	nop
+	nop
+	bra ne,#$807a1ecc
+807a1e60	mv_s #$807a1f90,r0
+807a1e66	add r17,>>#-3,r5
+807a1e6a	add r8,>>#-2,r0
+807a1e6e	ld_s (r0),r0
+807a1e70	nop
+807a1e72	and r9,r0
+807a1e74	add r0,>>#-3,r5
+807a1e78	ld_s (r5),r4
+807a1e7a	add #$00000004,r5,r0
+807a1e7e	copy r4,r8
+807a1e80	bits #$00000007,>>#24,r8
+	ld_s (r0),r17
+807a1e86	lbra ne,#$807a1c12
+807a1e8a	bits #$00000007,>>#16,r4
+807a1e8e	ls r4,r9,r9
+	subm r4,r10,r10
+807a1e96	nop
+	nop
+	nop
+	add #$00000008,r21,r0
+807a1ea0	lbra le,#$807a1bfc
+	or r17,>>r21,r20
+807a1ea8	mv_s r0,r21
+	sub #$00000001,r18
+807a1eac	add #$00000001,r22
+807a1eae	mv_s #$ffffffe8,r21
+	cmp #$00000000,r18
+807a1eb4	bra le,#$807a1eda
+	cmp #$00000000,r19
+807a1eb8	bra le,#$807a1eda
+	st_s r20,(r16)
+	and #$00000000,r20,r20
+807a1ec0	bra #$807a1b56
+	mv_s #$00000000,r22
+	add r22,r16
+807a1ec6	nop
+807a1ec8	sub #$00000014,r10,r0
+807a1ecc	btst #$00000005,r8
+807a1ece	bra eq,#$807a1ee0
+807a1ed0	nop
+807a1ed2	nop
+807a1ed4	bra #$807a1ee2
+807a1ed6	mv_s #$00000001,r0
+807a1ed8	nop
+807a1eda	bra #$807a1ee2
+807a1edc	mv_s #$00000000,r0
+807a1ede	nop
+807a1ee0	mv_s #$fffffffd,r0
+807a1ee2	st_s r20,(r16)
+	add r22,r16
+807a1ee6	add #$00000102,r18
+807a1eea	add #$00000008,r19
+807a1eec	add #$00000004,r14,r1
+807a1ef0	ld_s (r1),r2
+807a1ef2	copy r10,r1
+807a1ef4	lsr #$00000003,r1
+807a1ef6	sub r19,r2
+807a1ef8	cmp r1,r2
+807a1efa	bra ge,#$807a1f02
+807a1efc	nop
+807a1efe	nop
+807a1f00	mv_s r2,r1
+807a1f02	add r1,r19
+807a1f04	sub r1,r15
+807a1f06	asl #$fffffffd,r1
+807a1f08	sub r1,r10
+807a1f0a	add #$00000000,r14,r1
+807a1f0e	ld_s (r1),r2
+807a1f10	nop
+807a1f12	sub r2,r15,r2
+807a1f16	st_s r15,(r1)
+807a1f18	add #$00000008,r14,r1
+807a1f1c	nop
+	st_s r2,(r1)
+807a1f20	add #$00000004,r14,r1
+807a1f24	st_s r19,(r1)
+807a1f26	add #$00000038,r13,r1
+807a1f2e	st_s r16,(r1)
+807a1f30	add #$0000001c,r13,r1
+807a1f34	st_s r10,(r1)
+807a1f36	add #$00000020,r13,r1
+807a1f3e	st_s r9,(r1)
+807a1f40	nop
+807a1f42	pop v6,rz
+807a1f44	pop v5
+807a1f46	pop v4
+807a1f48	pop v3
+807a1f4a	pop v2
+807a1f4c	rts
+807a1f4e	nop
+807a1f50	nop
+807a1f52	bra #$807a1f80
+	mv_s #$00000001,r3
+807a1f56	nop
+807a1f58	ld_b (r1),r1
+807a1f5c	nop
+	nop
+807a1f60	bra lt,#$807a1f80
+	ls r21,r0,r0
+	addm r3,r22,r22
+807a1f6a	addm r2,r21,r21
+807a1f6e	or r0,r20
+807a1f70	st_s r20,(r16)
+	addm r22,r16,r16
+	and #$00000000,r22,r22
+807a1f7a	mv_s #$00000000,r21
+	and #$00000000,r20,r20
+807a1f80	bra c0ne,#$807a1f60
+807a1f82	mv_s r1,r0
+	dec
+dec rc0
+807a1f86	cmp #$00000018,r21
+807a1f88	bra #$807a1dea
+807a1f8a	nop
+807a1f8c	nop
+807a1f8e	add r0,r0
+807a1f90	add r0,r0
+807a1f92	add r0,r0
+807a1f94	add r0,r0
+807a1f96	add r0,r1
+807a1f98	add r0,r0
+807a1f9a	add r0,r3
+807a1f9c	add r0,r0
+807a1f9e	add r0,r7
+807a1fa0	add r0,r0
+807a1fa2	add r0,r15
+807a1fa4	add r0,r0
+807a1fa6	add r0,r31
+807a1fa8	add r0,r0
+807a1faa	add r1,r31
+807a1fac	add r0,r0
+807a1fae	add r3,r31
+807a1fb0	add r0,r0
+807a1fb2	add r7,r31
+807a1fb4	add r0,r0
+807a1fb6	add r15,r31
+807a1fb8	add r0,r0
+807a1fba	add r31,r31
+807a1fbc	add r0,r0
+807a1fbe	add #$0000001f,r31
+807a1fc0	add r0,r0
+807a1fc2	abs r31
+807a1fc4	add r0,r0
+807a1fc6	cmp r31,r31
+807a1fc8	add r0,r0
+807a1fca	btst #$0000001f,r31
+807a1fcc	add r0,r0
+807a1fce

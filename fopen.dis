@@ -1,0 +1,425 @@
+;Start of _sfp routine
+
+80012bc6	ld_s rz,r29
+80012bc8	sub #$00000010,r31
+80012bca	st_v v7,(r31)
+80012bce	mv_s r31,r30
+	sub #$00000010,r31
+80012bd2	st_v v3,(r31)
+80012bd6	mv_s r0,r12
+80012bd8	add #$0000005c,r12,r10
+80012be0	ld_s (r10),r11
+80012be2	nop
+;compare d->sdidinit to 0
+80012be4	cmp #$00000000,r11
+;if d->sdidinit is non-zero, branch to 
+80012be6	bra ne,#$80012c00
+80012be8	add #$00000200,r12,r28
+80012bf0	add #$00000004,r28,r11
+;Call sinit routine
+80012bf4	jsr #$80012d2c,nop
+80012bfc	add #$00000004,r28,r11
+
+80012c00	add #$00000008,r28,r10
+
+;glueloop:
+80012c04	bra #$80012c24
+	ld_s (r11),r11
+80012c08	ld_s (r10),r9
+;r11 = n = n - 1
+80012c0a	sub #$00000001,r11
+
+;glueloopbody:
+80012c0c	add #$0000000c,r9,r29
+80012c10	ld_s (r29),r10
+80012c12	nop
+80012c14	asr #$00000010,r10,r6
+80012c18	nop
+	lbra eq,#$80012c5c,nop
+	sub #$00000001,r11
+80012c20	add #$0000005c,r9
+
+;compare n to 0
+80012c24	cmp #$00000000,r11
+;if n >= 0, branch to glueloopbody
+80012c26	lbra ge,#$80012c0c,nop
+
+;R10 = g->_next
+80012c2a	ld_s (r28),r10
+80012c2c	nop
+80012c2e	cmp #$00000000,r10
+;if g->_next is not NULL, branch back to moreloop
+80012c30	lbra ne,#$80012c48,nop
+
+;Call _sfmoreglue routine
+80012c34	jsr #$80012b5e
+80012c3c	mv_s r12,r0
+80012c3e	mv_s #$00000004,r1
+80012c40	cmp #$00000000,r0
+80012c42	lbra eq,#$80012c54,nop
+	st_s r0,(r28)
+
+;moreloop:
+80012c48	ld_s (r28),r28
+;branch back to glueloop
+80012c4a	bra #$80012c04
+80012c4c	add #$00000004,r28,r11
+80012c50	add #$00000008,r28,r10
+
+;Branch to epilogue
+80012c54	bra #$80012cce
+	mv_s #$0000000c,r10
+;d->_errno = ENOMEM
+80012c58	st_s r10,(r12)
+;r0 = 0
+80012c5a	mv_s #$00000000,r0
+
+80012c5c	bits #$0000000f,>>#0,r10
+80012c60	or #$00000001,<>#-16,r10
+80012c64	st_s r10,(r29)
+80012c66	add #$00000008,r9,r11
+	st_s r6,(r9)
+80012c6c	add #$00000004,r9,r10
+	st_s r6,(r11)
+80012c72	add #$00000014,r9,r29
+	st_s r6,(r10)
+80012c78	nop
+	add #$00000018,r9,r11
+	st_s r6,(r29)
+80012c80	add #$0000001c,r9,r10
+	st_s r6,(r11)
+80012c86	st_s r6,(r10)
+80012c88	nop
+	mv_s #$ffffffff,r8
+	add #$00000010,r9,r29
+;fp->_file = -1
+80012c90	nop
+	nop
+	nop
+	st_s r8,(r29)
+	add #$00000034,r9,r11
+80012ca0	st_s r6,(r11)
+	add #$00000038,r9,r10
+80012caa	st_s r6,(r10)
+	add #$00000048,r9,r29
+80012cb4	nop
+	st_s r6,(r29)
+	add #$0000004c,r9,r11
+80012cc0	st_s r6,(r11)
+	add #$00000058,r9,r10
+80012cca	st_s r12,(r10)
+	copy r9,r0
+;Epilogue:
+80012cce	ld_v (r31),v3
+	add #$00000010,r31
+80012cd4	ld_v (r31),v7
+80012cd8	nop
+80012cda	st_s r29,rz
+80012cdc	rts,nop
+	add #$00000010,r31
+
+80012ce0	ld_s rz,r29
+80012ce2	jsr #$80013720
+	sub #$00000010,r31
+80012cec	st_v v7,(r31)
+80012cf0	mv_s #$800129a0,r1
+	copy r31,r30
+80012cf8	ld_v (r31),v7
+80012cfc	nop
+80012cfe	st_s r29,rz
+80012d00	rts,nop
+	add #$00000010,r31
+80012d04	ld_s rz,r29
+80012d06	sub #$00000010,r31
+80012d08	mv_s #$80014cec,r10
+80012d0e	st_v v7,(r31)
+80012d12	nop
+	jsr #$80012ce0,nop
+	ld_s (r10),r0
+	copy r31,r30
+80012d20	ld_v (r31),v7
+80012d24	nop
+80012d26	st_s r29,rz
+80012d28	rts,nop
+	add #$00000010,r31
+
+;Start of sinit routine
+80012d2c	ld_s rz,r29
+80012d2e	sub #$00000010,r31
+80012d30	st_v v7,(r31)
+80012d34	mv_s #$80012ce0,r10
+	copy r31,r30
+80012d3c	mv_s r0,r28
+	sub #$00000010,r31
+80012d40	st_v v3,(r31)
+	add #$00000060,r28,r11
+80012d4c	st_s r10,(r11)
+80012d4e	mv_s #$00000001,r13
+80012d50	mv_s #$80012ac0,r12
+80012d56	mv_s r28,r3
+	add #$0000020c,r28,r14
+80012d60	mv_s r14,r0
+	add #$0000005c,r28,r10
+80012d6a	jsr (r12)
+	st_s r13,(r10)
+80012d70	mv_s #$00000004,r1
+80012d72	mv_s #$00000000,r2
+80012d74	jsr (r12)
+	mv_s r28,r3
+80012d7a	nop
+	nop
+	mv_s r13,r2
+80012d80	mv_s #$00000008,r1
+	add #$00000268,r28,r0
+80012d8a	jsr (r12)
+	mv_s r28,r3
+80012d90	mv_s #$0000000a,r1
+80012d92	nop
+	nop
+	mv_s #$00000002,r2
+	add #$000002c4,r28,r0
+80012da0	add #$00000200,r28,r11
+	mv_s #$00000000,r10
+80012daa	st_s r10,(r11)
+80012dac	mv_s #$00000003,r10
+	add #$00000204,r28,r29
+80012db6	st_s r10,(r29)
+	add #$00000208,r28
+80012dbc	nop
+	st_s r14,(r28)
+;Epilogue:
+80012dc0	ld_v (r31),v3
+	add #$00000010,r31
+80012dc6	ld_v (r31),v7
+80012dca	nop
+80012dcc	st_s r29,rz
+80012dce	rts,nop
+	add #$00000010,r31
+
+;Start of _fopen_r routine: r0 = ptr, r1 = pathname, r2 = mode
+
+80012de0	ld_s rz,r29
+80012de2	sub #$00000010,r31
+80012de4	st_v v7,(r31)
+80012de8	sub #$00000020,r31
+	mv_s r31,r30
+80012dee	st_v v3,(r31)
+
+;Call _sflags routine, r0 = ptr, r1 = mode, r14 = pathname
+80012df2	nop
+	jsr #$80014400
+	mv_s r2,r1
+	copy r1,r14
+;r28 = ptr
+80012e00	mv_s r0,r28
+	sub #$00000004,r30,r13
+;r2 = &oflags
+80012e06	mv_s r13,r2
+
+;r12 = flags (return value of _sflags)
+80012e08	mv_s r0,r12
+
+80012e0a	cmp #$00000000,r12
+;if flags are zero, branch to epilogue (returning NULL)
+80012e0c	lbra eq,#$80012ee6,nop
+
+;call _sfp routine, r0 = ptr
+80012e10	jsr #$80012bc6,nop
+	mv_s r28,r0
+
+;r28 = fp
+80012e1a	mv_s r0,r28
+80012e1c	nop
+	cmp #$00000000,r28
+;if fp is zero, branch to epilogue (returning NULL)
+80012e20	lbra eq,#$80012ee6,nop
+	add #$00000058,r28,r10
+80012e2c	ld_s (r13),r2
+80012e2e	ld_s (r10),r0
+
+;call _open_r routine
+80012e30	jsr #$80014280
+80012e38	mv_s r14,r1
+80012e3a	mv_s #$000001b6,r3
+80012e3e	cmp #$00000000,r0
+80012e40	bra ge,#$80012e66
+80012e42	nop
+80012e44	mv_s #$0000ffff,r11
+	add #$00000010,r28,r10
+80012e4e	add #$0000000c,r28,r11
+80012e52	ld_s (r11),r29
+80012e54	nop
+80012e56	nop
+	bra #$80012ee6
+	mv_s #$0000ffff,r10
+80012e60	mv_s #$00000000,r0
+	and r29,r10
+80012e64	st_s r10,(r11)
+80012e66	add #$0000000c,r28,r9
+	st_s r0,(r10)
+80012e6c	ld_s (r9),r10
+80012e6e	nop
+80012e70	and r10,r11
+80012e72	or r12,>>#-16,r11
+80012e76	add #$00000020,r28,r10
+	st_s r11,(r9)
+80012e80	add #$00000024,r28,r11
+	st_s r28,(r10)
+80012e8a	mv_s #$80014040,r29
+80012e90	add #$00000028,r28,r10
+	st_s r29,(r11)
+80012e9a	mv_s #$800140a4,r8
+80012ea0	st_s r8,(r10)
+80012ea2	mv_s #$8001412c,r10
+80012ea8	add #$0000002c,r28,r29
+80012eb0	st_s r10,(r29)
+	add #$00000030,r28,r8
+80012eba	mv_s #$800141a4,r11
+80012ec0	st_s r11,(r8)
+80012ec2	ld_s (r9),r9
+80012ec4	nop
+80012ec6	and #$01000000,r9,r10
+80012ece	asr #$00000010,r10
+80012ed0	cmp #$00000000,r10
+80012ed2	lbra eq,#$80012ee4,nop
+	mv_s r28,r0
+
+;Call fseek routine
+80012ed8	jsr #$80013020
+80012ee0	mv_s #$00000002,r1
+80012ee2	mv_s #$00000000,r2
+80012ee4	mv_s r28,r0
+;Epilogue:
+80012ee6	ld_v (r31),v3
+	add #$00000020,r31
+80012eee	ld_v (r31),v7
+80012ef2	nop
+80012ef4	st_s r29,rz
+80012ef6	rts,nop
+	add #$00000010,r31
+
+;Start of fopen routine (r0 = pathname, r1 = mode)
+80012efa	ld_s rz,r29
+80012efc	nop
+	sub #$00000010,r31
+80012f00	st_v v7,(r31)
+;r10 = pathname
+80012f04	mv_s r0,r10
+80012f06	mv_s #$80014cec,r11
+80012f0c	ld_s (r11),r0
+;Call _fopen_r routine
+80012f0e	jsr #$80012de0
+;r2 = mode
+80012f16	mv_s r1,r2
+;r1 = pathname
+80012f18	mv_s r10,r1
+	copy r31,r30
+;Epilogue:
+80012f1c	ld_v (r31),v7
+80012f20	nop
+80012f22	st_s r29,rz
+80012f24	rts,nop
+	add #$00000010,r31
+
+;Start of fread routine
+80012f40	ld_s rz,r29
+80012f42	sub #$00000010,r31
+80012f44	st_v v7,(r31)
+80012f48	mv_s r31,r30
+	sub #$00000010,r31
+80012f4c	st_v v3,(r31)
+	sub #$00000010,r31
+80012f52	st_v v4,(r31)
+80012f56	mv_s r2,r19
+	copy r1,r18
+80012f5a	mul r19,r18,>>acshift,r13
+80012f5e	mv_s r3,r14
+80012f60	cmp #$00000000,r13
+80012f62	lbra ne,#$80012f80,nop
+80012f66	lbra #$80013000,nop
+	mv_s r13,r0
+80012f6c	jsr #$80014874
+
+;Start of _open_r routine
+80014280	ld_s rz,r29
+80014282	sub #$00000010,r31
+80014284	st_v v7,(r31)
+80014288	mv_s r31,r30
+	sub #$00000010,r31
+8001428c	st_v v3,(r31)
+80014290	mv_s #$80014d38,r28
+	sub #$00000010,r31
+80014298	add #$00000004,r31,r10
+	st_s r2,(r31)
+8001429e	st_s r3,(r10)
+800142a0	mv_s r0,r12
+
+;Call _open routine
+800142a2	jsr #$800145e0
+	mv_s #$00000000,r11
+800142ac	st_s r11,(r28)
+800142ae	mv_s r1,r0
+800142b0	ld_s (r28),r28
+800142b2	nop
+800142b4	cmp #$00000000,r28
+800142b6	lbra eq,#$800142c0,nop
+	add #$00000010,r31
+
+800142bc	nop
+	st_s r28,(r12)
+;Epilogue:
+800142c0	ld_v (r31),v3
+	add #$00000010,r31
+800142c6	ld_v (r31),v7
+800142ca	nop
+800142cc	st_s r29,rz
+800142ce	rts,nop
+	add #$00000010,r31
+
+;Start of open routine
+800145e0	ld_s rz,r29
+800145e2	sub #$00000010,r31
+800145e4	st_v v7,(r31)
+800145e8	mv_s r31,r30
+	sub #$00000010,r31
+800145ec	st_v v3,(r31)
+800145f0	mv_s r0,r12
+800145f2	ld_b (r12),r10
+800145f6	add #$00000010,r30,r11
+800145fa	ld_s (r11),r13
+	asr #$00000018,r10
+800145fe	bra ne,#$80014620
+80014600	and #$00000200,r13,r2
+80014608	cmp #$00000000,r2
+8001460a	jsr #$80014760,nop
+80014612	bra #$8001464e
+	mv_s #$00000002,r10
+80014616	st_s r10,(r0)
+80014618	nop
+	nop
+	nop
+	mv_s #$ffffffff,r0
+80014620	lbra ne,#$8001462e,nop
+	add #$00000014,r30,r10
+80014628	lbra #$80014630,nop
+	mv_s r2,r28
+8001462e	ld_s (r10),r28
+;Call _errno routine
+80014630	jsr #$80014760,nop
+80014638	nop
+	nop
+	nop
+	mv_s r0,r3
+;BIOS call: FileOpen
+80014640	jsr #$80000198
+	mv_s r12,r0
+8001464a	mv_s r13,r1
+8001464c	mv_s r28,r2
+;Epilogue:
+8001464e	ld_v (r31),v3
+	add #$00000010,r31
+80014654	ld_v (r31),v7
+80014658	nop
+8001465a	st_s r29,rz
+8001465c	rts,nop
+	add #$00000010,r31

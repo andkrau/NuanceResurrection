@@ -1,0 +1,84 @@
+    minibios.cof
+4 sections
+84 symbols
+Entry at	0x20301a90
+Target: not specified.
+.file               	 00000000	 [       D]	 103	0 +1
+ptraudioisr         	 20101000	 [       A]	 3	5 +0
+ptraudiocommhandler 	 20101004	 [       A]	 3	5 +0
+stack_pointer_initia	 20101be0	 [       A]	 3	5 +0
+dmacmdbuffer0       	 20101be0	 [       A]	 3	4 +0
+dmacmdbuffer1       	 20101bf0	 [       A]	 3	4 +0
+comminfoc3variable  	 20101c00	 [       A]	 3	4 +0
+commhookhandler     	 20101c0c	 [       A]	 3	4 +0
+comm_packet_queue1_t	 20101c10	 [       A]	 3	4 +0
+comm_packet_queue1_h	 20101c14	 [       A]	 3	4 +0
+comm_packet_queue2_t	 20101c18	 [       A]	 3	4 +0
+comm_packet_queue2_h	 20101c1c	 [       A]	 3	4 +0
+comm_packet_queue1_s	 20101c20	 [       A]	 3	4 +0
+comm_packet_beyond_q	 20101da0	 [       A]	 3	4 +0
+comm_packet_queue2_s	 20101da0	 [       A]	 3	4 +0
+beyond_comm_packet_q	 20101e40	 [       A]	 3	4 +0
+comm_c3_rzi1        	 20301a90	 [       A]	 3	4 +0
+comm_c4_rzi1        	 20301ac8	 [       A]	 3	4 +0
+minispinwait        	 20301aca	 [       A]	 3	4 +0
+comminfo_c0_handler 	 20301ad0	 [       A]	 3	4 +0
+minireadlinear      	 20301ad0	 [       A]	 3	4 +0
+read_loop           	 20301ad8	 [       A]	 3	4 +0
+do_read             	 20301af0	 [       A]	 3	4 +0
+comminfo_c2_handler 	 20301b08	 [       A]	 3	4 +0
+exceptionhandler    	 20301b14	 [       A]	 3	4 +0
+comminfo_c3_handler 	 20301b1c	 [       A]	 3	4 +0
+comminfo_c4_handler 	 20301b2e	 [       A]	 3	4 +0
+minidmalineardirect_	 20301b3c	 [       A]	 3	4 +0
+minidmalinearreadext	 20301b4e	 [       A]	 3	4 +0
+minidmalinear_wait  	 20301b56	 [       A]	 3	4 +0
+minidmalinearread_wa	 20301b5e	 [       A]	 3	4 +0
+minidmalinearwrite_w	 20301b60	 [       A]	 3	4 +0
+minidmalinearwrite  	 20301b66	 [       A]	 3	4 +0
+minidmalinearread   	 20301b68	 [       A]	 3	4 +0
+common_dma          	 20301b72	 [       A]	 3	4 +0
+wait_for_mdma_pendin	 20301b74	 [       A]	 3	4 +0
+wait_for_odma_pendin	 20301b84	 [       A]	 3	4 +0
+do_dma              	 20301b9a	 [       A]	 3	4 +0
+wait_for_dma        	 20301bb6	 [       A]	 3	4 +0
+dma_epilogue        	 20301bc2	 [       A]	 3	4 +0
+miniwaitmdma        	 20301bc6	 [       A]	 3	4 +0
+miniwaitodma        	 20301bd0	 [       A]	 3	4 +0
+minilevel1handler   	 20301bda	 [       A]	 3	4 +0
+minilevel2handler   	 20301c12	 [       A]	 3	4 +0
+not_mpe3            	 20301c58	 [       A]	 3	4 +0
+queue1_tail_wrap    	 20301c72	 [       A]	 3	4 +0
+compare_queue1_tail_	 20301c78	 [       A]	 3	4 +0
+minilevel2_epilogue 	 20301c86	 [       A]	 3	4 +0
+queue1_overflow     	 20301c92	 [       A]	 3	4 +0
+intsrc3handler      	 20301c96	 [       A]	 3	4 +0
+intsrc3_packet_loop 	 20301c9c	 [       A]	 3	4 +0
+queue1_head_wrap    	 20301cc8	 [       A]	 3	4 +0
+intsrc3_update_queue	 20301cce	 [       A]	 3	4 +0
+intsrc3_not_mpe3    	 20301d10	 [       A]	 3	4 +0
+queue2_wrap         	 20301d28	 [       A]	 3	4 +0
+intsrc3_check_for_re	 20301d2e	 [       A]	 3	4 +0
+intsrc3_one_left    	 20301d42	 [       A]	 3	4 +0
+intsrc3_epilogue    	 20301d46	 [       A]	 3	4 +0
+minicommsend        	 20301d4c	 [       A]	 3	4 +0
+wait_for_xmit_buffer	 20301d4e	 [       A]	 3	4 +0
+trigger_xmit        	 20301d5c	 [       A]	 3	4 +0
+check_for_transmit_f	 20301d72	 [       A]	 3	4 +0
+minicommrecv        	 20301d96	 [       A]	 3	4 +0
+minicommrecvquery   	 20301da0	 [       A]	 3	4 +0
+commrecv_common     	 20301da6	 [       A]	 3	4 +0
+check_for_available_	 20301da8	 [       A]	 3	4 +0
+no_adjust2          	 20301dd2	 [       A]	 3	4 +0
+minicommrecvquery_ep	 20301dd6	 [       A]	 3	4 +0
+minicommhook        	 20301dda	 [       A]	 3	4 +0
+comminfod0handler   	 20301de6	 [       A]	 3	4 +0
+cdihandler          	 20301de8	 [       A]	 3	4 +0
+intsrc2handler      	 20301dea	 [       A]	 3	4 +0
+dma_jumptable       	 20301fc8	 [       A]	 3	4 +0
+minibios_jumptable  	 20301fe0	 [       A]	 3	4 +0
+minilevel1wrapper   	 20301ff4	 [       A]	 3	4 +0
+.minid              	 00000000	 [   minid]	 3	0 +1
+.minic              	 00000000	 [   minic]	 3	0 +1
+.djumptab           	 00000000	 [djumptab]	 3	0 +1
+.jumptabX           	 00000000	 [jumptabX]	 3	0 +1

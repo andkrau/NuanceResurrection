@@ -1,0 +1,412 @@
+<!DOCTYPE UI><UI>
+<class>EmulatorShell</class>
+<widget>
+    <class>QDialog</class>
+    <property stdset="1">
+        <name>name</name>
+        <cstring>EmulatorShell</cstring>
+    </property>
+    <property stdset="1">
+        <name>geometry</name>
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>671</width>
+            <height>291</height>
+        </rect>
+    </property>
+    <property stdset="1">
+        <name>sizePolicy</name>
+        <sizepolicy>
+            <hsizetype>5</hsizetype>
+            <vsizetype>5</vsizetype>
+        </sizepolicy>
+    </property>
+    <property stdset="1">
+        <name>caption</name>
+        <string>Nuance Emulator Shell</string>
+    </property>
+    <property stdset="1">
+        <name>sizeGripEnabled</name>
+        <bool>false</bool>
+    </property>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel3_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>200</y>
+                <width>80</width>
+                <height>16</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>Refresh Rate</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel3</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>430</x>
+                <y>200</y>
+                <width>80</width>
+                <height>16</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>MPE Select</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>90</x>
+                <y>260</y>
+                <width>60</width>
+                <height>21</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>STDOOUT</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QLabel</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>TextLabel2_2</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>290</x>
+                <y>260</y>
+                <width>60</width>
+                <height>21</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>STDERR</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QMultiLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>ebStdOut</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>200</width>
+                <height>240</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>readOnly</name>
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget>
+        <class>QMultiLineEdit</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>ebStdErr</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>220</x>
+                <y>10</y>
+                <width>200</width>
+                <height>241</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>readOnly</name>
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget>
+        <class>QPushButton</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>cbLoadFile</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>430</x>
+                <y>10</y>
+                <width>111</width>
+                <height>51</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>Load File</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QPushButton</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>cbSingleStepMPE</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>130</y>
+                <width>111</width>
+                <height>51</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>Single Step</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QPushButton</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>cbStopMPE</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>70</y>
+                <width>111</width>
+                <height>51</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>Stop</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QPushButton</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>cbRunMPE</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>10</y>
+                <width>111</width>
+                <height>51</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>Run</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QComboBox</class>
+        <item>
+            <property>
+                <name>text</name>
+                <string>15 Hz</string>
+            </property>
+        </item>
+        <item>
+            <property>
+                <name>text</name>
+                <string>30 Hz</string>
+            </property>
+        </item>
+        <item>
+            <property>
+                <name>text</name>
+                <string>45 Hz</string>
+            </property>
+        </item>
+        <item>
+            <property>
+                <name>text</name>
+                <string>60 Hz</string>
+            </property>
+        </item>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>ddlbRefreshRate</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>550</x>
+                <y>220</y>
+                <width>80</width>
+                <height>20</height>
+            </rect>
+        </property>
+    </widget>
+    <widget>
+        <class>QPushButton</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>cbResetMPE</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>430</x>
+                <y>70</y>
+                <width>111</width>
+                <height>51</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>Reset MPE</string>
+        </property>
+    </widget>
+    <widget>
+        <class>QComboBox</class>
+        <item>
+            <property>
+                <name>text</name>
+                <string>MPE0</string>
+            </property>
+        </item>
+        <item>
+            <property>
+                <name>text</name>
+                <string>MPE1</string>
+            </property>
+        </item>
+        <item>
+            <property>
+                <name>text</name>
+                <string>MPE2</string>
+            </property>
+        </item>
+        <item>
+            <property>
+                <name>text</name>
+                <string>MPE3</string>
+            </property>
+        </item>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>ddlbMPESelect</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>430</x>
+                <y>220</y>
+                <width>80</width>
+                <height>20</height>
+            </rect>
+        </property>
+    </widget>
+    <widget>
+        <class>QPushButton</class>
+        <property stdset="1">
+            <name>name</name>
+            <cstring>cbStartMPE</cstring>
+        </property>
+        <property stdset="1">
+            <name>geometry</name>
+            <rect>
+                <x>430</x>
+                <y>130</y>
+                <width>111</width>
+                <height>51</height>
+            </rect>
+        </property>
+        <property stdset="1">
+            <name>text</name>
+            <string>Start MPE</string>
+        </property>
+    </widget>
+</widget>
+<connections>
+    <connection>
+        <sender>cbLoadFile</sender>
+        <signal>clicked()</signal>
+        <receiver>EmulatorShell</receiver>
+        <slot>OnLoadFile()</slot>
+    </connection>
+    <connection>
+        <sender>cbRunMPE</sender>
+        <signal>clicked()</signal>
+        <receiver>EmulatorShell</receiver>
+        <slot>OnRunMPE()</slot>
+    </connection>
+    <connection>
+        <sender>cbResetMPE</sender>
+        <signal>clicked()</signal>
+        <receiver>EmulatorShell</receiver>
+        <slot>OnResetMPE()</slot>
+    </connection>
+    <connection>
+        <sender>cbStopMPE</sender>
+        <signal>clicked()</signal>
+        <receiver>EmulatorShell</receiver>
+        <slot>OnStopMPE()</slot>
+    </connection>
+    <connection>
+        <sender>cbStartMPE</sender>
+        <signal>clicked()</signal>
+        <receiver>EmulatorShell</receiver>
+        <slot>OnStartMPE()</slot>
+    </connection>
+    <connection>
+        <sender>cbSingleStepMPE</sender>
+        <signal>clicked()</signal>
+        <receiver>EmulatorShell</receiver>
+        <slot>OnSingleStepMPE()</slot>
+    </connection>
+    <connection>
+        <sender>ddlbMPESelect</sender>
+        <signal>activated(int)</signal>
+        <receiver>EmulatorShell</receiver>
+        <slot>OnMPESelect(int)</slot>
+    </connection>
+    <connection>
+        <sender>ddlbRefreshRate</sender>
+        <signal>activated(int)</signal>
+        <receiver>EmulatorShell</receiver>
+        <slot>OnRefreshRate(int)</slot>
+    </connection>
+    <slot access="protected">OnMPESelect(int)</slot>
+    <slot access="protected">OnRefreshRate(int)</slot>
+    <slot access="protected">OnLoadFile()</slot>
+    <slot access="protected">OnRunMPE()</slot>
+    <slot access="protected">OnStopMPE()</slot>
+    <slot access="protected">OnSingleStepMPE()</slot>
+    <slot access="protected">OnStartMPE()</slot>
+    <slot access="protected">OnResetMPE()</slot>
+</connections>
+</UI>

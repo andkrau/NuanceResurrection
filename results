@@ -1,0 +1,1 @@
+mgcc  -o filetest.cof nuontest.o instructiontest.o -lterm -lmutil -lmml2d

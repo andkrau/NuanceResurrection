@@ -1,0 +1,1335 @@
+;Start of DVD Loader routine (Runs when DVD player starts up)
+f0004200	mv_s #$8000f00c,r0
+f0004206	st_s r29,(r0)
+
+f0004208	ld_s commctl,r0
+f000420c	nop
+f000420e	btst #$0000000f,r0
+f0004210	lbra ne,#$f0004208,nop
+
+;Set commctl.retry bit and set commctl.targetID to $43 (audio interface)
+f0004214	nop
+	nop
+	st_s #$00002043,commctl
+f0004220	ld_v commrecv,v1
+f0004224	nop
+f0004226	mv_s #$80000104,r4
+f000422c	mv_s #$3f000000,r5
+;Call DoCommXmit routine
+f0004232	nop
+	nop
+	nop
+	jsr #$f0004580,nop
+f0004240	ld_v commrecv,v1
+f0004244	nop
+f0004246	mv_s #$80000100,r4
+f000424c	mv_s #$40000000,r5
+;Call DoCommXmit routine
+f0004252	jsr #$f0004580,nop
+
+f000425a	mv_s #$8000f004,r4
+f0004260	mv_s #$00000000,r5
+;Mem[$8000F004] = 0
+f0004262	st_s r5,(r4)
+f0004264	nop
+f0004266	mv_s #$8000f008,r4
+f000426c	mv_s #$00000001,r5
+;Mem[$8000F008] = 1
+f000426e	st_s r5,(r4)
+f0004270	mv_s #$8000f000,r5
+f0004276	mv_s #$00000001,r4
+;Mem[$8000F000] = display_type = 1 (NTSC)
+f0004278	st_s r4,(r5)
+f000427a	mv_s #$804e0000,r31
+f0004280	mv_s #$00000000,r30
+;Call CopyROMToRAM
+f0004282	jsr #$f0004ea0,nop
+;Call CopyExternalRAMToLocalDTRAM
+f000428a	jsr #$f0004f70,nop
+f0004292	mv_s #$8000f138,r0
+;R1 = Mem[$8000F138], R2 = $8000F13C
+f0004298	ld_s (r0),r1
+	add #$00000004,r0,r2
+;R2 = Mem[$8000F13C]
+f000429e	ld_s (r2),r2
+f00042a0	cmp #$526f7365,r1
+f00042a6	lbra eq,#$f000430e,nop
+
+f00042aa	push v1
+f00042ac	push v2
+f00042ae	push v7
+;Call $F0018326
+f00042b0	jsr #$807972c6,nop
+f00042b8	cmp #$00000000,r0
+f00042ba	nop
+	lbra eq,#$f00042d4,nop
+
+;Call $F00182C2
+f00042c0	jsr #$80797262
+f00042c8	mv_s #$80780000,r0
+f00042ce	mv_s #$80780010,r1
+
+f00042d4	pop v7
+f00042d6	pop v2
+f00042d8	pop v1
+f00042da	cmp #$00000000,r0
+f00042dc	lbra eq,#$f00042ee,nop
+
+f00042e0	mv_s #$80780010,r0
+f00042e6	bra #$f0004300
+f00042e8	ld_s (r0),r1
+f00042ea	ld_s (r0),r2
+
+f00042ec	nop
+
+f00042ee	mv_s #$f0040000,r1
+f00042f4	nop
+	nop
+	nop
+	mv_s #$f0040000,r2
+
+
+
+f0004300	jsr #$8079d85c
+f0004308	mv_s #$00000003,r0
+f000430a	mv_s #$00000000,r3
+f000430c	mv_s r0,r2
+
+
+f000430e	mv_s #$8000f138,r0
+f0004314	jsr (r2)
+f0004318	mv_s #$00000000,r1
+;Mem[$8000F138] = 0
+f000431a	nop
+	nop
+	st_s r1,(r0)
+f0004320	jsr #$f0004fa0,nop
+f0004328	mv_s #$8000f02c,r1
+f000432e	sub r0,r0
+;Mem[$8000F02C] = 0
+f0004330	st_s r0,(r1)
+;BIOS Call: BiosInit
+f0004332	nop
+	nop
+	nop
+	jsr #$800000e8,nop
+;HAL Call: DACRESET
+f0004340	jsr #$80006018,nop
+f0004348	mv_s #$8000f000,r0
+;R0 = Mem[$8000F000]
+f000434e	ld_s (r0),r0
+f0004350	nop
+f0004352	cmp #$00000002,r0
+f0004354	lbra ne,#$f0004364,nop
+
+;HAL Call: DENC_CC_PAL
+f0004358	jsr #$80006090,nop
+;Branch to DisplayBootImage
+f0004360	lbra #$f000436c,nop
+
+;HAL Call: DENC_CC_NTSC
+f0004364	jsr #$80006088,nop
+
+;DisplayBootImage:
+;BIOS Call: DisplayBootImage
+f000436c	jsr #$80000408
+
+
+f0004374	mv_s #$401ba800,r0
+f000437a	mv_s #$20100c00,r1
+;Call DoNothing routine
+f0004380	jsr #$f00043fe,nop
+f0004388	nop
+f000438a	nop
+
+
+f000438c	mv_s #$8000f008,r6
+;R5 = Mem[$8000F008]
+f0004392	ld_s (r6),r5
+f0004394	nop
+f0004396	nop
+;Compare Mem[$8000F008] to 1
+f0004398	cmp #$00000001,r5
+;If Mem[$8000F008] is not 1, branch to Halt
+f000439a	nop
+	lbra ne,#$f00043f8,nop
+
+;Call $F000DDD4
+f00043a0	jsr #$8078cd74,nop
+;Call $F00182C2
+f00043a8	jsr #$80797262
+f00043b0	mv_s #$80780007,r0
+f00043b6	mv_s #$80780010,r1
+
+f00043bc	nop
+	cmp #$00000000,r0
+f00043c0	lbra eq,#$f00043e0,nop
+
+
+f00043c4	mv_s #$80780010,r0
+;R1 = Mem[$80780010]
+f00043ca	ld_s (r0),r1
+f00043cc	ld_s (r0),r2
+;Call $F001E8BC
+f00043ce	jsr #$8079d85c
+f00043d6	mv_s #$00000003,r0
+f00043d8	nop
+	nop
+	mv_s #$00000011,r3
+
+
+;Call LoadGame routine
+f00043e0	jsr #$8078cb3e
+;R0 = filename ("/udf/NUON/nuon.run")
+f00043e8	mv_s #$807a5000,r0
+f00043ee	nop
+
+;Jump to BiosExit/BiosReboot BIOS routine
+f00043f0	jmp #$f0005040,nop
+
+;Halt:
+f00043f8	halt
+f00043fa	nop
+f00043fc	nop
+
+;DoNothing routine
+f00043fe	rts
+f0004400	nop
+f0004402	nop
+
+;Start of SecureForPE routine
+f0004404	push v2,rz
+f0004406	jsr #$80790fe0,nop
+;BIOS Call: MediaShutdownMPE
+f000440e	jsr #$800003a0,nop
+f0004416	mv_s #$80781b5c,r0
+
+f000441c	ld_s (r0),r1
+f000441e	cmp #$00000000,r1
+f0004420	lbra ne,#$f000441c,nop
+
+f0004424	mv_s #$00000000,r0
+;Bios Call: MPEFree (MPE0)
+f0004426	jsr #$80000090,nop
+f000442e	mv_s #$00000001,r0
+;Bios Call: MPEFree (MPE1)
+f0004430	jsr #$80000090,nop
+f0004438	nop
+	nop
+	nop
+	mv_s #$00000002,r0
+;Bios Call: MPEFree (MPE2)
+f0004440	jsr #$80000090,nop
+f0004448	jsr #$8078fd84,nop
+f0004450	st_s #$00000080,intctl
+f0004454	nop
+	nop
+	st_s #$7fffffff,inten1clr
+;BIOS Call: DCacheSync
+f0004460	jsr #$80000050,nop
+f0004468	pop v2,rz
+f000446a	nop
+f000446c	rts
+f000446e	nop
+f0004470	nop
+
+;Start of LoadPE routine
+f0004472	ld_s rz,r29
+f0004474	sub #$00000010,r31
+f0004476	st_v v7,(r31)
+f000447a	sub #$00000010,r31
+f000447c	st_v v6,(r31)
+f0004480	sub #$00000010,r31
+f0004482	st_v v5,(r31)
+f0004486	sub #$00000010,r31
+f0004488	st_v v4,(r31)
+f000448c	sub #$00000010,r31
+f000448e	st_v v3,(r31)
+f0004492	nop
+	nop
+	nop
+	jsr #$8078cd74,nop
+f00044a0	jsr #$8078c5a0
+f00044a8	mv_s #$00000101,r0
+f00044ac	mv_s #$00000011,r1
+f00044b0	jsr #$f00044f0,nop
+f00044b8	mv_s #$80781b5c,r0
+
+f00044be	ld_s (r0),r1
+f00044c0	cmp #$00000000,r1
+f00044c2	lbra ne,#$f00044be,nop
+;Epilogue:
+f00044c6	ld_v (r31),v3
+f00044ca	add #$00000010,r31
+f00044cc	ld_v (r31),v4
+f00044d0	add #$00000010,r31
+f00044d2	ld_v (r31),v5
+f00044d6	add #$00000010,r31
+f00044d8	ld_v (r31),v6
+f00044dc	nop
+	add #$00000010,r31
+f00044e0	ld_v (r31),v7
+f00044e4	nop
+f00044e6	st_s r29,rz
+f00044e8	add #$00000010,r31
+f00044ea	rts
+f00044ec	nop
+f00044ee	nop
+
+
+f00044f0	ld_s rz,r29
+f00044f2	sub #$00000010,r31
+f00044f4	st_v v7,(r31)
+f00044f8	sub #$00000010,r31
+f00044fa	st_v v6,(r31)
+f00044fe	sub #$00000010,r31
+f0004500	st_v v5,(r31)
+f0004504	sub #$00000010,r31
+f0004506	st_v v4,(r31)
+f000450a	sub #$00000010,r31
+f000450c	st_v v3,(r31)
+;Call $F00182C2
+f0004510	jsr #$80797262
+f0004518	nop
+	mv_s #$80780004,r0
+
+f0004520	mv_s #$80780010,r1
+f0004526	cmp #$00000000,r0
+f0004528	lbra eq,#$f00043e0,nop
+
+f000452c	mv_s #$80780010,r0
+f0004532	ld_s (r0),r1
+f0004534	ld_s (r0),r2
+;Call $F001E8BC
+f0004536	jsr #$8079d85c
+f000453e	mv_s #$00000003,r0
+f0004540	mv_s #$00000000,r3
+f0004542	cmp #$00000000,r0
+f0004544	lbra eq,#$f00043e0,nop
+
+;Epilogue:
+f0004548	ld_v (r31),v3
+f000454c	add #$00000010,r31
+f000454e	ld_v (r31),v4
+f0004552	add #$00000010,r31
+f0004554	ld_v (r31),v5
+f0004558	add #$00000010,r31
+f000455a	ld_v (r31),v6
+f000455e	add #$00000010,r31
+f0004560	ld_v (r31),v7
+f0004564	nop
+f0004566	st_s r29,rz
+f0004568	add #$00000010,r31
+f000456a	rts
+f000456c	nop
+f000456e	nop
+f0004570	halt
+f0004572	nop
+f0004574	nop
+
+
+f0004576	add r0,r0
+f0004578	add r0,r0
+f000457a	add r0,r0
+f000457c	add r0,r0
+f000457e	add r0,r0
+
+;Start of DoCommXmit routine
+f0004580	ld_s commctl,r0
+f0004584	nop
+f0004586	btst #$0000000f,r0
+f0004588	lbra ne,#$f0004580,nop
+f000458c	st_v v1,commxmit
+f0004590	rts
+f0004592	nop
+f0004594	nop
+
+
+f0004596	ld_s commctl,r4
+f000459a	nop
+f000459c	nop
+	btst #$0000001f,r4
+f00045a0	lbra eq,#$f0004596,nop
+f00045a4	ld_v commrecv,v1
+f00045a8	rts
+f00045aa	nop
+f00045ac	nop
+
+
+f00045ae	mul_sv v0,v0
+	add r0,r0
+f00045b2	add r0,r0
+f00045b4	add r0,r0
+f00045b6	add r0,r0
+f00045b8	add r0,r0
+f00045ba	add r0,r0
+f00045bc	add r0,r0
+f00045be	add r0,r0
+
+;Start of BIOS jumptable
+;CommSend
+f00045c0	jmp #$8078a928
+;CommSendInfo
+f00045c8	jmp #$8078a920
+;CommRecvInfo
+f00045d0	jmp #$8078a9a0
+;CommRecvInfoQuery
+f00045d8	jmp #$8078a9e0
+;CommSendRecv
+f00045e0	jmp #$8078a950
+;CommSendRecvInfo
+f00045e8	jmp #$8078a956
+;ControllerInitialize
+f00045f0	jmp #$8078aa20
+;ControllerExtendedInfo
+f00045f8	jmp #$8078aade
+;TimeOfDay
+f0004600	jmp #$80785000
+;DCacheSyncRegion
+f0004608	jmp #$8078e724
+;DCacheSync
+f0004610	jmp #$8078e720
+;DCacheInvalidateRegion
+f0004618	jmp #$8078e780
+;DCacheFlush
+f0004620	jmp #$8078bfa0
+;TimerInit
+f0004628	jmp #$8078c0e8
+;TimeElapsed
+f0004630	jmp #$8078c14e
+;TimeToSleep
+f0004638	jmp #$8078c296
+;MPEAlloc
+f0004640	jmp #$8078e362
+;MPEAllocSpecific
+f0004648	jmp #$8078e41a
+;MPEFree
+f0004650	jmp #$8078e460
+;MPESAvailable
+f0004658	jmp #$8078e4a2
+;IntSetVectorX
+f0004660	jmp #$807911a0
+;IntGetVector
+f0004668	jmp #$80791222
+;VidSync
+f0004670	jmp #$8078f968
+;VidSetup
+f0004678	jmp #$8078fbd6
+;VidConfig
+f0004680	jmp #$8078edb8
+;VidQueryConfig
+f0004688	jmp #$8078fb14
+;VidChangeBase
+f0004690	jmp #$8078fa10
+;VidChangeScroll
+f0004698	jmp #$8078fa8e
+;VidSetClutRange
+f00046a0	jmp #$8078fb4a
+;BiosInit
+f00046a8	jmp #$80785220
+;BiosExit
+f00046b0	jmp #$f0005040
+;BiosReboot
+f00046b8	jmp #$f0005040
+;BiosPoll
+f00046c0	jmp #$8078fea0
+;BiosPauseMsg
+f00046c8	jmp #$8078fec2
+;AudioQueryChannelMode
+f00046d0	jmp #$8078a20e
+;AudioSetChannelMode
+f00046d8	jmp #$8078a22e
+;AudioQuerySampleRate
+f00046e0	jmp #$8078a162
+;AudioSetSampleRate
+f00046e8	jmp #$8078a184
+;AudioReset
+f00046f0	jmp #$80789ffa
+;AudioMute
+f00046f8	jmp #$80789fce
+;AudioSetDMABuffer
+f0004700	jmp #$8078a324
+;MemInit
+f0004708	jmp #$8078de60
+;MemAdd
+f0004710	jmp #$8078dfa8
+;MemAlloc
+f0004718	jmp #$8078e068
+;MemFree
+f0004720	jmp #$8078e106
+;MemLocalScratch
+f0004728	jmp #$8078e2c2
+;MemLoadCoffX
+f0004730	jmp #$8079dc6e
+;DownloadCoff
+f0004738	rts
+f000473a	nop
+f000473c	mv_s #$ffffffff,r0
+f000473e	nop
+;StreamLoadCoff
+f0004740	jmp #$807934de
+;DMALinear
+f0004748	jmp #$8078e660
+;DMABiLinear
+f0004750	jmp #$8078e660
+;FileOpen
+f0004758	jmp #$8078ac40
+;FileClose
+f0004760	jmp #$8078ad60
+;FileRead
+f0004768	jmp #$8078b132
+;FileWrite
+f0004770	jmp #$8078b08e
+;FileIOCTL
+f0004778	jmp #$8078ae9c
+;FileFstat
+f0004780	jmp #$8078ae04
+;FileStat
+f0004788	jmp #$8078b036
+;FileIsAtty
+f0004790	jmp #$8078afd8
+;FileLseek
+f0004798	jmp #$8078af2e
+;FileLink
+f00047a0	jmp #$8078b1d6
+;FileLStat
+f00047a8	jmp #$8078b22e
+;FileUnlink
+f00047b0	jmp #$8078b286
+f00047b8	jmp #$8078b2da
+f00047c0	jmp #$8078b424
+f00047c8	jmp #$8078b4ca
+f00047d0	jmp #$8078b570
+f00047d8	jmp #$8078b5e2
+f00047e0	jmp #$8078b68a
+f00047e8	jmp #$8078b73a
+f00047f0	jmp #$8078b7f8
+f00047f8	jmp #$8078b89e
+f0004800	jmp #$8078b950
+f0004808	jmp #$8078ba16
+f0004810	jmp #$8078bac2
+f0004818	jmp #$8078bc36
+f0004820	jmp #$8078bb70
+f0004828	jmp #$8078bce2
+f0004830	jmp #$8078bd00
+f0004838	jmp #$8078bdc4
+f0004840	jmp #$8078be6e
+f0004848	jmp #$8078a840
+f0004850	jmp #$8078a770
+f0004858	jmp #$8078a812
+f0004860	jmp #$8079115a
+f0004868	jmp #$80791138
+f0004870	jmp #$80791116
+f0004878	jmp #$807910ca
+f0004880	jmp #$8078d180
+f0004888	jmp #$8078d294
+f0004890	jmp #$8078d2ba
+f0004898	jmp #$8078d2d6
+f00048a0	jmp #$8078d362
+f00048a8	jmp #$8078d386
+f00048b0	jmp #$8078d4ae
+f00048b8	jmp #$8078d5b8
+f00048c0	jmp #$80791960
+f00048c8	jmp #$8078c5a0
+;LoadGame
+f00048d0	jmp #$8078cb3e
+;LoadPE
+f00048d8	jmp #$f0004472
+;DMA_Wait
+f00048e0	jmp #$80791920
+;DMA_Do
+f00048e8	jmp #$80791938
+;PatchJumpTable
+f00048f0	jmp #$8078c640
+;BiosResume
+f00048f8	jmp #$8078cdf2
+;MPEStop
+f0004900	jmp #$80790ab4
+;MPERun
+f0004908	jmp #$80790b0e
+;MPEWait
+f0004910	jmp #$80790c7c
+;MPEReadRegister
+f0004918	jmp #$80790980
+;MPEWriteRegister
+f0004920	jmp #$807909c0
+;SetParentalControl
+f0004928	jmp #$80793200
+;GetParentalControl
+f0004930	jmp #$80793220
+;BiosGetInfo
+f0004938	jmp #$807853c0
+;LoadTest
+f0004940	jmp #$8078cc40
+;MPELoad
+f0004948	jmp #$80790da0
+;MPEAllocThread
+f0004950	jmp #$80790f74
+;MediaInitMPE
+f0004958	jmp #$8078e536
+;MediaShutdownMPE
+f0004960	jmp #$8078e602
+;SecureForPE
+f0004968	jmp #$f0004404
+;StartImageValid
+f0004970	rts
+f0004972	nop
+f0004974	mv_s #$ffffffff,r0
+f0004976	nop
+;SetStartImage
+f0004978	rts
+f000497a	nop
+f000497c	mv_s #$ffffffff,r0
+f000497e	nop
+;GetStartImage
+f0004980	rts
+f0004982	nop
+f0004984	mv_s #$ffffffff,r0
+f0004986	nop
+;FindName
+f0004988	jmp #$8078ab84
+;DeviceDetect
+f0004990	jmp #$8078aaf8
+;MPERunThread
+f0004998	jmp #$80790e80
+;BiosIRMask
+f00049a0	jmp #$80793780
+;DiskChange
+f00049a8	jmp #$8079675c
+;DiskGetTotalSlots
+f00049b0	jmp #$80796742
+;PfAddDriver
+f00049b8	jmp #$8079117e
+;SetDefaultColor
+f00049c0	rts
+f00049c2	nop
+f00049c4	mv_s #$ffffffff,r0
+f00049c6	nop
+;DisplayBootImage
+f00049c8	jmp #$8079c87e
+;Serial_Write_Cmd
+f00049d0	jmp #$807910f0
+;GetMemDevice
+f00049d8	jmp #$807866b4
+;WriteMemDevSector
+f00049e0	jmp #$80786f7c
+;ReadMemDev
+f00049e8	jmp #$80786fba
+f00049f0	jmp #$8078ab60
+f00049f8	jmp #$807966b8
+f0004a00	jmp #$807966fc
+f0004a08	jmp #$80791620
+f0004a10	jmp #$807914de
+f0004a18	jmp #$807915e2
+f0004a20	jmp #$80791578
+f0004a28	jmp #$80791640
+f0004a30	jmp #$807916e4
+f0004a38	jmp #$8078ffc8
+f0004a40	jmp #$8078e514
+f0004a48	rts
+f0004a4a	nop
+f0004a4c	mv_s #$ffffffff,r0
+f0004a4e	nop
+f0004a50	jmp #$8078aab8
+f0004a58	jmp #$8078fe48
+f0004a60	jmp #$80791694
+f0004a68	rts
+f0004a6a	nop
+f0004a6c	mv_s #$ffffffff,r0
+f0004a6e	nop
+f0004a70	rts
+f0004a72	nop
+f0004a74	mv_s #$ffffffff,r0
+f0004a76	nop
+f0004a78	rts
+f0004a7a	nop
+f0004a7c	mv_s #$ffffffff,r0
+f0004a7e	nop
+f0004a80	rts
+f0004a82	nop
+f0004a84	mv_s #$ffffffff,r0
+f0004a86	nop
+f0004a88	rts
+f0004a8a	nop
+f0004a8c	mv_s #$ffffffff,r0
+f0004a8e	nop
+f0004a90	rts
+f0004a92	nop
+f0004a94	mv_s #$ffffffff,r0
+f0004a96	nop
+f0004a98	rts
+f0004a9a	nop
+f0004a9c	mv_s #$ffffffff,r0
+f0004a9e	nop
+f0004aa0	rts
+f0004aa2	nop
+f0004aa4	mv_s #$ffffffff,r0
+f0004aa6	nop
+f0004aa8	rts
+f0004aaa	nop
+f0004aac	mv_s #$ffffffff,r0
+f0004aae	nop
+f0004ab0	rts
+f0004ab2	nop
+f0004ab4	mv_s #$ffffffff,r0
+f0004ab6	nop
+f0004ab8	rts
+f0004aba	nop
+f0004abc	mv_s #$ffffffff,r0
+f0004abe	nop
+f0004ac0	rts
+f0004ac2	nop
+f0004ac4	mv_s #$ffffffff,r0
+f0004ac6	nop
+f0004ac8	rts
+f0004aca	nop
+f0004acc	mv_s #$ffffffff,r0
+f0004ace	nop
+f0004ad0	rts
+f0004ad2	nop
+f0004ad4	mv_s #$ffffffff,r0
+f0004ad6	nop
+f0004ad8	rts
+f0004ada	nop
+f0004adc	mv_s #$ffffffff,r0
+f0004ade	nop
+f0004ae0	rts
+f0004ae2	nop
+f0004ae4	mv_s #$ffffffff,r0
+f0004ae6	nop
+f0004ae8	rts
+f0004aea	nop
+f0004aec	mv_s #$ffffffff,r0
+f0004aee	nop
+f0004af0	rts
+f0004af2	nop
+f0004af4	mv_s #$ffffffff,r0
+f0004af6	nop
+f0004af8	rts
+f0004afa	nop
+f0004afc	mv_s #$ffffffff,r0
+f0004afe	nop
+f0004b00	rts
+f0004b02	nop
+f0004b04	mv_s #$ffffffff,r0
+f0004b06	nop
+f0004b08	rts
+f0004b0a	nop
+f0004b0c	mv_s #$ffffffff,r0
+f0004b0e	nop
+f0004b10	rts
+f0004b12	nop
+f0004b14	mv_s #$ffffffff,r0
+f0004b16	nop
+f0004b18	rts
+f0004b1a	nop
+f0004b1c	mv_s #$ffffffff,r0
+f0004b1e	nop
+f0004b20	rts
+f0004b22	nop
+f0004b24	mv_s #$ffffffff,r0
+f0004b26	nop
+f0004b28	rts
+f0004b2a	nop
+f0004b2c	mv_s #$ffffffff,r0
+f0004b2e	nop
+f0004b30	rts
+f0004b32	nop
+f0004b34	mv_s #$ffffffff,r0
+f0004b36	nop
+f0004b38	rts
+f0004b3a	nop
+f0004b3c	mv_s #$ffffffff,r0
+f0004b3e	nop
+f0004b40	rts
+f0004b42	nop
+f0004b44	mv_s #$ffffffff,r0
+f0004b46	nop
+f0004b48	rts
+f0004b4a	nop
+f0004b4c	mv_s #$ffffffff,r0
+f0004b4e	nop
+f0004b50	rts
+f0004b52	nop
+f0004b54	mv_s #$ffffffff,r0
+f0004b56	nop
+f0004b58	rts
+f0004b5a	nop
+f0004b5c	mv_s #$ffffffff,r0
+f0004b5e	nop
+f0004b60	rts
+f0004b62	nop
+f0004b64	mv_s #$ffffffff,r0
+f0004b66	nop
+f0004b68	rts
+f0004b6a	nop
+f0004b6c	mv_s #$ffffffff,r0
+f0004b6e	nop
+f0004b70	rts
+f0004b72	nop
+f0004b74	mv_s #$ffffffff,r0
+f0004b76	nop
+f0004b78	rts
+f0004b7a	nop
+f0004b7c	mv_s #$ffffffff,r0
+f0004b7e	nop
+f0004b80	rts
+f0004b82	nop
+f0004b84	mv_s #$ffffffff,r0
+f0004b86	nop
+f0004b88	rts
+f0004b8a	nop
+f0004b8c	mv_s #$ffffffff,r0
+f0004b8e	nop
+f0004b90	rts
+f0004b92	nop
+f0004b94	mv_s #$ffffffff,r0
+f0004b96	nop
+f0004b98	rts
+f0004b9a	nop
+f0004b9c	mv_s #$ffffffff,r0
+f0004b9e	nop
+f0004ba0	rts
+f0004ba2	nop
+f0004ba4	mv_s #$ffffffff,r0
+f0004ba6	nop
+f0004ba8	rts
+f0004baa	nop
+f0004bac	mv_s #$ffffffff,r0
+f0004bae	nop
+f0004bb0	rts
+f0004bb2	nop
+f0004bb4	mv_s #$ffffffff,r0
+f0004bb6	nop
+f0004bb8	rts
+f0004bba	nop
+f0004bbc	mv_s #$ffffffff,r0
+f0004bbe	nop
+f0004bc0	rts
+f0004bc2	nop
+f0004bc4	mv_s #$ffffffff,r0
+f0004bc6	nop
+f0004bc8	rts
+f0004bca	nop
+f0004bcc	mv_s #$ffffffff,r0
+f0004bce	nop
+f0004bd0	rts
+f0004bd2	nop
+f0004bd4	mv_s #$ffffffff,r0
+f0004bd6	nop
+f0004bd8	rts
+f0004bda	nop
+f0004bdc	mv_s #$ffffffff,r0
+f0004bde	nop
+f0004be0	rts
+f0004be2	nop
+f0004be4	mv_s #$ffffffff,r0
+f0004be6	nop
+f0004be8	rts
+f0004bea	nop
+f0004bec	mv_s #$ffffffff,r0
+f0004bee	nop
+f0004bf0	rts
+f0004bf2	nop
+f0004bf4	mv_s #$ffffffff,r0
+f0004bf6	nop
+f0004bf8	rts
+f0004bfa	nop
+f0004bfc	mv_s #$ffffffff,r0
+f0004bfe	nop
+f0004c00	rts
+f0004c02	nop
+f0004c04	mv_s #$ffffffff,r0
+f0004c06	nop
+f0004c08	rts
+f0004c0a	nop
+f0004c0c	mv_s #$ffffffff,r0
+f0004c0e	nop
+f0004c10	rts
+f0004c12	nop
+f0004c14	mv_s #$ffffffff,r0
+f0004c16	nop
+f0004c18	rts
+f0004c1a	nop
+f0004c1c	mv_s #$ffffffff,r0
+f0004c1e	nop
+f0004c20	rts
+f0004c22	nop
+f0004c24	mv_s #$ffffffff,r0
+f0004c26	nop
+f0004c28	rts
+f0004c2a	nop
+f0004c2c	mv_s #$ffffffff,r0
+f0004c2e	nop
+f0004c30	rts
+f0004c32	nop
+f0004c34	mv_s #$ffffffff,r0
+f0004c36	nop
+f0004c38	rts
+f0004c3a	nop
+f0004c3c	mv_s #$ffffffff,r0
+f0004c3e	nop
+f0004c40	rts
+f0004c42	nop
+f0004c44	mv_s #$ffffffff,r0
+f0004c46	nop
+f0004c48	rts
+f0004c4a	nop
+f0004c4c	mv_s #$ffffffff,r0
+f0004c4e	nop
+f0004c50	rts
+f0004c52	nop
+f0004c54	mv_s #$ffffffff,r0
+f0004c56	nop
+f0004c58	rts
+f0004c5a	nop
+f0004c5c	mv_s #$ffffffff,r0
+f0004c5e	nop
+f0004c60	rts
+f0004c62	nop
+f0004c64	mv_s #$ffffffff,r0
+f0004c66	nop
+f0004c68	rts
+f0004c6a	nop
+f0004c6c	mv_s #$ffffffff,r0
+f0004c6e	nop
+f0004c70	rts
+f0004c72	nop
+f0004c74	mv_s #$ffffffff,r0
+f0004c76	nop
+f0004c78	rts
+f0004c7a	nop
+f0004c7c	mv_s #$ffffffff,r0
+f0004c7e	nop
+f0004c80	rts
+f0004c82	nop
+f0004c84	mv_s #$ffffffff,r0
+f0004c86	nop
+f0004c88	rts
+f0004c8a	nop
+f0004c8c	mv_s #$ffffffff,r0
+f0004c8e	nop
+f0004c90	rts
+f0004c92	nop
+f0004c94	mv_s #$ffffffff,r0
+f0004c96	nop
+f0004c98	rts
+f0004c9a	nop
+f0004c9c	mv_s #$ffffffff,r0
+f0004c9e	nop
+f0004ca0	rts
+f0004ca2	nop
+f0004ca4	mv_s #$ffffffff,r0
+f0004ca6	nop
+f0004ca8	rts
+f0004caa	nop
+f0004cac	mv_s #$ffffffff,r0
+f0004cae	nop
+f0004cb0	rts
+f0004cb2	nop
+f0004cb4	mv_s #$ffffffff,r0
+f0004cb6	nop
+f0004cb8	rts
+f0004cba	nop
+f0004cbc	mv_s #$ffffffff,r0
+f0004cbe	nop
+f0004cc0	rts
+f0004cc2	nop
+f0004cc4	mv_s #$ffffffff,r0
+f0004cc6	nop
+f0004cc8	rts
+f0004cca	nop
+f0004ccc	mv_s #$ffffffff,r0
+f0004cce	nop
+f0004cd0	rts
+f0004cd2	nop
+f0004cd4	mv_s #$ffffffff,r0
+f0004cd6	nop
+f0004cd8	rts
+f0004cda	nop
+f0004cdc	mv_s #$ffffffff,r0
+f0004cde	nop
+f0004ce0	rts
+f0004ce2	nop
+f0004ce4	mv_s #$ffffffff,r0
+f0004ce6	nop
+f0004ce8	rts
+f0004cea	nop
+f0004cec	mv_s #$ffffffff,r0
+f0004cee	nop
+f0004cf0	rts
+f0004cf2	nop
+f0004cf4	mv_s #$ffffffff,r0
+f0004cf6	nop
+f0004cf8	rts
+f0004cfa	nop
+f0004cfc	mv_s #$ffffffff,r0
+f0004cfe	nop
+f0004d00	rts
+f0004d02	nop
+f0004d04	mv_s #$ffffffff,r0
+f0004d06	nop
+f0004d08	rts
+f0004d0a	nop
+f0004d0c	mv_s #$ffffffff,r0
+f0004d0e	nop
+f0004d10	rts
+f0004d12	nop
+f0004d14	mv_s #$ffffffff,r0
+f0004d16	nop
+f0004d18	rts
+f0004d1a	nop
+f0004d1c	mv_s #$ffffffff,r0
+f0004d1e	nop
+f0004d20	rts
+f0004d22	nop
+f0004d24	mv_s #$ffffffff,r0
+f0004d26	nop
+f0004d28	rts
+f0004d2a	nop
+f0004d2c	mv_s #$ffffffff,r0
+f0004d2e	nop
+f0004d30	rts
+f0004d32	nop
+f0004d34	mv_s #$ffffffff,r0
+f0004d36	nop
+f0004d38	rts
+f0004d3a	nop
+f0004d3c	mv_s #$ffffffff,r0
+f0004d3e	nop
+f0004d40	rts
+f0004d42	nop
+f0004d44	mv_s #$ffffffff,r0
+f0004d46	nop
+f0004d48	rts
+f0004d4a	nop
+f0004d4c	mv_s #$ffffffff,r0
+f0004d4e	nop
+f0004d50	rts
+f0004d52	nop
+f0004d54	mv_s #$ffffffff,r0
+f0004d56	nop
+f0004d58	rts
+f0004d5a	nop
+f0004d5c	mv_s #$ffffffff,r0
+f0004d5e	nop
+f0004d60	rts
+f0004d62	nop
+f0004d64	mv_s #$ffffffff,r0
+f0004d66	nop
+f0004d68	rts
+f0004d6a	nop
+f0004d6c	mv_s #$ffffffff,r0
+f0004d6e	nop
+f0004d70	rts
+f0004d72	nop
+f0004d74	mv_s #$ffffffff,r0
+f0004d76	nop
+f0004d78	rts
+f0004d7a	nop
+f0004d7c	mv_s #$ffffffff,r0
+f0004d7e	nop
+f0004d80	rts
+f0004d82	nop
+f0004d84	mv_s #$ffffffff,r0
+f0004d86	nop
+f0004d88	rts
+f0004d8a	nop
+f0004d8c	mv_s #$ffffffff,r0
+f0004d8e	nop
+f0004d90	rts
+f0004d92	nop
+f0004d94	mv_s #$ffffffff,r0
+f0004d96	nop
+f0004d98	rts
+f0004d9a	nop
+f0004d9c	mv_s #$ffffffff,r0
+f0004d9e	nop
+f0004da0	rts
+f0004da2	nop
+f0004da4	mv_s #$ffffffff,r0
+f0004da6	nop
+f0004da8	rts
+f0004daa	nop
+f0004dac	mv_s #$ffffffff,r0
+f0004dae	nop
+f0004db0	rts
+f0004db2	nop
+f0004db4	mv_s #$ffffffff,r0
+f0004db6	nop
+f0004db8	rts
+f0004dba	nop
+f0004dbc	mv_s #$ffffffff,r0
+f0004dbe	nop
+
+;Start of NotifyDebugControllerOfShutdown routine
+f0004dc0	ld_s rz,r29
+f0004dc2	sub #$00000010,r31
+f0004dc4	st_v v7,(r31)
+f0004dc8	mv_s r31,r30
+	sub #$00000020,r31
+f0004dce	st_v v3,(r31)
+	sub #$00000010,r31
+f0004dd4	st_v v4,(r31)
+f0004dd8	mv_s #$20500ff0,r10
+;R10 = configa
+f0004dde	ld_s (r10),r10
+f0004de0	nop
+;R10 = configa.mmp_release
+f0004de2	lsr #$00000018,r10
+;Compare configa.mmp_release to 2
+f0004de4	cmp #$00000002,r10
+;If config.mmp_release > 2, branch to MMP_ARIES2_ARIES3
+f0004de6	lbra hi,#$f0004e52
+f0004dea	add #$00000020,r31,r12
+f0004df2	mv_s #$80000023,r10
+
+;MMP_OZ_ARIES1:
+f0004df8	nop
+	nop
+	nop
+	mv_s #$00000000,r28
+f0004e00	add #$00000024,r31,r16
+f0004e08	st_s r10,(r12)
+f0004e0a	add #$0000002c,r31,r15
+f0004e12	st_s r28,(r16)
+f0004e14	add #$00000028,r31,r13
+f0004e1c	st_s r28,(r15)
+f0004e1e	st_s r28,(r13)
+f0004e20	mv_s #$8078a928,r14
+f0004e26	jsr (r14)
+f0004e2a	mv_s #$00000045,r0
+f0004e2e	mv_s r12,r1
+
+f0004e30	mv_s #$80000029,r10
+f0004e36	st_s r10,(r12)
+f0004e38	mv_s #$60000000,r10
+f0004e3e	st_s r10,(r16)
+f0004e40	st_s r28,(r15)
+f0004e42	st_s r28,(r13)
+f0004e44	jsr (r14)
+f0004e48	mv_s r12,r1
+f0004e4a	mv_s #$00000045,r0
+
+f0004e4e	lbra #$f0004e86,nop
+
+
+;MMP_ARIES2_ARIES3:
+f0004e52	st_s #$00000088,intctl
+f0004e56	ld_s commctl,r0
+f0004e5a	nop
+f0004e5c	and #$fffffffe,<>#-13,r0
+;Disable commctl.retry bit
+f0004e60	st_s r0,commctl
+
+;WaitForBufferEmpty:
+f0004e64	ld_s commctl,r0
+f0004e68	nop
+;Test commctl.xmitbufferfull bit
+f0004e6a	btst #$0000000f,r0
+;If commctl.xmitbufferfull bit is set, branch back to WaitForBufferEmpty
+f0004e6c	bra ne,#$f0004e64
+f0004e6e	nop
+f0004e70	mv_s #$00002044,r0
+
+;Set commctl.retry bit and set commctl.targetID to $44 (Debug controller)
+f0004e76	st_s r0,commctl
+f0004e7a	mv_s #$80000000,r4
+f0004e80	mv_s #$00000001,r5
+;Commxmit = {$80000000, $1}
+f0004e82	st_v v1,commxmit
+f0004e86	lbra #$f0004e86,nop
+
+
+f0004e8a	nop
+f0004e8c	nop
+f0004e8e	mul_sv v0,v0
+	add r0,r0
+f0004e92	add r0,r0
+f0004e94	add r0,r0
+f0004e96	add r0,r0
+f0004e98	add r0,r0
+f0004e9a	add r0,r0
+f0004e9c	add r0,r0
+f0004e9e	add r0,r0
+
+;CopyROMToRAM
+f0004ea0	mv_s #$f0006060,r0
+f0004ea6	mv_s #$80785000,r1
+f0004eac	mv_s #$0001d414,r2
+
+;Copy $F0006060-$F0023473 to $80785000-$807A2413
+$8079c480 = f001d4e0
+
+;Copy $1D414 bytes from $F0006060-$F0023473 to $80785000-$807A2413 (Bios routines)
+f0004eb2	ld_s (r0),r4
+f0004eb4	add #$00000004,r0
+f0004eb6	sub #$00000004,r2
+f0004eb8	cmp #$00000000,r2
+f0004eba	bra ne,#$f0004eb2
+f0004ebc	st_s r4,(r1)
+f0004ebe	add #$00000004,r1
+
+f0004ec0	mv_s #$f00045c0,r0
+;R1 = starting address of BIOS jumptable in RAM
+f0004ec6	mv_s #$80000000,r1
+;R2 = starting address of BIOS jumptable in ROM
+f0004ecc	mv_s #$f0004dc0,r2
+
+;Copy $F00045C0-$F0004DBF to $80000000-$800003FF
+
+f0004ed2	ld_s (r0),r4
+f0004ed4	add #$00000004,r0
+f0004ed6	cmp r0,r2
+f0004ed8	bra ne,#$f0004ed2
+f0004eda	st_s r4,(r1)
+f0004edc	add #$00000004,r1
+
+;Copy $F0000CC0-$F00041A7 to $80780000-$807834E7
+
+f0004ede	push v4,rz
+f0004ee0	jsr #$f0004fa0,nop
+f0004ee8	pop v4,rz
+f0004eea	sub_sv v0,v0
+f0004eec	mv_s #$f0000cc0,r0
+f0004ef2	mv_s #$80780000,r1
+f0004ef8	mv_s #$000034e8,r2
+
+f0004efe	ld_s (r0),r4
+f0004f00	add #$00000004,r0
+f0004f02	sub #$00000004,r2
+f0004f04	cmp #$00000000,r2
+f0004f06	bra ne,#$f0004efe
+f0004f08	st_s r4,(r1)
+f0004f0a	add #$00000004,r1
+
+;Copy $F00050D0-$F000605B to $807A5000-$807A5F8B
+
+;R0 = start of data area (starting with string "/udf/NUON/nuon.run") 
+f0004f0c	mv_s #$f00050d0,r0
+f0004f12	mv_s #$807a5000,r1
+f0004f18	mv_s #$00000f8c,r2
+
+
+f0004f1e	ld_s (r0),r4
+f0004f20	add #$00000004,r0
+f0004f22	sub #$00000004,r2
+f0004f24	cmp #$00000000,r2
+f0004f26	bra ne,#$f0004f1e
+f0004f28	st_s r4,(r1)
+f0004f2a	add #$00000004,r1
+
+f0004f2c	mv_s #$80780020,r0
+f0004f32	mv_s #$80000800,r1
+f0004f38	mv_s #$80780de0,r2
+
+;Copy $80780020-$80780DDF to $80000800-$800015BF
+
+f0004f3e	ld_s (r0),r4
+f0004f40	add #$00000004,r0
+f0004f42	cmp r0,r2
+f0004f44	bra ne,#$f0004f3e
+f0004f46	st_s r4,(r1)
+f0004f48	add #$00000004,r1
+
+f0004f4a	mv_s #$80780fe8,r0
+f0004f50	mv_s #$80000a20,r1
+f0004f56	add #$00000280,r0,r2
+
+f0004f5e	ld_s (r0),r4
+f0004f60	add #$00000004,r0
+f0004f62	cmp r0,r2
+f0004f64	bra ne,#$f0004f5e
+f0004f66	st_s r4,(r1)
+f0004f68	add #$00000004,r1
+f0004f6a	rts
+f0004f6c	nop
+f0004f6e	nop
+
+
+;CopyExternalRAMToLocalDTRAM:
+;copy 520 bytes from $80780DE0 to $20100C80
+f0004f70	mv_s #$80780de0,r0
+f0004f76	nop
+	nop
+	mv_s #$20100c80,r1
+f0004f80	mv_s #$80780fe8,r2
+
+`copy_loop:
+f0004f86	ld_s (r0),r4
+f0004f88	add #$00000004,r0
+f0004f8a	cmp r0,r2
+;if r1 != $80780FE8, branch back to `copy_loop
+f0004f8c	bra ne,#$f0004f86
+f0004f8e	st_s r4,(r1)
+f0004f90	add #$00000004,r1
+
+f0004f92	rts
+f0004f94	nop
+f0004f96	nop
+
+
+f0004f98	add r0,r0
+f0004f9a	add r0,r0
+f0004f9c	add r0,r0
+f0004f9e	add r0,r0
+
+
+f0004fa0	mv_s #$ffffffff,r1
+	sub r0,r0
+f0004fa4	mv_s #$80000000,r0
+	copy r0,r8
+f0004fac	ld_s rz,r10
+f0004fae	nop
+f0004fb0	mv_s #$40000000,r1
+	copy r1,r9
+f0004fb8	jsr #$f0004ffc,nop
+
+f0004fc0	st_s r10,rz
+
+
+f0004fc2	ld_s (r6),r0
+f0004fc4	copy r5,r7
+f0004fc6	and #$fffffffc,r0,r3
+f0004fca	and #$00000003,r0,r2
+f0004fce	cmp #$00000003,r2
+f0004fd0	lbra ne,#$f0004ff0,nop
+	cmp r8,r3
+f0004fd6	nop
+	nop
+	lbra cs,#$f0004ff0,nop
+	cmp r9,r3
+f0004fe0	lbra cc,#$f0004ff0,nop
+	eor r7,r3
+f0004fe6	ld_s (r3),r1
+f0004fe8	lbra mvs,#$f0004fc6
+f0004fec	ld_s (r6),r0
+f0004fee	add r5,r7
+
+f0004ff0	sub #$00000001,r4
+f0004ff2	bra gt,#$f0004fc2
+f0004ff4	add #$00000004,r6
+f0004ff6	rts
+
+f0004ff8	nop
+f0004ffa	nop
+
+
+f0004ffc	ld_s dcachectl,r2
+f0005000	ld_s (r0),r0
+	copy r0,r6
+f0005004	ld_s (r1),r1
+	copy r2,r5
+f0005008	bits #$00000002,>>#8,r5
+f000500c	add #$00000001,r5
+f000500e	mv_s r2,r4
+	bits #$00000001,>>#4,r2
+	mul r5,r6,>>#0,r6
+f0005018	add #$0000000a,r2
+f000501a	neg r2
+f000501c	ls r2,r5,r5
+f0005020	and #$00000003,r4,r4
+	rts
+f0005026	add #$00000004,r4
+f0005028	ls r4,r5,r4
+	mv_s #$20400000,r6

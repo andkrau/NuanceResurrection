@@ -1,0 +1,53 @@
+;Jump to MPE local routine
+f0000000	mv_s #$2030000a,r0
+f0000006	jmp (r0),nop
+
+;RC0 = iteration counter = 47
+f000000a	st_s #$0000002f,rc0
+;R0 = DMAFlags = READ | (LENGTH = 32 scalars)
+f000000e	mv_s #$00202000,r0
+;R1 = baseaddr = $F0000400
+f0000014	mv_s #$f0000400,r1
+;R2 = intaddr = $20300880
+f000001a	mv_s #$20300880,r2
+;R3 = address of DMA control structure
+f0000020	mv_s #$20100000,r3
+
+;WaitForPendingDMA:
+;R4 = odmactl
+f0000026	ld_s odmactl,r4
+f000002a	nop
+;Test odmactl.pending bit
+f000002c	bits #$00000004,>>#0,r4
+;If ODMA command pending, branch back to WaitForPendingDMA
+f0000030	lbra ne,#$f0000026,nop
+
+;DMA control structure = {$00202000,$F0000400,$20300880}
+f0000034	st_v v0,(r3)
+;odmacptr = address of DMA control structure
+f0000038	st_s r3,odmacptr
+;decrement iteration counter
+f000003c	addr #$00000000,rx
+dec rc0
+;If iteration counter is not zero, branch back to WaitForPendingDMA 
+f000003e	bra c0ne,#$f0000026
+;intaddr += $80
+f0000040	add #$00000080,r2
+;baseaddr += $80
+f0000044	add #$00000080,r1
+
+;WaitForActiveDMA:
+f0000048	ld_s odmactl,r4
+f000004c	nop
+;Test odmactl.active bit
+f000004e	bits #$00000004,>>#0,r4
+;If ODMA active, branch back to WaitForActiveDMA
+f0000052	lbra ne,#$f0000048,nop
+
+;Jump to MPE local routine
+f0000056	jmp #$20300c80
+f000005a	nop
+f000005c	nop
+
+f000005e	cmp #$00000001,r0
+

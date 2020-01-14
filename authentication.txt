@@ -1,0 +1,2062 @@
+===================================================
+LoadGame
+===================================================
+;Start of LoadGame routine: R0 = pointer to filename
+f000db9e	ld_s rz,r29
+f000dba0	sub #$00000010,r31
+f000dba2	st_v v7,(r31)
+f000dba6	mv_s r31,r30
+;R6 = index = 0
+f000dba8	mv_s #$00000000,r6
+
+;Loop:
+;R10 = &pFilename[index]
+f000dbaa	add r0,r6,r10
+;R7 = pFilename[index]
+f000dbae	ld_b (r10),r10
+f000dbb2	nop
+;R7 = next character of file name string
+f000dbb4	asr #$00000018,r10,r7
+;R10 = R7
+f000dbb8	mv_s r7,r10
+;Compare file name string character to NULL
+f000dbba	cmp #$00000000,r10
+f000dbbc	nop
+	bra eq,#$f000dbf6
+;R29 = &Mem[$807AB3D0 + Index]
+f000dbc0	add #$807ab3d0,r6,r29
+f000dbc8	mv_s #$ffffffe8,r9
+
+;R10 = Mem[$807AB3D0 + Index]
+f000dbcc	ld_s (r29),r10
+f000dbce	asl #$fffffffd,r29,r8
+f000dbd2	sub r8,#$00000000,r11
+f000dbd6	rot r11,r10,r10
+f000dbda	mv_s r7,r11
+f000dbdc	bits #$00000017,>>#0,r10
+f000dbe0	bits #$00000007,>>#0,r11
+f000dbe4	or r11,>>r9,r10
+;Index = Index + 1
+f000dbe8	add #$00000001,r6
+;Compare Index to 254
+f000dbea	cmp #$000000fe,r6
+;If Index is less than or equal to 254, branch back to Loop
+f000dbee	bra le,#$f000dbaa
+f000dbf0	rot r8,r10,r10
+Mem[$807AB3D0 + Index] = 
+f000dbf4	st_s r10,(r29)
+
+f000dbf6	mv_s #$807ab3d0,r28
+f000dbfc	add r6,r28,r29
+;R10 = Mem[$807AB3D0 + Index]
+f000dc00	ld_s (r29),r10
+f000dc02	asl #$fffffffd,r29,r8
+f000dc06	sub r8,#$00000000,r11
+f000dc0a	rot r11,r10,r10
+f000dc0e	bits #$00000017,>>#0,r10
+f000dc12	rot r8,r10,r10
+; Mem[$807AB3D0 + Index] = next character of file name string
+f000dc16	st_s r10,(r29)
+f000dc18	nop
+	nop
+	nop
+	nop
+
+f000dc20	st_s #$20101000,sp
+f000dc28	mv_s #$80760000,r31
+f000dc2e	mv_s #$80000338,r4
+;Bios call: BiosResume
+f000dc34	jsr (r4)
+f000dc38	nop
+f000dc3a	mv_s #$b1500001,r0
+
+f000dc40	mv_s #$205000b0,r10
+;R6 = Intvec1
+f000dc46	ld_s (r10),r6
+f000dc48	nop
+f000dc4a	mv_s #$205000c0,r11
+;R7 = Intvec2
+f000dc50	ld_s (r11),r7
+f000dc52	nop
+f000dc54	mv_s #$807ab5d0,r10
+;Mem[$807AB5D0] = old Intvec1
+f000dc5a	nop
+	nop
+	st_s r6,(r10)
+f000dc60	mv_s #$807ab5d4,r11
+f000dc66	mv_s #$00000022,r29
+;Mem[$807AB5D4] = old Intvec2
+f000dc6a	st_s r7,(r11)
+f000dc6c	mv_s #$80781968,r8
+f000dc72	mv_s #$00000201,r0
+f000dc76	mv_s #$8078196c,r9
+f000dc7c	nop
+	st_s r29,(r8)
+f000dc80	mv_s #$80000308,r4
+;Bios call: CacheConfigX
+f000dc86	jsr (r4)
+f000dc8a	mv_s r29,r1
+f000dc8c	st_s r0,(r9)
+f000dc8e	mv_s #$8078c7e8,r4
+;Call LoadGameLoader routine ($F000D848)
+f000dc94	jsr (r4)
+f000dc98	nop
+;R0 = $807AB3D0
+f000dc9a	mv_s r28,r0
+
+f000dc9c	nop
+f000dc9e	nop
+===================================================
+LoadGameLoader
+===================================================
+
+;Start of LoadGameLoader routine (R0 = $807AB3D0 = file name)
+f000d848	ld_s rz,r29
+f000d84a	sub #$00000010,r31
+f000d84c	st_v v7,(r31)
+f000d850	mv_s r31,r30
+	sub #$00000020,r31
+f000d856	nop
+	nop
+	st_v v3,(r31)
+	sub #$00000010,r31
+f000d860	st_v v4,(r31)
+	sub #$00000010,r31
+f000d866	st_v v5,(r31)
+;R17 = $807AB3D0 (file name)
+f000d86a	mv_s r0,r17
+f000d86c	sub #$00000004,r30,r18
+;R28 = 0
+f000d870	mv_s #$00000000,r28
+f000d872	st_s r28,(r18)
+f000d874	mv_s #$807937d8,r5
+
+;Call (LockMutex) routine $F0014838: R0 = 1, R1 = 1
+f000d87a	jsr (r5)
+f000d87e	mv_s #$00000001,r0
+f000d880	mv_s #$00000001,r1
+f000d882	mv_s #$800063f0,r5
+;HAL Call: FLDisplayMessage
+f000d888	jsr (r5)
+f000d88c	mv_s #$00000008,r0
+f000d88e	mv_s #$807a5808,r1
+
+f000d894	ld_b (r17),r10
+f000d898	bra #$f000d8ac
+f000d89a	nop
+f000d89c	nop
+	asr #$00000018,r10
+
+;StringLengthLoop:
+f000d8a0	add r17,r28,r10
+f000d8a4	ld_b (r10),r10
+f000d8a8	nop
+f000d8aa	asr #$00000018,r10
+
+;Compare character to NULL
+f000d8ac	cmp #$00000000,r10
+;If character is not NULL, branch back to StringLengthLoop
+f000d8ae	bra ne,#$f000d8a0
+f000d8b0	nop
+f000d8b2	add #$00000001,r28
+
+;R28 = strlen(R0)
+f000d8b4	sub #$00000001,r28
+;R10 = strlen(R0) + 21
+f000d8b6	add #$00000015,r28,r10
+;R0 = 0
+f000d8ba	mv_s #$00000000,r0
+;R10 = (strlen(R0) + 21) & ~$F
+f000d8bc	and #$fffffff0,r10,r10
+;Compare strlen(R0) to zero
+f000d8c0	cmp r28,r0
+;If filename length is equal to 0, branch to NullFileName
+f000d8c2	bra gt,#$f000d8fe
+;R31 = R31 - string length of filename in vectors (at least two vectors)
+f000d8c4	sub r10,r31
+;R16 = R31 - string length of filename in vectors (at least two vectors)
+f000d8c6	mv_s r31,r16
+
+;R11 = &filename[index]
+f000d8c8	add r17,r0,r11
+f000d8cc	mv_s #$ffffffe8,r6
+;R16 = 
+f000d8d0	add r16,r0,r8
+f000d8d4	ld_b (r11),r29
+f000d8d8	ld_s (r8),r10
+f000d8da	nop
+	asl #$fffffffd,r8,r9
+f000d8e0	sub r9,#$00000000,r11
+f000d8e4	rot r11,r10,r10
+f000d8e8	lsr #$00000018,r29
+f000d8ea	bits #$00000017,>>#0,r10
+f000d8ee	or r29,>>r6,r10
+f000d8f2	add #$00000001,r0
+;Compare string length to 
+f000d8f4	cmp r28,r0
+f000d8f6	bra le,#$f000d8c8
+f000d8f8	rot r9,r10,r10
+f000d8fc	st_s r10,(r8)
+
+;Mem[R31 - ((strlen(R0) + 21) & ~$F)] now contains a copy of the program filename
+
+;NullFileName:
+f000d8fe	sub #$00000001,r0
+f000d900	cmp #$00000000,r0
+;If R0 <= 0, branch to AuthenticationLoop
+f000d902	lbra lt,#$f000dace,nop
+
+;FindPeriodLoop:
+;R10 = &filename[index]
+f000d906	add r16,r0,r10
+f000d90a	ld_b (r10),r10
+f000d90e	nop
+;R10 = character (filename[index])
+f000d910	asr #$00000018,r10
+;Compare character to '.'
+f000d912	cmp #$0000002e,r10
+;If character is '.' branch to SawPeriod
+f000d916	lbra eq,#$f000d924,nop
+
+;Index = Index - 1
+f000d91a	sub #$00000001,r0
+;Compare Index to 0
+f000d91c	nop
+	cmp #$00000000,r0
+;If Index >= 0, branch to FindPeriodLoop
+f000d920	lbra ge,#$f000d906,nop
+
+;SawPeriod:
+;Compare Index to 0
+f000d924	cmp #$00000000,r0
+;If Index <= 0, branch to AuthenticationLoop
+f000d926	lbra le,#$f000dace,nop
+
+f000d92a	add #$00000001,r0
+f000d92c	mv_s #$ffffffe8,r9
+f000d930	add r16,r0,r15
+f000d934	mv_s #$0000006e,r8
+f000d938	ld_s (r15),r10
+f000d93a	nop
+	asl #$fffffffd,r15,r29
+f000d940	sub r29,#$00000000,r11
+f000d944	rot r11,r10,r10
+f000d948	mv_s #$00000031,r6
+f000d94c	bits #$00000017,>>#0,r10
+f000d950	mv_s #$00000036,r7
+f000d954	or r8,>>r9,r10
+f000d958	mv_s #$00000000,r1
+f000d95a	nop
+	rot r29,r10,r10
+f000d960	mv_s #$8078ac40,r19
+f000d966	st_s r10,(r15)
+f000d968	add #$00000001,r15,r29
+f000d96c	ld_s (r29),r10
+f000d96e	asl #$fffffffd,r29,r8
+f000d972	sub r8,#$00000000,r11
+f000d976	rot r11,r10,r10
+f000d97a	mv_s r16,r0
+f000d97c	bits #$00000017,>>#0,r10
+f000d980	mv_s r1,r2
+f000d982	or r6,>>r9,r10
+f000d986	mv_s r18,r3
+f000d988	rot r8,r10,r10
+f000d98c	st_s r10,(r29)
+f000d98e	add #$00000002,r15,r29
+f000d992	ld_s (r29),r10
+f000d994	asl #$fffffffd,r29,r8
+f000d998	sub r8,#$00000000,r11
+f000d99c	rot r11,r10,r10
+f000d9a0	bits #$00000017,>>#0,r10
+f000d9a4	or r7,>>r9,r10
+f000d9a8	rot r8,r10,r10
+f000d9ac	st_s r10,(r29)
+f000d9ae	add #$00000003,r15,r29
+f000d9b2	ld_s (r29),r10
+f000d9b4	asl #$fffffffd,r29,r8
+f000d9b8	sub r8,#$00000000,r11
+f000d9bc	rot r11,r10,r10
+f000d9c0	bits #$00000017,>>#0,r10
+;Call FileOpen routine: "<filename>.n16"
+f000d9c4	jsr (r19)
+f000d9c8	rot r8,r10,r10
+f000d9cc	st_s r10,(r29)
+
+f000d9ce	mv_s r0,r14
+;Compare file handle to -1
+f000d9d0	cmp #$ffffffff,r14
+f000d9d6	lbra eq,#$f000da88
+;R1 = buf = $40032A00
+f000d9da	mv_s #$40032a00,r1
+f000d9e0	mv_s #$8078b132,r5
+
+;Call FileRead routine (R0 = fd, R1 = buf, R2 = len, R3 = pErrNum)
+f000d9e6	jsr (r5)
+;R2 = len = $31800 (352*288*2)
+f000d9ea	mv_s #$00031800,r2
+f000d9f0	mv_s r18,r3
+
+//Start of Nuon.N16 display code
+
+;R13 = CurrentY (24)
+f000d9f2	mv_s #$00000018,r13
+
+;R20 = CurrentX = 0
+f000d9f6	mv_s #$00000000,r20
+;R12 = $200000
+f000d9f8	nop
+	mv_s #$00200000,r12
+
+;R1 = $B0 (11 vectors = 176 bytes)
+f000da00	mv_s #$000000b0,r1
+;R10 = (R20 << 4)
+f000da04	asl #$fffffffc,r20,r10
+;R1 = 176*24 = 4224 ($1080)
+f000da08	mul r13,r1
+f000da0a	mv_s #$20100c80,r28
+;R0 = DMAFlags = (READ | length = 16 scalars)
+f000da10	mv_s #$00102000,r0
+f000da16	add #$00000001,r20
+f000da18	add r10,r1
+;R2 = internal address = $20100C80
+f000da1a	nop
+	nop
+	mv_s r28,r2
+f000da20	mv_s #$80000188,r5
+;Bios Call: DMALinear
+f000da26	jsr (r5)
+f000da2a	asl #$fffffffe,r1
+;R1 = base address = $40032A00 + ( << 2)
+f000da2c	add #$40032a00,r1
+
+f000da32	mv_s r12,r2
+f000da34	add #$0000ffe8,r13,r3
+f000da3c	nop
+	mv_s r28,r4
+f000da40	add #$00000020,r12
+f000da44	mv_s #$80000190,r5
+;Bios Call: DMABiLinear (R0 = DMAFlags, R1 = Base Address, R2 = XInfo, R3 = YInfo, R4 = Internal Address)
+f000da4a	jsr (r5)
+;R0 = DMAFlags (Pixel Write, 16-bit pixels: MODE = $820, TYPE = $3, XSIZE = 44 (352 pixels))
+f000da4e	mv_s #$002cc820,r0
+;R1 = Base Address = $401BA800
+f000da54	mv_s #$401ba800,r1
+
+;Compare R20 to 10
+f000da5a	cmp #$0000000a,r20
+f000da5c	lbra le,#$f000da00,nop
+
+f000da60	add #$00000001,r13
+;Compare CurrentY to 263
+f000da62	cmp #$00000107,r13
+f000da66	bra le,#$f000d9f6
+f000da68	nop
+f000da6a	mv_s #$8078ad60,r5
+
+;Call FileClose routine
+f000da70	jsr (r5)
+f000da74	mv_s r14,r0
+f000da76	mv_s r18,r1
+f000da78	nop
+	mv_s #$8078d016,r5
+;Call $F000E076: R0 = 0, R1 = 0 (Video routine)
+f000da80	jsr (r5)
+f000da84	mv_s #$00000000,r0
+f000da86	mv_s #$00000000,r1
+
+//End of Nuon.N16 display code
+
+
+f000da88	mv_s r15,r0
+f000da8a	mv_s #$8078ff00,r5
+;Call $F0010F60
+f000da90	jsr (r5)
+f000da94	sub #$00000004,r30,r28
+;R1 = string ("n501")
+f000da98	mv_s #$807a5800,r1
+
+;R0 = R31 - [strlen(filename)+21]/16
+f000da9e	mv_s r16,r0
+f000daa0	mv_s #$00000000,r1
+;Call FileOpen routine
+f000daa2	jsr (r19)
+f000daa6	mv_s #$00000000,r2
+
+f000daa8	mv_s r28,r3
+
+;R14 = handle of program file
+f000daaa	mv_s r0,r14
+
+;Compare file handle to -1
+f000daac	cmp #$ffffffff,r14
+;If file handle is -1, branch to AuthenticationLoop2
+f000dab2	bra eq,#$f000dad4
+f000dab4	nop
+;R12 = $8000F140
+f000dab6	nop
+	nop
+	mv_s #$8000f140,r12
+
+f000dac0	mv_s #$8078ad60,r5
+;Call FileClose routine
+f000dac6	jsr (r5)
+f000daca	mv_s r28,r1
+;R17 = pointer to filename
+f000dacc	mv_s r16,r17
+
+
+;AuthenticationLoop:
+f000dace	mv_s #$8000f140,r12
+;AuthenticationLoop2:
+;R11 = Mem[$8000F140]
+f000dad4	ld_s (r12),r11
+f000dad6	nop
+f000dad8	mv_s #$ffffff00,r10
+R2 = Mem[$8000F140] & $FFFFFF00
+f000dadc	and r10,r11,r29
+f000dae0	mv_s #$123abc00,r10
+Compare (Mem[$8000F140] & $FFFFFF00) to $123ABC00
+f000dae6	cmp r10,r29
+;If (Mem[$8000F140] & $FFFFFF00) != $123ABC00, branch to 
+f000dae8	lbra ne,#$f000db02,nop
+
+R10 = Mem[$8000F140]
+f000daec	mv_s r11,r10
+;R10 = (Mem[$8000F140] & $F)
+f000daee	bits #$00000007,>>#0,r10
+;Compare (Mem[$8000F140] & $F) to 0
+f000daf2	cmp #$00000000,r10
+;If (Mem[$8000F140] & $F) <= 0, branch to 
+f000daf4	bra le,#$f000db02
+f000daf6	nop
+;R10 = (Mem[$8000F140] + 1)
+f000daf8	add #$00000001,r11,r10
+
+f000dafc	bra #$f000db06
+;Mem[$8000F140] = $123ABC00
+f000dafe	st_s r29,(r12)
+;R0 = pointer to file name
+f000db00	mv_s r17,r0
+
+;Mem[$8000F140] = (Mem[$8000F140] & $F)
+f000db02	st_s r10,(r12)
+;R0 = pointer to file name
+f000db04	mv_s r17,r0
+
+f000db06	mv_s #$80793260,r5
+;Call AuthenticateProgram routine ($F00142C0)
+f000db0c	jsr (r5)
+;R1 = 0
+f000db10	mv_s #$00000000,r1
+;R2 = address of routine ($F000DB7A)
+f000db12	mv_s #$8078cb1a,r2
+
+;R12 = Mem[$8000F140]
+f000db18	ld_s (r12),r12
+f000db1a	nop
+	nop
+	nop
+f000db20	cmp #$123abc00,r12
+;If Mem[$8000F140] <= $123ABC00, branch to AuthenticationLoop:
+f000db26	bra le,#$f000dace
+f000db28	nop
+f000db2a	mv_s r0,r28
+
+f000db2c	mv_s r17,r0
+f000db2e	mv_s #$8079138a,r5
+
+;Call $F00123EA
+f000db34	jsr (r5)
+;R1 = string ("/udf/")
+f000db38	mv_s #$807a580c,r1
+f000db3e	mv_s #$00000005,r2
+
+f000db40	cmp #$00000000,r0
+f000db42	bra ne,#$f000db6e
+f000db44	nop
+f000db46	mv_s #$f0005040,r5
+
+f000db4c	mv_s #$80000438,r5
+;Bios Call: DiskEject
+f000db52	jsr (r5),nop
+f000db56	mv_s #$80000078,r5
+;Bios Call: TimeToSleep
+f000db5c	jsr (r5)
+f000db60	nop
+f000db62	mv_s #$00001388,r0
+
+f000db68	mv_s #$f0005040,r5
+
+
+;Call BiosExit/BiosReboot routine
+f000db6e	jsr (r5)
+f000db72	nop
+;R0 = $1388
+f000db74	mv_s r28,r0
+f000db76	nop
+f000db78	nop
+========================================
+AuthenticateProgram
+========================================
+;Start of AuthenticateProgram routine (R0 = pointer to filename
+f00142c0	ld_s rz,r29
+f00142c2	sub #$00000010,r31
+f00142c4	st_v v7,(r31)
+f00142c8	mv_s r31,r30
+	sub #$00000080,r31
+f00142ce	st_v v3,(r31)
+	sub #$00000010,r31
+f00142d4	st_v v4,(r31)
+;R10 = 0;
+f00142d8	nop
+	nop
+	nop
+	mv_s #$00000000,r10
+f00142e0	add #$0000002c,r31,r28
+f00142e8	mv_s #$80781dcc,r11
+;Mem[$80781DCC] = 0
+f00142ee	st_s r10,(r11)
+f00142f0	mv_s #$80781dc8,r16
+;R13 = -1
+f00142f6	mv_s #$ffffffff,r13
+f00142f8	mv_s #$80781dd0,r17
+;R29 = pointer to filename
+f00142fe	mv_s r0,r29
+;Mem[$80781DC8] = program file handle = -1
+f0014300	st_s r13,(r16)
+;Mem[$80781DD0] = 0
+f0014302	st_s r10,(r17)
+f0014304	ld_b (r29),r11
+f0014308	nop
+f001430a	mv_s r1,r0
+f001430c	asr #$00000018,r11
+;R19 = $F000DB7A
+f001430e	mv_s r2,r19
+f0014310	cmp #$00000000,r11
+f0014312	bra ne,#$f001433c
+f0014314	mv_s r10,r30
+;Mem[R31 + 2C] = 0
+f0014316	st_s r10,(r28)
+
+;R5 = ($F000DB7A)
+f0014318	mv_s r19,r5
+;R1 = 1
+f001431a	nop
+	nop
+	mv_s #$00000001,r1
+f0014320	mv_s #$8079370e,r2
+f0014326	mv_s #$80791980,r8
+;Call routine $F00129E0
+f001432c	jsr (r8)
+f0014330	mv_s #$80793504,r3
+f0014336	mv_s r30,r4
+
+f0014338	lbra #$f00144d8,nop
+f001433c	mv_s r30,r1
+f001433e	mv_s r28,r12
+;R0 = pointer to filename
+f0014340	mv_s r29,r0
+f0014342	mv_s #$80000198,r8
+;Bios call: FileOpen
+f0014348	jsr (r8)
+f001434c	mv_s r1,r2
+f001434e	mv_s r12,r3
+
+f0014350	cmp #$ffffffff,r0
+f0014356	lbra eq,#$f00144d6
+f001435a	nop
+;Mem[$80781DC8] = program file handle
+f001435c	nop
+	st_s r0,(r16)
+
+f0014360	mv_s #$8079b660,r8
+;Call CheckBlessing routine ($F001C6C0) (R0 = file handle, R1 = buffer)
+f0014366	jsr (r8)
+f001436a	add #$00000030,r31,r15
+;R1 = buffer
+f0014372	mv_s r15,r1
+
+f0014374	mv_s r0,r30
+f0014376	cmp #$00000000,r30
+;If CheckBlessing result is not equal to zero, branch to 
+f0014378	lbra ne,#$f00144c4
+f001437c	nop
+	nop
+f0014380	mv_s #$800001a0,r8
+
+;R0 = program file handle
+f0014386	ld_s (r16),r0
+;R1 = buffer
+f0014388	add #$0000007c,r31,r1
+f0014390	mv_s #$800001a8,r18
+;Bios call: FileRead(R0 = fd, R1 = buf, R2 = len, R3 = pErrNum)
+f0014396	jsr (r18)
+;R2 = len = 20 (size of FILHDR)
+f001439a	mv_s #$00000014,r2
+f001439e	mv_s r12,r3
+
+f00143a0	cmp #$00000014,r0
+f00143a2	lbra ne,#$f00144be
+;R13 = pF_NSCNS
+f00143a6	add #$0000007e,r31,r13
+;R29 = sizeof(SCNHDR)
+f00143ae	mv_s #$0000002c,r29
+
+;R10 = f_nscns
+f00143b2	ld_w (r13),r10
+f00143b6	nop
+	add #$0000008c,r31,r14
+;R11 = f_flags
+f00143c0	ld_w (r14),r11
+
+;R10 = f_nscns
+f00143c4	asr #$00000010,r10
+;R10 = f_nscns*sizeof(SCNHDR)
+f00143c6	mul r29,r10
+;R11 = f_flags
+f00143c8	asr #$00000010,r11
+f00143ca	mv_s #$8078e1a0,r8
+f00143d0	add r11,r10
+;Call $F000F200: R0 = f_nscns*sizeof(SCNHDR) + 20, R1 = buffer
+f00143d2	jsr (r8)
+;R10 = f_nscns*sizeof(SCNHDR) + 20
+f00143d6	add #$00000014,r10,r28
+;R0 = f_nscns*sizeof(SCNHDR) + 20
+f00143da	mv_s r28,r0
+
+f00143dc	nop
+	cmp #$00000000,r0
+f00143e0	lbra eq,#$f00144b8
+f00143e4	nop
+f00143e6	st_s r0,(r17)
+
+;R0 = program file handle
+f00143e8	ld_s (r16),r0
+;R1 = buffer
+f00143ea	ld_s (r15),r1
+f00143ec	nop
+f00143ee	mv_s #$800001d8,r8
+;Bios call: FileLSeek
+f00143f4	jsr (r8)
+;R2 = 0
+f00143f8	mv_s r30,r2
+f00143fa	nop
+	nop
+	mv_s r12,r3
+f0014400	cmp #$ffffffff,r0
+f0014406	lbra eq,#$f00144b2,nop
+f001440a	ld_s (r16),r0
+f001440c	ld_s (r17),r1
+f001440e	nop
+f0014410	jsr (r18)
+f0014414	mv_s r12,r3
+f0014416	mv_s r28,r2
+f0014418	mv_s r0,r12
+f001441a	cmp r28,r12
+f001441c	lbra ne,#$f00144be
+f0014420	mv_s #$80793504,r28
+f0014426	mv_s r30,r0
+
+f0014428	mv_s r30,r1
+f001442a	jsr (r28)
+f001442e	mv_s r30,r2
+f0014430	mv_s r30,r3
+f0014432	ld_s (r17),r1
+f0014434	nop
+f0014436	mv_s r12,r2
+f0014438	jsr (r28)
+f001443c	mv_s #$00000001,r0
+f001443e	mv_s r30,r3
+f0014440	ld_w (r13),r10
+f0014444	bra #$f0014478
+f0014446	mv_s r30,r0
+f0014448	asr #$00000010,r10
+
+
+f001444a	ld_w (r14),r10
+f001444e	ld_s (r17),r8
+f0014450	asr #$00000010,r10
+f0014452	add #$00000014,r10
+f0014454	mul r0,r11
+f0014456	add r8,r10
+f0014458	add r11,r10
+f001445a	add #$00000014,r10,r11
+f001445e	ld_s (r11),r10
+f0014460	nop
+f0014462	cmp #$00000000,r10
+f0014464	lbra le,#$f0014470,nop
+f0014468	ld_s (r15),r8
+f001446a	nop
+f001446c	add r8,r10
+f001446e	st_s r10,(r11)
+f0014470	ld_w (r13),r10
+f0014474	add #$00000001,r0
+f0014476	asr #$00000010,r10
+f0014478	cmp r10,r0
+f001447a	bra lt,#$f001444a
+f001447c	nop
+	nop
+f0014480	mv_s #$0000002c,r11
+
+f0014484	mv_s #$80781dd0,r10
+f001448a	add #$00000030,r31,r4
+f0014492	ld_s (r10),r0
+f0014494	nop
+f0014496	mv_s r28,r3
+f0014498	mv_s r19,r5
+f001449a	mv_s #$80791980,r8
+
+f00144a0	jsr (r8)
+f00144a4	mv_s #$00000000,r1
+f00144a6	mv_s #$80793636,r2
+f00144ac	bra #$f00144d8
+f00144ae	nop
+f00144b0	mv_s r0,r30
+f00144b2	bra #$f00144d8
+f00144b4	nop
+f00144b6	mv_s #$00000003,r30
+f00144b8	bra #$f00144d8
+f00144ba	nop
+f00144bc	mv_s #$00000004,r30
+
+
+f00144be	bra #$f00144d8
+f00144c0	nop
+f00144c2	mv_s #$00000002,r30
+
+;R0 = program file handle
+f00144c4	ld_s (r16),r0
+f00144c6	nop
+;Bios call: FileClose
+f00144c8	jsr (r8)
+f00144cc	mv_s r28,r1
+f00144ce	mv_s #$00000005,r30
+
+f00144d0	bra #$f00144d8
+f00144d2	nop
+f00144d4	st_s r13,(r16)
+
+f00144d6	mv_s #$00000001,r30
+
+;R0 = program file handle
+f00144d8	ld_s (r16),r0
+f00144da	nop
+	nop
+	nop
+f00144e0	cmp #$ffffffff,r0
+f00144e6	bra eq,#$f0014502
+f00144e8	nop
+f00144ea	mv_s #$800001a0,r8
+;Bios call: FileClose
+f00144f0	jsr (r8)
+f00144f4	nop
+f00144f6	add #$0000002c,r31,r1
+f00144fe	mv_s #$ffffffff,r10
+f0014500	st_s r10,(r16)
+
+
+f0014502	mv_s #$80781dd0,r28
+f0014508	ld_s (r28),r0
+f001450a	nop
+f001450c	cmp #$00000000,r0
+f001450e	bra eq,#$f0014520
+f0014510	nop
+f0014512	mv_s #$8078e1fe,r8
+
+;Call $F000F25E
+f0014518	jsr (r8),nop
+f001451c	mv_s #$00000000,r10
+f001451e	st_s r10,(r28)
+
+f0014520	mv_s r30,r0
+;Epilogue:
+f0014522	ld_v (r31),v4
+	add #$00000010,r31
+f0014528	ld_v (r31),v3
+	add #$00000080,r31
+f0014530	ld_v (r31),v7
+f0014534	nop
+f0014536	st_s r29,rz
+f0014538	rts
+f001453a	add #$00000010,r31
+f001453c	nop
+========================================
+CheckBlessing
+========================================
+
+Scalar value from Bles header starting at offset 100
+========= (buffer + $48)
+Bles header value starting at
+========= (buffer + $44)
+128-bit hash value from Bles header starting at offset 64
+========= (buffer + $34)
+Bles header value starting at
+========= (buffer + $30)
+Offset of COFF data from start of Bles header
+========= (R31Origin + $30) <- buffer
+Something (initialized to 0)
+========= (R1Origin + $2C)
+========= (R31Origin)
+V7 saved
+========= (R31Origin - $10), R30	(R31New + $C0)
+File Buf
+========  (R31Origin - $50) (R30 - $40) (R31New + $80)
+
+========  (R31Origin - $54) (R30 - $44) (R31New + $7C)
+Something (initialized to 0)
+========  (R31Origin - $60) (R30 - $50) (R31New + $70)
+MD5Vars
+========  (R31Origin - $AC) (R30 - $9C) (R31New + $2C)
+ErrorNum
+========  (R31Origin - $A8) (R30 - $98) (R31New + $28)
+
+========  (R31Origin - $B0) (R30 - $A0) (R31New + $20)
+V3 saved
+========= (R31Origin - $C0) (R30 - $B0)
+V4 saved
+========= (R31Origin - $D0) (R30 - $C0) <= R31New
+
+;Start of CheckBlessing routine ($8079B660)
+f001c6c0	ld_s rz,r29
+f001c6c2	sub #$00000010,r31
+;Mem[FRAMETOP - $10] = V7
+f001c6c4	st_v v7,(r31)
+;Mem[FRAMETOP - $10] = V7
+f001c6c8	mv_s r31,r30
+	sub #$000000b0,r31
+f001c6ce	st_v v3,(r31)
+	sub #$00000010,r31
+f001c6d4	st_v v4,(r31)
+;R10 = (R31New + $28)
+f001c6d8	add #$00000028,r31,r10
+;R16 = R0 = file descriptor handle
+f001c6e0	mv_s r0,r16
+;R17 = (R31New + $28)
+f001c6e2	mv_s r10,r17
+;R12 = buf = (R31New + $80)
+f001c6e4	add #$00000080,r31,r12
+;R14 = R1 = buffer
+f001c6ec	mv_s r1,r14
+;R30 = 0
+f001c6ee	mv_s #$00000000,r30
+;Mem[R31New + $28] = 0
+f001c6f0	st_s r30,(r10)
+f001c6f2	mv_s #$800001a8,r18
+;R1 = buf = (R31 + $80)
+f001c6f8	mv_s r12,r1
+;Bios call: FileRead (R0 = fd, R1 = buf, R2 = len, R3 = pErrNum)
+f001c6fa	nop
+	jsr (r18)
+;R2 = len = 64 bytes
+f001c700	mv_s #$00000040,r2
+;R3 = pErrnum = (R31New + $28)
+f001c704	mv_s r17,r3
+
+;R28 = number of bytes read
+f001c706	mv_s r0,r28
+;Compare number of bytes read to 64
+f001c708	cmp #$00000040,r28
+f001c70c	lbra ne,#$f001c952,nop
+
+;1) File Buf now contains first 64 bytes of Nuon.run file starting with "Bles"
+
+;R5 = first scalar of buffer
+f001c710	ld_s (r12),r5
+f001c712	nop
+;Compare first scalar in buffer to 'Bles'
+f001c714	cmp #$426c6573,r5
+f001c71a	lbra ne,#$f001c94c
+f001c71e	nop
+;R5 = address of SetupMD5 routine
+f001c720	mv_s #$8079926c,r5
+
+;Calling routine at $8079926C causes the following:
+;1) store {$67452301,$efcdab89,$98badcfe,$10325476} to Mem[R0]
+;2) store $0 to Mem[R0+$44]
+
+;Call SetupMD5 routine at $8079926C ($F001A2CC)
+f001c726	jsr (r5)
+;R15 = (R31New + $2C)
+f001c72a	add #$0000002c,r31,r15
+;R0 = (R31New + $2C)
+f001c732	mv_s r15,r0
+
+;1) Vector at Mem[R31New + $2C] now equals {$67452301,$efcdab89,$98badcfe,$10325476} (MD5Vars)
+;2) Scalar at Mem[R31New + $70] now equals $0
+
+f001c734	mv_s #$80799294,r19
+;Call routine at GetSubblockMD5 routine at $80799294 ($F001A2F4)
+f001c73a	jsr (r19)
+;R0 = pointer to MD5Vars (R31New + $2C)
+f001c73e	mv_s r15,r0
+;R1 = buf (R31New + $80)
+f001c740	mv_s r12,r1
+
+;R10 = R31New + $B9
+f001c742	add #$000000b9,r31,r10
+;R2 = 64
+f001c74a	mv_s r28,r2
+;R29 = character at Mem[R31New + $B9]
+f001c74c	ld_b (r10),r29
+;R11 = R31New + $BB
+f001c750	add #$000000bb,r31,r11
+;R9 = character at Mem[R31New + $BB]
+f001c758	nop
+	nop
+	ld_b (r11),r9
+;R10 = R31New + $B8
+f001c760	add #$000000b8,r31,r10
+;R8 = character at Mem[R31New + $B8]
+f001c768	ld_b (r10),r8
+;Shift character into lower 8 bits
+f001c76c	asr #$00000018,r29
+;R29 = char($B9) << 8
+f001c76e	asl #$fffffff8,r29
+;R10 = R31New + $BA
+f001c770	add #$000000ba,r31,r10
+;R0 = file descriptor handle
+f001c778	mv_s r16,r0
+;R11 = character at Mem[R31New + $BA]
+f001c77a	ld_b (r10),r11
+;Shift character into lower 8 bits
+f001c77e	asr #$00000018,r8
+;Shift character into lower 8 bits
+f001c780	asr #$00000018,r9
+;R10 = buffer+$30
+f001c782	add #$00000030,r14,r10
+;R1 = buf (R31New + $80)
+f001c78a	mv_s r12,r1
+;R8 = (char($B9) << 8) | char($B8)
+f001c78c	or r29,r8
+;R3 = pErrNum
+f001c78e	mv_s r17,r3
+;Mem[buffer + $30] = (char($B9) << 8)|char($B8)
+f001c790	st_s r8,(r10)
+;Shift character into lower 8 bits
+f001c792	asr #$00000018,r11
+;R9 = char($BB) << 8
+f001c794	asl #$fffffff8,r9
+;R11 = (char($BB) << 8) | char($BA)
+f001c796	or r9,r11
+;Bios call: FileRead(R0 = fd, R1 = buf, R2 = len, R3 = pErrNum)
+f001c798	nop
+	nop
+	jsr (r18)
+;R10 = buffer + $44
+f001c7a0	add #$00000044,r14,r10
+;Mem[buffer + $44] = (char($BB) << 8)|char($BA)
+f001c7a8	st_s r11,(r10)
+
+;Buffer now contains next 64 bytes from file (starting at offset 64 within Bles header)
+;Compare read count to 64
+f001c7aa	cmp #$00000040,r0
+f001c7ae	lbra ne,#$f001c954
+f001c7b2	nop
+;R28 = error value = -13
+f001c7b4	mv_s #$fffffff3,r28
+
+;R10 = R31New + $90
+f001c7b6	add #$00000090,r31,r10
+;R10 = Mem[R31New + $90] = Offset of COFF data from start of Bles header
+f001c7be	ld_s (r10),r10
+;R7 = buffer + $34
+f001c7c0	add #$00000034,r14,r7
+;Mem[buffer] = offset of COFF data from start of Bles header
+f001c7c8	st_s r10,(r14)
+
+;R30 = index (initialized to zero)
+
+;Loop:
+;R11 = buf + index
+f001c7ca	add r12,r30,r11
+;R6 = -24
+f001c7ce	mv_s #$ffffffe8,r6
+;R8 = (buffer + $34) + index
+f001c7d2	add r7,r30,r8
+;R29 = Mem[buf + index]
+f001c7d6	ld_b (r11),r29
+;R10 = Mem[(buffer + $34) + index]
+f001c7da	ld_s (r8),r10
+;R9 = ((buffer + $34) + index) << 3
+f001c7dc	asl #$fffffffd,r8,r9
+;R11 = -(((buffer + $34) + index) << 3)
+f001c7e0	sub r9,#$00000000,r11
+;Mem[(buffer + $34) + index] = Mem[(buffer + $34) + index] <<< ([(buffer + $34) + index] << 3)
+f001c7e4	rot r11,r10,r10
+;R29 = Mem[buf + index] in lower 8 bits
+f001c7e8	lsr #$00000018,r29
+;R10 = (Mem[(buffer + $34) + index] ROT [(buffer + $34) + index]) & $00FFFFFF
+f001c7ea	bits #$00000017,>>#0,r10
+;R10 = (char(Mem[buf + index]) << 24) | ((Mem[(buffer + $34) + index] <<< ([(buffer + $34) + index]) << 3) & $00FFFFFF)
+f001c7ee	or r29,>>r6,r10
+;Index = Index + 1
+f001c7f2	add #$00000001,r30
+;Compare index to 15
+f001c7f4	cmp #$0000000f,r30
+;If index is less than 15, branch to Loop
+f001c7f6	lbra ls,#$f001c7ca
+;R10 = (char(Mem[buf + index]) << 24) | ((Mem[(buffer + $34) + index] ROT [((buffer + $34) + index]) << 3) & $00FFFFFF) ROT (((buffer + $34) + index) << 3)
+f001c7fa	rot r9,r10,r10
+;Mem[buffer + $34 + index] = (char(Mem[buf + index]) << 24) | ((Mem[(buffer + $34) + index] ROT [((buffer + $34) + index]) << 3) & $00FFFFFF) ROT (((buffer + $34) + index) << 3)
+f001c7fe	st_s r10,(r8)
+
+;R10 = R31New + $A4
+f001c800	add #$000000a4,r31,r10
+;R30 = 64
+f001c808	mv_s #$00000040,r30
+;R29 = Mem[R31New + $A4]
+f001c80c	ld_s (r10),r29
+f001c80e	add #$0000009c,r31,r11
+;R11 = Mem[R31New + $9C] (offset $5C from start of Bles header: size of Bles header)
+f001c816	ld_s (r11),r11
+f001c818	add #$000000a0,r31,r10
+;R10 = Mem[R31New + $A0] (offset $60 from start of Bles header)
+f001c820	ld_s (r10),r10
+f001c822	nop
+;R13 = Mem[R31New + $9C] + Mem[R31New + $A0]
+f001c824	add r11,r10,r13
+;R11 = Mem[R31New + $9C] + Mem[R31New + $A0] - $40
+f001c828	sub #$00000040,r13,r11
+;Compare (Mem[R31New + $9C] + Mem[R31New + $A0] - $40) to 64
+f001c830	cmp r30,r11
+;If (Mem[R31New + $9C] + Mem[R31New + $A0] - $40) < 64, branch to 
+f001c832	lbra ls,#$f001c86e
+;R10 = buffer + $48
+f001c836	add #$00000048,r14,r10
+;Mem[buffer + $48] = Mem[R31New + $A4]
+f001c83e	st_s r29,(r10)
+
+;R28 = Mem[R31New + $9C] + Mem[R31New + $A0] - $40
+f001c840	mv_s r11,r28
+;R0 = pointer to MD5Vars (R31New + $2C)
+f001c842	mv_s r15,r0
+;R28 = Mem[R31New + $9C] + Mem[R31New + $A0] - $80
+f001c844	sub #$00000040,r28
+
+;SubblockLoop
+;Call routine at GetSubblockMD5 routine at $80799294 ($F001A2F4)
+f001c848	jsr (r19)
+;R1 = File Buf
+f001c84c	mv_s r12,r1
+;R30 = R30 + 64
+f001c84e	add #$00000040,r30
+;R0 = file descriptor handle
+f001c852	mv_s r16,r0
+;R1 = File Buf
+f001c854	mv_s r12,r1
+;Bios call: FileRead(R0 = fd, R1 = buf, R2 = len, R3 = pErrNum)
+f001c856	jsr (r18)
+;R2 = 64
+f001c85a	mv_s #$00000040,r2
+f001c85e	mv_s r17,r3
+
+;Compare R28 to 64
+f001c860	cmp #$00000040,r28
+;If R28 is greater than 64, branch back to SubblockLoop
+f001c864	lbra hi,#$f001c848
+f001c868	mv_s r15,r0
+;R28 = R28 - 64
+f001c86a	sub #$00000040,r28
+
+
+f001c86e	mv_s #$8078e1a0,r5
+;Call routine at $8078E1A0 ($F000F200)
+f001c874	jsr (r5)
+f001c878	mv_s #$00000400,r15
+;R0 = $400 = 512
+f001c87c	mv_s r15,r0
+
+;R12 = result
+f001c87e	mv_s r0,r12
+;Compare result to 0
+f001c880	cmp #$00000000,r12
+;If result is zero, branch to Error14
+f001c882	lbra eq,#$f001c946
+f001c886	add #$00000028,r31,r28
+;R0 = file descriptor handle
+f001c88e	mv_s r16,r0
+
+;R1 = Mem[R31New + $9C] + Mem[R31New + $A0]
+f001c890	mv_s r13,r1
+f001c892	mv_s #$800001d8,r5
+;Bios call: FileLSeek: R0 = fd, R1 = offset, R2 = whence, R3 = pErrnum
+f001c898	jsr (r5)
+;R2 = whence = 0 = SEEK_SET
+f001c89c	mv_s #$00000000,r2
+f001c89e	mv_s r28,r3
+;Compare lseek result to -1
+f001c8a0	cmp #$ffffffff,r0
+f001c8a6	lbra eq,#$f001c932
+;R0 = file descriptor handle
+f001c8aa	mv_s r16,r0
+;R2 = $400 = 512
+f001c8ac	mv_s r15,r2
+
+f001c8ae	mv_s #$800001a8,r5
+;Bios call: FileRead (R0 = fd, R1 = buf, R2 = len, R3 = pErrNum)
+f001c8b4	jsr (r5)
+f001c8b8	mv_s r28,r3
+f001c8ba	nop
+	nop
+	mv_s r12,r1
+;Compare 
+f001c8c0	cmp #$ffffffff,r0
+f001c8c6	bra eq,#$f001c928
+;R2 = Mem[R31New + $9C] + Mem[R31New + $A0] 
+f001c8c8	sub r30,r13,r2
+f001c8cc	mv_s r12,r3
+
+f001c8ce	add #$0000002c,r31,r0
+f001c8d6	mv_s #$807992d4,r5
+;Bios call: FileRead (R0 = fd, R1 = buf, R2 = len, R3 = pErrNum)
+f001c8dc	jsr (r5)
+f001c8e0	mv_s #$8079bbfc,r4
+f001c8e6	add #$00000080,r31,r1
+
+f001c8ee	mv_s r0,r28
+;Compare read count to zero
+f001c8f0	cmp #$00000000,r28
+;If read count is zero
+f001c8f2	bra eq,#$f001c934
+f001c8f4	nop
+;R30 = 0
+f001c8f6	mv_s #$00000000,r30
+
+
+SomeLoop:
+f001c8f8	add r14,r30,r29
+f001c8fc	nop
+	ld_s (r29),r10
+f001c900	asl #$fffffffd,r29,r8
+f001c904	sub r8,#$00000000,r11
+f001c908	rot r11,r10,r10
+f001c90c	bits #$00000017,>>#0,r10
+f001c910	add #$00000001,r30
+f001c912	cmp #$00000003,r30
+f001c914	lbra ls,#$f001c8f8
+f001c918	rot r8,r10,r10
+f001c91c	st_s r10,(r29)
+
+f001c91e	bra #$f001c93a
+f001c920	nop
+f001c922	mv_s #$8078e1fe,r5
+
+;Error16:
+f001c928	bra #$f001c93a
+;R28 = error value -16
+f001c92a	mv_s #$fffffff0,r28
+f001c92c	mv_s #$8078e1fe,r5
+
+;R28 = error value -15
+f001c932	mv_s #$fffffff1,r28
+
+f001c934	mv_s #$8078e1fe,r5
+
+;Call $F000F1AE
+f001c93a	jsr (r5)
+f001c93e	nop
+f001c940	mv_s r12,r0
+f001c942	lbra #$f001c954,nop
+
+;Error14:
+f001c946	bra #$f001c954
+f001c948	nop
+;R28 = error value = -14
+f001c94a	mv_s #$fffffff2,r28
+
+;Error10: 
+f001c94c	bra #$f001c954
+f001c94e	nop
+;R28 = error value = -12
+f001c950	mv_s #$fffffff4,r28
+
+;R28 = -11
+f001c952	mv_s #$fffffff5,r28
+
+;CheckStatus:
+;Compare status to zero
+f001c954	cmp #$00000000,r28
+;If status is zero, branch to MoveStatusToR0
+f001c956	bra eq,#$f001c976
+;ErrorOccurred:
+f001c958	nop
+;R5 = address of Kprintf bios routine
+f001c95a	mv_s #$80000488,r5
+
+f001c960	sub #$00000010,r31
+f001c962	mv_s #$807a59e0,r10
+f001c968	st_s r10,(r31)
+;Bios call: Kprintf ("blessings error")
+f001c96a	jsr (r5)
+f001c96e	add #$00000004,r31,r10
+f001c972	st_s r28,(r10)
+
+f001c974	add #$00000010,r31
+
+;MoveStatusToR0:
+;R0 = R28
+f001c976	mv_s r28,r0
+;Epilogue:
+f001c978	nop
+	ld_v (r31),v4
+	add #$00000010,r31
+f001c980	ld_v (r31),v3
+	add #$000000b0,r31
+f001c988	ld_v (r31),v7
+f001c98c	nop
+f001c98e	st_s r29,rz
+;Return
+f001c990	rts
+f001c992	add #$00000010,r31
+f001c994	nop
+============================================
+SetupMD5
+============================================
+;Start of SetupMD5 routine (called by blessing routine):
+;1) store ({$67452301,$efcdab89,$98badcfe,$10325476}) to Mem[R0]
+;2) store $0 to Mem[R0+$44]
+f001a2cc	ld_s rz,r8
+f001a2ce	sub #$00000010,r31
+f001a2d0	st_v v2,(r31)
+;Call InitMD5Variables routine at $F001AFA4
+f001a2d4	jsr #$80799f44,nop
+
+f001a2dc	add #$00000044,r0
+f001a2e0	mv_s #$00000000,r1
+;Mem[R0+$44] = 0
+f001a2e2	st_s r1,(r0)
+;Epilogue:
+f001a2e4	ld_v (r31),v2
+f001a2e8	add #$00000010,r31
+f001a2ea	st_s r8,rz
+f001a2ec	nop
+f001a2ee	rts
+f001a2f0	nop
+f001a2f2	nop
+===============================================
+InitMD5Variables
+===============================================
+;Start of InitMD5Variables routine: store vector to Mem[R0] ({$67452301,$efcdab89,$98badcfe,$10325476})
+f001afa4	mv_s #$67452301,r1
+;Mem[R0] = $67452301
+f001afaa	st_s r1,(r0)
+	add #$00000004,r0
+f001afae	mv_s #$efcdab89,r1
+;Mem[R0+4] = $efcdab89
+f001afb4	st_s r1,(r0)
+	add #$00000004,r0
+f001afb8	nop
+	mv_s #$98badcfe,r1
+;Mem[R0+8] = $98badcfe
+f001afc0	st_s r1,(r0)
+	add #$00000004,r0
+f001afc4	rts
+f001afc6	mv_s #$10325476,r1
+;Mem[R0+12] = $10325476
+f001afcc	st_s r1,(r0)
+===============================================
+GetSubblockMD5
+===============================================
+;Start of GetSubblockMD5 Routine: R0 = pMD5Vars (R31 + $2C), R1 = filebuf (R31 + $80)
+f001a2f4	ld_s rz,r8
+f001a2f6	sub #$00000010,r31
+f001a2f8	nop
+	nop
+	st_v v2,(r31)
+;R4 = [R0 + $50]
+f001a300	add #$00000050,r0,r4
+;R5 = Mem[R0 + $50]
+f001a308	ld_s (r4),r5
+f001a30a	nop
+;R5 = Mem[R0 + $50] + 64
+f001a30c	add #$00000040,r5
+;Mem[R0 + $50] = (Mem[R0 + $50] + 64)
+f001a310	st_s r5,(r4)
+;Call DoMD5Subblock routine at $F001AFCE (R0 = filebuf, R1 = pMD5Vars, R2 = pMD5Vars + $10, R3 = pMD5Vars)
+f001a312	mv_s r0,r3
+	jsr #$80799f6e
+;R0 = filebuf, R1 = pMD5Vars
+f001a31c	mv_s r1,r0
+	copy r3,r1
+;R2 = pMD5Vars + $10
+f001a320	add #$00000010,r3,r2
+;Epilogue:
+f001a324	ld_v (r31),v2
+f001a328	add #$00000010,r31
+f001a32a	st_s r8,rz
+f001a32c	nop
+f001a32e	rts
+f001a330	nop
+f001a332	nop
+===================================================
+DoMD5Subblock
+===================================================
+;Start of DoMD5Subblock routine at $F001AFCE (R0 = sourcebuf, R1 = hashbuf, R2 = hashbuf + $10, R3 = hashbuf)
+;(Sourcebuf is the COFF digest, hashbuf is the weird hash string}
+f001afce	sub #$00000010,r31
+f001afd0	st_v v2,(r31)
+f001afd4	sub #$00000010,r31
+f001afd6	st_v v3,(r31)
+f001afda	sub #$00000010,r31
+f001afdc	st_v v4,(r31)
+f001afe0	sub #$00000010,r31
+f001afe2	st_v v1,(r31)
+f001afe6	sub #$00000010,r31
+f001afe8	st_v v5,(r31)
+f001afec	ld_s rz,r8
+f001afee	sub #$00000010,r31
+f001aff0	st_v v2,(r31)
+
+;Call ProcessMD5Subblock routine at $F001B19E (R0 = hashbuf, R1 = sourcebuf, R2 = hashbuf + $10)
+f001aff4	jsr #$8079a13e
+;R0 = hashbuf, R1 = sourcebuf
+f001affc	mv_s r0,r1
+	copy r1,r0
+;R22 = hashbuf + $10
+f001b000	mv_s r2,r22
+;Epilogue:
+f001b002	ld_v (r31),v2
+f001b006	add #$00000010,r31
+f001b008	st_s r8,rz
+f001b00a	ld_v (r31),v5
+f001b00e	add #$00000010,r31
+f001b010	ld_v (r31),v1
+f001b014	add #$00000010,r31
+f001b016	ld_v (r31),v4
+f001b01a	add #$00000010,r31
+f001b01c	ld_v (r31),v3
+f001b020	add #$00000010,r31
+f001b022	ld_v (r31),v2
+f001b026	add #$00000010,r31
+f001b028	rts
+f001b02a	nop
+f001b02c	nop
+===================================================
+ProcessMD5SubBlock
+===================================================
+;ProcessMD5SubBlock Routine at $F001B19E (R0 = hashbuf, R1 = sourcebuf, R2 = hashbuf + $10, R22 = hashbuf + $10)
+f001b19e	nop
+f001b1a0	push v1
+f001b1a2	push v0,rz
+;R12 = hashbuf
+f001b1a4	copy r0,r12
+;R16 = $8078226C (offset $2F70 into ROM image, 's' circular shift count lookup table)
+f001b1a6	mv_s #$8078226c,r16
+;R17 = $8078227C (offset $2F80 into ROM image, 't' constants lookup table)
+f001b1ac	mv_s #$8078227c,r17
+;R0 = hashbuf + $10
+f001b1b2	copy r22,r0
+;R2 = bytecount = 64
+f001b1b4	mv_s #$00000040,r2
+;Call SwapScalarBytes routine at $F001B2EC (R0 = destbuf, R1 = srcbuf, R2 = bytecount)
+f001b1b8	jsr #$8079a28c
+;R13 = hashbuf
+f001b1c0	copy r12,r13
+;R21 = 4
+f001b1c2	mv_s #$00000004,r21
+
+;R14 = Mem[hashbuf]
+f001b1c4	ld_s (r12),r14
+f001b1c6	addm r21,r13,r13
+;R15 = Mem[hashbuf + $4]
+f001b1ca	ld_s (r13),r15
+f001b1cc	add #$00000004,r13
+f001b1ce	copy r14,r4
+;R2 = Mem[hashbuf + $8]
+f001b1d0	ld_s (r13),r2
+f001b1d2	addm r21,r13,r13
+;R3 = Mem[hashbuf + $C]
+f001b1d6	ld_s (r13),r3
+;R1 = Mem[hashbuf + $4]
+f001b1d8	copy r15,r1
+;R19 = 4
+f001b1da	copy r21,r19
+;R13 = Md5Counter = 0
+f001b1dc	nop
+	mv_s #$00000000,r13
+;R20 = $3C, R14 = 0
+f001b1e0	lsr #$00000004,r13,r14
+	mv_s #$0000003c,r20
+
+;MD5Loop:
+;R15 = (R13 & $F0)
+f001b1e8	and #$000000f0,r13,r15
+;R15 = ((R13 & $F0) >> 2)
+f001b1f0	lsr #$00000002,r15
+;R21 = (R13 & $3)
+f001b1f2	and #$00000003,r13,r21
+;R15 = (R13 & $3) | ((R13 & $F0) >> 2) (no intermediate carries ever occur)
+;R18 = (R13 << 2)
+f001b1f6	nop
+	addm r21,r15,r15
+	asl #$fffffffe,r13,r18
+;R15 = [(R13 & $3) | ((R13 & $F0) >> 2)] + $8078226c, Call routine at $F001B180
+f001b200	jsr #$8079a120
+	add r16,r15
+;R6 =  Mem[$8078226c + [(R13 & $3) | ((R13 & $F0) >> 2)]] ('s' rotation count for current MD5 block)
+f001b20a	ld_b (r15),r6
+;R18 = (R13 << 2) + $8078227C (address of 't' constant for current MD5 sub-block)
+f001b20e	add r17,r18
+
+;Call CalculateMD5Function routine at $F001B28E,
+; R6 = (Mem[$8078226c + [(R13 & $3) | ((R13 & $F0) >> 2)]] >> 24) ('s' rotation count)
+;(R6 = (Mem[$F0002F2C + [(R13 & $3) | ((R13 & $F0) >> 2)]] >> 24)) 
+f001b210	jsr #$8079a22e
+	lsr #$00000018,r6
+;R7 = Mem[$8078227C + (R13 << 2)] ('t' constant)
+f001b21a	ld_s (r18),r7
+;R0 = R14
+f001b21c	copy r14,r0
+
+;R13 = R13 + 1
+f001b21e	add #$00000001,r13
+;R14 = (R13 >> 4): MD5 Round
+f001b220	lsr #$00000004,r13,r14
+;R15 = (R13 & $F): 
+f001b224	and #$0000000f,r13,r15
+;Compare R15 to $0
+f001b228	cmp #$00000000,r15
+;If R15 is 0, branch to MD5Loop
+f001b22a	lbra ne,#$f001b1e8,nop
+;Compare R13 to $10
+f001b22e	cmp #$00000010,r13
+;If round 1, branch to Round1
+f001b230	lbra eq,#$f001b274,nop
+;Compare R13 to $20
+f001b234	cmp #$00000020,r13
+;If round 2, branch to Round2
+f001b238	lbra eq,#$f001b27e,nop
+;Compare R13 to $30
+f001b23c	cmp #$00000030,r13
+;If round 3, branch to Round3
+f001b240	lbra eq,#$f001b284,nop
+
+f001b244	add #$00000004,r12,r13
+;R5 = hashbuf[0]
+f001b248	ld_s (r12),r5
+f001b24a	add #$00000004,r13,r14
+;R6 = hashbuf[4]
+f001b24e	ld_s (r13),r6
+f001b250	add #$00000004,r14,r15
+;R7 = hashbuf[8]
+f001b254	ld_s (r14),r7
+f001b256	addm r4,r5,r5
+f001b25a	add r1,r6
+;R8 = hashbuf[12]
+f001b25c	ld_s (r15),r8
+f001b25e	add r2,r7
+f001b260	st_s r5,(r12)
+f001b262	add r3,r8
+f001b264	st_s r6,(r13)
+f001b266	st_s r7,(r14)
+f001b268	st_s r8,(r15)
+;Epilogue:
+f001b26a	pop v0,rz
+f001b26c	pop v1
+;Return
+f001b26e	rts
+f001b270	nop
+f001b272	nop
+
+;Round1:
+;Branch back to MD5Loop
+f001b274	bra #$f001b1e8
+;R19 = 20
+f001b276	mv_s #$00000014,r19
+;R20 = 48
+f001b27a	mv_s #$00000030,r20
+
+;Round2:
+;Branch back to MD5Loop
+f001b27e	bra #$f001b1e8
+;R19 = 12
+f001b280	mv_s #$0000000c,r19
+;R20 = 8
+f001b282	mv_s #$00000008,r20
+
+;Round3:
+;Branch back to MD5Loop
+f001b284	bra #$f001b1e8
+;R19 = 28
+f001b286	mv_s #$0000001c,r19
+;R20 = 36
+f001b28a	mv_s #$00000024,r20
+===================================================
+SwapScalarBytes
+===================================================
+;Start of SwapScalarBytes routine (R0 = destBuffer, R1 = srcBuffer, R2 = bytecount)
+;TestByteCount:
+;R4 = srcbuffer[currentPos]
+f001b2ec	ld_s (r1),r4
+f001b2ee	cmp #$00000000,r2
+;R5 = R4 >> 24, R10 = $FF00
+f001b2f0	nop
+	nop
+	bra eq,#$f001b32a
+	mv_s #$0000ff00,r10
+	lsr #$00000018,r4,r5
+;R6 = R4 << 24, R9 = $FF0000
+f001b300	mv_s #$00ff0000,r9
+	asl #$ffffffe8,r4,r6
+;R7 = R4, R5 = (R4 << 24)|(R4 >> 24)
+f001b30a	mv_s r4,r7
+	or r6,r5
+
+;R8 = R4, R7 = (R4 & $FF0000)
+f001b30e	mv_s r7,r8
+	and r9,r7
+;R11 = 4, R7 = ((R4 & $FF0000) >> 8)
+f001b312	mv_s #$00000004,r11
+	lsr #$00000008,r7
+R5 = (R4 << 24)|((R4 & $FF0000) >> 8)|(R4 >> 24), R2 = R2 - 4
+f001b316	subm r11,r2,r2
+	or r7,r5
+;R8 = (R4 & $FF00)
+f001b31c	and r10,r8
+;R8 = ((R4 & $FF00) << 8)
+f001b31e	asl #$fffffff8,r8
+R5 = (R4 << 24)|((R4 & $FF00) << 8)|((R4 & $FF0000) >> 8)|(R4 >> 24)
+f001b320	or r8,r5
+;Store swapped scalar at current destBuffer location, branch back to TestByteCount
+f001b322	st_s r5,(r0)
+	bra #$f001b2ec
+;Increment srcbuf pointer by 4
+f001b326	add #$00000004,r1
+;Increment destbuf pointer by 4
+f001b328	add #$00000004,r0
+;Epilogue:
+f001b32a	rts
+f001b32c	nop
+f001b32e	nop
+===================================================
+FunctionAtF001B180
+===================================================
+;R8 = R4, R4 = R3, R20 = R20 + R19
+f001b180	mv_s r4,r8
+	addm r19,r20,r20
+	copy r3,r4
+;R3 = R2, R2 = R1
+f001b188	mv_s r1,r2
+	copy r2,r3
+;R20 = R20 & $3F, return
+f001b18c	rts
+	and #$0000003f,r20,r20
+;R1 = R8, R21 = R20 + R22
+f001b196	addm r20,r22,r21
+	copy r8,r1
+;R5 = Mem[R20 + R22]
+f001b19c	ld_s (r21),r5
+===================================================
+CalculateMD5Function
+===================================================
+;Start of CalculateMD5Function routine: R0 = function index (0 = F, 1 = G, 2 = H, 3 = I)
+;Output is  b + ((a + func(b,c,d) + Mi + ti) <<< s) in R1
+f001b28e	cmp #$00000000,r0
+;If equal to, branch to MD5 function F(X,Y,Z)
+f001b290	bra eq,#$f001b2ae
+f001b292	add r5,r7,r10
+	mv_s r6,r11
+f001b298	addm r1,r10,r10
+	neg r11
+
+f001b29e	cmp #$00000001,r0
+;If equal to, branch to MD5 function G(X,Y,Z)
+f001b2a0	lbra eq,#$f001b2c0,nop
+
+f001b2a4	cmp #$00000002,r0
+;If equal to, branch to MD5 function H(X,Y,Z)
+f001b2a6	lbra eq,#$f001b2ce,nop
+;Branch to MD5 function I(X,Y,Z)
+f001b2aa	lbra gt,#$f001b2d6,nop
+
+
+;MD5 Function F(X,Y,Z): (X and Y) or (Z and (not X)), X = R2, Y = R3, Z = R4
+;R8 = X, R9 = X & Y
+f001b2ae	mv_s r2,r8
+	and r2,r3,r9
+
+;R8 = ~X, branch to Epilogue
+f001b2b4	bra #$f001b2e0
+	eor #$ffffffff,r8
+;R8 = Z & ~X
+f001b2b8	and r4,r8
+;R8 = (X & Y) | (Z & ~X)
+f001b2ba	nop
+	nop
+	or r9,r8
+
+;MD5 Function G(X,Y,Z): (X and Z) or (Y and (not Z)), X = R2, Y = R3, Z = R4
+;R8 = Z, R9 = X & Z
+f001b2c0	mv_s r4,r8
+	and r2,r4,r9
+
+;Branch to Epilogue
+;R8 = ~Z, branch to Epilogue
+f001b2c6	bra #$f001b2e0
+	eor #$ffffffff,r8
+;R8 = Y & ~Z 
+f001b2ca	and r3,r8
+;R8 = (X & Z) | (Y & ~Z)
+f001b2cc	or r9,r8
+
+;MD5 Function H(X,Y,Z): X xor Y xor Z, X = R2, Y = R3, Z = R4
+;Branch to Epilogue
+f001b2ce	bra #$f001b2e0
+f001b2d0	eor r2,r3,r8
+f001b2d4	eor r4,r8
+
+;MD5 Function I(X,Y,Z): Y xor (X or (not Z)), X = R2, Y = R3, Z = R4
+f001b2d6	mv_s r4,r8
+f001b2d8	eor #$ffffffff,r8
+;Branch to Epilogue
+f001b2da	bra #$f001b2e0
+f001b2dc	or r2,r8
+f001b2de	eor r3,r8
+
+;Epilogue:
+;R1 = (a + func(b,c,d) + Mi + ti), return
+f001b2e0	add r8,r10,r1
+	rts
+;R1 = ((a + func(b,c,d) + Mi + ti) <<< s)
+f001b2e6	rot r11,r1,r1
+;R1 = b + ((a + func(b,c,d) + Mi + ti) <<< s)
+f001b2ea	add r2,r1
+===================================================
+F000F200
+===================================================
+;Called by COFF loader: R0 = size of sections + 20, R1 = buffer
+f000f200	ld_s rz,r29
+f000f202	sub #$00000010,r31
+f000f204	st_v v7,(r31)
+f000f208	mv_s r31,r30
+;R1 = size of sections + 20
+f000f20a	mv_s r0,r1
+f000f20c	mv_s #$8078198c,r10
+;R0 = Mem[$F000264C] = $80781980
+f000f212	ld_s (r10),r0
+f000f214	nop
+f000f216	mv_s #$8078d886,r6
+;Call $F000E8E6
+f000f21c	jsr (r6)
+f000f220	nop
+;R2 = 16
+f000f222	mv_s #$00000010,r2
+f000f226	cmp #$00000000,r0
+f000f228	bra eq,#$f000f250
+f000f22a	add #$00000008,r0,r8
+f000f22e	mv_s #$00000001,r9
+
+f000f230	ld_s (r8),r10
+f000f232	asr #$00000001,r8,r11
+f000f236	asl #$fffffffc,r11
+f000f238	rot r11,r10,r10
+f000f23c	nop
+	mv_s #$fffffff0,r29
+f000f240	bits #$0000000f,>>#0,r10
+f000f244	or r9,>>r29,r10
+f000f248	rot r11,r10,r10
+f000f24c	st_s r10,(r8)
+f000f24e	ld_s (r0),r0
+;Epilogue:
+f000f250	ld_v (r31),v7
+f000f254	nop
+f000f256	st_s r29,rz
+f000f258	rts
+f000f25a	add #$00000010,r31
+f000f25c	nop
+===================================================
+F000E8E6
+===================================================
+;Start of routine
+f000e8e6	ld_s rz,r29
+f000e8e8	sub #$00000010,r31
+f000e8ea	st_v v7,(r31)
+f000e8ee	mv_s r31,r30
+	sub #$00000010,r31
+f000e8f2	st_v v3,(r31)
+	sub #$00000010,r31
+f000e8f8	st_v v4,(r31)
+f000e8fc	mv_s r1,r14
+f000e8fe	cmp #$00000000,r14
+f000e900	bra ne,#$f000e908
+f000e902	mv_s r0,r15
+f000e904	mv_s r2,r13
+f000e906	mv_s #$00000001,r14
+f000e908	cmp #$0000000f,r13
+f000e90a	lbra hi,#$f000e91a
+f000e90e	nop
+f000e910	mv_s #$8078d734,r16
+f000e916	mv_s #$00000010,r13
+;Call $F000E794
+f000e91a	nop
+	jsr (r16)
+f000e920	add #$0000000f,r14,r10
+f000e924	and #$fffffff0,r10,r14
+f000e928	ld_s (r15),r30
+f000e92a	nop
+f000e92c	cmp #$00000000,r30
+f000e92e	lbra eq,#$f000e9e0
+f000e932	nop
+f000e934	mv_s r0,r12
+f000e936	add #$00000008,r30,r28
+f000e93a	ld_s (r28),r10
+f000e93c	nop
+f000e93e	lsr #$00000010,r10
+f000e940	cmp #$00000000,r10
+f000e942	lbra ne,#$f000e9d0
+f000e946	nop
+f000e948	add #$0000000c,r30,r10
+f000e94c	add #$00000004,r30,r4
+f000e950	ld_s (r4),r3
+f000e952	nop
+f000e954	cmp r14,r3
+f000e956	bra ne,#$f000e9a8
+f000e958	nop
+f000e95a	sub #$00000001,r13,r11
+f000e95e	ld_s (r30),r10
+f000e960	nop
+f000e962	and r11,r10
+f000e964	cmp #$00000000,r10
+f000e966	bra ne,#$f000e9a8
+f000e968	nop
+f000e96a	cmp #$00000000,r12
+f000e96c	bra eq,#$f000e97e
+f000e96e	nop
+f000e970	mv_s #$8078d85c,r3
+f000e976	jsr (r3)
+f000e97a	nop
+f000e97c	mv_s r12,r0
+f000e97e	ld_s (r28),r10
+f000e980	asr #$00000001,r28,r29
+f000e984	asl #$fffffffc,r29
+f000e986	mv_s r10,r11
+f000e988	bits #$0000000f,>>#16,r11
+f000e98c	mv_s r30,r0
+f000e98e	add #$00000001,r11
+f000e990	rot r29,r10,r10
+f000e994	bits #$0000000f,>>#0,r11
+f000e998	bits #$0000000f,>>#0,r10
+f000e99c	or r11,>>#-16,r10
+f000e9a0	bra #$f000ebe0
+f000e9a2	rot r29,r10,r10
+f000e9a6	st_s r10,(r28)
+f000e9a8	cmp r14,r3
+f000e9aa	lbra ls,#$f000e9cc
+f000e9ae	nop
+f000e9b0	sub #$00000001,r13,r11
+f000e9b4	ld_s (r30),r10
+f000e9b6	nop
+f000e9b8	and r11,r10
+f000e9ba	cmp #$00000000,r10
+f000e9bc	bra ne,#$f000e9cc
+f000e9be	nop
+f000e9c0	cmp #$00000000,r12
+f000e9c2	bra ne,#$f000ea04
+f000e9c4	nop
+f000e9c6	mv_s #$00000000,r0
+f000e9c8	lbra #$f000ebe0,nop
+f000e9cc	add #$0000000c,r30,r10
+f000e9d0	ld_s (r10),r30
+f000e9d2	nop
+f000e9d4	cmp #$00000000,r30
+f000e9d6	lbra ne,#$f000e93a
+f000e9da	nop
+f000e9dc	add #$00000008,r30,r28
+f000e9e0	jsr (r16),nop
+f000e9e4	mv_s r0,r28
+f000e9e6	cmp #$00000000,r28
+f000e9e8	lbra eq,#$f000ebcc
+f000e9ec	nop
+f000e9ee	cmp #$00000010,r13
+f000e9f0	lbra ls,#$f000ea7e
+f000e9f4	add r14,r13,r10
+f000e9f8	add #$0000000e,r10
+f000e9fa	bra #$f000ea80
+f000e9fc	nop
+	nop
+f000ea00	and #$fffffff0,r10,r11
+f000ea04	add #$0000000c,r30,r9
+f000ea08	mv_s #$fffffff0,r7
+f000ea0a	ld_s (r9),r11
+f000ea0c	add #$0000000c,r12,r10
+f000ea10	add #$0000000a,r12,r8
+f000ea14	st_s r11,(r10)
+f000ea16	asr #$00000001,r8,r29
+f000ea1a	st_s r12,(r9)
+f000ea1c	asl #$fffffffc,r29
+f000ea1e	ld_s (r8),r10
+f000ea20	add #$00000004,r12,r6
+f000ea24	ld_s (r28),r11
+f000ea26	asr #$00000001,r28,r9
+f000ea2a	rot r29,r10,r10
+f000ea2e	and #$0000000f,<>#0,r11
+f000ea32	mv_s r30,r0
+f000ea34	bits #$0000000f,>>#0,r10
+f000ea38	or r11,>>r7,r10
+f000ea3c	rot r29,r10,r10
+f000ea40	st_s r10,(r8)
+f000ea42	asl #$fffffffc,r9
+f000ea44	ld_s (r30),r30
+f000ea46	nop
+f000ea48	add r30,r14,r10
+f000ea4c	st_s r10,(r12)
+f000ea4e	ld_s (r4),r3
+f000ea50	nop
+f000ea52	sub r14,r3,r10
+f000ea56	st_s r10,(r6)
+f000ea58	st_s r14,(r4)
+f000ea5a	ld_s (r28),r10
+f000ea5c	nop
+f000ea5e	mv_s r10,r11
+f000ea60	bits #$0000000f,>>#16,r11
+f000ea64	add #$00000001,r11
+f000ea66	rot r9,r10,r10
+f000ea6a	bits #$0000000f,>>#0,r11
+f000ea6e	bits #$0000000f,>>#0,r10
+f000ea72	or r11,>>r7,r10
+f000ea76	bra #$f000ebe0
+f000ea78	rot r9,r10,r10
+f000ea7c	st_s r10,(r28)
+f000ea7e	mv_s r14,r11
+f000ea80	ld_s (r15),r30
+f000ea82	nop
+f000ea84	cmp #$00000000,r30
+f000ea86	lbra eq,#$f000ebcc
+f000ea8a	nop
+f000ea8c	add #$00000008,r30,r2
+f000ea90	ld_s (r2),r10
+f000ea92	nop
+f000ea94	lsr #$00000010,r10
+f000ea96	cmp #$00000000,r10
+f000ea98	lbra ne,#$f000ebb8
+f000ea9c	nop
+	nop
+f000eaa0	add #$00000004,r30,r5
+f000eaa4	ld_s (r5),r8
+f000eaa6	nop
+f000eaa8	cmp r11,r8
+f000eaaa	lbra cs,#$f000ebb8,nop
+f000eaae	ld_s (r30),r29
+f000eab0	sub r13,#$00000000,r11
+f000eab4	sub #$00000001,r29,r10
+f000eab8	add r13,r10
+f000eaba	and r11,r10
+f000eabc	sub r29,r10,r6
+f000eac0	cmp #$00000000,r6
+f000eac2	bra ne,#$f000ead6
+f000eac4	add r6,r14,r10
+f000eac8	sub r10,r8,r4
+f000eacc	st_s #$f0024028,rx
+f000ead4	halt
+f000ead6	cmp #$00000000,r4
+f000ead8	bra eq,#$f000eaf8
+f000eada	nop
+f000eadc	cmp #$00000000,r12
+f000eade	bra ne,#$f000eafc
+f000eae0	nop
+f000eae2	add #$0000000c,r30,r11
+f000eae6	cmp #$00000000,r28
+f000eae8	lbra eq,#$f000ebdc
+f000eaec	mv_s r28,r0
+f000eaee	mv_s #$8078d85c,r3
+f000eaf4	lbra #$f000ebd8,nop
+f000eaf8	add #$0000000c,r30,r11
+f000eafc	nop
+	ld_s (r11),r10
+f000eb00	add #$0000000c,r28,r7
+f000eb04	add #$00000004,r28,r9
+f000eb08	st_s r10,(r7)
+f000eb0a	add #$0000000a,r28,r8
+f000eb0e	st_s r28,(r11)
+f000eb10	asr #$00000001,r8,r29
+f000eb14	st_s r6,(r5)
+f000eb16	asl #$fffffffc,r29
+f000eb18	st_s r14,(r9)
+f000eb1a	ld_s (r8),r10
+f000eb1c	nop
+	ld_s (r2),r11
+f000eb20	rot r29,r10,r10
+f000eb24	and #$0000000f,<>#0,r11
+f000eb28	bits #$0000000f,>>#0,r10
+f000eb2c	or r11,>>#-16,r10
+f000eb30	rot r29,r10,r10
+f000eb34	st_s r10,(r8)
+f000eb36	ld_s (r30),r30
+f000eb38	cmp #$00000000,r4
+f000eb3a	bra eq,#$f000eb88
+f000eb3c	add r30,r6,r10
+f000eb40	st_s r10,(r28)
+f000eb42	ld_s (r7),r11
+f000eb44	add #$0000000c,r12,r10
+f000eb48	add #$0000000a,r12,r8
+f000eb4c	st_s r11,(r10)
+f000eb4e	asr #$00000001,r8,r29
+f000eb52	st_s r12,(r7)
+f000eb54	add #$00000008,r28,r11
+f000eb58	ld_s (r8),r10
+f000eb5a	asl #$fffffffc,r29
+f000eb5c	nop
+	ld_s (r11),r11
+f000eb60	add #$00000004,r12,r9
+f000eb64	rot r29,r10,r10
+f000eb68	and #$0000000f,<>#0,r11
+f000eb6c	bits #$0000000f,>>#0,r10
+f000eb70	or r11,>>#-16,r10
+f000eb74	rot r29,r10,r10
+f000eb78	st_s r10,(r8)
+f000eb7a	ld_s (r28),r3
+f000eb7c	nop
+	nop
+f000eb80	add r3,r14,r10
+f000eb84	st_s r10,(r12)
+f000eb86	st_s r4,(r9)
+f000eb88	add #$00000008,r28,r8
+f000eb8c	mv_s r28,r0
+f000eb8e	ld_s (r8),r10
+f000eb90	asr #$00000001,r8,r29
+f000eb94	asl #$fffffffc,r29
+f000eb96	mv_s r10,r11
+f000eb98	bits #$0000000f,>>#16,r11
+f000eb9c	nop
+	add #$00000001,r11
+f000eba0	rot r29,r10,r10
+f000eba4	bits #$0000000f,>>#0,r11
+f000eba8	bits #$0000000f,>>#0,r10
+f000ebac	or r11,>>#-16,r10
+f000ebb0	bra #$f000ebe0
+f000ebb2	rot r29,r10,r10
+f000ebb6	st_s r10,(r8)
+f000ebb8	add #$0000000c,r30,r10
+f000ebbc	ld_s (r10),r30
+f000ebbe	nop
+f000ebc0	cmp #$00000000,r30
+f000ebc2	lbra ne,#$f000ea90
+f000ebc6	nop
+f000ebc8	add #$00000008,r30,r2
+f000ebcc	cmp #$00000000,r12
+f000ebce	bra eq,#$f000ebdc
+f000ebd0	mv_s r12,r0
+f000ebd2	mv_s #$8078d85c,r3
+f000ebd8	jsr (r3),nop
+f000ebdc	nop
+	mv_s #$00000000,r0
+f000ebe0	ld_v (r31),v4
+	add #$00000010,r31
+f000ebe6	ld_v (r31),v3
+	add #$00000010,r31
+f000ebec	ld_v (r31),v7
+f000ebf0	nop
+f000ebf2	st_s r29,rz
+f000ebf4	rts
+f000ebf6	add #$00000010,r31
+f000ebf8	nop
+====================================
+F000E794
+====================================
+f000e794	ld_s rz,r29
+f000e796	sub #$00000010,r31
+f000e798	st_v v7,(r31)
+f000e79c	mv_s r31,r30
+	sub #$00000010,r31
+f000e7a0	st_v v3,(r31)
+f000e7a4	mv_s #$807b84f0,r13
+f000e7aa	ld_s (r13),r12
+f000e7ac	nop
+f000e7ae	cmp #$00000000,r12
+f000e7b0	lbra eq,#$f000e8a6
+f000e7b4	add #$0000000c,r12,r10
+f000e7b8	mv_s #$00000000,r11
+f000e7ba	ld_s (r10),r29
+f000e7bc	nop
+f000e7be	cmp #$00000000,r29
+f000e7c0	lbra eq,#$f000e8a6
+f000e7c4	st_s r11,(r10)
+f000e7c6	st_s r29,(r13)
+f000e7c8	add #$0000000c,r29,r10
+f000e7cc	ld_s (r10),r2
+f000e7ce	nop
+f000e7d0	cmp #$00000000,r2
+f000e7d2	lbra ne,#$f000e8a8
+f000e7d6	nop
+f000e7d8	mv_s r12,r0
+f000e7da	mv_s #$8078198c,r10
+f000e7e0	ld_s (r10),r0
+f000e7e2	nop
+f000e7e4	mv_s #$8078d886,r30
+f000e7ea	jsr (r30)
+f000e7ee	mv_s #$00000400,r28
+f000e7f2	mv_s r28,r1
+f000e7f4	mv_s r0,r2
+f000e7f6	cmp #$00000000,r2
+f000e7f8	bra ne,#$f000e82e
+f000e7fa	nop
+	nop
+	nop
+f000e800	mv_s #$80781988,r10
+f000e806	ld_s (r10),r0
+f000e808	nop
+f000e80a	jsr (r30)
+f000e80e	nop
+f000e810	mv_s r28,r1
+f000e812	mv_s r0,r2
+f000e814	cmp #$00000000,r2
+f000e816	bra ne,#$f000e82e
+f000e818	nop
+f000e81a	mv_s #$80781984,r10
+f000e820	ld_s (r10),r0
+f000e822	nop
+f000e824	jsr (r30)
+f000e828	nop
+f000e82a	mv_s r28,r1
+f000e82c	mv_s r0,r2
+f000e82e	cmp #$00000000,r2
+f000e830	bra eq,#$f000e838
+f000e832	nop
+f000e834	mv_s #$00000000,r6
+f000e836	ld_s (r2),r6
+f000e838	nop
+f000e83a	cmp #$00000000,r6
+f000e83c	bra eq,#$f000e8a6
+f000e83e	nop
+f000e840	add #$000003fc,r6,r10
+f000e848	mv_s #$00000000,r8
+f000e84a	add #$000003f8,r6,r29
+f000e852	st_s r8,(r10)
+f000e854	ld_s (r29),r10
+f000e856	asr #$00000001,r29,r11
+f000e85a	asl #$fffffffc,r11
+f000e85c	rot r11,r10,r10
+f000e860	mv_s #$fffffff0,r9
+f000e862	bits #$0000000f,>>#0,r10
+f000e866	mv_s r8,r7
+f000e868	or r8,>>r9,r10
+f000e86c	rot r11,r10,r10
+f000e870	st_s r10,(r29)
+f000e872	add #$0000000c,r6,r9
+f000e876	add #$00000008,r6,r29
+f000e87a	add #$00000010,r6,r8
+f000e87e	st_s r8,(r9)
+f000e880	asr #$00000001,r29,r11
+f000e884	ld_s (r29),r10
+f000e886	asl #$fffffffc,r11
+f000e888	add #$00000010,r9
+f000e88a	rot r11,r10,r10
+f000e88e	bits #$0000000f,>>#0,r10
+f000e892	rot r11,r10,r10
+f000e896	st_s r10,(r29)
+f000e898	add #$00000001,r7
+f000e89a	cmp #$0000003e,r7
+f000e89e	bra le,#$f000e87e
+f000e8a0	add #$00000010,r8
+f000e8a2	add #$00000010,r29
+f000e8a4	st_s r6,(r13)
+f000e8a6	mv_s r12,r0
+f000e8a8	ld_v (r31),v3
+	add #$00000010,r31
+f000e8ae	ld_v (r31),v7
+f000e8b2	nop
+f000e8b4	st_s r29,rz
+f000e8b6	rts
+f000e8b8	add #$00000010,r31
+f000e8ba	nop
+

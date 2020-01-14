@@ -1,0 +1,22 @@
+20301582	add r0,r0
+20301584	pop v3
+	add #$00000000,r0
+20301588	add r16,r0
+2030158a	add r16,r0
+2030158c	lbra lt,#$2030158e,nop
+	ld_s excepclr,r13
+	add #$00000000,r0
+20301594	halt
+	add #$00000000,r0
+20301598	add r16,r0
+2030159a	add r16,r0
+2030159c	st_s r1,??register
+	bra #$2030186e
+	bra #$2030126e
+	mv_v v0,v6
+	add #$00000000,r0
+203015a8	add r16,r0
+203015aa	add r16,r0
+203015ac	st_s r1,??register
+	bra #$2030187e
+	bra #$2030127e
