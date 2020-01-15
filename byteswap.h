@@ -3,13 +3,90 @@
 
 #define LITTLE_ENDIAN
 
+#include <intrin.h>
 #include "basetypes.h"
 
 #ifdef LITTLE_ENDIAN
-void __fastcall SwapWordBytes(uint16 *toswap);
-void __fastcall SwapScalarBytes(uint32 *toswap);
-void __fastcall SwapShortVectorBytes(uint16 *toswap);
-void __fastcall SwapVectorBytes(uint32 *toswap);
+inline void SwapWordBytes(uint16 * const toswap)
+{
+#if 0 // old __fastcall dependent code
+  __asm
+  {
+    mov ax, [ecx]
+    xchg ah, al
+    mov [ecx], ax
+  }
+#else
+  *toswap = _byteswap_ushort(*toswap);
+#endif
+}
+
+inline void SwapScalarBytes(uint32 * const toswap)
+{
+#if 0 // old __fastcall dependent code
+  __asm
+  {
+    mov eax, [ecx]
+    bswap eax
+    mov [ecx], eax
+  }
+#else
+  *toswap = _byteswap_ulong(*toswap);
+#endif
+}
+
+inline void SwapShortVectorBytes(uint16 * const toswap)
+{
+#if 0 // old __fastcall dependent code
+  __asm
+  {
+    mov dx, [ecx]
+    mov ax, [ecx + 2]
+    xchg dl, dh
+    xchg al, ah
+    mov [ecx], dx
+    mov [ecx + 2], ax
+    mov dx, [ecx + 4]
+    mov ax, [ecx + 6]
+    xchg dl, dh
+    xchg al, ah
+    mov [ecx + 4], dx
+    mov [ecx + 6], ax
+  }
+#else
+  toswap[0] = _byteswap_ushort(toswap[0]);
+  toswap[1] = _byteswap_ushort(toswap[1]);
+  toswap[2] = _byteswap_ushort(toswap[2]);
+  toswap[3] = _byteswap_ushort(toswap[3]);
+#endif
+}
+
+inline void SwapVectorBytes(uint32 * const toswap)
+{
+#if 0 // old __fastcall dependent code
+  __asm
+  {
+    mov edx, [ecx]
+    mov eax, [ecx + 4]
+    bswap edx
+    bswap eax
+    mov [ecx],edx
+    mov [ecx + 4],eax
+    mov edx, [ecx + 8]
+    mov eax, [ecx + 12]
+    bswap edx
+    bswap eax
+    mov [ecx + 8],edx
+    mov [ecx + 12],eax
+  }
+#else
+  toswap[0] = _byteswap_ulong(toswap[0]);
+  toswap[1] = _byteswap_ulong(toswap[1]);
+  toswap[2] = _byteswap_ulong(toswap[2]);
+  toswap[3] = _byteswap_ulong(toswap[3]);
+#endif
+
+}
 #else
 #define SwapWordBytes(x) 
 #define SwapScalarBytes(x) 
