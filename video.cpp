@@ -1609,13 +1609,11 @@ void VidChangeBase(MPE *mpe)
   }
 }
 
-void VidChangeScroll(MPE *mpe)
+void VidChangeScroll(MPE * const mpe)
 {
-  int32 which, xoff, yoff;
-
-  which = mpe->regs[0];
-  xoff = mpe->regs[1];
-  yoff = mpe->regs[2];
+  const int32 which = mpe->regs[0];
+  const int32 xoff = mpe->regs[1];
+  const int32 yoff = mpe->regs[2];
 
   mpe->regs[0] = 1;
 
@@ -1661,7 +1659,7 @@ void VidChangeScroll(MPE *mpe)
   }
 }
 
-void SetDefaultColor(MPE *mpe)
+void SetDefaultColor(MPE * const mpe)
 {
   structMainDisplay.bordcolor = mpe->regs[0];
   videoTexInfo.bUpdateDisplayList = true;
@@ -1670,26 +1668,23 @@ void SetDefaultColor(MPE *mpe)
   nuonEnv->bOverlayBufferModified = true;
 }
 
-void VidSetCLUTRange(MPE *mpe)
+void VidSetCLUTRange(MPE * const mpe)
 {
-  uint32 index, numColors, colors;
-  uint32 count, *pCLUT, *pColors;
+  uint32 count = 0;
 
-  index = mpe->regs[0];
-  numColors = mpe->regs[1];
-  colors = mpe->regs[2];
+  const uint32 numColors = mpe->regs[1];
+  const uint32 colors = mpe->regs[2];
 
   if(colors)
   {
-    pColors = (uint32 *)nuonEnv->GetPointerToMemory(mpe, colors);
-    pCLUT = &vdgCLUT[index];
+    uint32 index = mpe->regs[0];
+    const uint32 * const pColors = (uint32 *)nuonEnv->GetPointerToMemory(mpe, colors);
+    uint32 * const pCLUT = &vdgCLUT[index];
 
-    for(count = 0; (index < 256) && (count < numColors); index++, count++)
+    for(; (index < 256) && (count < numColors); index++, count++)
     {
-      *pCLUT = *pColors;
-      //SwapScalarBytes(pCLUT);
-      pColors++;
-      pCLUT++;
+      pCLUT[count] = pColors[count];
+      //SwapScalarBytes(&pCLUT[count]);
     }
   }
 

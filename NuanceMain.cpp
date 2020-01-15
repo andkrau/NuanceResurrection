@@ -88,10 +88,9 @@ void SetMPERunStatus(uint32 which, bool bRun)
 
 void UpdateStatusWindowDisplay()
 {
-  static char buf[1024];
-
   if(whichStatus == 0)
   {
+    char buf[1024];
     sprintf(buf,"Pending Comm Requests = %lu\n",nuonEnv->pendingCommRequests);
     SendMessage(reStatus,WM_SETTEXT,NULL,LPARAM(buf));
     sprintf(buf,"MPE0 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv->mpe[0]->commctl,nuonEnv->mpe[0]->commxmit0,nuonEnv->mpe[0]->commrecv0,nuonEnv->mpe[0]->comminfo);
@@ -109,6 +108,7 @@ void UpdateStatusWindowDisplay()
   }
   else if(whichStatus == 1)
   {
+    char buf[1024];
     sprintf(buf,"Main Channel = %s : Overlay Channel = %s\n",bMainChannelActive ? "ON" : "OFF",bOverlayChannelActive ? "ON" : "OFF");
     SendMessage(reStatus,WM_SETTEXT,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
@@ -159,6 +159,7 @@ void UpdateStatusWindowDisplay()
   }
   else
   {
+    char buf[1024];
     sprintf(buf,"Interpreter cache flushes: (%d, %d, %d, %d)\n",
       nuonEnv->mpe[0]->numInterpreterCacheFlushes,
       nuonEnv->mpe[1]->numInterpreterCacheFlushes,
@@ -242,7 +243,6 @@ void UpdateStatusWindowDisplay()
     sprintf(buf,"rz/rzi1/rzi2: = ($%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv->mpe[disassemblyMPE]->rz,nuonEnv->mpe[disassemblyMPE]->rzi1,nuonEnv->mpe[disassemblyMPE]->rzi2);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-
   }
 }
 
@@ -251,25 +251,15 @@ void UpdateControlPanelDisplay()
   HWND ledHandles[] = {picMPE0LED,picMPE1LED,picMPE2LED,picMPE3LED};
   HWND pcexecHandles[] = {textMPE0Pcexec,textMPE1Pcexec,textMPE2Pcexec,textMPE3Pcexec};
 
-  uint32 i;
-  char addressStr[10];
-  static char buf[1024];
-  
-  for(i = 0; i < 4; i++)
+  for(uint32 i = 0; i < 4; i++)
   {
-    if(GetMPERunStatus(i))
-    {
-      SendMessage(ledHandles[i],STM_SETIMAGE,IMAGE_BITMAP,LPARAM(bmpLEDOn));
-    }
-    else
-    {
-      SendMessage(ledHandles[i],STM_SETIMAGE,IMAGE_BITMAP,LPARAM(bmpLEDOff));
-    }
+    SendMessage(ledHandles[i],STM_SETIMAGE,IMAGE_BITMAP, GetMPERunStatus(i) ? LPARAM(bmpLEDOn) : LPARAM(bmpLEDOff));
+    char addressStr[10];
     sprintf(addressStr,"$%8.8lX",nuonEnv->mpe[i]->pcexec);
     SendMessage(pcexecHandles[i],WM_SETTEXT,0,LPARAM(addressStr));
   }
 
-
+  char buf[1024];
   sprintf(buf,"mpe%lu: $%8.8X\n{\n", disassemblyMPE, nuonEnv->mpe[disassemblyMPE]->pcexec);
   SendMessage(reTermDisplay,WM_SETTEXT,NULL,LPARAM(buf));
   SendMessage(reTermDisplay,EM_SETSEL,WPARAM(-1),LPARAM(-1));
@@ -281,23 +271,16 @@ void UpdateControlPanelDisplay()
 
 void NuanceStart(int argc,char *argv[]);
 
-char displayWindowTitle[] = "Nuance Video Display";
+static const char displayWindowTitle[] = "Nuance Video Display";
 
 void OnMPELEDDoubleClick(uint32 which)
 {
   HWND handles[] = {picMPE0LED,picMPE1LED,picMPE2LED,picMPE3LED};
 
   which = which & 0x03;
-  if(GetMPERunStatus(which))
-  {
-    SetMPERunStatus(which,false);
-    SendMessage(handles[which],STM_SETIMAGE,IMAGE_BITMAP,LPARAM(bmpLEDOff));
-  }
-  else
-  {
-    SetMPERunStatus(which,true);
-    SendMessage(handles[which],STM_SETIMAGE,IMAGE_BITMAP,LPARAM(bmpLEDOn));
-  }
+  const bool rs = GetMPERunStatus(which);
+  SetMPERunStatus(which,!rs);
+  SendMessage(handles[which],STM_SETIMAGE,IMAGE_BITMAP,rs ? LPARAM(bmpLEDOff) : LPARAM(bmpLEDOn));
 }
 
 void ExecuteSingleStep()
@@ -381,9 +364,6 @@ BOOL CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM 
 
 BOOL CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
-  uint32 i;
-  bool bSuccess;
-
   switch(msg)
   {
     case WM_CLOSE:
@@ -443,7 +423,7 @@ Run:
           }
           else if((HWND)lParam == cbReset)
           {
-            for(i = 0; i < 4; i++)
+            for(uint32 i = 0; i < 4; i++)
             {
               nuonEnv->mpe[i]->Reset();
             }
@@ -453,7 +433,7 @@ Run:
           {
             if(GetOpenFileName(&ofn))
             {
-              bSuccess = nuonEnv->mpe[3]->LoadNuonRomFile(ofn.lpstrFile);
+              bool bSuccess = nuonEnv->mpe[3]->LoadNuonRomFile(ofn.lpstrFile);
               if(!bSuccess)
               {
                 bSuccess = nuonEnv->mpe[3]->LoadCoffFile(ofn.lpstrFile);
@@ -811,7 +791,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   display->timerHandler = OnDisplayTimer;
 
   display->Create();
-  while(!display->bVisible) {}
+  while (!display->bVisible) {}
   GLenum err = glewInit();
   if(err != GLEW_OK)
   {

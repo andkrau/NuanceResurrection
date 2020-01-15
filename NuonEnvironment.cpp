@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------
 #include <windows.h>
 #include <stdio.h>
 #include "audio.h"
@@ -16,16 +15,13 @@
 #include "Syscall.h"
 
 extern VidDisplay structMainDisplay;
-extern bool bSingleStepThreadExecuting;
-extern bool bProcessorThreadExecuting;
-extern GLWindow videoDisplayWindow;
 
 extern NuonEnvironment *nuonEnv;
 extern char **pArgs;
 
-bool bFMODInitialized = false;
-FSOUND_STREAM *audioStream;
-int audioChannel = 0;
+static bool bFMODInitialized = false;
+static FSOUND_STREAM *audioStream;
+static int audioChannel = 0;
 
 void NuonEnvironment::TriggerAudioInterrupt(void)
 {
@@ -178,33 +174,26 @@ void NuonEnvironment::MuteAudio(uint32 param)
 {
   if(bFMODInitialized)
   {
-    if(param)
-    {
-      FSOUND_SetMute(FSOUND_ALL,TRUE);
-    }
-    else
-    {
-      FSOUND_SetMute(FSOUND_ALL,FALSE);
-    }
+    FSOUND_SetMute(FSOUND_ALL,param ? TRUE : FALSE);
   }
 }
 
 void NuonEnvironment::SetAudioPlaybackRate(uint32 rate)
 {
-  if(rate > 96000)
-  {
-    rate = 96000;
-  }
-  else if(rate < 16000)
-  {
-    rate = 16000;
-  }
-
   if(bFMODInitialized && audioStream)
   {
     if(FSOUND_IsPlaying(audioChannel))
     {
-      FSOUND_SetFrequency(audioChannel,rate);
+        if (rate > 96000)
+        {
+            rate = 96000;
+        }
+        else if (rate < 16000)
+        {
+            rate = 16000;
+        }
+        
+        FSOUND_SetFrequency(audioChannel,rate);
     }
   }
 }
@@ -224,7 +213,7 @@ void NuonEnvironment::StopAudio()
   }
 }
 
-uint32 lastLinearVolumeSetting = 0;
+//static uint32 lastLinearVolumeSetting = 0;
 
 void NuonEnvironment::SetAudioVolume(uint32 volume)
 {
@@ -236,20 +225,20 @@ void NuonEnvironment::SetAudioVolume(uint32 volume)
     }
 
     FSOUND_SetVolume(FSOUND_ALL,volume);
-    lastLinearVolumeSetting = volume;
+    //lastLinearVolumeSetting = volume;
   }
 }
 
-void *NuonEnvironment::GetPointerToMemory(MPE *the_mpe, uint32 address, bool bCheckAddress)
+void *NuonEnvironment::GetPointerToMemory(MPE * const the_mpe, const uint32 address, const bool bCheckAddress)
 {
-  static char textBuf[1024];
-
   if(address < MAIN_BUS_BASE)
   {
+#ifndef NDEBUG
     if(bCheckAddress)
     {
       if((address < MPE_ADDR_SPACE_BASE) || (address >= MPE1_ADDR_BASE))
       {
+        char textBuf[1024];
         sprintf(textBuf,"MPE%d Illegal Memory Address Operand %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
           the_mpe->mpeIndex,
           address,
@@ -261,15 +250,17 @@ void *NuonEnvironment::GetPointerToMemory(MPE *the_mpe, uint32 address, bool bCh
         MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
       }
     }
-
+#endif
     return (void *)(((uint8 *)the_mpe->dtrom) + (address & MPE_VALID_MEMORY_MASK));
   }
   else if(address < SYSTEM_BUS_BASE)
   {
+#ifndef NDEBUG
     if(bCheckAddress)
     {
       if((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK)))
       {
+        char textBuf[1024];
         sprintf(textBuf,"MPE%d Illegal Memory Address Operand %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
           the_mpe->mpeIndex,
           address,
@@ -281,15 +272,17 @@ void *NuonEnvironment::GetPointerToMemory(MPE *the_mpe, uint32 address, bool bCh
         MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
       }
     }
-
+#endif
     return &mainBusDRAM[address & MAIN_BUS_VALID_MEMORY_MASK];
   }
   else if(address < ROM_BIOS_BASE)
   {
+#ifndef NDEBUG
     if(bCheckAddress)
     {
       if((address > (SYSTEM_BUS_BASE + SYSTEM_BUS_VALID_MEMORY_MASK)))
       {
+        char textBuf[1024];
         sprintf(textBuf,"MPE%d Illegal Memory Address Operand %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
           the_mpe->mpeIndex,
           address,
@@ -301,6 +294,7 @@ void *NuonEnvironment::GetPointerToMemory(MPE *the_mpe, uint32 address, bool bCh
         MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
       }
     }
+#endif
     return &systemBusDRAM[address & SYSTEM_BUS_VALID_MEMORY_MASK];
   }
   else

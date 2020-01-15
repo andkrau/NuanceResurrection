@@ -33,7 +33,7 @@ public:
   volatile bool bVisible;
   bool bFullScreen;
   bool bUseSeparateThread;
-  char *title;
+  const char *title;
   unsigned int timerInterval;
   unsigned int timerID;
 

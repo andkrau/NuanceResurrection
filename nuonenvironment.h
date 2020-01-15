@@ -27,7 +27,7 @@ public:
   ~NuonEnvironment();
 
   void WriteFile(MPE *pMPE, uint32 fd, uint32 buf, uint32 len);
-  void *GetPointerToMemory(MPE *mpe,uint32 address, bool bCheckAddress = true);
+  void *GetPointerToMemory(MPE * const the_mpe,const uint32 address, const bool bCheckAddress = true);
   void InitBios(void);
   void InitAudio(void);
   void CloseAudio(void);
