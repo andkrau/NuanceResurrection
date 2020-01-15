@@ -6,20 +6,28 @@
 #include "timer.h"
 #include "mpe.h"
 
+//#define USE_QUEUE_TIMERS //!! test which variant is better in practice
+
 extern NuonEnvironment *nuonEnv;
 
 bool bHighPerformanceTimerAvailable = false;
 extern _LARGE_INTEGER tickFrequency;
-uint64 tickCount;
 _LARGE_INTEGER ticksAtBootTime;
-bool bSysTimer0Initialized  = false;
-bool bSysTimer1Initialized  = false;
-bool bSysTimer2Initialized = false;
+#ifdef USE_QUEUE_TIMERS
+HANDLE hSysTimer0;
+HANDLE hSysTimer1;
+HANDLE hSysTimer2;
+#else
 uint32 hSysTimer0;
 uint32 hSysTimer1;
 uint32 hSysTimer2;
+#endif
 
-void CALLBACK SysTimer0Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2) 
+#ifdef USE_QUEUE_TIMERS
+void CALLBACK SysTimer0Callback(void* lpParameter,BOOLEAN TimerOrWaitFired)
+#else
+void CALLBACK SysTimer0Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2)
+#endif
 { 
   nuonEnv->mpe[0]->TriggerInterrupt(INT_SYSTIMER0);
   nuonEnv->mpe[1]->TriggerInterrupt(INT_SYSTIMER0);
@@ -27,7 +35,11 @@ void CALLBACK SysTimer0Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32
   nuonEnv->mpe[3]->TriggerInterrupt(INT_SYSTIMER0);
 } 
 
-void CALLBACK SysTimer1Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2) 
+#ifdef USE_QUEUE_TIMERS
+void CALLBACK SysTimer1Callback(void* lpParameter, BOOLEAN TimerOrWaitFired)
+#else
+void CALLBACK SysTimer1Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2)
+#endif
 { 
   nuonEnv->mpe[0]->TriggerInterrupt(INT_SYSTIMER1);
   nuonEnv->mpe[1]->TriggerInterrupt(INT_SYSTIMER1);
@@ -35,7 +47,11 @@ void CALLBACK SysTimer1Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32
   nuonEnv->mpe[3]->TriggerInterrupt(INT_SYSTIMER1);
 }
 
-void CALLBACK SysTimer2Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2) 
+#ifdef USE_QUEUE_TIMERS
+void CALLBACK SysTimer2Callback(void* lpParameter, BOOLEAN TimerOrWaitFired)
+#else
+void CALLBACK SysTimer2Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2)
+#endif
 { 
   static uint64 cycleCounter[4] = {0,0,0,0};
   static uint64 max_delta[4] = {0,0,0,0};
@@ -49,13 +65,17 @@ void CALLBACK SysTimer2Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32
 //    }
 //    cycleCounter[i] = nuonEnv->mpe[i]->cycleCounter;
 //  }
+
   IncrementVideoFieldCounter();
   nuonEnv->TriggerVideoInterrupt();
 }
 
 void InitializeTimingMethod(void)
 {
-  bHighPerformanceTimerAvailable = false;
+  timeBeginPeriod(1);
+  hSysTimer0 = 0;
+  hSysTimer1 = 0;
+  hSysTimer2 = 0;
 
   if(QueryPerformanceFrequency((_LARGE_INTEGER *)&tickFrequency) == TRUE)
   {
@@ -64,6 +84,7 @@ void InitializeTimingMethod(void)
   }
   else
   {
+    bHighPerformanceTimerAvailable = false;
     ticksAtBootTime.QuadPart = time(NULL);
   }
 }
@@ -135,20 +156,19 @@ void TimeOfDay(MPE *mpe)
 void TimeElapsed(MPE *mpe)
 {
   uint64 seconds, useconds, mseconds;
-  uint32 *memPtr, ptrSecs, ptrUSecs;
-  double float_seconds;
-  _LARGE_INTEGER counter;
-  
 
   if(bHighPerformanceTimerAvailable)
   {
+    _LARGE_INTEGER counter;  
     QueryPerformanceCounter((_LARGE_INTEGER *)&counter);
-    
-    counter.QuadPart -= ticksAtBootTime.QuadPart;
-    float_seconds = (double)counter.QuadPart / (double)tickFrequency.QuadPart;
-    seconds = float_seconds;
-    useconds = 1000000.0 * (float_seconds - seconds);
-    mseconds = float_seconds * 1000.0;
+
+    const unsigned long long cur_tick = (unsigned long long)(counter.QuadPart - ticksAtBootTime.QuadPart);
+    useconds = ((unsigned long long)tickFrequency.QuadPart < 100000000ull) ? (cur_tick * 1000000ull / (unsigned long long)tickFrequency.QuadPart)
+        : (cur_tick * 1000ull / ((unsigned long long)tickFrequency.QuadPart / 1000ull));
+
+    seconds = useconds / 1000000;
+    mseconds = useconds / 1000;
+    useconds = useconds % 1000000; // returns number of microseconds elapsed within the second
   }
   else
   {
@@ -157,54 +177,84 @@ void TimeElapsed(MPE *mpe)
     useconds = 0;
   }
 
-  ptrSecs = mpe->regs[0];
-  ptrUSecs = mpe->regs[1];
+  const uint32 ptrSecs = mpe->regs[0];
+  const uint32 ptrUSecs = mpe->regs[1];
 
   //Store seconds if pointer is not NULL
   if(ptrSecs)
   {
-    memPtr = (uint32 *)nuonEnv->GetPointerToMemory(mpe,ptrSecs,true);
-    *memPtr = seconds;
+    uint32 *const memPtr = (uint32 *)nuonEnv->GetPointerToMemory(mpe,ptrSecs,true);
+    *memPtr = (uint32)seconds;
     SwapScalarBytes(memPtr);
   }
 
   //Store microseconds if pointer is not NULL
   if(ptrUSecs)
   {
-    memPtr = (uint32 *)nuonEnv->GetPointerToMemory(mpe,ptrUSecs,true);
-    *memPtr = useconds;
+    uint32 *const memPtr = (uint32 *)nuonEnv->GetPointerToMemory(mpe,ptrUSecs,true);
+    *memPtr = (uint32)useconds;
     SwapScalarBytes(memPtr);
   }
 
-  mpe->regs[0] = mseconds;
+  mpe->regs[0] = (uint32)mseconds;
 }
 
 void TimerInit(uint32 whichTimer, uint32 rate)
 {
   if(whichTimer == 0)
   {
-    timeKillEvent(hSysTimer0);
+#ifdef USE_QUEUE_TIMERS
+    if(hSysTimer0)
+    {
+      DeleteTimerQueueTimer(NULL, hSysTimer0, NULL);
+      CloseHandle(hSysTimer0);
+    }
+    CreateTimerQueueTimer(&hSysTimer0, NULL, (WAITORTIMERCALLBACK)SysTimer0Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
+#else
+    if(hSysTimer0)
+      timeKillEvent(hSysTimer0);
     hSysTimer0 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer0Callback,0,TIME_PERIODIC);
+#endif
   }
   else if(whichTimer == 1)
   {
-    timeKillEvent(hSysTimer1);
+#ifdef USE_QUEUE_TIMERS
+    if(hSysTimer1)
+    {
+      DeleteTimerQueueTimer(NULL, hSysTimer1, NULL);
+      CloseHandle(hSysTimer1);
+    }
+    CreateTimerQueueTimer(&hSysTimer1, NULL, (WAITORTIMERCALLBACK)SysTimer1Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
+#else
+    if(hSysTimer1)
+      timeKillEvent(hSysTimer1);
     hSysTimer1 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer1Callback,0,TIME_PERIODIC);
+#endif
   }
   else
   {
-    timeKillEvent(hSysTimer2);
+#ifdef USE_QUEUE_TIMERS
+    if(hSysTimer2)
+    {
+      DeleteTimerQueueTimer(NULL, hSysTimer2, NULL);
+      CloseHandle(hSysTimer2);
+    }
+    CreateTimerQueueTimer(&hSysTimer2, NULL, (WAITORTIMERCALLBACK)SysTimer2Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
+#else
+    if(hSysTimer2)
+      timeKillEvent(hSysTimer2);
     hSysTimer2 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer2Callback,0,TIME_PERIODIC);
+#endif
   }
 
 }
 
 void TimerInit(MPE *mpe)
 {
-  int32 whichTimer = mpe->regs[0];
-  int32 rate = mpe->regs[1];
+  const int32 whichTimer = mpe->regs[0];
+  const int32 rate = mpe->regs[1];
 
-  if((whichTimer) < 0 || (whichTimer > 1))
+  if((whichTimer < 0) || (whichTimer > 1))
   {
     mpe->regs[0] = 0;
   }
