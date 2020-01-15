@@ -120,7 +120,7 @@ public:
 
 class InstructionCacheEntry
 {
-  public:
+public:
   uint32 handlers[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 nuanceCount;
   uint32 packetInfo;
@@ -144,31 +144,35 @@ class InstructionCacheEntry
   uint32 miscInputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 scalarOutputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 miscOutputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
-  void CopyInstructionData(uint32 toSlot, InstructionCacheEntry *src, uint32 fromSlot);
+
+  void CopyInstructionData(const uint32 toSlot, const InstructionCacheEntry* const src, const uint32 fromSlot);
 };
 
 class InstructionCache
 {
-  public:
-  InstructionCache(uint32 numEntries = DEFAULT_NUM_CACHE_ENTRIES);
+public:
+  InstructionCache(const uint32 numEntries = DEFAULT_NUM_CACHE_ENTRIES);
   ~InstructionCache();
+
   void Invalidate();
-  void InvalidateRegion(uint32 start, uint32 end);
-  InstructionCacheEntry *FindInstructionCacheEntry(uint32 addressKey, uint32 &bValid)
+  void InvalidateRegion(const uint32 start, const uint32 end);
+
+  InstructionCacheEntry *FindInstructionCacheEntry(const uint32 addressKey, uint32 &bValid)
   {
-    uint32 cacheEntryIndex = (addressKey >> 1) & (numEntries - 1);
+    const uint32 cacheEntryIndex = (addressKey >> 1) & (numEntries - 1);
 
     if(bValid)
     {
       bValid = validBitmap[cacheEntryIndex >> 5];
       bValid &= (0x80000000UL >> (cacheEntryIndex & 0x1FUL));
     }
+
     return &cacheEntries[cacheEntryIndex];
   }
 
-  void SetEntryValid(uint32 addressKey)
+  void SetEntryValid(const uint32 addressKey)
   {
-    uint32 cacheEntryIndex = (addressKey >> 1) & (numEntries - 1);
+    const uint32 cacheEntryIndex = (addressKey >> 1) & (numEntries - 1);
     validBitmap[cacheEntryIndex >> 5] |= (0x80000000UL >> (cacheEntryIndex & 0x1FUL));
   }
 
@@ -180,7 +184,7 @@ class InstructionCache
     }
   }
 
-  private:
+private:
   uint32 *validBitmap;
   InstructionCacheEntry *cacheEntries;
   uint32 numEntries;

@@ -7,32 +7,32 @@
 //Table to map 16/48 bit condition code enumeration to 32/64 bit sequence
 //uint32 CC16To32[32] = {0,4,8,12,16,20,24,28,1,5,9,13,17,21,17,29,2,6,10,14,18,22,17,30,3,7,11,15,19,17,27,31};
 
-uint32 braConditionalFlags = 0;
-uint32 braConditionalNOPFlags = 0;
-uint32 braAlwaysFlags = 0;
-uint32 braAlwaysNOPFlags = 0;
-uint32 jmpAlwaysIndirectFlags = 0;
-uint32 jmpAlwaysIndirectNOPFlags = 0;
-uint32 jmpConditionalIndirectFlags = 0;
-uint32 jmpConditionalIndirectNOPFlags = 0;
-uint32 jsrAlwaysFlags = 0;
-uint32 jsrAlwaysNOPFlags = 0;
-uint32 jsrAlwaysIndirectFlags = 0;
-uint32 jsrAlwaysIndirectNOPFlags = 0;
-uint32 jsrConditionalFlags = 0;
-uint32 jsrConditionalNOPFlags = 0;
-uint32 jsrConditionalIndirectFlags = 0;
-uint32 jsrConditionalIndirectNOPFlags = 0;
-uint32 rtsAlwaysFlags = 0;
-uint32 rtsAlwaysNOPFlags = 0;
-uint32 rtsConditionalFlags = 0;
-uint32 rtsConditionalNOPFlags = 0;
-uint32 rti1ConditionalFlags = 0;
-uint32 rti1ConditionalNOPFlags = 0;
-uint32 rti2ConditionalFlags = 0;
-uint32 rti2ConditionalNOPFlags = 0;
+#define braConditionalFlags 0
+#define braConditionalNOPFlags 0
+#define braAlwaysFlags 0
+#define braAlwaysNOPFlags 0
+#define jmpAlwaysIndirectFlags 0
+#define jmpAlwaysIndirectNOPFlags 0
+#define jmpConditionalIndirectFlags 0
+#define jmpConditionalIndirectNOPFlags 0
+#define jsrAlwaysFlags 0
+#define jsrAlwaysNOPFlags 0
+#define jsrAlwaysIndirectFlags 0
+#define jsrAlwaysIndirectNOPFlags 0
+#define jsrConditionalFlags 0
+#define jsrConditionalNOPFlags 0
+#define jsrConditionalIndirectFlags 0
+#define jsrConditionalIndirectNOPFlags 0
+#define rtsAlwaysFlags 0
+#define rtsAlwaysNOPFlags 0
+#define rtsConditionalFlags 0
+#define rtsConditionalNOPFlags 0
+#define rti1ConditionalFlags 0
+#define rti1ConditionalNOPFlags 0
+#define rti2ConditionalFlags 0
+#define rti2ConditionalNOPFlags 0
 
-uint32 flagDependencies[32] = {
+static const uint32 flagDependencies[32] = {
   //ECU_CONDITION_NE (0x00UL)
   DEPENDENCY_FLAG_Z,
   //ECU_CONDITION_C0EQ (0x01UL)
@@ -99,15 +99,13 @@ uint32 flagDependencies[32] = {
   DEPENDENCY_FLAG_CP1,
 };
 
-void MPE::DecodeInstruction_ECU16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt)
+void MPE::DecodeInstruction_ECU16(const uint8 * const iPtr, InstructionCacheEntry * const entry, const uint32 * const immExt)
 {
-  uint32 field_300 = *iPtr & 0x03UL;
-  uint32 field_380 = ((*iPtr & 0x03) << 1) | (*(iPtr + 1) >> 7);
-  uint32 field_3E0 = ((*iPtr & 0x03) << 3) | (*(iPtr + 1) >> 5);
-  uint32 field_7F = *(iPtr + 1) & 0x7FUL;
-  uint32 field_FF = *(iPtr + 1) & 0xFFUL;
-  int32 offset;
-  bool bImplicitNOP;
+  const uint32 field_300 = *iPtr & 0x03UL;
+  const uint32 field_380 = ((*iPtr & 0x03) << 1) | (*(iPtr + 1) >> 7);
+  const uint32 field_3E0 = ((*iPtr & 0x03) << 3) | (*(iPtr + 1) >> 5);
+  const uint32 field_7F = *(iPtr + 1) & 0x7FUL;
+  const uint32 field_FF = *(iPtr + 1) & 0xFFUL;
 
   entry->packetInfo |= PACKETINFO_ECU;
 
@@ -176,7 +174,7 @@ void MPE::DecodeInstruction_ECU16(uint8 *iPtr, InstructionCacheEntry *entry, uin
 
       //offset is 0x3FF
       entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_CONDITION)] = ECU_CONDITION_T;
-      offset = ((int32)(field_300 << 30)) >> (30 - 8);
+      const int32 offset = ((int32)(field_300 << 30)) >> (30 - 8);
       entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_ADDRESS)] = (offset | field_FF) << 1;
       entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_HANDLER)] = Handler_BRAAlways;
       entry->packetInfo |= PACKETINFO_BRANCH_ALWAYS;
@@ -198,7 +196,7 @@ void MPE::DecodeInstruction_ECU16(uint8 *iPtr, InstructionCacheEntry *entry, uin
 
       //condition is 0x03E0
       entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_CONDITION)] = field_3E0;
-      bImplicitNOP = ((*(iPtr + 1) & 0x01) != 0);
+      const bool bImplicitNOP = ((*(iPtr + 1) & 0x01) != 0);
 
       switch((*(iPtr + 1) & 0x07) >> 1)
       {
@@ -279,14 +277,13 @@ void MPE::DecodeInstruction_ECU16(uint8 *iPtr, InstructionCacheEntry *entry, uin
   entry->ecuConditionCode = entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_CONDITION)];
 }
 
-void MPE::DecodeInstruction_ECU32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt)
+void MPE::DecodeInstruction_ECU32(const uint8 * const iPtr, InstructionCacheEntry *const entry, const uint32 * const immExt)
 {
-  uint32 field_3E00000 = ((*iPtr & 0x03) << 3) | (*(iPtr + 1) >> 5);
-  uint32 field_1F0000 = *(iPtr + 1) & 0x1FUL;
-  uint32 field_100 = *(iPtr + 2) & 0x01UL;
-  uint32 field_FF = *(iPtr + 3) & 0xFFUL;
-  int32 offset;
-  bool bImplicitNOP = (((*(iPtr + 2) & 0x08) >> 3) != 0);
+  const uint32 field_3E00000 = ((*iPtr & 0x03) << 3) | (*(iPtr + 1) >> 5);
+  const uint32 field_1F0000 = *(iPtr + 1) & 0x1FUL;
+  const uint32 field_100 = *(iPtr + 2) & 0x01UL;
+  const uint32 field_FF = *(iPtr + 3) & 0xFFUL;
+  const bool bImplicitNOP = (((*(iPtr + 2) & 0x08) >> 3) != 0);
 
   entry->packetInfo |= PACKETINFO_ECU;
 
@@ -300,7 +297,7 @@ void MPE::DecodeInstruction_ECU32(uint8 *iPtr, InstructionCacheEntry *entry, uin
     //address is 0x1F01FF, pcexec relative: lower bits are stored first!
 
     //offset = ((signed __int32)((signed __int8)(field_100 << 7))) << 6;
-    offset = ((int32)(field_100 << 31)) >> 18;
+    int32 offset = ((int32)(field_100 << 31)) >> 18;
     offset |= ((field_FF << 5) | field_1F0000);
     entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_ADDRESS)] = entry->pcexec + (offset << 1);
 
@@ -546,4 +543,3 @@ void MPE::DecodeInstruction_ECU32(uint8 *iPtr, InstructionCacheEntry *entry, uin
 
   entry->ecuConditionCode = entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_CONDITION)];
 }
-

@@ -8,60 +8,60 @@
 
 extern NuonEnvironment *nuonEnv;
 
-const uint32 loadPixelBilinearXYFlags = 0;
-const uint32 loadPixelBilinearUVFlags = 0;
-const uint32 loadPixelLinearFlags = 0;
-const uint32 loadPixelAbsoluteFlags = 0;
-const uint32 storePixelBilinearXYFlags = 0;
-const uint32 storePixelBilinearUVFlags = 0;
-const uint32 storePixelLinearFlags = 0;
-const uint32 storePixelAbsoluteFlags = 0;
-const uint32 loadPixelZBilinearXYFlags = 0;
-const uint32 loadPixelZBilinearUVFlags = 0;
-const uint32 loadPixelZLinearFlags = 0;
-const uint32 loadPixelZAbsoluteFlags = 0;
-const uint32 storePixelZBilinearXYFlags = 0;
-const uint32 storePixelZBilinearUVFlags = 0;
-const uint32 storePixelZLinearFlags = 0;
-const uint32 storePixelZAbsoluteFlags = 0;
-const uint32 loadByteAbsoluteFlags = 0;
-const uint32 loadByteLinearFlags = 0;
-const uint32 loadByteBilinearFlags = 0;
-const uint32 loadWordBilinearFlags = 0;
-const uint32 loadWordAbsoluteFlags = 0;
-const uint32 loadWordLinearFlags = 0;
-const uint32 loadScalarAbsoluteFlags = 0;
-const uint32 loadScalarLinearFlags = 0;
-const uint32 loadScalarBilinearFlags = 0;
-const uint32 loadShortVectorAbsoluteFlags = 0;
-const uint32 loadShortVectorLinearFlags = 0;
-const uint32 loadShortVectorBilinearFlags = 0;
-const uint32 loadVectorAbsoluteFlags = 0;
-const uint32 loadVectorLinearFlags = 0;
-const uint32 loadVectorBilinearFlags = 0;
-const uint32 storeScalarAbsoluteFlags = 0;
-const uint32 storeScalarLinearFlags = 0;
-const uint32 storeScalarBilinearFlags = 0;
-const uint32 storeShortVectorAbsoluteFlags = 0;
-const uint32 storeShortVectorLinearFlags = 0;
-const uint32 storeShortVectorBilinearFlags = 0;
-const uint32 storeVectorAbsoluteFlags = 0;
-const uint32 storeVectorLinearFlags = 0;
-const uint32 storeVectorBilinearFlags = 0;
-const uint32 loadScalarControlRegisterFlags = 0;
-const uint32 loadVectorControlRegisterFlags = 0;
-const uint32 storeControlRegisterFlags = 0;
-const uint32 moveImmediateFlags = 0;
-const uint32 moveScalarFlags = 0;
-const uint32 moveVectorFlags = 0;
-const uint32 mirrorFlags = 0;
-const uint32 pushFlags = 0;
-const uint32 popFlags = 0;
+#define loadPixelBilinearXYFlags 0
+#define loadPixelBilinearUVFlags 0
+#define loadPixelLinearFlags 0
+#define loadPixelAbsoluteFlags 0
+#define storePixelBilinearXYFlags 0
+#define storePixelBilinearUVFlags 0
+#define storePixelLinearFlags 0
+#define storePixelAbsoluteFlags 0
+#define loadPixelZBilinearXYFlags 0
+#define loadPixelZBilinearUVFlags 0
+#define loadPixelZLinearFlags 0
+#define loadPixelZAbsoluteFlags 0
+#define storePixelZBilinearXYFlags 0
+#define storePixelZBilinearUVFlags 0
+#define storePixelZLinearFlags 0
+#define storePixelZAbsoluteFlags 0
+#define loadByteAbsoluteFlags 0
+#define loadByteLinearFlags 0
+#define loadByteBilinearFlags 0
+#define loadWordBilinearFlags 0
+#define loadWordAbsoluteFlags 0
+#define loadWordLinearFlags 0
+#define loadScalarAbsoluteFlags 0
+#define loadScalarLinearFlags 0
+#define loadScalarBilinearFlags 0
+#define loadShortVectorAbsoluteFlags 0
+#define loadShortVectorLinearFlags 0
+#define loadShortVectorBilinearFlags 0
+#define loadVectorAbsoluteFlags 0
+#define loadVectorLinearFlags 0
+#define loadVectorBilinearFlags 0
+#define storeScalarAbsoluteFlags 0
+#define storeScalarLinearFlags 0
+#define storeScalarBilinearFlags 0
+#define storeShortVectorAbsoluteFlags 0
+#define storeShortVectorLinearFlags 0
+#define storeShortVectorBilinearFlags 0
+#define storeVectorAbsoluteFlags 0
+#define storeVectorLinearFlags 0
+#define storeVectorBilinearFlags 0
+#define loadScalarControlRegisterFlags 0
+#define loadVectorControlRegisterFlags 0
+#define storeControlRegisterFlags 0
+#define moveImmediateFlags 0
+#define moveScalarFlags 0
+#define moveVectorFlags 0
+#define mirrorFlags 0
+#define pushFlags 0
+#define popFlags 0
 
-void MPE::DecodeInstruction_MEM16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt)
+void MPE::DecodeInstruction_MEM16(const uint8 * const iPtr, InstructionCacheEntry * const entry, const uint32 * const immExt)
 {
-  uint32 field_3E0 = ((*iPtr & 0x03) << 3) | ((*(iPtr + 1) & 0xE0) >> 5);
-  uint32 field_1F = *(iPtr + 1) & 0x1F;
+  const uint32 field_3E0 = ((*iPtr & 0x03) << 3) | ((*(iPtr + 1) & 0xE0) >> 5);
+  const uint32 field_1F = *(iPtr + 1) & 0x1F;
   bool bException = false;
 
   entry->packetInfo |= PACKETINFO_MEM;
@@ -275,12 +275,12 @@ void MPE::DecodeInstruction_MEM16(uint8 *iPtr, InstructionCacheEntry *entry, uin
   }
 }
 
-void MPE::DecodeInstruction_MEM32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt)
+void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntry * const entry, const uint32 * const immExt)
 {
-  uint32 field_3E00000 = ((*iPtr & 0x03) << 3) | ((*(iPtr + 1) & 0xE0) >> 5);
-  uint32 field_1F0000 = *(iPtr + 1) & 0x1F;
-  uint32 field_1E0 = ((*(iPtr + 2) & 0x01) << 3) | ((*(iPtr + 3) & 0xE0) >> 5);
-  uint32 field_3F = *(iPtr + 3) & 0x3F;
+  const uint32 field_3E00000 = ((*iPtr & 0x03) << 3) | ((*(iPtr + 1) & 0xE0) >> 5);
+  const uint32 field_1F0000 = *(iPtr + 1) & 0x1F;
+  const uint32 field_1E0 = ((*(iPtr + 2) & 0x01) << 3) | ((*(iPtr + 3) & 0xE0) >> 5);
+  const uint32 field_3F = *(iPtr + 3) & 0x3F;
   bool bException = false;
 
   entry->packetInfo |= PACKETINFO_MEM;
@@ -1014,7 +1014,7 @@ void MPE::DecodeInstruction_MEM32(uint8 *iPtr, InstructionCacheEntry *entry, uin
   }
 }
 
-uint32 MPE::GetControlRegisterInputDependencies(uint32 address, bool &bException)
+uint32 MPE::GetControlRegisterInputDependencies(const uint32 address, bool &bException)
 {
   bException = false;
 
@@ -1139,7 +1139,7 @@ uint32 MPE::GetControlRegisterInputDependencies(uint32 address, bool &bException
   }
 }
 
-uint32 MPE::GetControlRegisterOutputDependencies(uint32 address, bool &bException)
+uint32 MPE::GetControlRegisterOutputDependencies(const uint32 address, bool &bException)
 {
   bException = false;
 

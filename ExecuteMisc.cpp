@@ -2,7 +2,7 @@
 #include "mpe.h"
 #include "SuperBlockConstants.h"
 
-void Execute_CheckECUSkipCounter(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_CheckECUSkipCounter(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(mpe.ecuSkipCounter)
   {
@@ -14,18 +14,16 @@ void Execute_CheckECUSkipCounter(MPE &mpe, InstructionCacheEntry &entry, Nuance 
   }
 }
 
-void Execute_SaveFlags(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_SaveFlags(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.tempCC = mpe.cc;
   mpe.pICacheEntry = &(mpe.ICacheEntry_SaveFlags);
 }
 
-void Execute_SaveRegs(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_SaveRegs(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  uint32 i;
-
   mpe.tempCC = mpe.cc;
-  for(i = 0; i < 32; i++)
+  for(uint32 i = 0; i < 32; i++)
   {
     mpe.tempScalarRegs[i] = mpe.regs[i];
   }
@@ -49,10 +47,10 @@ void Execute_SaveRegs(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
   mpe.pICacheEntry = &(mpe.ICacheEntry_SaveRegs);
 }
 
-void Execute_StoreScalarRegisterConstant(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_StoreScalarRegisterConstant(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.regs[nuance.fields[FIELD_CONSTANT_ADDRESS]] = nuance.fields[FIELD_CONSTANT_VALUE];
-  uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];
+  const uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];
 
   if(flagMask)
   {
@@ -61,10 +59,10 @@ void Execute_StoreScalarRegisterConstant(MPE &mpe, InstructionCacheEntry &entry,
   }
 }
 
-void Execute_StoreMiscRegisterConstant(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_StoreMiscRegisterConstant(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  uint32 miscRegIndex = nuance.fields[FIELD_CONSTANT_ADDRESS];
-  uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];
+  const uint32 miscRegIndex = nuance.fields[FIELD_CONSTANT_ADDRESS];
+  const uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];
 
   if(miscRegIndex != CONSTANT_REG_DISCARD)
   {

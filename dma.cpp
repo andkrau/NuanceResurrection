@@ -1001,20 +1001,9 @@ void DMALinear(MPE *the_mpe)
   DMALinear(the_mpe,flags,baseaddr,intaddr);
 }
 
-void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void DMABiLinear(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
-  uint32 *pSrc32, *pDest32;
-  uint16 *pSrc16, *pDest16;
-  void *intMemory, *baseMemory, *pSrc, *pDest;
-  uint32 directValue, type, pixtype;
-  uint32 srcAStart, srcBStart, destAStart, destBStart, aCount, bCount, aCountInit;
-  uint32 srcA, srcB, destA, destB, srcOffset, destOffset;
-  int32 srcAStep, srcBStep, destAStep, destBStep, xsize;
-  uint32 xlen, xpos, ylen, ypos, zcompare, bva;
-  uint32 mode, wordsize, pixsize, sdramBase, mpeBase, skipsize;
-  uint32 lowerLimit, upperLimit, whichRoutine;
-
-  bool bRead, bDirect, bDup, bBatch, bChain, bRemote, bTrigger, bCompareZ, bUpdatePixel, bUpdateZ, bZTestResult;
+  uint32 whichRoutine;
 
   //pixel flags + backwards flag a (PPPP):(xxxA) 
   whichRoutine = flags & 0xF1;
@@ -1026,7 +1015,7 @@ void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint
   switch(whichRoutine >> 4)
   {
     case 0:
-      whichRoutine = 0;
+      //whichRoutine = 0;
       return;
       break;
     case 1:
@@ -1091,36 +1080,36 @@ void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint
       return;
       break;
     default:
-      whichRoutine = 0;
+      //whichRoutine = 0;
       return;
       break;
   }
 
-  bBatch = flags & (1UL << 30);
-  bChain = flags & (1UL << 29);
-  bRemote = flags & (1UL << 28);
-  bDirect = flags & (1UL << 27);
-  bDup = flags & (3UL << 26); //bDup = dup | direct
-  bTrigger = flags & (1UL << 25);
-  bRead = flags & (1UL << 13);
-  xsize = (flags >> 13) & 0x7F8UL;
-  type = (flags >> 14) & 0x03UL;
-  mode = flags & 0xFFFUL;
-  zcompare = (flags >> 1) & 0x07UL;
-  pixtype = (flags >> 4) & 0x0FUL;
-  bva = ((flags >> 7) & 0x06UL) | (flags & 0x01UL);
-  sdramBase = baseaddr & 0x7FFFFFFEUL;
-  mpeBase = intaddr & 0x7FFFFFFCUL;
-  xlen = (xinfo >> 16) & 0x3FFUL;
-  xpos = xinfo & 0x7FFUL;
-  ylen = (yinfo >> 16) & 0x3FFUL;
-  ypos = yinfo & 0x7FFUL;
-  skipsize = 0;
-  bCompareZ = false;
-  bUpdateZ = false;
-  bUpdatePixel = true;
+  const bool bBatch = flags & (1UL << 30);
+  const bool bChain = flags & (1UL << 29);
+  const bool bRemote = flags & (1UL << 28);
+  const bool bDirect = flags & (1UL << 27);
+  const bool bDup = flags & (3UL << 26); //bDup = dup | direct
+  const bool bTrigger = flags & (1UL << 25);
+  const bool bRead = flags & (1UL << 13);
+        int32 xsize = (flags >> 13) & 0x7F8UL;
+  const uint32 type = (flags >> 14) & 0x03UL;
+  const uint32 mode = flags & 0xFFFUL;
+  const uint32 zcompare = (flags >> 1) & 0x07UL;
+  const uint32 pixtype = (flags >> 4) & 0x0FUL;
+  const uint32 bva = ((flags >> 7) & 0x06UL) | (flags & 0x01UL);
+  const uint32 sdramBase = baseaddr & 0x7FFFFFFEUL;
+  const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
+        uint32 xlen = (xinfo >> 16) & 0x3FFUL;
+        uint32 xpos = xinfo & 0x7FFUL;
+  const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
+  const uint32 ypos = yinfo & 0x7FFUL;
+  const uint32 skipsize = 0;
+        bool bCompareZ = false;
+        bool bUpdateZ = false;
+  const bool bUpdatePixel = true;
 
-  directValue = intaddr;
+  uint32 directValue = intaddr;
 
   if(bChain)
   {
@@ -1128,6 +1117,7 @@ void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint
     return;
   }
 
+  uint32 wordsize, pixsize;
   switch(pixtype)
   {
     //4 bit, 8 bit, 16 bit, and 16 bit Z-field only modes
@@ -1310,6 +1300,7 @@ void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint
       break;
   }
 
+  void* intMemory;
   if(bRemote)
   {
     //internal address is system address (but still in MPE memory)
@@ -1334,8 +1325,12 @@ void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint
 
   }
 
-  baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
+  void* const baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
+  uint32 srcAStart, srcBStart, destAStart, destBStart, aCount, bCount, srcOffset, destOffset;
+  int32 srcAStep, srcBStep, destAStep, destBStep;
+
+  void *pSrc, *pDest;
   if(bRead)
   {
     pSrc = (void *)baseMemory;
@@ -1549,13 +1544,16 @@ void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint
     }
   }
 
-  aCountInit = aCount;
+  const uint32 aCountInit = aCount;
 
+  uint32 srcA, srcB, destA, destB;
+
+  bool bZTestResult;
   if(wordsize == 2)
   {
-    pSrc32 = (uint32 *)pSrc;
+    const uint32* pSrc32 = (uint32 *)pSrc;
     pSrc32 += srcOffset;
-    pDest32 = (uint32 *)pDest;
+    uint32 * pDest32 = (uint32 *)pDest;
     pDest32 += destOffset;
     srcB = srcBStart;
     destB = destBStart;
@@ -1588,43 +1586,38 @@ void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint
 
         if(bCompareZ && (zcompare != 0))
         {
-          bool result;
-          uint16 ztarget, ztransfer;
-
-          ztarget = ((uint16 *)&pDest32[destA + destB])[1];
-          ztransfer = ((uint16 *)&pSrc32[srcA + srcB])[1];
-          SwapWordBytes((uint16 *)&ztarget);
-          SwapWordBytes((uint16 *)&ztransfer);
+          uint16 ztarget = ((uint16 *)&pDest32[destA + destB])[1];
+          uint16 ztransfer = ((uint16 *)&pSrc32[srcA + srcB])[1];
+          SwapWordBytes(&ztarget);
+          SwapWordBytes(&ztransfer);
 
           switch(zcompare)
           {
             case 0x0:
-              result = false;
+              bZTestResult = false;
               break;
             case 0x1:
-              result = (ztarget < ztransfer);
+              bZTestResult = (ztarget < ztransfer);
               break;
             case 0x2:
-              result = (ztarget == ztransfer);
+              bZTestResult = (ztarget == ztransfer);
               break;
             case 0x3:
-              result = (ztarget <= ztransfer);
+              bZTestResult = (ztarget <= ztransfer);
               break;
             case 0x4:
-              result = (ztarget > ztransfer);
+              bZTestResult = (ztarget > ztransfer);
               break;
             case 0x5:
-              result = (ztarget != ztransfer);
+              bZTestResult = (ztarget != ztransfer);
               break;
             case 0x6:
-              result = (ztarget >= ztransfer);
+              bZTestResult = (ztarget >= ztransfer);
               break;
             case 0x7:
-              result = false;
+              bZTestResult = false;
               break;
           }
-
-          bZTestResult = result;
         }
 
         if(!bZTestResult)
@@ -1642,9 +1635,9 @@ void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint
   }
   else
   {
-    pSrc16 = (uint16 *)pSrc;
+    const uint16* pSrc16 = (uint16 *)pSrc;
     pSrc16 += srcOffset;
-    pDest16 = (uint16 *)pDest;
+    uint16* pDest16 = (uint16 *)pDest;
     pDest16 += destOffset;
     srcB = srcBStart;
     destB = destBStart;
@@ -1683,15 +1676,13 @@ void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint
   }
 }
 
-void DMABiLinear(MPE *the_mpe)
+void DMABiLinear(MPE * const the_mpe)
 {
-  uint32 flags, baseaddr, xinfo, yinfo, intaddr;
-
-  flags = the_mpe->regs[0];
-  baseaddr = the_mpe->regs[1];
-  xinfo = the_mpe->regs[2];
-  yinfo = the_mpe->regs[3];
-  intaddr = the_mpe->regs[4];
+  const uint32 flags = the_mpe->regs[0];
+  const uint32 baseaddr = the_mpe->regs[1];
+  const uint32 xinfo = the_mpe->regs[2];
+  const uint32 yinfo = the_mpe->regs[3];
+  const uint32 intaddr = the_mpe->regs[4];
 
   //For the BIOS call, simulate the latency of the call assuming
   //25 cycles of setup time plus 1 cycle per pixel transfered (xlen * ylen)
@@ -1700,14 +1691,14 @@ void DMABiLinear(MPE *the_mpe)
   DMABiLinear(the_mpe,flags,baseaddr,xinfo,yinfo,intaddr);
 }
 
-void DMADo(MPE *the_mpe)
+void DMADo(MPE * const the_mpe)
 {
-  uint32 ctrl, cmdBlock, waitFlag, dmaflags, intaddr, baseaddr, xptr, yptr;
+  uint32 dmaflags, intaddr, baseaddr;
   uint32 *cmdptr;
 
-  ctrl = the_mpe->regs[0];
-  cmdBlock = the_mpe->regs[1] & 0x3FFFFFF0UL;
-  waitFlag = the_mpe->regs[2];
+  const uint32 ctrl = the_mpe->regs[0];
+  const uint32 cmdBlock = the_mpe->regs[1] & 0x3FFFFFF0UL;
+  const uint32 waitFlag = the_mpe->regs[2];
 
   if(ctrl == 0x20500500)
   {
@@ -1754,9 +1745,10 @@ do_mdmacmd:
         }
         return;
       case 3:
+      {
         //bilinear pixel DMA
-        xptr = intaddr;
-        yptr = *(cmdptr + 3);
+        const uint32 xptr = intaddr;
+        uint32 yptr = *(cmdptr + 3);
         intaddr = *(cmdptr + 4);
         SwapScalarBytes(&yptr);
         SwapScalarBytes(&intaddr);
@@ -1767,6 +1759,7 @@ do_mdmacmd:
           goto do_mdmacmd;
         }
         return;
+      }
       default:
         return;
     }
@@ -1777,4 +1770,3 @@ void DMAWait(MPE *the_mpe)
 {
   return;
 }
-

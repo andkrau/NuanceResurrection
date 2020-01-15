@@ -6,12 +6,12 @@ extern NuonEnvironment *nuonEnv;
 extern uint32 media_mpe;
 extern uint32 media_mpe_allocated;
 
-uint32 WaitForInterruptList[] = {0,0,0,0};
+static uint32 WaitForInterruptList[] = {0,0,0,0};
 
-void Syscall_InterruptTriggered(MPE *mpe)
+void Syscall_InterruptTriggered(MPE * const mpe)
 {
-  uint32 mpeIndex = mpe->mpeIndex;
-  uint32 interruptMask = WaitForInterruptList[mpeIndex];
+  const uint32 mpeIndex = mpe->mpeIndex;
+  const uint32 interruptMask = WaitForInterruptList[mpeIndex];
 
   if(interruptMask)
   {
@@ -27,9 +27,9 @@ void Syscall_InterruptTriggered(MPE *mpe)
   }
 }
 
-void Syscall_WaitForInterruptCommon(uint32 mpeIndex, uint32 interruptMask)
+void Syscall_WaitForInterruptCommon(const uint32 mpeIndex, const uint32 interruptMask)
 {
-  MPE *mpe = nuonEnv->mpe[mpeIndex];
+  MPE * const mpe = nuonEnv->mpe[mpeIndex];
   if(interruptMask && !(mpe->intsrc & (mpe->inten1 | (1 << mpe->inten2sel)) & interruptMask))
   {
     //stop
@@ -42,9 +42,9 @@ void Syscall_WaitForInterruptCommon(uint32 mpeIndex, uint32 interruptMask)
   }
 }
 
-void Syscall_WaitForCommPacket(MPE *mpe)
+void Syscall_WaitForCommPacket(MPE * const mpe)
 {
-  uint32 mpeIndex = mpe->mpeIndex;
+  const uint32 mpeIndex = mpe->mpeIndex;
   uint32 queue_head;
   uint32 queue_tail;
   uint32 *memPtr;
@@ -82,22 +82,22 @@ void Syscall_WaitForCommPacket(MPE *mpe)
   }
 }
 
-void Syscall_WaitForInterrupt(MPE *mpe)
+void Syscall_WaitForInterrupt(MPE * const mpe)
 {
-  uint32 interruptMask = mpe->regs[0];
-  uint32 mpeIndex = mpe->mpeIndex;
+  const uint32 interruptMask = mpe->regs[0];
+  const uint32 mpeIndex = mpe->mpeIndex;
 
   Syscall_WaitForInterruptCommon(mpeIndex, interruptMask);
 }
 
-void Syscall_ClearWaitForInterrupt(MPE *mpe)
+void Syscall_ClearWaitForInterrupt(MPE * const mpe)
 {
   WaitForInterruptList[mpe->mpeIndex] = 0;
 }
 
-void ExecuteSyscall_Interrupts(MPE *mpe, uint32 function)
+void ExecuteSyscall_Interrupts(MPE * const mpe, const uint32 function)
 {
-  uint32 mpeIndex = mpe->mpeIndex;
+  const uint32 mpeIndex = mpe->mpeIndex;
 
   switch(function)
   {
@@ -110,10 +110,10 @@ void ExecuteSyscall_Interrupts(MPE *mpe, uint32 function)
   }
 }
 
-void ExecuteSyscall(MPE *mpe, uint32 syscall)
+void ExecuteSyscall(MPE * const mpe, const uint32 syscall)
 {
-  uint32 category = syscall >> 24;
-  uint32 function = syscall & 0xFFFFFFUL;
+  const uint32 category = syscall >> 24;
+  const uint32 function = syscall & 0xFFFFFFUL;
 
   //Category 0: Compiler hints
     //1: Set invariant region

@@ -9,25 +9,7 @@
 
 extern NuonEnvironment *nuonEnv;
 
-int32 pixel_type_width[16] = {
--2, //Type 0: MPEG Pixel (macroblock size of 16 bytes)
--1, //Type 1: 4 bit (must be accessed in groups of four)
-1, //Type 2: 16 bit
-0, //Type 3: 8 bit (must be accessed in groups of two)
-2, //Type 4: 32 bit
-2, //Type 5: 16 bit + 16 bit Z
-3, //Type 6: 32 bit + 32 bit Z
-0, //Type 7: Reserved
-0, //Type 8: Byte
-1, //Type 9: Word
-2, //Type 10: Scalar
-3, //Type 12: Short Vector
-4, // Type 13: Vector
-0, //Type 14: Reserved
-0 //Type 15: Reserved
-};
-
-uint32 MPE::ReadControlRegister(uint32 address, InstructionCacheEntry *entry)
+uint32 MPE::ReadControlRegister(const uint32 address, const InstructionCacheEntry * const entry)
 {
   switch(address >> 4)
   {
@@ -232,7 +214,7 @@ uint32 MPE::ReadControlRegister(uint32 address, InstructionCacheEntry *entry)
   }
 }
 
-void MPE::WriteControlRegister(uint32 address, uint32 data)
+void MPE::WriteControlRegister(const uint32 address, const uint32 data)
 {
   static uint32 dmaflags;
   static uint32 baseaddr;
@@ -241,18 +223,16 @@ void MPE::WriteControlRegister(uint32 address, uint32 data)
   static uint32 yptr;
   static uint32 done_cnt_wr;
   static uint32 done_cnt_rd;
-  uint32 prevGoState;
-  uint32 clearBits;
-  uint32 setBits;
   static uint32 *dmacmd;
 
   switch(address >> 4)
   {
     case 0x0:
+    {
       //Conditionally clear all bits according to their associated bit clear bit
 
-      prevGoState = mpectl & MPECTRL_MPEGO;
-      clearBits = data & 
+      const uint32 prevGoState = mpectl & MPECTRL_MPEGO;
+      const uint32 clearBits = data &
         (MPECTRL_MPEGOCLR | 
          MPECTRL_MPESINGLESTEPCLR |
          MPECTRL_MPEDARDBRKENCLR |
@@ -260,7 +240,7 @@ void MPE::WriteControlRegister(uint32 address, uint32 data)
          MPECTRL_MPEIS2XCLR |
          MPECTRL_MPEINTTOHOSTCLR |
          MPECTRL_MPEWASRESETCLR);
-      setBits = data & ~clearBits;
+      const uint32 setBits = data & ~clearBits;
 
       mpectl &= ~(clearBits << 1);
 
@@ -303,6 +283,7 @@ void MPE::WriteControlRegister(uint32 address, uint32 data)
       }
 
       return;
+    }
     case 0x1:
       //excepsrc: writing 0 has no effect, writing 1 sets bit
       excepsrc |= data;

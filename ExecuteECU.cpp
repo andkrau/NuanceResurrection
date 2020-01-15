@@ -4,11 +4,11 @@
 
 extern NuonEnvironment *nuonEnv;
 
-void Execute_ECU_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_ECU_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
 }
 
-void Execute_Halt(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_Halt(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -29,7 +29,7 @@ void Execute_Halt(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
   }
 }
 
-void Execute_BRAAlways(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_BRAAlways(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -38,7 +38,7 @@ void Execute_BRAAlways(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
   }
 }
 
-void Execute_BRAAlways_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_BRAAlways_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -47,7 +47,7 @@ void Execute_BRAAlways_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuanc
   }
 }
 
-void Execute_BRAConditional(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_BRAConditional(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -59,7 +59,7 @@ void Execute_BRAConditional(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuan
   }
 }
 
-void Execute_BRAConditional_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_BRAConditional_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -70,7 +70,8 @@ void Execute_BRAConditional_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &
     }
   }
 }
-void Execute_JMPAlwaysIndirect(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JMPAlwaysIndirect(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -78,7 +79,8 @@ void Execute_JMPAlwaysIndirect(MPE &mpe, InstructionCacheEntry &entry, Nuance &n
     mpe.ecuSkipCounter = 3;
   }
 }
-void Execute_JMPAlwaysIndirect_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JMPAlwaysIndirect_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -86,7 +88,8 @@ void Execute_JMPAlwaysIndirect_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuanc
     mpe.ecuSkipCounter = 1;
   }
 }
-void Execute_JMPConditionalIndirect(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JMPConditionalIndirect(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -97,7 +100,8 @@ void Execute_JMPConditionalIndirect(MPE &mpe, InstructionCacheEntry &entry, Nuan
     }
   }
 }
-void Execute_JMPConditionalIndirect_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JMPConditionalIndirect_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -108,7 +112,8 @@ void Execute_JMPConditionalIndirect_NOP(MPE &mpe, InstructionCacheEntry &entry, 
     }
   }
 }
-void Execute_JSRAlways(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JSRAlways(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -117,7 +122,8 @@ void Execute_JSRAlways(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
     mpe.ecuSkipCounter = 3;
   }
 }
-void Execute_JSRAlways_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JSRAlways_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -126,7 +132,8 @@ void Execute_JSRAlways_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuanc
     mpe.ecuSkipCounter = 1;
   }
 }
-void Execute_JSRConditional(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JSRConditional(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -138,7 +145,8 @@ void Execute_JSRConditional(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuan
     }
   }
 }
-void Execute_JSRConditional_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JSRConditional_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -150,7 +158,8 @@ void Execute_JSRConditional_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &
     }
   }
 }
-void Execute_JSRAlwaysIndirect(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JSRAlwaysIndirect(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -159,7 +168,8 @@ void Execute_JSRAlwaysIndirect(MPE &mpe, InstructionCacheEntry &entry, Nuance &n
     mpe.ecuSkipCounter = 3;
   }
 }
-void Execute_JSRAlwaysIndirect_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JSRAlwaysIndirect_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -168,7 +178,8 @@ void Execute_JSRAlwaysIndirect_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuanc
     mpe.ecuSkipCounter = 1;
   }
 }
-void Execute_JSRConditionalIndirect(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JSRConditionalIndirect(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -180,7 +191,8 @@ void Execute_JSRConditionalIndirect(MPE &mpe, InstructionCacheEntry &entry, Nuan
     }
   }
 }
-void Execute_JSRConditionalIndirect_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_JSRConditionalIndirect_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -192,7 +204,8 @@ void Execute_JSRConditionalIndirect_NOP(MPE &mpe, InstructionCacheEntry &entry, 
     }
   }
 }
-void Execute_RTSAlways(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_RTSAlways(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -200,7 +213,8 @@ void Execute_RTSAlways(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
     mpe.ecuSkipCounter = 3;
   }
 }
-void Execute_RTSAlways_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_RTSAlways_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -208,7 +222,8 @@ void Execute_RTSAlways_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuanc
     mpe.ecuSkipCounter = 1;
   }
 }
-void Execute_RTSConditional(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_RTSConditional(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -219,7 +234,8 @@ void Execute_RTSConditional(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuan
     }
   }
 }
-void Execute_RTSConditional_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_RTSConditional_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -230,7 +246,8 @@ void Execute_RTSConditional_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &
     }
   }
 }
-void Execute_RTI1Conditional(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_RTI1Conditional(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -242,7 +259,8 @@ void Execute_RTI1Conditional(MPE &mpe, InstructionCacheEntry &entry, Nuance &nua
     }
   }
 }
-void Execute_RTI1Conditional_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_RTI1Conditional_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -254,7 +272,8 @@ void Execute_RTI1Conditional_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance 
     }
   }
 }
-void Execute_RTI2Conditional(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_RTI2Conditional(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {
@@ -266,7 +285,8 @@ void Execute_RTI2Conditional(MPE &mpe, InstructionCacheEntry &entry, Nuance &nua
     }
   }
 }
-void Execute_RTI2Conditional_NOP(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_RTI2Conditional_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   if(!mpe.ecuSkipCounter)
   {

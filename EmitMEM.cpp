@@ -11,7 +11,6 @@
 
 extern NuonEnvironment *nuonEnv;
 extern structBilinearAddressInfo bilinearAddressInfo;
-extern int32 pixel_type_width[];
 
 void EmitControlRegisterLoad(EmitterVariables *vars, uint32 address, x86Reg destReg);
 void EmitControlRegisterStore(EmitterVariables *vars, uint32 address, x86Reg destReg);

@@ -4,17 +4,17 @@
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
 
-const uint32 addmFlags = 0;
-const uint32 submFlags = 0;
-const uint32 dotpFlags = 0;
-const uint32 mulFlags = 0;
-const uint32 mulsvFlags = 0;
-const uint32 mulpFlags = 0;
+#define addmFlags 0
+#define submFlags 0
+#define dotpFlags 0
+#define mulFlags 0
+#define mulsvFlags 0
+#define mulpFlags 0
 
-void MPE::DecodeInstruction_MUL16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt)
+void MPE::DecodeInstruction_MUL16(const uint8 * const iPtr, InstructionCacheEntry * const entry, const uint32 * const immExt)
 {
-  uint32 field_3E0 = ((*iPtr & 0x03) << 3) | (*(iPtr + 1) >> 5);
-  uint32 field_1F = *(iPtr + 1) & 0x1F;
+  const uint32 field_3E0 = ((*iPtr & 0x03) << 3) | (*(iPtr + 1) >> 5);
+  const uint32 field_1F = *(iPtr + 1) & 0x1F;
 
   entry->packetInfo |= PACKETINFO_MUL;
   
@@ -45,13 +45,13 @@ void MPE::DecodeInstruction_MUL16(uint8 *iPtr, InstructionCacheEntry *entry, uin
   }
 }
 
-void MPE::DecodeInstruction_MUL32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt)
+void MPE::DecodeInstruction_MUL32(const uint8 * const iPtr, InstructionCacheEntry * const entry, const uint32 * const immExt)
 {
-  uint32 field_3E00000 = ((*iPtr & 0x03) << 3) | ((*(iPtr + 1) & 0xE0) >> 5);
-  uint32 field_1F0000 = *(iPtr + 1) & 0x1F;
-  uint32 field_7F = *(iPtr + 3) & 0x7F;
-  uint32 field_60 = (*(iPtr + 3) & 0x60) >> 5;
-  uint32 field_1F = *(iPtr + 3) & 0x1F;
+  const uint32 field_3E00000 = ((*iPtr & 0x03) << 3) | ((*(iPtr + 1) & 0xE0) >> 5);
+  const uint32 field_1F0000 = *(iPtr + 1) & 0x1F;
+  const uint32 field_7F = *(iPtr + 3) & 0x7F;
+  const uint32 field_60 = (*(iPtr + 3) & 0x60) >> 5;
+  const uint32 field_1F = *(iPtr + 3) & 0x1F;
 
   entry->packetInfo |= PACKETINFO_MUL;
 

@@ -2,7 +2,7 @@
 #include "InstructionCache.h"
 #include "mpe.h"
 
-void Execute_DECRc0(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_DECRc0(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.cc |= CC_COUNTER0_ZERO;
   
@@ -15,7 +15,8 @@ void Execute_DECRc0(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
     }
   }
 }
-void Execute_DECRc1(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_DECRc1(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.cc |= CC_COUNTER1_ZERO;
   
@@ -28,7 +29,8 @@ void Execute_DECRc1(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
     }
   }
 }
-void Execute_DECBoth(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_DECBoth(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.cc |= (CC_COUNTER1_ZERO | CC_COUNTER0_ZERO);
 
@@ -53,11 +55,12 @@ void Execute_DECBoth(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
   }
 }
 
-void Execute_ADDRImmediateOnly(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_ADDRImmediateOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   (&mpe.rx)[nuance.fields[FIELD_RCU_DEST]] = entry.pIndexRegs[nuance.fields[FIELD_RCU_DEST]] + nuance.fields[FIELD_RCU_SRC];
 }
-void Execute_ADDRImmediate(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_ADDRImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   (&mpe.rx)[nuance.fields[FIELD_RCU_DEST]] = entry.pIndexRegs[nuance.fields[FIELD_RCU_DEST]] + nuance.fields[FIELD_RCU_SRC];
 
@@ -88,13 +91,14 @@ void Execute_ADDRImmediate(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuanc
       }
     }
   }
-
 }
-void Execute_ADDRScalarOnly(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_ADDRScalarOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   (&mpe.rx)[nuance.fields[FIELD_RCU_DEST]] = entry.pIndexRegs[nuance.fields[FIELD_RCU_DEST]] + entry.pScalarRegs[nuance.fields[FIELD_RCU_SRC]];
 }
-void Execute_ADDRScalar(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_ADDRScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   (&mpe.rx)[nuance.fields[FIELD_RCU_DEST]] = entry.pIndexRegs[nuance.fields[FIELD_RCU_DEST]] + entry.pScalarRegs[nuance.fields[FIELD_RCU_SRC]];
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
@@ -125,11 +129,13 @@ void Execute_ADDRScalar(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
     }
   }
 }
-void Execute_MVRImmediateOnly(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_MVRImmediateOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   (&mpe.rx)[nuance.fields[FIELD_RCU_DEST]] = nuance.fields[FIELD_RCU_SRC];
 }
-void Execute_MVRImmediate(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_MVRImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   (&mpe.rx)[nuance.fields[FIELD_RCU_DEST]] = nuance.fields[FIELD_RCU_SRC];
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
@@ -160,11 +166,13 @@ void Execute_MVRImmediate(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance
     }
   }
 }
-void Execute_MVRScalarOnly(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_MVRScalarOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   (&mpe.rx)[nuance.fields[FIELD_RCU_DEST]] = entry.pScalarRegs[nuance.fields[FIELD_RCU_SRC]];
 }
-void Execute_MVRScalar(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+
+void Execute_MVRScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   (&mpe.rx)[nuance.fields[FIELD_RCU_DEST]] = entry.pScalarRegs[nuance.fields[FIELD_RCU_SRC]];
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
@@ -195,12 +203,11 @@ void Execute_MVRScalar(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
     }
   }
 }
-void Execute_RangeOnly(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
-{
-  uint32 moduloResult;
-  uint32 rcu_src, rcu_range;
 
-  rcu_src = nuance.fields[FIELD_RCU_SRC];
+void Execute_RangeOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
+{
+  uint32 rcu_range;
+  uint32 rcu_src = nuance.fields[FIELD_RCU_SRC];
   switch(rcu_src)
   {
     case 0:
@@ -230,25 +237,25 @@ void Execute_RangeOnly(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
   //clear modge and modmi conditions
   mpe.cc &= ~(CC_MODGE | CC_MODMI);
 
+  //uint32 moduloResult;
   if(((int32)(rcu_src & 0xFFFF0000UL)) >= (int32)rcu_range)
   {
-    moduloResult = rcu_src - rcu_range;
+    //moduloResult = rcu_src - rcu_range;
     //set modge condition
     mpe.cc |= CC_MODGE;
   }
   else if((int32)rcu_src < 0)
   {
-    moduloResult = rcu_src + rcu_range;
+    //moduloResult = rcu_src + rcu_range;
     //set modmi condition
     mpe.cc |= CC_MODMI;
   }
 }
-void Execute_Range(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
-{
-  uint32 moduloResult;
-  uint32 rcu_src, rcu_range;
 
-  rcu_src = nuance.fields[FIELD_RCU_SRC];
+void Execute_Range(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
+{
+  uint32 rcu_range;
+  uint32 rcu_src = nuance.fields[FIELD_RCU_SRC];
   switch(rcu_src)
   {
     case 0:
@@ -278,15 +285,16 @@ void Execute_Range(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
   //clear modge and modmi conditions
   mpe.cc &= ~(CC_MODGE | CC_MODMI);
 
+  //uint32 moduloResult;
   if(((int32)(rcu_src & 0xFFFF0000UL)) >= (int32)rcu_range)
   {
-    moduloResult = rcu_src - rcu_range;
+    //moduloResult = rcu_src - rcu_range;
     //set modge condition
     mpe.cc |= CC_MODGE;
   }
   else if((int32)rcu_src < 0)
   {
-    moduloResult = rcu_src + rcu_range;
+    //moduloResult = rcu_src + rcu_range;
     //set modmi condition
     mpe.cc |= CC_MODMI;
   }
@@ -320,12 +328,10 @@ void Execute_Range(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
   }
 }
 
-void Execute_ModuloOnly(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
+void Execute_ModuloOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  uint32 moduloResult;
-  uint32 rcu_src, rcu_range;
-
-  rcu_src = nuance.fields[FIELD_RCU_SRC];
+  uint32 rcu_range;
+  uint32 rcu_src = nuance.fields[FIELD_RCU_SRC];
   switch(rcu_src)
   {
     case 0:
@@ -355,8 +361,7 @@ void Execute_ModuloOnly(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
   //clear modge and modmi conditions
   mpe.cc &= ~(CC_MODGE | CC_MODMI);
 
-  moduloResult = rcu_src;
-
+  uint32 moduloResult = rcu_src;
   if(((int32)(rcu_src & 0xFFFF0000UL)) >= (int32)rcu_range)
   {
     moduloResult = rcu_src - rcu_range;
@@ -374,12 +379,11 @@ void Execute_ModuloOnly(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
     (entry.pIndexRegs[nuance.fields[FIELD_RCU_DEST]] & 0x0000FFFFUL) |
     (moduloResult & 0xFFFF0000UL);
 }
-void Execute_Modulo(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
-{
-  uint32 moduloResult;
-  uint32 rcu_src, rcu_range;
 
-  rcu_src = nuance.fields[FIELD_RCU_SRC];
+void Execute_Modulo(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
+{
+  uint32 rcu_range;
+  uint32 rcu_src = nuance.fields[FIELD_RCU_SRC];
   switch(rcu_src)
   {
     case 0:
@@ -409,8 +413,7 @@ void Execute_Modulo(MPE &mpe, InstructionCacheEntry &entry, Nuance &nuance)
   //clear modge and modmi conditions
   mpe.cc &= ~(CC_MODGE | CC_MODMI);
 
-  moduloResult = rcu_src;
-
+  uint32 moduloResult = rcu_src;
   if(((int32)(rcu_src & 0xFFFF0000UL)) >= (int32)rcu_range)
   {
     moduloResult = rcu_src - rcu_range;

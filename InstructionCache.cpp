@@ -1,9 +1,8 @@
 #include "basetypes.h"
 #include "InstructionCache.h"
 
-InstructionCache::InstructionCache(uint32 desiredEntries)
+InstructionCache::InstructionCache(const uint32 desiredEntries)
 {
-  cacheEntries = 0;
   numEntries = desiredEntries;
 
   if(!numEntries)
@@ -38,15 +37,14 @@ void InstructionCache::Invalidate()
   }
 }
 
-void InstructionCache::InvalidateRegion(uint32 start, uint32 end)
+void InstructionCache::InvalidateRegion(const uint32 start, const uint32 end)
 {
-  uint32 tag;
   uint32 mask = 0x80000000UL;
   uint32 validBitmapIndex = 0;
 
   for(uint32 i = 0; i < numEntries; i++)
   {
-    tag = cacheEntries[i].pcexec;
+    const uint32 tag = cacheEntries[i].pcexec;
     if((tag >= start) && (tag <= end))
     {
       validBitmap[validBitmapIndex] &= ~mask;
@@ -63,7 +61,7 @@ void InstructionCache::InvalidateRegion(uint32 start, uint32 end)
   }
 }
 
-void InstructionCacheEntry::CopyInstructionData(uint32 toSlot, InstructionCacheEntry *src, uint32 fromSlot)
+void InstructionCacheEntry::CopyInstructionData(const uint32 toSlot, const InstructionCacheEntry * const src, const uint32 fromSlot)
 {
   nuances[FIXED_FIELD(toSlot,0)] = src->nuances[FIXED_FIELD(fromSlot,0)];
   nuances[FIXED_FIELD(toSlot,1)] = src->nuances[FIXED_FIELD(fromSlot,1)];

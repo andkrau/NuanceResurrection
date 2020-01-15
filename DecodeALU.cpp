@@ -6,51 +6,49 @@
 #include "NuonMemoryMap.h"
 #include <stdlib.h>
 
-const uint32 absFlags = 0;
-const uint32 addScalarFlags = 0;
-const uint32 addFlags = 0;
-const uint32 addImmediateFlags = 0;
-const uint32 addpFlags = 0;
-const uint32 addsvFlags = 0;
-const uint32 andFlags = 0;
-const uint32 asFlags = 0;
-const uint32 aslFlags = 0;
-const uint32 asrFlags = 0;
-const uint32 eorFlags = 0;
-const uint32 eorImmediateFlags = 0;
-const uint32 ftstFlags = 0;
-const uint32 subFlags = 0;
-const uint32 subScalarFlags = 0;
-const uint32 subImmediateFlags = 0;
-const uint32 subImmediateReverseFlags = 0;
-const uint32 subpFlags = 0;
-const uint32 subsvFlags = 0;
-const uint32 cmpFlags = 0;
-const uint32 bitsFlags = 0;
-const uint32 btstFlags = 0;
-const uint32 buttFlags = 0;
-const uint32 lsFlags = 0;
-const uint32 lsrFlags = 0;
-const uint32 msbFlags = 0;
-const uint32 orFlags = 0;
-const uint32 orImmediateFlags = 0;
-const uint32 rotFlags = 0;
-const uint32 rolFlags = 0;
-const uint32 rorFlags = 0;
-const uint32 satFlags = 0;
-const uint32 addwcFlags = 0;
-const uint32 subwcFlags = 0;
-const uint32 cmpwcFlags = 0;
-const uint32 copyFlags = 0;
-const uint32 negFlags = 0;
+#define absFlags 0
+#define addScalarFlags 0
+#define addFlags 0
+#define addImmediateFlags 0
+#define addpFlags 0
+#define addsvFlags 0
+#define andFlags 0
+#define asFlags 0
+#define aslFlags 0
+#define asrFlags 0
+#define eorFlags 0
+#define eorImmediateFlags 0
+#define ftstFlags 0
+#define subFlags 0
+#define subScalarFlags 0
+#define subImmediateFlags 0
+#define subImmediateReverseFlags 0
+#define subpFlags 0
+#define subsvFlags 0
+#define cmpFlags 0
+#define bitsFlags 0
+#define btstFlags 0
+#define buttFlags 0
+#define lsFlags 0
+#define lsrFlags 0
+#define msbFlags 0
+#define orFlags 0
+#define orImmediateFlags 0
+#define rotFlags 0
+#define rolFlags 0
+#define rorFlags 0
+#define satFlags 0
+#define addwcFlags 0
+#define subwcFlags 0
+#define cmpwcFlags 0
+#define copyFlags 0
+#define negFlags 0
 
-void MPE::DecodeInstruction_ALU16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt)
+void MPE::DecodeInstruction_ALU16(const uint8 * const iPtr, InstructionCacheEntry * const entry, const uint32 * const immExt)
 {
-  uint32 field_3E0, field_1F;
-
   entry->packetInfo |= PACKETINFO_ALU;
-  field_3E0 = ((*iPtr & 0x03) << 3) | (*(iPtr + 1) >> 5);
-  field_1F = *(iPtr + 1) & 0x1F;
+  const uint32 field_3E0 = ((*iPtr & 0x03) << 3) | (*(iPtr + 1) >> 5);
+  const uint32 field_1F = *(iPtr + 1) & 0x1F;
 
   switch((*iPtr & 0x3C) >> 2)
   {
@@ -280,15 +278,13 @@ void MPE::DecodeInstruction_ALU16(uint8 *iPtr, InstructionCacheEntry *entry, uin
   }
 }
 
-void MPE::DecodeInstruction_ALU32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt)
+void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntry * const entry, const uint32 * const immExt)
 {
-  uint32 field_3E00000, field_1F0000, field_1F;
-
   entry->packetInfo |= PACKETINFO_ALU;
 
-  field_3E00000 = ((*iPtr & 0x03) << 3) | (*(iPtr + 1) >> 5);
-  field_1F0000 = *(iPtr + 1) & 0x1F;
-  field_1F = *(iPtr + 3) & 0x1F;
+  const uint32 field_3E00000 = ((*iPtr & 0x03) << 3) | (*(iPtr + 1) >> 5);
+  const uint32 field_1F0000 = *(iPtr + 1) & 0x1F;
+  const uint32 field_1F = *(iPtr + 3) & 0x1F;
 
   switch(*(iPtr + 2) & 0x0F)
   {

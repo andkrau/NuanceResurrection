@@ -383,7 +383,6 @@ NuonEnvironment::NuonEnvironment()
   structMainDisplay.dispwidth = 720;
   structMainDisplay.dispheight = 480;
   bInterlaced = false;
-  vblank_frequency = 60;
   fps = 40;
   InitializeColorSpaceTables();
   mainChannelLowerLimit = 0;
@@ -392,7 +391,6 @@ NuonEnvironment::NuonEnvironment()
   overlayChannelUpperLimit = 0;
   bMainBufferModified = true;
   bOverlayBufferModified = true;
-  bRenderVideo = false;
 
   //TIMER RELATED INITIALIZATION: chooses the timing method used in TimeElapsed
   //and initializes the boot timestamp
@@ -417,9 +415,8 @@ NuonEnvironment::NuonEnvironment()
   bSoundDeviceChosen = false;
   bUseCycleBasedTiming = false;
   cyclesPerAudioInterrupt = 1728000;
-  cyclesPerVideoDisplay = 120000;
   audioInterruptCycleCount = cyclesPerAudioInterrupt;
-  videoDisplayCycleCount = cyclesPerVideoDisplay;
+  videoDisplayCycleCount = 120000;
   whichAudioInterrupt = 0;
 
   if(!pArgs)
