@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "basetypes.h"
 #include "byteswap.h"
 #include "Bios.h"
@@ -368,6 +369,9 @@ void CallPEHandler(MPE *mpe, uint32 address)
       case 7:
         //table = VIDEO_API_Table;
         return;
+        break;
+      default:
+        assert(false);
         break;
     }
   

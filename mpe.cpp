@@ -1740,9 +1740,9 @@ inline bool MPE::ChooseInstructionPairOrdering(InstructionCacheEntry *entry, uin
 
 void MPE::ScheduleInstructionTriplet(InstructionCacheEntry *destEntry, uint32 baseSlot, InstructionCacheEntry *srcEntry, uint32 slot1, uint32 slot2, uint32 slot3)
 {
-  static uint32 destSlot1[6] = {0,0,1,1,2,2};
-  static uint32 destSlot2[6] = {1,2,2,0,0,1};
-  static uint32 destSlot3[6] = {2,1,0,2,1,0};
+  static const uint32 destSlot1[6] = {0,0,1,1,2,2};
+  static const uint32 destSlot2[6] = {1,2,2,0,0,1};
+  static const uint32 destSlot3[6] = {2,1,0,2,1,0};
 
   uint32 comboScalarOutDep12, comboScalarOutDep23, comboScalarOutDep13;
   uint32 comboMiscOutDep12, comboMiscOutDep23, comboMiscOutDep13;
@@ -1854,10 +1854,10 @@ void MPE::GetInstructionTripletDependencies(uint32 *comboScalarDep, uint32 *comb
 
 void MPE::ScheduleInstructionQuartet(InstructionCacheEntry *destEntry, uint32 baseSlot, InstructionCacheEntry *srcEntry)
 {
-  static uint32 destSlotRCU[6] = {0,0,1,1,2,0};
-  static uint32 destSlotALU[6] = {1,2,2,3,3,3};
-  static uint32 destSlotMUL[6] = {2,1,0,2,1,2};
-  static uint32 destSlotMEM[6] = {3,3,3,0,0,1};
+  static const uint32 destSlotRCU[6] = {0,0,1,1,2,0};
+  static const uint32 destSlotALU[6] = {1,2,2,3,3,3};
+  static const uint32 destSlotMUL[6] = {2,1,0,2,1,2};
+  static const uint32 destSlotMEM[6] = {3,3,3,0,0,1};
 
   uint32 comboScalarOutDep1, comboScalarOutDep2;
   uint32 comboMiscOutDep1, comboMiscOutDep2;
