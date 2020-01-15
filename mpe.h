@@ -273,24 +273,30 @@ __declspec(align(16)) class MPE
   public:
 
   //don't change the order of these registers! (regs to svshift)
-
   uint32 regs[32];
   uint32 cc;
   uint32 rc0;
   uint32 rc1;
-  uint32 rx;
-  uint32 ry;
-  uint32 ru;
-  uint32 rv;
-  uint32 rz;
-  uint32 rzi1;
-  uint32 rzi2;
-  uint32 xyctl;
-  uint32 uvctl;
-  uint32 xyrange;
-  uint32 uvrange;
-  uint32 acshift;
-  uint32 svshift;
+  union {
+      struct {
+          uint32 rx;
+          uint32 ry;
+          uint32 ru;
+          uint32 rv;
+          uint32 rz;
+          uint32 rzi1;
+          uint32 rzi2;
+          uint32 xyctl;
+          uint32 uvctl;
+          uint32 xyrange;
+          uint32 uvrange;
+          uint32 acshift;
+          uint32 svshift;
+      };
+      struct {
+          uint32 rcu_union[13];
+      };
+  };
 
   //don't change the order of the temp registers!
   uint32 tempScalarRegs[32];

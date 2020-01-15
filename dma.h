@@ -5,16 +5,16 @@
 
 class MPE;
 
-#define GetPixBaseAddr(base,offset,shift) (base + (offset << shift))
+#define GetPixBaseAddr(base,offset,shift) ((base) + ((offset) << (shift)))
 
-typedef void (* BilinearDMAHandler)(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr);
-typedef void BilinearDMAHandlerProto(MPE *, uint32, uint32, uint32, uint32, uint32);
+typedef void (* BilinearDMAHandler)(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr);
+typedef void BilinearDMAHandlerProto(MPE *, const uint32, const uint32, const uint32, const uint32, const uint32);
 
-void DMALinear(MPE *mpe, uint32 flags, uint32 baseaddr, uint32 intaddr);
+void DMALinear(MPE *mpe, const uint32 flags, const uint32 baseaddr, const uint32 intaddr);
 void DMALinear(MPE *mpe);
-void DMABiLinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr);
+void DMABiLinear(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr);
 void DMABiLinear(MPE *mpe);
-void DMAWait(MPE *mpe);
+void DMAWait(MPE * const mpe);
 void DMADo(MPE *mpe);
 
 #endif

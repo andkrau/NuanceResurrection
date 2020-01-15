@@ -34,13 +34,8 @@ void API_IsPresenting(MPE *mpe)
 
 void API_GetFieldCounter(MPE *mpe)
 {
-  uint32 fieldCounter;
-  
-  fieldCounter = *((uint32 *)&nuonEnv->systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
-
-#ifdef LITTLE_ENDIAN
+  uint32 fieldCounter = *((uint32 *)&nuonEnv->systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
   SwapScalarBytes(&fieldCounter);
-#endif
 
   mpe->regs[0] = fieldCounter;
 }

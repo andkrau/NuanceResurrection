@@ -14,7 +14,6 @@
 #include "video.h"
 //---------------------------------------------------------------------------
 
-#define LITTLE_ENDIAN
 //#define TEXTURE_TARGET (GL_TEXTURE_RECTANGLE_NV)
 #define TEXTURE_TARGET (GL_TEXTURE_2D)
 

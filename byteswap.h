@@ -7,7 +7,7 @@
 #include "basetypes.h"
 
 #ifdef LITTLE_ENDIAN
-inline void SwapWordBytes(uint16 * const toswap)
+__forceinline void SwapWordBytes(uint16 * const toswap)
 {
 #if 0 // old __fastcall dependent code
   __asm
@@ -21,7 +21,7 @@ inline void SwapWordBytes(uint16 * const toswap)
 #endif
 }
 
-inline void SwapScalarBytes(uint32 * const toswap)
+__forceinline void SwapScalarBytes(uint32 * const toswap)
 {
 #if 0 // old __fastcall dependent code
   __asm
@@ -35,7 +35,7 @@ inline void SwapScalarBytes(uint32 * const toswap)
 #endif
 }
 
-inline void SwapShortVectorBytes(uint16 * const toswap)
+__forceinline void SwapShortVectorBytes(uint16 * const toswap)
 {
 #if 0 // old __fastcall dependent code
   __asm
@@ -61,7 +61,7 @@ inline void SwapShortVectorBytes(uint16 * const toswap)
 #endif
 }
 
-inline void SwapVectorBytes(uint32 * const toswap)
+__forceinline void SwapVectorBytes(uint32 * const toswap)
 {
 #if 0 // old __fastcall dependent code
   __asm
