@@ -17,9 +17,8 @@ extern NativeEmitHandler emitHandlers[];
 FILE *blockFile;
 #define NOP_IBYTE_LENGTH (2)
 
-bool IsBranchConditionCompilable(uint32 startAddress, uint32 mpeIndex, uint32 condition)
+bool IsBranchConditionCompilable(const uint32 startAddress, const uint32 mpeIndex, const uint32 condition)
 {
-
   switch(condition)
   {
     case 0:
@@ -124,18 +123,18 @@ bool IsBranchConditionCompilable(uint32 startAddress, uint32 mpeIndex, uint32 co
 }
 
 
-SuperBlock::SuperBlock(MPE *mpe, uint32 maxPackets, uint32 maxInstructionsPerPacket)
+SuperBlock::SuperBlock(MPE * const mpe, const uint32 maxPackets, const uint32 _maxInstructionsPerPacket)
 {
-  char fileStr[128];
   maxPacketsPerSuperBlock = maxPackets;
   pMPE = mpe;
-  this->maxInstructionsPerPacket = maxInstructionsPerPacket;
-  this->constants = new SuperBlockConstants(pMPE,this);
+  maxInstructionsPerPacket = _maxInstructionsPerPacket;
+  constants = new SuperBlockConstants(pMPE,this);
   //allocate enough instruction entries to account for packet start/end IL
   instructions = new InstructionEntry[(maxPackets + 2) * (maxInstructionsPerPacket + 2)];
   packets = new PacketEntry[maxPackets + 2];
   numInstructions = 0;
   numPackets = 0;
+  char fileStr[128];
   sprintf(fileStr,"SuperBlocks%li.txt",mpe->mpeIndex);
   blockFile = fopen(fileStr,"w");
 }
@@ -224,17 +223,17 @@ void GetFlagString(uint32 flags, char *buffer)
 
 void GetIFlagsString(char *buffer, uint32 dep)
 {
-  bool bN = dep & DEPENDENCY_FLAG_N;
-  bool bV = dep & DEPENDENCY_FLAG_V;
-  bool bZ = dep & DEPENDENCY_FLAG_Z;
-  bool bC = dep & DEPENDENCY_FLAG_C;
-  bool bMV = dep & DEPENDENCY_FLAG_MV;
-  bool bC0Z = dep & DEPENDENCY_FLAG_C0Z;
-  bool bC1Z = dep & DEPENDENCY_FLAG_C1Z;
-  bool bMODGE = dep & DEPENDENCY_FLAG_MODGE;
-  bool bMODMI = dep & DEPENDENCY_FLAG_MODMI;
-  bool bCF0 = dep & DEPENDENCY_FLAG_CP0;
-  bool bCF1 = dep & DEPENDENCY_FLAG_CP1;
+  const bool bN = dep & DEPENDENCY_FLAG_N;
+  const bool bV = dep & DEPENDENCY_FLAG_V;
+  const bool bZ = dep & DEPENDENCY_FLAG_Z;
+  const bool bC = dep & DEPENDENCY_FLAG_C;
+  const bool bMV = dep & DEPENDENCY_FLAG_MV;
+  const bool bC0Z = dep & DEPENDENCY_FLAG_C0Z;
+  const bool bC1Z = dep & DEPENDENCY_FLAG_C1Z;
+  const bool bMODGE = dep & DEPENDENCY_FLAG_MODGE;
+  const bool bMODMI = dep & DEPENDENCY_FLAG_MODMI;
+  const bool bCF0 = dep & DEPENDENCY_FLAG_CP0;
+  const bool bCF1 = dep & DEPENDENCY_FLAG_CP1;
 
   sprintf(buffer,"[%s%s%s%s%s%s%s%s%s%s%s]",
     bN ? "N " : "",
@@ -252,18 +251,11 @@ void GetIFlagsString(char *buffer, uint32 dep)
 
 extern NuancePrintHandler printHandlers[];
 
-uint32 volatile dummyVar;
-
-bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, bool bContainsBranch)
+bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, const bool bContainsBranch)
 {
-  uint8 *entryPoint = 0;
-  Nuance *ptrEmitNuance = 0;
-  uint32 emittedBytes = 0;
-  uint32 numLiveInstructions, flags;
-  InstructionEntry *pInstruction;
-  bool bResult = false;
+  uint32 numLiveInstructions;
+  InstructionEntry* pInstruction = instructions;
 
-  pInstruction = instructions;
   numLiveInstructions = 0;
 
   codeCache.GetEmitVars()->bSaveRegs = false;
@@ -288,12 +280,12 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
 
   if((compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE) || (compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK))
   {
-    entryPoint = codeCache.LockBuffer(NULL,0);
-    ptrEmitNuance = (Nuance *)entryPoint;
+    uint8 * const entryPoint = codeCache.LockBuffer(NULL,0);
+    Nuance* ptrEmitNuance = (Nuance *)entryPoint;
 
     for(uint32 i = numInstructions; i > 0; i--)
     {
-      flags = pInstruction->flags;
+      const uint32 flags = pInstruction->flags;
       if(!(flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
       {
         if(!(flags & SUPERBLOCKINFO_DEAD))
@@ -346,13 +338,13 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
       }
       pInstruction++;
     }
-    emittedBytes = numLiveInstructions * sizeof(Nuance);
+    const uint32 emittedBytes = numLiveInstructions * sizeof(Nuance);
     codeCache.ReleaseBuffer((NativeCodeCacheEntryPoint)entryPoint, startAddress, exitAddress, emittedBytes, packetsProcessed, numLiveInstructions, compileType, nextDelayCounter,4);
     return codeCache.IsBeyondThreshold();
   }
   else if(compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
   {
-    entryPoint = codeCache.LockBuffer(NULL,4);
+    uint8 * const entryPoint = codeCache.LockBuffer(NULL,4);
     codeCache.GetEmitVars()->pInstructionEntry = pInstruction;
     
     if(numInstructions > 0)
@@ -369,7 +361,7 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
     for(uint32 i = numInstructions; i > 0; i--)
     {
       codeCache.GetEmitVars()->pInstructionEntry = pInstruction;
-      flags = pInstruction->flags;
+      const uint32 flags = pInstruction->flags;
       if(!(flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
       {
         if(!(flags & SUPERBLOCKINFO_DEAD))
@@ -427,35 +419,28 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
     }
 
     codeCache.X86Emit_RETN();
-    emittedBytes = (uint32)(codeCache.GetEmitPointer() - entryPoint);
+    const uint32 emittedBytes = (uint32)(codeCache.GetEmitPointer() - entryPoint);
     codeCache.ReleaseBuffer((NativeCodeCacheEntryPoint)entryPoint,startAddress,exitAddress,emittedBytes,packetsProcessed,numLiveInstructions,compileType,nextDelayCounter,4);
     return codeCache.IsBeyondThreshold();
   }
 
-  return bResult;
+  return false;
 }
 
-NativeCodeCacheEntryPoint SuperBlock::CompileBlock(MPE *mpe, uint32 address, NativeCodeCache &codeCache, SuperBlockCompileType compileType, bool bLimitToSinglePacket, bool &bError)
+NativeCodeCacheEntryPoint SuperBlock::CompileBlock(MPE * const mpe, const uint32 address, NativeCodeCache &codeCache, const SuperBlockCompileType compileType, const bool bLimitToSinglePacket, bool &bError)
 {
-  NativeCodeCacheEntryPoint entryPoint = (NativeCodeCacheEntryPoint)codeCache.GetEmitPointer();
+  const NativeCodeCacheEntryPoint entryPoint = (NativeCodeCacheEntryPoint)codeCache.GetEmitPointer();
   bCanEmitNativeCode = true;
   bSinglePacket = bLimitToSinglePacket;
-  int32 fetchSuperBlockResult;
   bool bContainsBranch = false;
 
   bError = false;
   constants->bConstantPropagated = false;
 
-  if(compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE)
-  {
-    bAllowBlockCompile = false;
-  }
-  else
-  {
-    bAllowBlockCompile = true;
-  }
+  bAllowBlockCompile = (compileType != SUPERBLOCKCOMPILETYPE_IL_SINGLE);
 
   //Step 1, fetch the block (or superblock)
+  int32 fetchSuperBlockResult;
   if((fetchSuperBlockResult = FetchSuperBlock(*mpe,address,bContainsBranch)) <= 0)
   {
     //For whatever reason, no entries were added to the instruction list.  This is most likely due to the first instruction candidate being
@@ -669,12 +654,8 @@ void SuperBlock::AddPacketToList(InstructionCacheEntry &packet, uint32 index)
 
 }
 
-bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry *pPacketEntry, uint32 index, bool bExplicitNOP)
+bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry * const pPacketEntry, const uint32 index, const bool bExplicitNOP)
 {
-  uint32 comboScalarInDep = 0;
-  uint32 comboMiscInDep = 0;
-  uint32 comboScalarOutDep = packet.scalarOutputDependencies[0];
-  uint32 comboMiscOutDep = packet.miscOutputDependencies[0];
   uint32 nuanceBase = 0;
   InstructionEntry *pCurrentInstruction = &instructions[index];
   bool bCanEmitNativeCode = true;
@@ -744,9 +725,8 @@ bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntr
 
 uint32 SuperBlock::PerformDeadCodeElimination()
 {
-  uint32 i, miscRegMask, scalarRegMask, scalarRegMaskNext, miscRegMaskNext, numLive;
-  uint32 miscOutDep, scalarOutDep, miscInDep = 0, scalarInDep = 0, flags;
-  bool bLocked;
+  uint32 miscRegMask = 0, scalarRegMask = 0, scalarRegMaskNext = 0, miscRegMaskNext = 0;
+  uint32 miscInDep = 0, scalarInDep = 0;
 
   //scalarRegMask and miscRegMask represent all registers which do not need to be 
   //output by the instruction being processed
@@ -757,15 +737,12 @@ uint32 SuperBlock::PerformDeadCodeElimination()
   //but enclosing single instructions within packets does not add significant overhead
   //to the compilation process.
 
-  numLive = 0;
-  i = numInstructions - 1;
-
-  scalarRegMask = scalarRegMaskNext = 0;
-  miscRegMask = miscRegMaskNext = 0;
+  uint32 numLive = 0;
+  uint32 i = numInstructions - 1;
  
   for(uint32 j = numInstructions; j > 0; j--)
   {
-    flags = instructions[i].flags;
+    const uint32 flags = instructions[i].flags;
 
     if(!(flags & SUPERBLOCKINFO_DEAD))
     {
@@ -773,16 +750,16 @@ uint32 SuperBlock::PerformDeadCodeElimination()
 
       if(!(flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
       {
-        bLocked = flags & SUPERBLOCKINFO_LOCKED;
+        const bool bLocked = flags & SUPERBLOCKINFO_LOCKED;
         if(!bLocked)
         {
           //Remove output dependencies which are not used as inputs prior to being modified
           instructions[i].scalarOutputDependencies &= ~scalarRegMask;
           instructions[i].miscOutputDependencies &= ~miscRegMask;
         }
-       
-        scalarOutDep = instructions[i].scalarOutputDependencies;
-        miscOutDep = instructions[i].miscOutputDependencies;
+
+        const uint32 scalarOutDep = instructions[i].scalarOutputDependencies;
+        const uint32 miscOutDep = instructions[i].miscOutputDependencies;
 
         //Keep a running total of all input dependencies for this packet
         scalarInDep |= instructions[i].scalarInputDependencies;
@@ -839,13 +816,13 @@ uint32 SuperBlock::PerformDeadCodeElimination()
 
 void SuperBlock::UpdateDependencyInfo()
 {
-  uint32 miscInDep = 0, miscOutDep = 0, scalarInDep = 0, scalarOutDep = 0, miscOpDep = 0, scalarOpDep = 0, flags;
-  InstructionEntry *pCurrentPacket, *pCurrentInstruction;
+  uint32 miscInDep = 0, miscOutDep = 0, scalarInDep = 0, scalarOutDep = 0, miscOpDep = 0, scalarOpDep = 0;
 
-  pCurrentInstruction = instructions;
+  InstructionEntry *pCurrentInstruction = instructions;
+  InstructionEntry *pCurrentPacket = pCurrentInstruction; //!! only inited to this for paranoia reasons
   for(uint32 j = numInstructions; j > 0; j--)
   {
-    flags = pCurrentInstruction->flags;
+    const uint32 flags = pCurrentInstruction->flags;
     if(!(flags & SUPERBLOCKINFO_DEAD))
     {
       if(!(flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))

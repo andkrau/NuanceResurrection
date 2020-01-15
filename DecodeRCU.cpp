@@ -4,25 +4,22 @@
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
 
-const uint32 decOnlyFlags = 0;
-const uint32 addrFlags = 0;
-const uint32 addrOnlyFlags = 0;
-const uint32 mvrFlags = 0;
-const uint32 mvrOnlyFlags = 0;
-const uint32 rangeFlags = 0;
-const uint32 rangeOnlyFlags = 0;
-const uint32 moduloFlags = 0;
-const uint32 moduloOnlyFlags = 0;
+#define decOnlyFlags 0
+#define addrFlags 0
+#define addrOnlyFlags 0
+#define mvrFlags 0
+#define mvrOnlyFlags 0
+#define rangeFlags 0
+#define rangeOnlyFlags 0
+#define moduloFlags 0
+#define moduloOnlyFlags 0
 
-void MPE::DecodeInstruction_RCU16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt)
+void MPE::DecodeInstruction_RCU16(const uint8 *const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt)
 {
-  uint32 rangeDependency;
-  uint8 decInfo;
-
   entry->packetInfo |= PACKETINFO_RCU;
 
   //copy dec control bits
-  decInfo = *(iPtr + 1) & 0x03;
+  const uint8 decInfo = *(iPtr + 1) & 0x03;
 
   entry->nuances[FIXED_FIELD(SLOT_RCU,FIELD_RCU_INFO)] = decInfo;
 
@@ -155,17 +152,7 @@ void MPE::DecodeInstruction_RCU16(uint8 *iPtr, InstructionCacheEntry *entry, uin
     {
       //modulo RI or range RI
       entry->nuances[FIXED_FIELD(SLOT_RCU,FIELD_RCU_SRC)] = entry->nuances[FIXED_FIELD(SLOT_RCU,FIELD_RCU_DEST)];
-      switch(entry->nuances[FIXED_FIELD(SLOT_RCU,FIELD_RCU_DEST)])
-      {
-        case 0:
-        case 1:
-          rangeDependency = DEPENDENCY_MASK_XYRANGE;
-          break;
-        case 2:
-        case 3:
-          rangeDependency = DEPENDENCY_MASK_UVRANGE;
-          break;
-      }
+      const uint32 rangeDependency = entry->nuances[FIXED_FIELD(SLOT_RCU, FIELD_RCU_DEST)] <= 1 ? DEPENDENCY_MASK_XYRANGE : DEPENDENCY_MASK_UVRANGE; // (0,1) : (2,3)
       entry->miscInputDependencies[SLOT_RCU] |= (INDEX_REG_DEPENDENCY_MASK(entry->nuances[FIXED_FIELD(SLOT_RCU,FIELD_RCU_SRC)]) | rangeDependency);
       
       if(*iPtr & 0x02)

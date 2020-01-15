@@ -420,20 +420,19 @@ __declspec(align(16)) class MPE
   bool FetchDecodeExecute();
   void ExecuteSingleStep();
   void ExecuteNuances(InstructionCacheEntry &iCacheEntry);
-  uint32 GetControlRegisterInputDependencies(uint32 address, bool &bException);
-  uint32 GetControlRegisterOutputDependencies(uint32 address, bool &bException);
-  void DecodeInstruction_RCU16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
-  void DecodeInstruction_ECU16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
-  void DecodeInstruction_ECU32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
-  void DecodeInstruction_ALU16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
-  void DecodeInstruction_ALU32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
-  void DecodeInstruction_MEM16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
-  void DecodeInstruction_MEM32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
-  void DecodeInstruction_MUL16(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
-  void DecodeInstruction_MUL32(uint8 *iPtr, InstructionCacheEntry *entry, uint32 *immExt);
+  uint32 GetControlRegisterInputDependencies(const uint32 address, bool &bException);
+  uint32 GetControlRegisterOutputDependencies(const uint32 address, bool &bException);
+  void DecodeInstruction_RCU16(const uint8 * const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt);
+  void DecodeInstruction_ECU16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  void DecodeInstruction_ECU32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  void DecodeInstruction_ALU16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  void DecodeInstruction_ALU32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  void DecodeInstruction_MEM16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  void DecodeInstruction_MEM32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  void DecodeInstruction_MUL16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  void DecodeInstruction_MUL32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void GenerateMirrorLookupTable();
   void InitializeBankTable(uint8 *mainBusPtr, uint8 *systemBusPtr, uint8 *flashEEPROMPtr);
-  void CalculateBilinearAddress(uint32 *pBaseAddress, sBilinearInfo *bi, uint32 x, uint32 y);
   bool TestConditionCode(uint32 whichCondition);
   
   MPE(uint32 index);
@@ -456,7 +455,7 @@ __declspec(align(16)) class MPE
     instructionCache->Invalidate();
   }
 
-  inline void InvalidateICacheRegion(uint32 start, uint32 end)
+  inline void InvalidateICacheRegion(const uint32 start, const uint32 end)
   {
     numInterpreterCacheFlushes++;
     instructionCache->InvalidateRegion(start, end);
@@ -465,7 +464,7 @@ __declspec(align(16)) class MPE
   void WriteControlRegister(uint32 address, uint32 data);
   void SaveRegisters();
   void InitStaticICacheEntries();
-  uint32 ReadControlRegister(uint32 address, InstructionCacheEntry *entry);
+  uint32 ReadControlRegister(const uint32 address, const InstructionCacheEntry * const entry);
 
   inline void Halt(void)
   {
@@ -477,18 +476,18 @@ __declspec(align(16)) class MPE
     mpectl |= MPECTRL_MPEGO;
   }
 
-  inline void TriggerInterrupt(uint32 which)
+  inline void TriggerInterrupt(const uint32 which)
   {
     intsrc |= which;
     Syscall_InterruptTriggered(this);
   }
 
-  inline void *GetPointerToMemory(void)
+  inline void *GetPointerToMemory(void) const
   {
     return dtrom;
   }
 
-  uint8 *GetPointerToMemoryBank(uint32 address)
+  inline uint8 *GetPointerToMemoryBank(const uint32 address) const
   {
     return bankPtrTable[address >> 28] + (address & MPE_VALID_MEMORY_MASK);
   }
@@ -518,8 +517,8 @@ __declspec(align(16)) class MPE
   //void StorePixelZ(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, unsigned __int32 pixType, unsigned __int32 subpixel, bool bChnorm);
 };
 
-typedef void (* NuanceHandler)(MPE &, InstructionCacheEntry &, Nuance &);
-typedef void NuanceHandlerProto(MPE &, InstructionCacheEntry &, Nuance &);
+typedef void (* NuanceHandler)(MPE &, const InstructionCacheEntry &, const Nuance &);
+typedef void NuanceHandlerProto(MPE &, const InstructionCacheEntry &, const Nuance &);
 typedef uint32 (* NuancePrintHandler)(char *, Nuance &, bool);
 typedef uint32 NuancePrintHandlerProto(char *, Nuance &, bool);
 typedef void (* NativeEmitHandler)(EmitterVariables *, Nuance &);

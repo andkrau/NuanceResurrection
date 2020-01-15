@@ -71,17 +71,19 @@ enum SuperBlockCompileType
 class SuperBlock
 {
 public:
-  SuperBlock(MPE *mpe,uint32 maxPackets,uint32 maxInstructionsPerPacket);
+  SuperBlock(MPE * const mpe, const uint32 maxPackets, const uint32 _maxInstructionsPerPacket);
   ~SuperBlock();
+
   void PrintBlockToFile(SuperBlockCompileType blockType = SUPERBLOCKCOMPILETYPE_UNKNOWN, uint32 size = 0);
   void AddPacketToList(InstructionCacheEntry &packet, uint32 index);
-  bool AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry *pPacketEntry, uint32 index, bool bExplicitNOP = false);
-  NativeCodeCacheEntryPoint CompileBlock(MPE *mpe, uint32 address, NativeCodeCache &codeCache, SuperBlockCompileType eCompileType, bool bSinglePacket, bool &bError);
-  bool EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, bool bContainsBranch);
+  bool AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry * const pPacketEntry, const uint32 index, const bool bExplicitNOP = false);
+  NativeCodeCacheEntryPoint CompileBlock(MPE * const mpe, const uint32 address, NativeCodeCache &codeCache, const SuperBlockCompileType eCompileType, const bool bSinglePacket, bool &bError);
+  bool EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, const bool bContainsBranch);
   void UpdateDependencyInfo();
   void PerformConstantPropagation();
   uint32 PerformDeadCodeElimination();
   int32 FetchSuperBlock(MPE &mpe, uint32 address, bool &bContainsBranch);
+
   uint32 numInstructions;
   uint32 numLiveInstructions;
   uint32 numPackets;
@@ -98,6 +100,7 @@ public:
   uint32 nextDelayCounter;
   MPE *pMPE;
   FILE *blockFile;
+
 private:
   bool bCanEmitNativeCode;
 };

@@ -69,7 +69,6 @@ public:
   uint8 *systemBusDRAM;
   FlashEEPROM *flashEEPROM;
   uint32 cycleCounter;
-  volatile uint32 vblank_frequency;
   uint32 pendingCommRequests;
   uint32 mainChannelUpperLimit, mainChannelLowerLimit;
   uint32 overlayChannelUpperLimit, overlayChannelLowerLimit;
@@ -99,10 +98,8 @@ public:
   bool bOverlayBufferModified;
   bool bSoundDeviceChosen;
   bool bUseCycleBasedTiming;
-  volatile bool bRenderVideo;
   uint32 cyclesPerAudioInterrupt;
   uint32 fps;
-  volatile uint32 cyclesPerVideoDisplay;
   uint32 audioInterruptCycleCount;
   uint32 videoDisplayCycleCount;
   uint32 whichAudioInterrupt;

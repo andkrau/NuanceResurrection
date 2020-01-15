@@ -129,15 +129,12 @@ bool GLWindow::ChangeScreenResolution(int width, int height, int bitsPerPixel)
 	return true;
 }
 
-PIXELFORMATDESCRIPTOR pfd;
-volatile HWND hWnd;
-
 bool GLWindow::CreateWindowGL()
 {
-	GLuint PixelFormat;
+  GLuint PixelFormat;
   unsigned __int32 wStyle, wStyleEx;
 
-	wStyle = windowStyle;
+  wStyle = windowStyle;
   wStyleEx = windowExtendedStyle;
 
   if(!bitsPerPixel)
@@ -145,14 +142,15 @@ bool GLWindow::CreateWindowGL()
     bitsPerPixel = 32;
   }
   
+  PIXELFORMATDESCRIPTOR pfd;
   pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
   pfd.nVersion = 1;
   pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
   pfd.iPixelType = PFD_TYPE_RGBA;
   pfd.cColorBits = 32;
   pfd.cRedBits = pfd.cRedShift = pfd.cGreenBits = pfd.cGreenShift = pfd.cBlueBits = pfd.cBlueShift = 0;
-  pfd.cAlphaBits = pfd.cAlphaShift = pfd.cAccumBits = pfd.cAccumRedBits = pfd.cAccumGreenBits = pfd.cAccumBlueBits 
-    = pfd.cAccumAlphaBits = 0;
+  pfd.cAlphaBits = pfd.cAlphaShift = pfd.cAccumBits = pfd.cAccumRedBits = pfd.cAccumGreenBits = pfd.cAccumBlueBits
+                 = pfd.cAccumAlphaBits = 0;
   pfd.cDepthBits = 0;
   pfd.cStencilBits = 0;
   pfd.cAuxBuffers = 0;
@@ -161,8 +159,8 @@ bool GLWindow::CreateWindowGL()
   pfd.dwLayerMask = 0;
   pfd.dwVisibleMask = 0;
   pfd.dwDamageMask = 0;
-		
-	RECT windowRect = {x, y, clientWidth + x, clientHeight + y};
+
+  RECT windowRect = {x, y, clientWidth + x, clientHeight + y};
 
   AdjustWindowRectEx(&windowRect, windowStyle, 0, windowExtendedStyle);
   restoreX = x;
@@ -170,19 +168,19 @@ bool GLWindow::CreateWindowGL()
   restoreWidth = windowRect.right - windowRect.left;
   restoreHeight = windowRect.bottom - windowRect.top;
 
-	if(bFullScreen == true)
-	{
-		if(!ChangeScreenResolution(fullScreenWidth, fullScreenHeight, bitsPerPixel))
-		{
-			// Fullscreen Mode Failed.  Run In Windowed Mode Instead
-			MessageBox(HWND_DESKTOP,"Mode Switch Failed.\nRunning In Windowed Mode.", "Error", MB_OK | MB_ICONEXCLAMATION);
-			bFullScreen = false;
-		}
-		else
-		{
+  if(bFullScreen == true)
+  {
+    if(!ChangeScreenResolution(fullScreenWidth, fullScreenHeight, bitsPerPixel))
+    {
+      // Fullscreen Mode Failed.  Run In Windowed Mode Instead
+      MessageBox(HWND_DESKTOP,"Mode Switch Failed.\nRunning In Windowed Mode.", "Error", MB_OK | MB_ICONEXCLAMATION);
+      bFullScreen = false;
+    }
+    else
+    {
       // Fullscreen mode switch succeeded
-			ShowCursor(FALSE);
-			wStyle = fullScreenWindowStyle;
+      ShowCursor(FALSE);
+      wStyle = fullScreenWindowStyle;
       wStyleEx = fullScreenWindowExtendedStyle;
       clientWidth = fullScreenWidth;
       clientHeight = fullScreenHeight;
@@ -195,26 +193,25 @@ bool GLWindow::CreateWindowGL()
       y = windowRect.top;
       width = windowRect.right - windowRect.left;
       height = windowRect.bottom - windowRect.top;
-		}
-	}
+    }
+  }
 
   // Create The OpenGL Window
   hWnd = CreateWindowEx(
     wStyleEx,
-		"GLWindow",
-		title,
-		wStyle,
-		windowRect.left, windowRect.top,
-		windowRect.right - windowRect.left,
-		windowRect.bottom - windowRect.top,
-		HWND_DESKTOP,
-		0,
-		hInstance,
-		this);
+    "GLWindow",
+    title,
+    wStyle,
+    windowRect.left, windowRect.top,
+    windowRect.right - windowRect.left,
+    windowRect.bottom - windowRect.top,
+    HWND_DESKTOP,
+    0,
+    hInstance,
+    this);
 
-  ::hWnd = hWnd;
-	if(!hWnd)
-	{
+  if(!hWnd)
+  {
     LPVOID lpMsgBuf;
     if (!FormatMessage( 
         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -241,12 +238,12 @@ bool GLWindow::CreateWindowGL()
     LocalFree( lpMsgBuf );  
 
     return false;
-	}
+  }
 
-	hDC = GetDC(hWnd);
+  hDC = GetDC(hWnd);
 
-	if(!hDC)
-	{
+  if(!hDC)
+  {
     LPVOID lpMsgBuf;
     if (!FormatMessage( 
         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -261,7 +258,7 @@ bool GLWindow::CreateWindowGL()
     {
       // Handle the error.
       DestroyWindow(hWnd);
-		  hWnd = 0;
+      hWnd = 0;
       return false;
     }
 
@@ -275,13 +272,13 @@ bool GLWindow::CreateWindowGL()
     LocalFree( lpMsgBuf );  
 
     DestroyWindow(hWnd);
-		hWnd = 0;
-		return false;
-	}
+    hWnd = 0;
+    return false;
+  }
 
-	PixelFormat = ChoosePixelFormat(hDC, &pfd);
-	if(!PixelFormat)
-	{
+  PixelFormat = ChoosePixelFormat(hDC, &pfd);
+  if(!PixelFormat)
+  {
     LPVOID lpMsgBuf;
     if (!FormatMessage( 
         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -315,9 +312,9 @@ bool GLWindow::CreateWindowGL()
 		DestroyWindow(hWnd);
 		hWnd = 0;
 		return false;
-	}
+  }
 
-	if(!SetPixelFormat(hDC, PixelFormat, &pfd))
+  if(!SetPixelFormat(hDC, PixelFormat, &pfd))
   {
     LPVOID lpMsgBuf;
     if (!FormatMessage( 
@@ -353,12 +350,12 @@ bool GLWindow::CreateWindowGL()
 		DestroyWindow(hWnd);
 		hWnd = 0;
 		return false;
-	}
+  }
 
-	hRC = wglCreateContext(hDC);
+  hRC = wglCreateContext(hDC);
 
-	if(!hRC)
-	{
+  if(!hRC)
+  {
     LPVOID lpMsgBuf;
     if (!FormatMessage( 
         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -389,10 +386,10 @@ bool GLWindow::CreateWindowGL()
 		DestroyWindow(hWnd);
 		hWnd = 0;
 		return false;
-	}
+  }
 
-	if(!wglMakeCurrent(hDC, hRC))
-	{
+  if(!wglMakeCurrent(hDC, hRC))
+  {
     LPVOID lpMsgBuf;
     if (!FormatMessage( 
         FORMAT_MESSAGE_ALLOCATE_BUFFER | 
@@ -431,17 +428,17 @@ bool GLWindow::CreateWindowGL()
 		DestroyWindow(hWnd);
 		hWnd = 0;
 		return false;
-	}
+  }
 
   DescribePixelFormat(hDC,GetPixelFormat(hDC),sizeof(PIXELFORMATDESCRIPTOR),&pfd);
   bool bAccelerated = pfd.dwFlags & PFD_GENERIC_ACCELERATED;
   bool bGeneric = pfd.dwFlags & PFD_GENERIC_FORMAT;
 
-	ShowWindow(hWnd, SW_NORMAL);
-	bVisible = true;
-	OnResize(clientWidth, clientHeight);
+  ShowWindow(hWnd, SW_NORMAL);
+  bVisible = true;
+  OnResize(clientWidth, clientHeight);
 
-	return true;
+  return true;
 }
 
 void GLWindow::CleanUp()
@@ -474,12 +471,12 @@ void GLWindow::CleanUp()
 
 LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	GLWindow *window = (GLWindow *)(GetWindowLong(hWnd, GWL_USERDATA));
+  GLWindow *window = (GLWindow *)(GetWindowLong(hWnd, GWL_USERDATA));
   RECT windowRect;
   PAINTSTRUCT ps;
 
-	switch(uMsg)
-	{
+  switch(uMsg)
+  {
     case WM_TIMER:
       if(window->timerHandler)
       {
@@ -657,9 +654,9 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         window->clientHeight = windowRect.bottom;
       }
 		  break;
-	}
+  }
 
-	return DefWindowProc(hWnd, uMsg, wParam, lParam);
+  return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
 bool GLWindow::RegisterWindowClass()
@@ -729,12 +726,12 @@ char className[] = "GLWindow";
 
 bool GLWindow::MessagePump(void)
 {
-	MSG	msg;
+  MSG	msg;
 
   if(PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
-	{
-  	DispatchMessage(&msg);
-	}
+  {
+    DispatchMessage(&msg);
+  }
 
   return true;
 }
@@ -742,29 +739,29 @@ bool GLWindow::MessagePump(void)
 DWORD WINAPI GLWindow::GLWindowMain(void *param)
 {
   GLWindow *glWindow = (GLWindow *)param;
-	bool bMessagePumpActive;
-	MSG	msg;
+  bool bMessagePumpActive;
+  MSG msg;
 
-	// Fill Out Application Data
+  // Fill Out Application Data
   glWindow->className = ::className;
 
-	// Fill Out Window
+  // Fill Out Window
 
-	// Register the window class
-	if(!glWindow->RegisterWindowClass())
-	{
+  // Register the window class
+  if(!glWindow->RegisterWindowClass())
+  {
 		MessageBox(HWND_DESKTOP, "Error Registering Window Class!", "Error", MB_OK | MB_ICONEXCLAMATION);
 		return false;
-	}
+  }
 
-	bTerminate = false;
+  bTerminate = false;
 
-	// Create A Window
-	if(glWindow->CreateWindowGL())
-	{
+  // Create A Window
+  if(glWindow->CreateWindowGL())
+  {
     glWindow->OnResize(glWindow->clientWidth,glWindow->clientHeight);
     
-		bMessagePumpActive = true;
+    bMessagePumpActive = true;
     glWindow->bCreated = true;
     if(glWindow->bUseSeparateThread)
     {
@@ -799,12 +796,11 @@ DWORD WINAPI GLWindow::GLWindowMain(void *param)
       glWindow->bCreated = false;
     }
   }
-	else
-	{
-		MessageBox(HWND_DESKTOP, "Error Creating OpenGL Window", "Error", MB_OK | MB_ICONEXCLAMATION);
+  else
+  {
+    MessageBox(HWND_DESKTOP, "Error Creating OpenGL Window", "Error", MB_OK | MB_ICONEXCLAMATION);
     return false;
-	}
+  }
 
-	return true;
+  return true;
 }
-
