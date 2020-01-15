@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <windows.h>
 #include "basetypes.h"
 #include "bdma_type5.h"
@@ -8,12 +9,9 @@
 #include "mpe.h"
 #include "NuonMemoryMap.h"
 #include "NuonEnvironment.h"
-#include <stdio.h>
 
 extern NuonEnvironment *nuonEnv;
 void UnimplementedBilinearDMAHandler(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr);
-
-//#define SUPRESS_ERRORS
 
 /* DMA types:
 
@@ -606,27 +604,26 @@ BilinearDMAHandler BilinearDMAHandlers[] =
   UnimplementedBilinearDMAHandler
 };
 
-void UnimplementedBilinearDMAHandler(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void UnimplementedBilinearDMAHandler(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   return;
 }
 
-void DMALinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 intaddr)
+void DMALinear(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 intaddr)
 {
   uint32 directValue;
-  uint32 destStride, srcStride, length, wordSize;
+  uint32 destStride, srcStride, wordSize;
   void *intMemory, *baseMemory, *pSrc, *pDest;
   uint32 *pDest32, *pSrc32;
-  bool bRead, bByteMode, bDirect, bDup, bRemote, bFlushCache;
   uint32 tempScalars[4];
-  LARGE_INTEGER timeStart, timeEnd, timeFreq, timeOverhead;
+  //LARGE_INTEGER timeStart, timeEnd, timeFreq, timeOverhead;
 
-  bByteMode = false;
-  bRemote = flags & (1UL << 28);
-  bDirect = flags & (1UL << 27);
-  bDup = (flags & (3UL << 26));
-  length = (flags >> 16) & 0xFF; //Only 1-127 is valid according to docs but field is 8 bits
-  bRead = flags & (1 << 13);
+        bool bByteMode = false;
+  const bool bRemote = flags & (1UL << 28);
+  const bool bDirect = flags & (1UL << 27);
+  const bool bDup = (flags & (3UL << 26));
+        uint32 length = (flags >> 16) & 0xFF; //Only 1-127 is valid according to docs but field is 8 bits
+  const bool bRead = flags & (1 << 13);
 
   if(baseaddr < 0xF0000000)
   {
@@ -717,9 +714,7 @@ void DMALinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 intaddr)
       }
       pDest32 = (uint32 *)intMemory;
       nuonEnv->flashEEPROM->ReadData(baseaddr - 0xF0000000,pDest32);
-#ifdef LITTLE_ENDIAN
       SwapScalarBytes(pDest32);
-#endif
     }
     else
     {
@@ -735,9 +730,7 @@ void DMALinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 intaddr)
       }
       pSrc32 = (uint32 *)intMemory;
       tempScalars[0] = pSrc32[0];
-#ifdef LITTLE_ENDIAN
       SwapScalarBytes(tempScalars);
-#endif
       nuonEnv->flashEEPROM->WriteData(baseaddr - 0xF0000000,tempScalars[0]);
     }
     return;
@@ -804,7 +797,7 @@ void DMALinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 intaddr)
     //Read: base -> internal
     pSrc = baseMemory;
 
-    bFlushCache = 
+    const bool bFlushCache = 
       ((intaddr & MPE_LOCAL_MEMORY_MASK) >= MPE_IRAM_BASE) &&
       ((intaddr & MPE_LOCAL_MEMORY_MASK) < MPE_DTAGS_BASE);
 
@@ -989,9 +982,9 @@ void DMALinear(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 intaddr)
 
 void DMALinear(MPE *the_mpe)
 {
-  uint32 flags = the_mpe->regs[0];
-  uint32 baseaddr = the_mpe->regs[1];
-  uint32 intaddr = the_mpe->regs[2];
+  const uint32 flags = the_mpe->regs[0];
+  const uint32 baseaddr = the_mpe->regs[1];
+  const uint32 intaddr = the_mpe->regs[2];
 
   //For the BIOS call, simulate the latency of the call assuming
   //40 cycles of setup time (copying to command buffer, determining
@@ -1558,8 +1551,6 @@ void DMABiLinear(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const 
     srcB = srcBStart;
     destB = destBStart;
 
-#define GetPixBaseAddr(base,offset,shift) (base + (offset << shift))
-
     if(!bRead)
     {
       if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv->mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv->mainChannelUpperLimit) ||
@@ -1766,7 +1757,7 @@ do_mdmacmd:
   }
 }
 
-void DMAWait(MPE *the_mpe)
+void DMAWait(MPE * const the_mpe)
 {
   return;
 }

@@ -34,10 +34,7 @@ void ControllerInitialize(MPE *mpe)
 
   properties = KEYBOARD_JOYSTICK_PROPERTIES;
   config = CONTROLLER_CHANGED_BIT | properties;
-
-#ifdef LITTLE_ENDIAN
   SwapScalarBytes(&config);
-#endif
   controller[1].config = config;
 }
 
@@ -49,9 +46,7 @@ void DeviceDetect(MPE *mpe)
   if(slot == 1)
   {
     config = controller[1].config;
-#ifdef LITTLE_ENDIAN
     SwapScalarBytes(&config);
-#endif
 
     if((config & CONTROLLER_CHANGED_BIT) == 0)
     {
@@ -62,9 +57,8 @@ void DeviceDetect(MPE *mpe)
     if(controller)
     {
       config = CONTROLLER_STATUS_BIT | KEYBOARD_JOYSTICK_PROPERTIES;
-#ifdef LITTLE_ENDIAN
       SwapScalarBytes(&config);
-#endif
+
       controller[1].config = config;
     }
 
