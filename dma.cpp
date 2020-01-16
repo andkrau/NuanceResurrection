@@ -11,7 +11,7 @@
 #include "NuonEnvironment.h"
 
 extern NuonEnvironment *nuonEnv;
-void UnimplementedBilinearDMAHandler(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr);
+void UnimplementedBilinearDMAHandler(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr);
 
 /* DMA types:
 
@@ -41,7 +41,7 @@ Z-data is always operated on as the DMA controller does not know which
 of the framebuffers holds the color data.
 */
 
-BilinearDMAHandler BilinearDMAHandlers[] =
+const BilinearDMAHandler BilinearDMAHandlers[] =
 {
 //Pixel Type 0: Allows Z write only of pixel type 5
 //Write
@@ -604,12 +604,12 @@ BilinearDMAHandler BilinearDMAHandlers[] =
   UnimplementedBilinearDMAHandler
 };
 
-void UnimplementedBilinearDMAHandler(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void UnimplementedBilinearDMAHandler(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   return;
 }
 
-void DMALinear(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 intaddr)
+void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 intaddr)
 {
   uint32 directValue;
   uint32 destStride, srcStride, wordSize;
@@ -980,7 +980,7 @@ void DMALinear(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const ui
   }
 }
 
-void DMALinear(MPE *the_mpe)
+void DMALinear(MPE * const the_mpe)
 {
   const uint32 flags = the_mpe->regs[0];
   const uint32 baseaddr = the_mpe->regs[1];
@@ -994,7 +994,7 @@ void DMALinear(MPE *the_mpe)
   DMALinear(the_mpe,flags,baseaddr,intaddr);
 }
 
-void DMABiLinear(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   uint32 whichRoutine;
 

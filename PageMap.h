@@ -42,5 +42,4 @@ private:
   RootPageNode root;
 };
 
-
 #endif

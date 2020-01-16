@@ -745,10 +745,10 @@ inline void ProcessCycleBasedEvents(void)
 
 bool CheckForInvalidCommStatus(MPE *mpe)
 {
-  const bool bInvalid = (mpe->intsrc & INT_COMMRECV) && 
+  bool bInvalid = (mpe->intsrc & INT_COMMRECV) && 
    (!(mpe->commctl & (1UL << 31)));  //&& (!(mpe->intctl & (1UL << 5)) || (mpe->pcexec >= 0x807604D2))) ||
    //((mpe->commctl & (1UL << 31)) && (mpe->pcexec >= 0x807604C8) && (mpe->pcexec < 0x807604D2)));
-  const bool bInvalid2 = (!(mpe->intsrc & INT_COMMRECV) && (mpe->commctl & (1UL << 31)) &&
+  bool bInvalid2 = (!(mpe->intsrc & INT_COMMRECV) && (mpe->commctl & (1UL << 31)) &&
     ((mpe->pcexec <= 0x807604C0) || (mpe->pcexec >= 0x807604D2)));
   if(bInvalid || bInvalid2)
   {

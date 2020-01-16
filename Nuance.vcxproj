@@ -316,6 +316,7 @@
     <ClInclude Include="basetypes.h" />
     <ClInclude Include="bdma_type12.h" />
     <ClInclude Include="bdma_type5.h" />
+    <ClInclude Include="bdma_type8.h" />
     <ClInclude Include="bdma_type9.h" />
     <ClInclude Include="Bios.h" />
     <ClInclude Include="byteswap.h" />

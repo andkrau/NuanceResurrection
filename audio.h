@@ -6,8 +6,8 @@
 
 class MPE;
 
-#define RATE_44_1_KHZ	(0x0001UL)
-#define RATE_88_2_KHZ	(0x0002UL)
+#define RATE_44_1_KHZ  (0x0001UL)
+#define RATE_88_2_KHZ  (0x0002UL)
 #define RATE_22_05_KHZ (0x0004UL)
 
 #define RATE_48_KHZ	(0x0010UL)
