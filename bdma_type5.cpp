@@ -7,42 +7,37 @@
 extern VidChannel structMainChannel;
 extern NuonEnvironment *nuonEnv;
 
-void BDMA_Type5_Write_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Write_0(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
-  uint16 *pSrcColor, *pDestColor, *pSrcZ, *pDestZ;
-  void *intMemory, *baseMemory;
   uint16 directColor, directZ;
-  uint32 type, pixtype, directValue, map, zmap;
+  uint32 directValue;
   uint32 aCount, bCount;
   uint32 srcA, srcB, destA, destB, srcOffset, destOffset;
-  int32 srcAStep, srcBStep, destAStep, destBStep, xsize;
-  uint32 xlen, xpos, ylen, ypos, zcompare, bva;
-  uint32 mode, sdramBase, mpeBase, srcStrideShift;
+  int32 srcAStep, srcBStep, destAStep, destBStep;
+  uint32 srcStrideShift;
 
-  bool bRead, bDirect, bDup, bRemote, bTrigger, bCompareZ, bUpdatePixel, bUpdateZ, bZTestResult;
-
-  bRemote = flags & (1UL << 28);
-  bDirect = flags & (1UL << 27);
-  bDup = flags & (3UL << 26); //bDup = dup | direct
-  bTrigger = flags & (1UL << 25);
-  bRead = flags & (1UL << 13);
-  xsize = (flags >> 13) & 0x7F8UL;
-  type = (flags >> 14) & 0x03UL;
-  mode = flags & 0xFFFUL;
-  zcompare = (flags >> 1) & 0x07UL;
-  pixtype = (flags >> 4) & 0x0FUL;
-  bva = ((flags >> 7) & 0x06UL) | (flags & 0x01UL);
-  sdramBase = baseaddr & 0x7FFFFFFEUL;
-  mpeBase = intaddr & 0x7FFFFFFCUL;
-  xlen = (xinfo >> 16) & 0x3FFUL;
-  xpos = xinfo & 0x7FFUL;
-  ylen = (yinfo >> 16) & 0x3FFUL;
-  ypos = yinfo & 0x7FFUL;
+  const bool bRemote = flags & (1UL << 28);
+        bool bDirect = flags & (1UL << 27);
+  const bool bDup = flags & (3UL << 26); //bDup = dup | direct
+  const bool bTrigger = flags & (1UL << 25);
+  const bool bRead = flags & (1UL << 13);
+  const int32 xsize = (flags >> 13) & 0x7F8UL;
+  const uint32 type = (flags >> 14) & 0x03UL;
+  const uint32 mode = flags & 0xFFFUL;
+  const uint32 zcompare = (flags >> 1) & 0x07UL;
+  const uint32 pixtype = (flags >> 4) & 0x0FUL;
+  const uint32 bva = ((flags >> 7) & 0x06UL) | (flags & 0x01UL);
+  const uint32 sdramBase = baseaddr & 0x7FFFFFFEUL;
+  const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
+  const uint32 xlen = (xinfo >> 16) & 0x3FFUL;
+  const uint32 xpos = xinfo & 0x7FFUL;
+  const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
+  const uint32 ypos = yinfo & 0x7FFUL;
 
   directValue = intaddr;
 
-  map = 0;
-  zmap = 1;
+  uint32 map = 0;
+  uint32 zmap = 1;
 
   if(pixtype >= 13)
   {
@@ -55,6 +50,7 @@ void BDMA_Type5_Write_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinf
     zmap = 3;
   }
 
+  bool bCompareZ, bUpdatePixel, bUpdateZ;
   if(zcompare != 7)
   {
     bCompareZ = (zcompare ? true : false);
@@ -72,6 +68,7 @@ void BDMA_Type5_Write_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinf
     srcStrideShift = 0;
   }
 
+  void* intMemory;
   if(bRemote)
   {
     //internal address is system address (but still in MPE memory)
@@ -84,8 +81,9 @@ void BDMA_Type5_Write_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinf
   }
 
   //base address is always a system address (absolute)
-  baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
+  void* const baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
+  uint16* pSrcColor, * pDestColor, * pSrcZ, * pDestZ;
   pSrcColor = (uint16 *)intMemory;
   pSrcZ = pSrcColor+1;
   pDestColor = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * map);
@@ -159,11 +157,10 @@ void BDMA_Type5_Write_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinf
 
     while(aCount--)
     {
-      bZTestResult = false;
+      bool bZTestResult = false;
 
       if(bCompareZ && (zcompare != 0))
       {
-        bool result;
         uint16 ztarget, ztransfer;
 
         ztarget = pDestZ[destA + destB];
@@ -174,32 +171,30 @@ void BDMA_Type5_Write_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinf
         switch(zcompare)
         {
           case 0x0:
-            result = false;
+            bZTestResult = false;
             break;
           case 0x1:
-            result = (ztarget < ztransfer);
+            bZTestResult = (ztarget < ztransfer);
             break;
           case 0x2:
-            result = (ztarget == ztransfer);
+            bZTestResult = (ztarget == ztransfer);
             break;
           case 0x3:
-            result = (ztarget <= ztransfer);
+            bZTestResult = (ztarget <= ztransfer);
             break;
           case 0x4:
-            result = (ztarget > ztransfer);
+            bZTestResult = (ztarget > ztransfer);
             break;
           case 0x5:
-            result = (ztarget != ztransfer);
+            bZTestResult = (ztarget != ztransfer);
             break;
           case 0x6:
-            result = (ztarget >= ztransfer);
+            bZTestResult = (ztarget >= ztransfer);
             break;
           case 0x7:
-            result = false;
+            bZTestResult = false;
             break;
         }
-
-        bZTestResult = result;
       }
 
       if(!bZTestResult)
@@ -220,35 +215,35 @@ void BDMA_Type5_Write_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinf
   }
 }
 
-void BDMA_Type5_Write_1(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Write_1(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_2(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Write_2(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_3(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Write_3(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_4(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Write_4(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_5(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Write_5(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_6(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Write_6(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_7(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Write_7(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   uint16 *pSrcColor, *pDestColor, *pSrcZ, *pDestZ;
   uint16 directColor, directZ;
@@ -386,8 +381,6 @@ void BDMA_Type5_Read_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo
   srcB = 0;
   destB = 0;
 
-#define GetPixBaseAddr(base,offset,shift) (base + (offset << shift))
-
   if(zcompare == 7)
   {
     while(bCount--)
@@ -431,30 +424,30 @@ void BDMA_Type5_Read_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo
   }
 }
 
-void BDMA_Type5_Read_1(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Read_1(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_2(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Read_2(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_3(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Read_3(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_4(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Read_4(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_5(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Read_5(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_6(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Read_6(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_7(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type5_Read_7(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }

@@ -7,7 +7,7 @@
 extern VidChannel structMainChannel;
 extern NuonEnvironment *nuonEnv;
 
-void BDMA_Type12_Write_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   uint16 *pSrcColor, *pDestColor, *pSrcZ, *pDestZ;
   void *intMemory, *baseMemory;
@@ -206,35 +206,35 @@ void BDMA_Type12_Write_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xin
   }
 }
 
-void BDMA_Type12_Write_1(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Write_1(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Write_2(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Write_2(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Write_3(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Write_3(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Write_4(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Write_4(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Write_5(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Write_5(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Write_6(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Write_6(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Write_7(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Write_7(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Read_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   uint16 *pSrcColor, *pDestColor, *pSrcZ, *pDestZ;
   uint16 directColor, directZ;
@@ -372,8 +372,6 @@ void BDMA_Type12_Read_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinf
   srcB = 0;
   destB = 0;
 
-#define GetPixBaseAddr(base,offset,shift) (base + (offset << shift))
-
   if(zcompare == 7)
   {
     while(bCount--)
@@ -417,30 +415,30 @@ void BDMA_Type12_Read_0(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinf
   }
 }
 
-void BDMA_Type12_Read_1(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Read_1(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Read_2(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Read_2(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Read_3(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Read_3(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Read_4(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Read_4(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Read_5(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Read_5(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Read_6(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Read_6(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type12_Read_7(MPE *the_mpe, uint32 flags, uint32 baseaddr, uint32 xinfo, uint32 yinfo, uint32 intaddr)
+void BDMA_Type12_Read_7(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
