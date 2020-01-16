@@ -19,7 +19,6 @@ void DoCommBusController(void)
   static uint32 currentTransmitID = 0;
   static uint32 target;
   uint32 cmdValue;
-  uint32 *clutPtr;
   static uint32 i;
   static bool bLocked;
   static bool bPending;

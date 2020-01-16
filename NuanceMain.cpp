@@ -25,8 +25,8 @@ CriticalSection *csDebugDisplay = NULL;
 char **pArgs = 0;
 GLWindow *display;
 extern ControllerData *controller;
-extern uint8 *mainChannelBuffer;
-extern uint8 *overlayChannelBuffer;
+extern uint32 *mainChannelBuffer;
+extern uint32 *overlayChannelBuffer;
 extern char *dvdBase;
 bool bClosingApplication;
 bool bQuit = false;
@@ -793,10 +793,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     MessageBox(NULL,(char *)glewGetErrorString(err),"Error",MB_ICONWARNING);
   }
 
-  mainChannelBuffer = AllocateTextureMemory(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT*4,false);
-  overlayChannelBuffer = AllocateTextureMemory(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT*4,true);
+  mainChannelBuffer = AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,false);
+  overlayChannelBuffer = AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,true);
   InitializeYCrCbColorSpace();
-  
+
   const HMODULE hRichEditLibrary = LoadLibrary("Riched20.dll"); // needs to be loaded, otherwise program hangs
   hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_CONTROL_PANEL),NULL,ControlPanelDialogProc);
   hStatusDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_STATUS_DIALOG),NULL,StatusWindowDialogProc);
