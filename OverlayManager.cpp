@@ -6,15 +6,13 @@
 
 OverlayManager::OverlayManager()
 {
-  uint32 i, j, crc;
-
   numOverlays = 0;
   currentOverlayIndex = 0;
 
-  for (i = 0; i < 256; i++)
+  for (uint32 i = 0; i < 256; i++)
   {
-    crc = i << 24;
-    for (j = 0; j < 8; j++)
+    uint32 crc = i << 24;
+    for (uint32 j = 0; j < 8; j++)
     {
       if(crc & 0x80000000)
       {
@@ -32,7 +30,7 @@ OverlayManager::OverlayManager()
     crctab[i] = crc;
   }
 
-  for(i = 0; i < 128; i++)
+  for(uint32 i = 0; i < 128; i++)
   {
     overlayHash[i] = 0;
   }
@@ -40,12 +38,11 @@ OverlayManager::OverlayManager()
   overlayLength = 0;
 }
 
-uint32 OverlayManager::Hash(uint32 *data)
+uint32 OverlayManager::Hash(const uint32 *data)
 {
-  uint32 result;
-  uint32 *e = (uint32 *)(data + overlayLength);
+  const uint32 * const e = (uint32 *)(data + overlayLength);
 
-  result = ~*data++;
+  uint32 result = ~*data++;
     
   while(data < e)
   {
@@ -54,23 +51,22 @@ uint32 OverlayManager::Hash(uint32 *data)
     result = crctab[result & 0xff] ^ result >> 8;
     result = crctab[result & 0xff] ^ result >> 8;
     result ^= *data;
-    data += 1;
+    data++;
     //data += 128;
   }
     
   return ~result;
 }
 
-uint32 OverlayManager::FindOverlay(uint32 *buffer, bool &bInvalidate)
+uint32 OverlayManager::FindOverlay(const uint32 * const buffer, bool &bInvalidate)
 {
-  uint32 i, hash;
-
   static uint32 replace = 0;
   
   bInvalidate = false;
 
-  hash = Hash(buffer);
+  const uint32 hash = Hash(buffer);
 
+  uint32 i;
   for(i = 0; i < numOverlays; i++)
   {
     if(overlayHash[i] == hash)
@@ -98,5 +94,6 @@ uint32 OverlayManager::FindOverlay(uint32 *buffer, bool &bInvalidate)
 
   currentOverlayIndex = i;
   overlayHash[i] = hash;
+
   return i;
 }
