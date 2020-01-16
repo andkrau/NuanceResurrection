@@ -8,13 +8,12 @@
 /****************************************************************************
 OpenGL Window Code
 ****************************************************************************/
-bool bTerminate;
-bool bFullScreen;
 
-char defaultTitle[] = "GLWindow";
+static const char defaultTitle[] = "GLWindow";
 
 GLWindow::GLWindow()
 {
+  bFullScreen = false; // fullscreen broken at the moment
   bVisible = false;
   bUseSeparateThread = false;
   bitsPerPixel = 32;
@@ -30,15 +29,26 @@ GLWindow::GLWindow()
   resizeHandler = 0;
   timerInterval = 0;
   timerID = 0;
-  x = 160;
-  y = 120;
-  clientWidth = 320;
-  clientHeight = 240;
-	windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_THICKFRAME;
-	windowExtendedStyle = WS_EX_APPWINDOW;
+  if(!bFullScreen)
+  {
+    fullScreenWidth = clientWidth = 720; // native res
+    fullScreenHeight = clientHeight = 480;
+    x = 100;
+    y = 100;
+  }
+  else
+  {
+    fullScreenWidth = clientWidth = 1920; // fullscreen res
+    fullScreenHeight = clientHeight = 1080;
+    x = 0;
+    y = 0;
+  }
+  windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_THICKFRAME;
+  windowExtendedStyle = WS_EX_APPWINDOW;
   fullScreenWindowStyle = WS_POPUP;
   fullScreenWindowStyle = WS_EX_APPWINDOW | WS_EX_TOPMOST;
   title = defaultTitle;
+  bTerminate = false;
 
   UpdateRestoreValues();
 }
@@ -168,7 +178,7 @@ bool GLWindow::CreateWindowGL()
   restoreWidth = windowRect.right - windowRect.left;
   restoreHeight = windowRect.bottom - windowRect.top;
 
-  if(bFullScreen == true)
+  if(bFullScreen)
   {
     if(!ChangeScreenResolution(fullScreenWidth, fullScreenHeight, bitsPerPixel))
     {
@@ -431,8 +441,8 @@ bool GLWindow::CreateWindowGL()
   }
 
   DescribePixelFormat(hDC,GetPixelFormat(hDC),sizeof(PIXELFORMATDESCRIPTOR),&pfd);
-  bool bAccelerated = pfd.dwFlags & PFD_GENERIC_ACCELERATED;
-  bool bGeneric = pfd.dwFlags & PFD_GENERIC_FORMAT;
+  //const bool bAccelerated = pfd.dwFlags & PFD_GENERIC_ACCELERATED;
+  //const bool bGeneric = pfd.dwFlags & PFD_GENERIC_FORMAT;
 
   ShowWindow(hWnd, SW_NORMAL);
   bVisible = true;
@@ -722,11 +732,11 @@ bool GLWindow::Create()
   return threadHandle;
 }
 
-char className[] = "GLWindow";
+static const char className[] = "GLWindow";
 
 bool GLWindow::MessagePump(void)
 {
-  MSG	msg;
+  MSG msg;
 
   if(PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
   {
@@ -739,8 +749,6 @@ bool GLWindow::MessagePump(void)
 DWORD WINAPI GLWindow::GLWindowMain(void *param)
 {
   GLWindow *glWindow = (GLWindow *)param;
-  bool bMessagePumpActive;
-  MSG msg;
 
   // Fill Out Application Data
   glWindow->className = ::className;
@@ -750,46 +758,47 @@ DWORD WINAPI GLWindow::GLWindowMain(void *param)
   // Register the window class
   if(!glWindow->RegisterWindowClass())
   {
-		MessageBox(HWND_DESKTOP, "Error Registering Window Class!", "Error", MB_OK | MB_ICONEXCLAMATION);
-		return false;
+    MessageBox(HWND_DESKTOP, "Error Registering Window Class!", "Error", MB_OK | MB_ICONEXCLAMATION);
+    return false;
   }
 
-  bTerminate = false;
+  glWindow->bTerminate = false;
 
   // Create A Window
   if(glWindow->CreateWindowGL())
   {
     glWindow->OnResize(glWindow->clientWidth,glWindow->clientHeight);
     
-    bMessagePumpActive = true;
+    bool bMessagePumpActive = true;
     glWindow->bCreated = true;
     if(glWindow->bUseSeparateThread)
     {
-		  while(bMessagePumpActive)
-		  {
-			  // Success Creating Window.  Check For Window Messages
-			  if(PeekMessage(&msg, glWindow->hWnd, 0, 0, PM_REMOVE))
-			  {
-				  // Check For WM_QUIT Message
-				  if(msg.message != WM_QUIT)
-				  {
-					  DispatchMessage(&msg);
-				  }
-				  else
-				  {
-					  bMessagePumpActive = false;
-				  }
+      while(bMessagePumpActive)
+      {
+        // Success Creating Window.  Check For Window Messages
+        MSG msg;
+        if(PeekMessage(&msg, glWindow->hWnd, 0, 0, PM_REMOVE))
+        {
+          // Check For WM_QUIT Message
+          if(msg.message != WM_QUIT)
+          {
+            DispatchMessage(&msg);
+          }
+          else
+          {
+            bMessagePumpActive = false;
+          }
         }
         else
-			  {
-  			  // Process Application Loop
-				  if(glWindow->idleHandler)
+        {
+          // Process Application Loop
+          if(glWindow->idleHandler)
           {
             glWindow->idleHandler(0,0);
           }
 
           WaitMessage();
-			  }
+        }
       }
 
       glWindow->CleanUp();

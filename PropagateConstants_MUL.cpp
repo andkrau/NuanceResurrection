@@ -419,9 +419,6 @@ void PropagateConstants_MUL_SVScalarShiftImmediate(SuperBlockConstants &constant
 }
 void PropagateConstants_MUL_SVScalarShiftSvshift(SuperBlockConstants &constants)
 {
-  uint32 src2Index  = constants.nuance->fields[FIELD_MUL_SRC2];
-  uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
-
   if(constants.IsMiscRegisterConstant(CONSTANT_REG_SVSHIFT) && ALLOW_MUL_PROPAGATION)
   {
     constants.nuance->fields[FIELD_MUL_HANDLER] = Handler_MUL_SVScalarShiftImmediate;
@@ -431,6 +428,7 @@ void PropagateConstants_MUL_SVScalarShiftSvshift(SuperBlockConstants &constants)
   }
   else
   {
+    const uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
     constants.ClearVectorRegisterConstant(destIndex);
     constants.status.status = PROPAGATE_CONSTANTS_STATUS_MUL_OK;
   }

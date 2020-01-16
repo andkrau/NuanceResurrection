@@ -1,11 +1,11 @@
+#include <windows.h>
 #include "basetypes.h"
 #include "mpe.h"
 #include "NativeCodeCache.h"
 #include "PageMap.h"
-#include <windows.h>
 
-#define x86Emit_MRM(mod,reg,rm) (*pEmitLoc++ = ((mod << 6) | (reg << 3) | (rm)))
-#define x86Emit_SIB(base, scale, index) (*pEmitLoc++ = ((scale << 6) | (index << 3) | (base)))
+#define x86Emit_MRM(mod,reg,rm) (*pEmitLoc++ = (((mod) << 6) | ((reg) << 3) | (rm)))
+#define x86Emit_SIB(base, scale, index) (*pEmitLoc++ = (((scale) << 6) | ((index) << 3) | (base)))
 
 NativeCodeCache::NativeCodeCache(uint32 numBytes, uint32 warningThreshold, uint32 desiredTLBEntries)
 {
@@ -72,20 +72,6 @@ NativeCodeCache::~NativeCodeCache()
   {
     delete patchMgr;
   }
-}
-
-NativeCodeCacheEntry *NativeCodeCache::FindNativeCodeCacheEntry(uint32 virtualAddress)
-{
-  NativeCodeCacheEntry *pEntry = pageMap->FindEntry(virtualAddress);
-
-  if(pEntry)
-  {
-    if(pEntry->virtualAddress == virtualAddress)
-    {
-      return pEntry;
-    }
-  }
-  return 0;
 }
 
 bool NativeCodeCache::ReleaseBuffer(NativeCodeCacheEntryPoint entryPoint, uint32 virtualAddress, uint32 nextVirtualAddress, uint32 newUsedBytes, uint32 packetCount, uint32 instructionCount, SuperBlockCompileType compileType, uint32 nextDelayCount, uint32 alignment)

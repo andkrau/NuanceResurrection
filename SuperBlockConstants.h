@@ -63,7 +63,7 @@ public:
   {
     bConstantPropagated = false;
     currentInstructionIndex = 0;
-    pCurrentInstructionEntry = &pSuperBlock->instructions[0];
+    pCurrentInstructionEntry = pSuperBlock->instructions;
     nuance = &(pSuperBlock->instructions[0].instruction);
   }
   bool NextInstruction()

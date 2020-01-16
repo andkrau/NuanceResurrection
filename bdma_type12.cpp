@@ -11,7 +11,7 @@ void BDMA_Type12_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 ba
 {
   uint16 *pSrcColor, *pDestColor, *pSrcZ, *pDestZ;
   void *intMemory, *baseMemory;
-  uint16 directColor, directZ;
+  uint16 directZ;
   uint32 type, pixtype, directValue, map, zmap;
   uint32 aCount, bCount;
   uint32 srcA, srcB, destA, destB, srcOffset, destOffset;
@@ -88,6 +88,7 @@ void BDMA_Type12_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 ba
   pSrcColor = ((uint16 *)intMemory) + 1;
   pDestColor = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * zmap);
 
+  uint16 directColor;
   if(bDirect & !bDup)
   {
     bDirect = true;

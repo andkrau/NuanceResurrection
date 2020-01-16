@@ -18,12 +18,12 @@ typedef void (* GLWINDOW_TIMERCALLBACK)(unsigned __int32 idEvent);
 class GLWindow
 {
 public:
-	HINSTANCE	hInstance;
-	HWND hWnd;
-	HDC	hDC;
-	HGLRC	hRC;
+  HINSTANCE hInstance;
+  HWND  hWnd;
+  HDC   hDC;
+  HGLRC hRC;
 
-	const char *className;
+  const char *className;
 
   int x, y;
   int width, height;
@@ -32,6 +32,7 @@ public:
   int bitsPerPixel;
   volatile bool bVisible;
   bool bFullScreen;
+  bool bTerminate;
   bool bUseSeparateThread;
   const char *title;
   unsigned int timerInterval;

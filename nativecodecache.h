@@ -9,22 +9,6 @@
 
 #define DEFAULT_CODE_BUFFER_BYTES (8*1024UL*1024UL);
 #define DEFAULT_NUM_TLB_ENTRIES (16384UL)
-typedef void (* NativeCodeCacheEntryPoint)(void);
-enum SuperBlockCompileType;
-
-class NativeCodeCacheEntry
-{
-  public:
-  NativeCodeCacheEntryPoint entryPoint;  //Pointer to start of code block
-  uint32 virtualAddress;  //Virtual address of instruction starting this code block
-  SuperBlockCompileType compileType;  //Compile type: native or IL
-  uint32 numPackets;  //Number of packets represented in code block
-  uint32 numInstructions;  //Number of explicit packeted instructions contained in code block
-  uint32 nextVirtualAddress;  //Virtual address of instruction following this code block
-  uint32 nextBranchDelayCount;
-  uint32 codeSize;  //Number of bytes used in code block
-  uint32 accessCount;  //Number of times code block has been executed
-};
 
 struct NativeCodeCacheTLBEntry
 {
@@ -37,17 +21,22 @@ class NativeCodeCache
 public:
   NativeCodeCache(uint32 numBytes, uint32 warningThreshold = 0, uint32 desiredTLBEntries = DEFAULT_NUM_TLB_ENTRIES);
   ~NativeCodeCache();
+
   void Flush();
   void FlushRegion(uint32 start, uint32 end);
   bool ReleaseBuffer(NativeCodeCacheEntryPoint entryPoint, uint32 virtualAddress, uint32 nextVirtualAddress, uint32 newUsedBytes, uint32 packetCount, uint32 instructionCount, SuperBlockCompileType compileType, uint32 nextDelayCount, uint32 alignment);
-  NativeCodeCacheEntry *FindNativeCodeCacheEntry(uint32 virtualAddress);
 
-  uint8 *GetBuffer()
+  uint8 *GetBuffer() const
   {
     return ptrNativeCodeBuffer;
   }
 
-  uint8 *GetEmitPointer()
+  PageMap* GetPageMap() const
+  {
+    return pageMap;
+  }
+
+  uint8 *GetEmitPointer() const
   {
     return pEmitLoc;
   }
@@ -57,48 +46,44 @@ public:
     return &pEmitLoc;
   }
 
-  void AlignEmitPointer(uint8 boundary)
+  void AlignEmitPointer(const uint8 boundary)
   {
-    uint32 poweroftwominusone;
-
     if(boundary)
     {
-      poweroftwominusone = (1UL << boundary) - 1UL;
+      const uint32 poweroftwominusone = (1UL << boundary) - 1UL;
       pEmitLoc = (uint8 *)(((uint32)(pEmitLoc + poweroftwominusone)) & ~(poweroftwominusone));
     }
   }
 
-  uint32 GetAvailableCodeBufferSize()
+  uint32 GetAvailableCodeBufferSize() const
   {
     return numBytes - (uint32)(pEmitLoc - ptrNativeCodeBuffer);
   }  
 
-  uint32 GetUsedCodeBufferSize()
+  uint32 GetUsedCodeBufferSize() const
   {
     return (uint32)(pEmitLoc - ptrNativeCodeBuffer);
   }
 
-  uint8 *LockBuffer(uint32 *pByteCount, uint32 alignment)
+  uint8 *LockBuffer(uint32 * const pByteCount, const uint32 alignment)
   {
     if(pByteCount)
-    {
       *pByteCount = GetAvailableCodeBufferSize();
-    }
 
     return pEmitLoc;
   }
 
-  uint32 GetTotalCodeBufferSize()
+  uint32 GetTotalCodeBufferSize() const
   {
     return numBytes;
   }
 
-  uint32 GetWarningThreshold()
+  uint32 GetWarningThreshold() const
   {
     return warningThreshold;
   }
 
-  bool IsBeyondThreshold()
+  bool IsBeyondThreshold() const
   {
     return GetUsedCodeBufferSize() > warningThreshold;
   }
@@ -485,7 +470,7 @@ public:
 private:
   uint8 *pEmitLoc;
   uint8 *ptrNativeCodeBuffer;
-  PageMap *pageMap;
+  PageMap* pageMap;
   uint32 warningThreshold;
   uint32 numBytes;
   uint32 numTLBEntries;

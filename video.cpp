@@ -530,24 +530,23 @@ uint32 audioCounter = 3;
 
 void RenderVideo_Type4(uint8* pDestBuffer, uint8 *pSrcBuffer, uint32 maxRow, uint32 maxCol, bool bOverlay)
 {
-  uint32 pixel, rowCount, colCount;
-  uint8 Y, CR, CB, A;
-
   if(!nuonEnv->videoOptions.bUseShaders)
   {
-    for(rowCount = 0; rowCount < maxRow; rowCount++)
+    for(uint32 rowCount = 0; rowCount < maxRow; rowCount++)
     {
-      for(colCount = 0; colCount < maxCol; colCount++)
+      for(uint32 colCount = 0; colCount < maxCol; colCount++)
       {
         //32 or 32+32Z
+        uint8 Y, CR, CB, A;
         Y = LuminanceTable[pSrcBuffer[0]];
         CR = ChromianceTable[pSrcBuffer[1]];
         CB = ChromianceTable[pSrcBuffer[2]];
 
+        uint32 pixel;
         if(bOverlay)
         {
           A = 255 - pSrcBuffer[3];
-          if(!(Y||CR||CB))
+          if(!(Y|CR|CB))
           {
             pixel = 0;
           }
@@ -588,7 +587,6 @@ void IncrementVideoFieldCounter(void)
 
 void RenderVideo(int winwidth, int winheight)
 {
-  uint32 rowCount = 0, colCount = 0;
   uint8 *ptrMainDisplayBuffer;
   uint8 *ptrNuonFrameBuffer;
   uint8 *ptrNextRow;
@@ -600,8 +598,6 @@ void RenderVideo(int winwidth, int winheight)
   uint32 pixWidth;
   uint32 pixType;
   uint32 rowWidth;
-  uint8 Y,CR,CB,A,Y2,CR2,CB2,A2;
-  uint32 pixel;
   bool useCannedAlpha;
   uint8 *pMainChannelBuffer;
   uint8 *pOverlayChannelBuffer;
@@ -643,7 +639,6 @@ void RenderVideo(int winwidth, int winheight)
 
   if(bMainChannelActive)
   {
-setup_main_buffer:
     pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
     maxCol = structMainChannel.src_width;
     maxRow = structMainChannel.src_height;
@@ -714,10 +709,11 @@ setup_main_buffer:
       goto process_overlay_buffer;
     }
 
-    for(rowCount = 0; rowCount < maxRow; rowCount++)
+    for(uint32 rowCount = 0; rowCount < maxRow; rowCount++)
     {
-      for(colCount = 0; colCount < maxCol; colCount++)
+      for(uint32 colCount = 0; colCount < maxCol; colCount++)
       {
+        uint8 Y,CR,CB,A;
         switch(pixType)
         {
           case 2:
@@ -743,8 +739,8 @@ setup_main_buffer:
 
         A = 255 - 0; //Alpha for main channel is opaque
 
-        pixel = (A << 24) | (CB << 16) | (CR << 8) | Y;
-        ((uint32 *)ptrMainDisplayBuffer)[0] = pixel;
+        const uint32 pixel = (A << 24) | (CB << 16) | (CR << 8) | Y;
+        *((uint32 *)ptrMainDisplayBuffer) = pixel;
 
         ptrNuonFrameBuffer += pixWidth;
         ptrMainDisplayBuffer += 4; //Always RGBA 32 bit
@@ -838,10 +834,11 @@ process_overlay_buffer:
       goto render_main_buffer;
     }
 
-    for(rowCount = 0; rowCount < maxRow; rowCount++)
+    for(uint32 rowCount = 0; rowCount < maxRow; rowCount++)
     {
-      for(colCount = 0; colCount < maxCol; colCount++)
+      for(uint32 colCount = 0; colCount < maxCol; colCount++)
       {
+        uint8 Y, CR, CB, A, Y2, CR2, CB2, A2;
         switch(pixType)
         {
           case 1:
@@ -896,7 +893,8 @@ process_overlay_buffer:
             break;
         }
 
-        if((Y||CR||CB))
+        uint32 pixel;
+        if(Y|CR|CB)
         {
           Y = LuminanceTable[Y];
           CR = ChromianceTable[CR];
@@ -910,12 +908,12 @@ process_overlay_buffer:
           pixel = 0;
         }
 
-        ((uint32 *)ptrMainDisplayBuffer)[0] = pixel;
+        *((uint32 *)ptrMainDisplayBuffer) = pixel;
         ptrMainDisplayBuffer += 4; //Always RGBA 32 bit
 
         if(pixType == 1)
         {
-          if((Y2||CR2||CB2))
+          if(Y2|CR2|CB2)
           {
             Y2 = LuminanceTable[Y2];
             CR2 = ChromianceTable[CR2];
@@ -928,7 +926,7 @@ process_overlay_buffer:
             //Color (0,0,0) is always transparent per Nuon architecture document
             pixel = 0;
           }
-          ((uint32 *)ptrMainDisplayBuffer)[0] = pixel;
+          *((uint32 *)ptrMainDisplayBuffer) = pixel;
           ptrMainDisplayBuffer += 4; //Always RGBA 32 bit
         }
 
@@ -958,7 +956,6 @@ render_main_buffer:
     }
   }
 
-render_overlay_buffer:
   if(bOverlayChannelActive && nuonEnv->bOverlayBufferModified)
   {
     glActiveTextureARB(osdTextureUnit);
@@ -995,7 +992,7 @@ render_overlay_buffer:
   nuonEnv->bOverlayBufferModified = false;
 }
 
-uint32 pixTypeToPixWidth[] = {16,2,2,2,4,4,8};
+static const uint32 pixTypeToPixWidth[] = {16,2,2,2,4,4,8};
 
 void UpdateBufferLengths(void)
 {
@@ -1024,9 +1021,7 @@ void UpdateBufferLengths(void)
 
 void VidQueryConfig(MPE *mpe)
 {
-  VidDisplay *displayStruct;
-
-  displayStruct = (VidDisplay *)nuonEnv->GetPointerToMemory(mpe,mpe->regs[0]);
+  VidDisplay *displayStruct = (VidDisplay *)nuonEnv->GetPointerToMemory(mpe,mpe->regs[0]);
 
   displayStruct->dispwidth = structMainDisplay.dispwidth;
   displayStruct->dispheight = structMainDisplay.dispheight;
@@ -1678,35 +1673,25 @@ void VidSetCLUTRange(MPE * const mpe)
   {
     uint32 index = mpe->regs[0];
     const uint32 * const pColors = (uint32 *)nuonEnv->GetPointerToMemory(mpe, colors);
-    uint32 * const pCLUT = &vdgCLUT[index];
 
     for(; (index < 256) && (count < numColors); index++, count++)
     {
-      pCLUT[count] = pColors[count];
-      //SwapScalarBytes(&pCLUT[count]);
+      vdgCLUT[index] = pColors[count];
+      //SwapScalarBytes(&pCLUT[index]);
     }
   }
 
   //Despite the fact that the BIOS documentation shows a function prototype returning void, a disassembly of the BIOS
   //shows that VidSetCLUTRange returns 1 if all entries were copied and 0 otherwise (e.g. the starting index was out
   //of bounds or there were not enough entries in the video clut to accept all of the colors)
-  if(count == numColors)
-  {
-    mpe->regs[0] = 1;
-  }
-  else
-  {
-    mpe->regs[0] = 0;
-  }
+  mpe->regs[0] = (count == numColors) ? 1 : 0;
 
   nuonEnv->bOverlayBufferModified = true;
 }
 
 void VideoCleanup(void)
 {
-  uint32 i;
-  
-  for(i = 0; i < 3; i++)
+  for(uint32 i = 0; i < 3; i++)
   {
     if(glIsList(videoTexInfo.displayListName[i]))
     {

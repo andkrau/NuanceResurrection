@@ -1,5 +1,5 @@
 //---------------------------------------------------------------------------
-#include "bios.h"
+#include "Bios.h"
 #include "byteswap.h"
 #include "mpe.h"
 #include "joystick.h"

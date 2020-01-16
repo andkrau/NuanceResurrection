@@ -9,7 +9,6 @@ extern NuonEnvironment *nuonEnv;
 
 void BDMA_Type5_Write_0(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
-  uint16 directColor, directZ;
   uint32 directValue;
   uint32 aCount, bCount;
   uint32 srcA, srcB, destA, destB, srcOffset, destOffset;
@@ -89,6 +88,7 @@ void BDMA_Type5_Write_0(MPE * const the_mpe, const uint32 flags, const uint32 ba
   pDestColor = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * map);
   pDestZ = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * zmap);
 
+  uint16 directZ, directColor;
   if(bDirect & !bDup)
   {
     bDirect = true;
@@ -246,7 +246,6 @@ void BDMA_Type5_Write_7(MPE* const the_mpe, const uint32 flags, const uint32 bas
 void BDMA_Type5_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   uint16 *pSrcColor, *pDestColor, *pSrcZ, *pDestZ;
-  uint16 directColor, directZ;
   void *intMemory, *baseMemory, *pSrc, *pDest;
   uint16 *pDest16;
   uint32 *pSrc32, *pDest32;
@@ -256,9 +255,9 @@ void BDMA_Type5_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 base
   int32 srcAStep, srcBStep, destAStep, destBStep, xsize;
   uint32 xlen, xpos, ylen, ypos, zcompare, bva;
   uint32 mode, wordsize, pixsize, sdramBase, mpeBase, skipsize;
-  uint32 lowerLimit, upperLimit, whichRoutine;
+  uint32 whichRoutine;
 
-  bool bReadZ, bDirect, bDup, bBatch, bChain, bRemote, bTrigger, bCompareZ, bUpdatePixel, bUpdateZ, bZTestResult;
+  bool bDirect, bDup, bBatch, bChain, bRemote, bTrigger, bCompareZ, bUpdatePixel, bUpdateZ;
 
   bBatch = flags & (1UL << 30);
   bChain = flags & (1UL << 29);

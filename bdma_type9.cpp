@@ -13,7 +13,7 @@ void BDMA_Type9_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
   uint32 *pSrc32;
   uint16 *pDest16, *pSrc16;
   void *intMemory, *baseMemory, *pSrc, *pDest;
-  uint32 directValue, type, pixtype;
+  uint32 type, pixtype;
   uint32 aCount, bCount;
   uint32 srcA, srcB, destA, destB, srcOffset, destOffset;
   int32 srcAStep, srcBStep, destAStep, destBStep, xsize;
@@ -40,7 +40,7 @@ void BDMA_Type9_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
   ylen = (yinfo >> 16) & 0x3FFUL;
   ypos = yinfo & 0x7FFUL;
 
-  directValue = intaddr;
+  uint32 directValue = intaddr;
 
   //pixel+Z write (16 + 16Z)
   bCompareZ = true;

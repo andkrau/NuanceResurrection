@@ -61,7 +61,7 @@ extern FILE *commLogFile;
 
 uint8 MPE::mirrorLookup[256];
 
-NuanceHandler nuanceHandlers[] =
+const NuanceHandler nuanceHandlers[] =
 {
   //ECU Executes
   Execute_ECU_NOP,
@@ -772,9 +772,9 @@ uint64 timer_start, timer_end;
 MPE::MPE(uint32 index)
 {
   EmitterVariables emitvars;
-  uint32 numCacheEntries[] = {4096,2048,2048,262144};
-  uint32 numTLBEntries[] = {4096,2048,2048,98304};
-  uint32 overlayLengths[] = {8192,4096,4096,4096};
+  const uint32 numCacheEntries[] = {4096,2048,2048,262144};
+  const uint32 numTLBEntries[] = {4096,2048,2048,98304};
+  const uint32 overlayLengths[] = {8192,4096,4096,4096};
 
   numInterpreterCacheFlushes = 0;
   numNativeCodeCacheFlushes = 0;
@@ -967,19 +967,11 @@ void MPE::Reset()
 
 bool MPE::LoadBinaryFile(uchar *filename, bool bIRAM)
 {
-  int handle;
-  int byteLength;
-  uint8 *buffer = &dtrom[MPE_IROM_OFFSET];
-
-  handle = _open((char *)filename,_O_RDONLY|_O_BINARY,0);
+  const int handle = _open((char *)filename,_O_RDONLY|_O_BINARY,0);
   if(handle >= 0)
   {
-    byteLength = _filelength(handle);
-
-    if(bIRAM)
-    {
-      buffer = &dtrom[MPE_IRAM_OFFSET];
-    }
+    const int byteLength = _filelength(handle);
+    uint8* const buffer = &dtrom[bIRAM ? MPE_IRAM_OFFSET : MPE_IROM_OFFSET];
 
     _read(handle, buffer, byteLength);
     _close(handle);
@@ -993,10 +985,8 @@ bool MPE::LoadBinaryFile(uchar *filename, bool bIRAM)
 
 inline bool MPE::ExecuteUntilAddress(uint32 address)
 {
-  bool status;
-  
   breakpointAddress = address;
-  status = FetchDecodeExecute();
+  const bool status = FetchDecodeExecute();
   breakpointAddress = 0;
 
   return status;
@@ -2071,7 +2061,12 @@ ResetInvalidateRegion:
     if(!(ecuSkipCounter | interpretNextPacket))
     {
 find_code_cache_entry:
-      if(pNativeCodeCacheEntry = nativeCodeCache->FindNativeCodeCacheEntry(pcexecLookupValue))
+      pNativeCodeCacheEntry = nativeCodeCache->GetPageMap()->FindEntry(pcexecLookupValue);
+
+      if (pNativeCodeCacheEntry && pNativeCodeCacheEntry->virtualAddress != pcexecLookupValue)
+        pNativeCodeCacheEntry = 0;
+
+      if(pNativeCodeCacheEntry)
       {
         nativeCodeCacheEntryPoint = pNativeCodeCacheEntry->entryPoint;
         goto execute_block;
@@ -2106,7 +2101,11 @@ check_compile_threshhold:
           nativeCodeCacheEntryPoint = CompileNativeCodeBlock(pcexecLookupValue, COMPILE_TYPE, bError);
           if(!bError)
           {
-            pNativeCodeCacheEntry = nativeCodeCache->FindNativeCodeCacheEntry(pcexecLookupValue);
+            pNativeCodeCacheEntry = nativeCodeCache->GetPageMap()->FindEntry(pcexecLookupValue);
+
+            if (pNativeCodeCacheEntry && pNativeCodeCacheEntry->virtualAddress != pcexecLookupValue)
+              pNativeCodeCacheEntry = 0;
+
             if(nuonEnv->compilerOptions.bDumpBlocks)
             {
               //if(pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
