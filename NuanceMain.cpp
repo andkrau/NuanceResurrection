@@ -745,10 +745,10 @@ inline void ProcessCycleBasedEvents(void)
 
 bool CheckForInvalidCommStatus(MPE *mpe)
 {
-  bool bInvalid = (mpe->intsrc & INT_COMMRECV) && 
+  const bool bInvalid = (mpe->intsrc & INT_COMMRECV) && 
    (!(mpe->commctl & (1UL << 31)));  //&& (!(mpe->intctl & (1UL << 5)) || (mpe->pcexec >= 0x807604D2))) ||
    //((mpe->commctl & (1UL << 31)) && (mpe->pcexec >= 0x807604C8) && (mpe->pcexec < 0x807604D2)));
-  bool bInvalid2 = (!(mpe->intsrc & INT_COMMRECV) && (mpe->commctl & (1UL << 31)) &&
+  const bool bInvalid2 = (!(mpe->intsrc & INT_COMMRECV) && (mpe->commctl & (1UL << 31)) &&
     ((mpe->pcexec <= 0x807604C0) || (mpe->pcexec >= 0x807604D2)));
   if(bInvalid || bInvalid2)
   {
@@ -792,7 +792,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   display->Create();
   while (!display->bVisible) {}
-  GLenum err = glewInit();
+  const GLenum err = glewInit();
   if(err != GLEW_OK)
   {
     MessageBox(NULL,(char *)glewGetErrorString(err),"Error",MB_ICONWARNING);
@@ -847,7 +847,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   UpdateControlPanelDisplay();
 
-  display->timerInterval = 1000.0/nuonEnv->fps;
+  display->timerInterval = 1000/nuonEnv->fps;
   display->SetTimer();
 
   nuonEnv->videoDisplayCycleCount = 0;
@@ -921,5 +921,4 @@ void NuanceStart(int argc, char *argv[])
 
   //registerWindow->UpdateDebugDisplay(3);
   //nuanceApp.exec();
-  
 }
