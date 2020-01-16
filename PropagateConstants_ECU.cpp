@@ -44,8 +44,6 @@ void PropagateConstants_BRAAlways_NOP(SuperBlockConstants &constants)
 
 void PropagateConstants_BRAConditional(SuperBlockConstants &constants)
 {
-  bool branchResult;
-
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -53,6 +51,7 @@ void PropagateConstants_BRAConditional(SuperBlockConstants &constants)
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -77,8 +76,6 @@ void PropagateConstants_BRAConditional(SuperBlockConstants &constants)
 
 void PropagateConstants_BRAConditional_NOP(SuperBlockConstants &constants)
 {
-  bool branchResult;
-
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -86,6 +83,7 @@ void PropagateConstants_BRAConditional_NOP(SuperBlockConstants &constants)
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -110,7 +108,6 @@ void PropagateConstants_BRAConditional_NOP(SuperBlockConstants &constants)
 
 void PropagateConstants_JMPAlwaysIndirect(SuperBlockConstants &constants)
 {
-  uint32 regIndex = constants.nuance->fields[FIELD_ECU_ADDRESS];
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -118,6 +115,7 @@ void PropagateConstants_JMPAlwaysIndirect(SuperBlockConstants &constants)
     return;
   }
 
+  const uint32 regIndex = constants.nuance->fields[FIELD_ECU_ADDRESS];
   if(constants.IsScalarRegisterConstant(regIndex))
   {
     constants.nuance->fields[FIELD_ECU_HANDLER] = Handler_BRAAlways;
@@ -136,7 +134,6 @@ void PropagateConstants_JMPAlwaysIndirect(SuperBlockConstants &constants)
 
 void PropagateConstants_JMPAlwaysIndirect_NOP(SuperBlockConstants &constants)
 {
-  uint32 regIndex = constants.nuance->fields[FIELD_ECU_ADDRESS];
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -144,6 +141,7 @@ void PropagateConstants_JMPAlwaysIndirect_NOP(SuperBlockConstants &constants)
     return;
   }
 
+  const uint32 regIndex = constants.nuance->fields[FIELD_ECU_ADDRESS];
   if(constants.IsScalarRegisterConstant(regIndex))
   {
     constants.nuance->fields[FIELD_ECU_HANDLER] = Handler_BRAAlways_NOP;
@@ -159,9 +157,9 @@ void PropagateConstants_JMPAlwaysIndirect_NOP(SuperBlockConstants &constants)
     constants.status.info[1] = 0;
   }
 }
+
 void PropagateConstants_JMPConditionalIndirect(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -169,6 +167,7 @@ void PropagateConstants_JMPConditionalIndirect(SuperBlockConstants &constants)
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -190,9 +189,9 @@ void PropagateConstants_JMPConditionalIndirect(SuperBlockConstants &constants)
     constants.status.info[1] = 2;
   }
 }
+
 void PropagateConstants_JMPConditionalIndirect_NOP(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -200,6 +199,7 @@ void PropagateConstants_JMPConditionalIndirect_NOP(SuperBlockConstants &constant
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -221,6 +221,7 @@ void PropagateConstants_JMPConditionalIndirect_NOP(SuperBlockConstants &constant
     constants.status.info[1] = 0;
   }
 }
+
 void PropagateConstants_JSRAlways(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_JSR_ALWAYS_DIRECT;
@@ -238,9 +239,9 @@ void PropagateConstants_JSRAlways_NOP(SuperBlockConstants &constants)
   constants.status.info[1] = 0;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_JSRConditional(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -248,6 +249,7 @@ void PropagateConstants_JSRConditional(SuperBlockConstants &constants)
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -269,9 +271,9 @@ void PropagateConstants_JSRConditional(SuperBlockConstants &constants)
     constants.status.info[1] = 2;
   }
 }
+
 void PropagateConstants_JSRConditional_NOP(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -279,6 +281,7 @@ void PropagateConstants_JSRConditional_NOP(SuperBlockConstants &constants)
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -300,9 +303,9 @@ void PropagateConstants_JSRConditional_NOP(SuperBlockConstants &constants)
     constants.status.info[1] = 0;
   }
 }
+
 void PropagateConstants_JSRAlwaysIndirect(SuperBlockConstants &constants)
 {
-  uint32 regIndex = constants.nuance->fields[FIELD_ECU_ADDRESS];
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -310,6 +313,7 @@ void PropagateConstants_JSRAlwaysIndirect(SuperBlockConstants &constants)
     return;
   }
 
+  const uint32 regIndex = constants.nuance->fields[FIELD_ECU_ADDRESS];
   if(constants.IsScalarRegisterConstant(regIndex))
   {
     constants.nuance->fields[FIELD_ECU_HANDLER] = Handler_JSRAlways;
@@ -325,17 +329,17 @@ void PropagateConstants_JSRAlwaysIndirect(SuperBlockConstants &constants)
     constants.status.info[1] = 2;
   }
 }
+
 void PropagateConstants_JSRAlwaysIndirect_NOP(SuperBlockConstants &constants)
 {
-  uint32 regIndex = constants.nuance->fields[FIELD_ECU_ADDRESS];
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
-
 
   if(!ALLOW_PROPAGATE_ECU)
   {
     return;
   }
 
+  const uint32 regIndex = constants.nuance->fields[FIELD_ECU_ADDRESS];
   if(constants.IsScalarRegisterConstant(regIndex))
   {
     constants.nuance->fields[FIELD_ECU_HANDLER] = Handler_JSRAlways_NOP;
@@ -351,17 +355,17 @@ void PropagateConstants_JSRAlwaysIndirect_NOP(SuperBlockConstants &constants)
     constants.status.info[1] = 0;
   }
 }
+
 void PropagateConstants_JSRConditionalIndirect(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
-
 
   if(!ALLOW_PROPAGATE_ECU)
   {
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -383,9 +387,9 @@ void PropagateConstants_JSRConditionalIndirect(SuperBlockConstants &constants)
     constants.status.info[1] = 2;
   }
 }
+
 void PropagateConstants_JSRConditionalIndirect_NOP(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -393,6 +397,7 @@ void PropagateConstants_JSRConditionalIndirect_NOP(SuperBlockConstants &constant
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -414,6 +419,7 @@ void PropagateConstants_JSRConditionalIndirect_NOP(SuperBlockConstants &constant
     constants.status.info[1] = 0;
   }
 }
+
 void PropagateConstants_RTSAlways(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_RTS_ALWAYS;
@@ -421,6 +427,7 @@ void PropagateConstants_RTSAlways(SuperBlockConstants &constants)
   constants.status.info[1] = 2;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_RTSAlways_NOP(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_RTS_ALWAYS;
@@ -428,9 +435,9 @@ void PropagateConstants_RTSAlways_NOP(SuperBlockConstants &constants)
   constants.status.info[1] = 0;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_RTSConditional(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -438,6 +445,7 @@ void PropagateConstants_RTSConditional(SuperBlockConstants &constants)
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -458,9 +466,9 @@ void PropagateConstants_RTSConditional(SuperBlockConstants &constants)
     constants.status.info[1] = 2;
   }
 }
+
 void PropagateConstants_RTSConditional_NOP(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -468,6 +476,7 @@ void PropagateConstants_RTSConditional_NOP(SuperBlockConstants &constants)
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -488,9 +497,9 @@ void PropagateConstants_RTSConditional_NOP(SuperBlockConstants &constants)
     constants.status.info[1] = 0;
   }
 }
+
 void PropagateConstants_RTI1Conditional(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -498,6 +507,7 @@ void PropagateConstants_RTI1Conditional(SuperBlockConstants &constants)
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -519,9 +529,9 @@ void PropagateConstants_RTI1Conditional(SuperBlockConstants &constants)
     constants.status.info[1] = 2;
   }
 }
+
 void PropagateConstants_RTI1Conditional_NOP(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -529,6 +539,7 @@ void PropagateConstants_RTI1Conditional_NOP(SuperBlockConstants &constants)
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -550,9 +561,9 @@ void PropagateConstants_RTI1Conditional_NOP(SuperBlockConstants &constants)
     constants.status.info[1] = 0;
   }
 }
+
 void PropagateConstants_RTI2Conditional(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -560,6 +571,7 @@ void PropagateConstants_RTI2Conditional(SuperBlockConstants &constants)
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)
@@ -581,9 +593,9 @@ void PropagateConstants_RTI2Conditional(SuperBlockConstants &constants)
     constants.status.info[1] = 2;
   }
 }
+
 void PropagateConstants_RTI2Conditional_NOP(SuperBlockConstants &constants)
 {
-  bool branchResult;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 
   if(!ALLOW_PROPAGATE_ECU)
@@ -591,6 +603,7 @@ void PropagateConstants_RTI2Conditional_NOP(SuperBlockConstants &constants)
     return;
   }
 
+  bool branchResult;
   if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
   {
     if(branchResult)

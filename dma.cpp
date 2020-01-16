@@ -615,7 +615,6 @@ void DMALinear(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const ui
   uint32 destStride, srcStride, wordSize;
   void *intMemory, *baseMemory, *pSrc, *pDest;
   uint32 *pDest32, *pSrc32;
-  uint32 tempScalars[4];
   //LARGE_INTEGER timeStart, timeEnd, timeFreq, timeOverhead;
 
         bool bByteMode = false;
@@ -729,9 +728,10 @@ void DMALinear(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const ui
         intMemory = nuonEnv->GetPointerToMemory(the_mpe, (intaddr & 0x207FFFFC), false);
       }
       pSrc32 = (uint32 *)intMemory;
-      tempScalars[0] = pSrc32[0];
-      SwapScalarBytes(tempScalars);
-      nuonEnv->flashEEPROM->WriteData(baseaddr - 0xF0000000,tempScalars[0]);
+      uint32 tempScalar;
+      tempScalar = pSrc32[0];
+      SwapScalarBytes(&tempScalar);
+      nuonEnv->flashEEPROM->WriteData(baseaddr - 0xF0000000,tempScalar);
     }
     return;
   }
@@ -1326,8 +1326,8 @@ void DMABiLinear(MPE *the_mpe, const uint32 flags, const uint32 baseaddr, const 
   void *pSrc, *pDest;
   if(bRead)
   {
-    pSrc = (void *)baseMemory;
-    pDest = (void *)intMemory;
+    pSrc = baseMemory;
+    pDest = intMemory;
     srcOffset = ((ypos * (uint32)xsize)) + xpos;
     destOffset = 0;
 

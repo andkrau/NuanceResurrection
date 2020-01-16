@@ -6,7 +6,7 @@
 #include "PropagateConstants_MUL.h"
 #include "SuperBlockConstants.h"
 
-PropagateConstantsHandler ConstantHandlers[] = {
+const PropagateConstantsHandler ConstantHandlers[] = {
   //ECU HANDLERS
   PropagateConstants_ECU_NOP,
   PropagateConstants_Halt,
