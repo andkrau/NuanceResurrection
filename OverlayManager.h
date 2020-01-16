@@ -9,33 +9,33 @@ public:
 
   OverlayManager();
   
-  uint32 GetOverlaysInUse()
+  uint32 GetOverlaysInUse() const
   {
     return numOverlays;
   }
 
-  uint32 GetOverlayMask()
+  uint32 GetOverlayMask() const
   {
     return (currentOverlayIndex << 13);
   }
 
-  uint32 GetOverlayIndex(uint32 index)
+  uint32 GetOverlayIndex(const uint32 index) const
   {
     return currentOverlayIndex;
   }
 
-  void SetOverlayIndex(uint32 index)
+  void SetOverlayIndex(const uint32 index)
   {
     currentOverlayIndex = index;
   }
 
-  void SetOverlayLength(uint32 len)
+  void SetOverlayLength(const uint32 len)
   {
     overlayLength = len;
   }
 
-  uint32 Hash(uint32 *buffer);
-  uint32 FindOverlay(uint32 *buffer, bool &bInvalidate);
+  uint32 Hash(const uint32 *buffer);
+  uint32 FindOverlay(const uint32 * const buffer, bool &bInvalidate);
 
 private:
   uint32 numOverlays;

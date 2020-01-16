@@ -21,10 +21,9 @@ SuperBlockConstants::~SuperBlockConstants()
 {
 }
 
-bool SuperBlockConstants::EvaluateBranchCondition(uint32 whichCondition, bool *branchResult)
+bool SuperBlockConstants::EvaluateBranchCondition(const uint32 whichCondition, bool * const branchResult)
 {
   bool bIsConstant = false;
-  uint32 flag1, flag2;
 
   switch(whichCondition & 0x1FUL)
   {
@@ -89,8 +88,8 @@ bool SuperBlockConstants::EvaluateBranchCondition(uint32 whichCondition, bool *b
       if(IsMiscRegisterConstant(CONSTANT_REG_N) && IsMiscRegisterConstant(CONSTANT_REG_V))
       {
         bIsConstant = true;
-        flag1 = GetMiscRegisterConstant(CONSTANT_REG_N);
-        flag2 = GetMiscRegisterConstant(CONSTANT_REG_V);
+        const uint32 flag1 = GetMiscRegisterConstant(CONSTANT_REG_N);
+        const uint32 flag2 = GetMiscRegisterConstant(CONSTANT_REG_V);
         *branchResult = ((flag1 ^ flag2) != 0);
       }
       break;
@@ -113,7 +112,7 @@ bool SuperBlockConstants::EvaluateBranchCondition(uint32 whichCondition, bool *b
       //otherwise both C and Z must be constant
       if(IsMiscRegisterConstant(CONSTANT_REG_C))
       {
-        flag1 = GetMiscRegisterConstant(CONSTANT_REG_C);
+        const uint32 flag1 = GetMiscRegisterConstant(CONSTANT_REG_C);
         if(flag1 != 0)
         {
           bIsConstant = true;
@@ -133,7 +132,7 @@ bool SuperBlockConstants::EvaluateBranchCondition(uint32 whichCondition, bool *b
       }
       else if(IsMiscRegisterConstant(CONSTANT_REG_Z))
       {
-        flag1 = GetMiscRegisterConstant(CONSTANT_REG_Z);
+        const uint32 flag1 = GetMiscRegisterConstant(CONSTANT_REG_Z);
         if(flag1 != 0)
         {
           bIsConstant = true;
@@ -147,8 +146,8 @@ bool SuperBlockConstants::EvaluateBranchCondition(uint32 whichCondition, bool *b
       if(IsMiscRegisterConstant(CONSTANT_REG_N) && IsMiscRegisterConstant(CONSTANT_REG_V))
       {
         bIsConstant = true;
-        flag1 = GetMiscRegisterConstant(CONSTANT_REG_N);
-        flag2 = GetMiscRegisterConstant(CONSTANT_REG_V);
+        const uint32 flag1 = GetMiscRegisterConstant(CONSTANT_REG_N);
+        const uint32 flag2 = GetMiscRegisterConstant(CONSTANT_REG_V);
         //N(~V) || (~N)V
         *branchResult = ((flag1 ^ flag2) != 0);
       }
@@ -215,8 +214,8 @@ bool SuperBlockConstants::EvaluateBranchCondition(uint32 whichCondition, bool *b
         else if(IsMiscRegisterConstant(CONSTANT_REG_N) && IsMiscRegisterConstant(CONSTANT_REG_V))
         {
           bIsConstant = true;
-          flag1 = GetMiscRegisterConstant(CONSTANT_REG_N);
-          flag2 = GetMiscRegisterConstant(CONSTANT_REG_V);
+          const uint32 flag1 = GetMiscRegisterConstant(CONSTANT_REG_N);
+          const uint32 flag2 = GetMiscRegisterConstant(CONSTANT_REG_V);
           //(~N)(~V) || NV
           *branchResult = ((flag1 ^ flag2) == 0);
         }
@@ -246,8 +245,8 @@ bool SuperBlockConstants::EvaluateBranchCondition(uint32 whichCondition, bool *b
       if(IsMiscRegisterConstant(CONSTANT_REG_N) && IsMiscRegisterConstant(CONSTANT_REG_V))
       {
         bIsConstant = true;
-        flag1 = GetMiscRegisterConstant(CONSTANT_REG_N);
-        flag2 = GetMiscRegisterConstant(CONSTANT_REG_V);
+        const uint32 flag1 = GetMiscRegisterConstant(CONSTANT_REG_N);
+        const uint32 flag2 = GetMiscRegisterConstant(CONSTANT_REG_V);
         //(~N)(~V) || NV
         *branchResult = ((flag1 ^ flag2) == 0);
       }

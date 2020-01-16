@@ -29,4 +29,3 @@ void main(void)
   mainColor = mainColor - chromianceBiasVector4;
   gl_FragColor = clamp((mainColor * ycrcb2rgbMatrix4), 0.0, 1.0);
 }
-

@@ -29,13 +29,15 @@ class PageMap
 public:
   PageMap();
   ~PageMap();
-  NativeCodeCacheEntry *AllocatePage(uint32 address);
-  NativeCodeCacheEntry *FindEntry(uint32 address);
-  NativeCodeCacheEntry *AllocateEntry(uint32 address);
-  void UpdateEntry(uint32 address,NativeCodeCacheEntry &entry);
-  uint32 Invalidate();
-  void InvalidateEntry(uint32 address);
-  void InvalidateRegion(uint32 startAddress, uint32 endAddress);
+
+  NativeCodeCacheEntry *AllocatePage(const uint32 address);
+  NativeCodeCacheEntry *FindEntry(const uint32 address);
+  NativeCodeCacheEntry *AllocateEntry(const uint32 address);
+  void UpdateEntry(const uint32 address,NativeCodeCacheEntry &entry);
+  void Invalidate();
+  void InvalidateEntry(const uint32 address);
+  void InvalidateRegion(const uint32 startAddress, const uint32 endAddress);
+
 private:
   RootPageNode root;
 };

@@ -41,7 +41,7 @@
 void PropagateConstants_PacketEnd(SuperBlockConstants &constants);
 void PropagateConstants_PacketStart(SuperBlockConstants &constants);
 
-extern PropagateConstantsHandler ConstantHandlers[];
+extern const PropagateConstantsHandler ConstantHandlers[];
 
 struct PropagateConstantsStatusStruct
 {
@@ -73,11 +73,11 @@ public:
     nuance = &(pCurrentInstructionEntry->instruction);
     return currentInstructionIndex < pSuperBlock->numInstructions;
   }
-  void ClearInstructionFlags(uint32 mask)
+  void ClearInstructionFlags(const uint32 mask)
   {
     pCurrentInstructionEntry->flags &= (~mask);
   }
-  void SetInstructionFlags(uint32 mask)
+  void SetInstructionFlags(const uint32 mask)
   {
     pCurrentInstructionEntry->flags |= mask;
   }
@@ -89,19 +89,19 @@ public:
   {
     pCurrentInstructionEntry->scalarInputDependencies = 0;
   }
-  void ClearScalarInputDependency(uint32 index)
+  void ClearScalarInputDependency(const uint32 index)
   {
     pCurrentInstructionEntry->scalarInputDependencies &= ~(1UL << index);
   }
-  void ClearPixelInputDependency(uint32 index)
+  void ClearPixelInputDependency(const uint32 index)
   {
     pCurrentInstructionEntry->scalarInputDependencies &= ~(0x7UL << index);
   }
-  void ClearShortVectorInputDependency(uint32 index)
+  void ClearShortVectorInputDependency(const uint32 index)
   {
     pCurrentInstructionEntry->scalarInputDependencies &= ~(0xFUL << index);
   }
-  void ClearVectorInputDependency(uint32 index)
+  void ClearVectorInputDependency(const uint32 index)
   {
     pCurrentInstructionEntry->scalarInputDependencies &= ~(0xFUL << index);
   }
@@ -113,47 +113,47 @@ public:
   {
     pCurrentInstructionEntry->miscInputDependencies = 0;
   }
-  void ClearMiscInputDependency(uint32 index)
+  void ClearMiscInputDependency(const uint32 index)
   {
     pCurrentInstructionEntry->miscInputDependencies &= ~(1UL << index);
   }
-  void SetScalarInputDependency(uint32 index)
+  void SetScalarInputDependency(const uint32 index)
   {
     pCurrentInstructionEntry->scalarInputDependencies |= (1UL << index);
   }
-  void SetPixelInputDependency(uint32 index)
+  void SetPixelInputDependency(const uint32 index)
   {
     pCurrentInstructionEntry->scalarInputDependencies |= (0x7UL << index);
   }
-  void SetShortVectorInputDependency(uint32 index)
+  void SetShortVectorInputDependency(const uint32 index)
   {
     pCurrentInstructionEntry->scalarInputDependencies |= (0xFUL << index);
   }
-  void SetVectorInputDependency(uint32 index)
+  void SetVectorInputDependency(const uint32 index)
   {
     pCurrentInstructionEntry->scalarInputDependencies |= (0xFUL << index);
   }
-  void SetMiscInputDependency(uint32 index)
+  void SetMiscInputDependency(const uint32 index)
   {
     pCurrentInstructionEntry->miscInputDependencies |= (1UL << index);
   }
-  void ClearScalarRegisterConstant(uint32 index)
+  void ClearScalarRegisterConstant(const uint32 index)
   {
     tempScalarRegisterConstantsStatus &= ~(0x1UL << index);
   }
-  void ClearPixelRegisterConstant(uint32 index)
+  void ClearPixelRegisterConstant(const uint32 index)
   {
     tempScalarRegisterConstantsStatus &= ~(0x7UL << index);
   }
-  void ClearShortVectorRegisterConstant(uint32 index)
+  void ClearShortVectorRegisterConstant(const uint32 index)
   {
     tempScalarRegisterConstantsStatus &= ~(0xFUL << index);
   }
-  void ClearVectorRegisterConstant(uint32 index)
+  void ClearVectorRegisterConstant(const uint32 index)
   {
     tempScalarRegisterConstantsStatus &= ~(0xFUL << index);
   }
-  void ClearMiscRegisterConstant(uint32 index)
+  void ClearMiscRegisterConstant(const uint32 index)
   {
     if(index != CONSTANT_REG_ALLFLAGS)
     {
@@ -164,12 +164,12 @@ public:
       tempMiscRegisterConstantsStatus &= ~DEPENDENCY_FLAG_ALLFLAGS;
     }
   }
-  void SetScalarRegisterConstant(uint32 index, uint32 value)
+  void SetScalarRegisterConstant(const uint32 index, const uint32 value)
   {
     tempScalarRegisterConstantsStatus |= (1UL << index);
     tempScalarRegisterConstants[index] = value;
   }
-  void SetMiscRegisterConstant(uint32 index, uint32 value)
+  void SetMiscRegisterConstant(const uint32 index, const uint32 value)
   {
     tempMiscRegisterConstantsStatus |= (1UL << index);
     tempMiscRegisterConstants[index] = value;
@@ -183,47 +183,48 @@ public:
   }
   void CommitConstants()
   {
-    uint32 i;
     scalarRegisterConstantsStatus = tempScalarRegisterConstantsStatus;
     miscRegisterConstantsStatus = tempMiscRegisterConstantsStatus;
     if(scalarRegisterConstantsStatus)
     {
-      for(i = 0; i < 32; i++)
+      for(uint32 i = 0; i < 32; i++)
       {
         scalarRegisterConstants[i] = tempScalarRegisterConstants[i];
       }
     }
     if(miscRegisterConstantsStatus)
     {
-      for(i = 0; i < 32; i++)
+      for(uint32 i = 0; i < 32; i++)
       {
         miscRegisterConstants[i] = tempMiscRegisterConstants[i];
       }
     }
   }
-  bool IsScalarRegisterConstant(uint32 index)
+  bool IsScalarRegisterConstant(const uint32 index) const
   {
     return (scalarRegisterConstantsStatus & (1UL << index)) != 0;
   }
-  bool IsMiscRegisterConstant(uint32 index)
+  bool IsMiscRegisterConstant(const uint32 index) const
   {
     return (miscRegisterConstantsStatus & (1UL << index)) != 0;
   }
-  uint32 GetScalarRegisterConstant(uint32 index)
+  uint32 GetScalarRegisterConstant(const uint32 index) const
   {
     return scalarRegisterConstants[index];
   }
-  uint32 GetMiscRegisterConstant(uint32 index)
+  uint32 GetMiscRegisterConstant(const uint32 index) const
   {
     return miscRegisterConstants[index];
   }
 
-  bool EvaluateBranchCondition(uint32 whichCondition, bool *branchResult);
+  bool EvaluateBranchCondition(const uint32 whichCondition, bool * const branchResult);
+
   MPE *mpe;
   Nuance *nuance;
   InstructionEntry *pCurrentInstructionEntry;
   PropagateConstantsStatusStruct status;
   bool bConstantPropagated;
+
 protected:
   uint32 currentInstructionIndex;
   uint32 tempScalarRegisterConstants[32];
