@@ -15,27 +15,27 @@ extern NuonEnvironment *nuonEnv;
 
 //((float)(nuonAudioBufferSize >> (nuonAudioStreamModeShift + nuonAudioInterruptRateShift)))/nuonPlaybackRate
 
-void AudioMute(MPE *mpe)
+void AudioMute(MPE * const mpe)
 {  
   //Mute audio
   nuonEnv->MuteAudio(mpe->regs[0]);
 }
 
-void AudioReset(MPE *mpe)
+void AudioReset(MPE * const mpe)
 {
   nuonEnv->RestartAudio();
   nuonEnv->pNuonAudioBuffer = 0;
   nuonEnv->MuteAudio(true);
 }
 
-void AudioQuerySampleRates(MPE *mpe)
+void AudioQuerySampleRates(MPE * const mpe)
 {
   mpe->regs[0] = nuonEnv->nuonSupportedPlaybackRates;
 }
 
-void AudioSetSampleRate(MPE *mpe)
+void AudioSetSampleRate(MPE * const mpe)
 {
-  uint32 newRate = mpe->regs[0];
+  const uint32 newRate = mpe->regs[0];
 
   if(!(newRate & nuonEnv->nuonSupportedPlaybackRates))
   {
@@ -87,15 +87,14 @@ void AudioSetSampleRate(MPE *mpe)
   nuonEnv->SetAudioPlaybackRate(nuonEnv->nuonAudioPlaybackRate);
 }
 
-void AudioQueryChannelMode(MPE *mpe)
+void AudioQueryChannelMode(MPE * const mpe)
 {
   mpe->regs[0] = nuonEnv->nuonAudioChannelMode;
 }
 
-void AudioSetChannelMode(MPE *mpe)
+void AudioSetChannelMode(MPE * const mpe)
 {
-  uint32 newMode;
-  newMode = mpe->regs[0];
+  uint32 newMode = mpe->regs[0];
 
   nuonEnv->nuonAudioChannelMode = newMode;
   nuonEnv->nuonAudioBufferSize = nuonEnv->GetBufferSize(newMode);
@@ -109,11 +108,9 @@ void AudioSetChannelMode(MPE *mpe)
   nuonEnv->SetAudioVolume(255);
 }
 
-void AudioSetDMABuffer(MPE *mpe)
+void AudioSetDMABuffer(MPE * const mpe)
 {
-  uint32 pAudioBuffer;
-
-  pAudioBuffer = mpe->regs[0];
+  uint32 pAudioBuffer = mpe->regs[0];
   
   if(!pAudioBuffer)
   {

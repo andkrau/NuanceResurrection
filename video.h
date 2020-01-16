@@ -6,8 +6,8 @@
 #include "external\glew-2.1.0\include\GL\glew.h"
 #include "external\glew-2.1.0\include\GL\wglew.h"
 
-#define ALLOCATED_TEXTURE_WIDTH (1024)
-#define ALLOCATED_TEXTURE_HEIGHT (512)
+#define ALLOCATED_TEXTURE_WIDTH (720)
+#define ALLOCATED_TEXTURE_HEIGHT (480)
 
 class VideoOptions
 {
@@ -71,7 +71,7 @@ struct VidDisplay
 struct VidChannel
 {
   int32 dmaflags;       /* DMA flags for writing to or reading from a channel */
-  void *base;                    /* base address for the channel */
+  void *base;           /* base address for the channel */
   int32 dest_xoff;      /* x offset for screen image (integer; -1 == center automatically) */
   int32 dest_yoff;      /* y offset for screen image (integer; -1 == center automatically) */
   int32 dest_width;     /* width of the output on screen  (integer) */
@@ -80,10 +80,10 @@ struct VidChannel
   int32 src_yoff;       /* y offset within source data (16.16 fixed point) */
   int32 src_width;      /* width of source material (16.16 fixed point) */
   int32 src_height;     /* height of source material (16.16 fixed point */
-  uint8 clut_select;   /* (for 4bpp only): which 16 CLUT entries to use */
-  uint8 alpha;         /* (for 16bpp only): default ALPHA to use on channel */
-  uint8 vfilter;       /* vertical filter to apply */
-  uint8 hfilter;       /* horizontal filter to apply */
+  uint8 clut_select;    /* (for 4bpp only): which 16 CLUT entries to use */
+  uint8 alpha;          /* (for 16bpp only): default ALPHA to use on channel */
+  uint8 vfilter;        /* vertical filter to apply */
+  uint8 hfilter;        /* horizontal filter to apply */
   int32 reserved[5];    /* reserved for future expansion */
 };
 
@@ -106,9 +106,8 @@ struct VidChannel
 #define VIDEO_MODE_NTSC	(1)
 #define VIDEO_MODE_PAL (2)
 
-uint8 *AllocateTextureMemory(uint32 size, bool bOverlay);
-void FreeTextureMemory(uint8 *pBuffer, bool bOverlay);
-uint32 GetVideoFieldCount(void);
+uint32 *AllocateTextureMemory32(uint32 size, const bool bOverlay);
+void FreeTextureMemory(uint32 *pBuffer, const bool bOverlay);
 void VidConfig(MPE *mpe);
 void VidQueryConfig(MPE *mpe);
 void VidSetup(MPE *mpe);

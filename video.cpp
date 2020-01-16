@@ -17,13 +17,13 @@
 //#define TEXTURE_TARGET (GL_TEXTURE_RECTANGLE_NV)
 #define TEXTURE_TARGET (GL_TEXTURE_2D)
 
-GLint mainInternalTextureFormat = GL_RGBA8;
-GLint mainExternalTextureFormat = GL_BGRA;
-GLint mainPixelType = GL_UNSIGNED_BYTE;
-GLint mainTextureUnit = GL_TEXTURE0_ARB;
-GLint osdInternalTextureFormat = GL_RGBA8;
-GLint osdExternalTextureFormat = GL_BGRA;
-GLint osdTextureUnit = GL_TEXTURE1_ARB;
+const GLint mainInternalTextureFormat = GL_RGBA8;
+      GLint mainExternalTextureFormat = GL_BGRA;
+const GLint mainPixelType = GL_UNSIGNED_BYTE;
+const GLint mainTextureUnit = GL_TEXTURE0_ARB;
+const GLint osdInternalTextureFormat = GL_RGBA8;
+      GLint osdExternalTextureFormat = GL_BGRA;
+const GLint osdTextureUnit = GL_TEXTURE1_ARB;
 
 //GLint textureFormat = GL_RGB5_A1;
 extern NuonEnvironment *nuonEnv;
@@ -31,7 +31,8 @@ extern GLWindow videoDisplayWindow;
 
 extern uint8 mybuffer[];
 extern int renderWidth, renderHeight;
-bool bUseBilinearFiltering = false;
+
+const bool bUseBilinearFiltering = false;
 
 uint32 main_fetch_pixel_type;
 uint32 main_write_pixel_type;
@@ -41,9 +42,9 @@ uint32 overlay_fetch_pixel_type;
 uint32 overlay_write_pixel_type;
 uint32 overlay_pixel_type_width;
 
-uint8 *mainDisplayBuffer = 0;
-uint8 *mainChannelBuffer = 0;
-uint8 *overlayChannelBuffer = 0;
+uint32 *mainDisplayBuffer = 0;
+uint32 *mainChannelBuffer = 0;
+uint32 *overlayChannelBuffer = 0;
 uint8 *clutPtr = (uint8 *)vdgCLUT;
 bool bMainChannelActive = false;
 bool bOverlayChannelActive = false;
@@ -70,8 +71,8 @@ float mainChannelScaleY = 1.0;
 float overlayChannelScaleX = 1.0;
 float overlayChannelScaleY = 1.0;
 
-int8 LuminanceTable[256];
-int8 ChromianceTable[256];
+uint8 LuminanceTable[256];
+uint8 ChromianceTable[256];
 
 ShaderProgram *shaderProgram;
 
@@ -81,11 +82,9 @@ extern _LARGE_INTEGER tickFrequency;
 
 void CalculateTableEntries(uint8 *table, uint8 min, uint8 max)
 {
-  uint8 clampedVal;
-
   for(uint32 i = 0; i < 256; i++)
   {
-    clampedVal = i;
+    uint8 clampedVal = i;
 
     if(clampedVal < min)
     {
@@ -96,7 +95,7 @@ void CalculateTableEntries(uint8 *table, uint8 min, uint8 max)
       clampedVal = max;
     }
 
-    table[i] = (uint8)(((double)(clampedVal - min)) * (255.0/(max-min)));
+    table[i] = (uint8)(((uint32)(clampedVal - min)) * 255u/(max-min));
   }
 }
 
@@ -109,13 +108,13 @@ static int64 videoPerfOverhead = 0;
 char msg[512];
 
 
-GLfloat ycrcb2rgbColorMatrix[] = {
+const GLfloat ycrcb2rgbColorMatrix[] = {
 1.000,  1.000, 1.000, 0.000,
 1.402, -0.700, 0.000, 0.000,
 0.000, -0.340, 1.772, 0.000,
 0.000,  0.000, 0.000, 1.000};
 
-GLfloat ycrcb2rgbGreyscaleColorMatrix[] = {
+const GLfloat ycrcb2rgbGreyscaleColorMatrix[] = {
 1.000,  1.000, 1.000, 0.000,
 0.000,  0.000, 0.000, 0.000,
 0.000,  0.000, 0.000, 0.000,
@@ -147,13 +146,11 @@ void InitializeYCrCbColorSpace(void)
 
 void InitializeColorSpaceTables(void)
 {
-  CalculateTableEntries((uint8 *)LuminanceTable,16,235);
-  CalculateTableEntries((uint8 *)ChromianceTable,16,240);
+  CalculateTableEntries(LuminanceTable,16,235);
+  CalculateTableEntries(ChromianceTable,16,240);
 
   for(uint32 i = 0; i < 256; i++)
-  {
-    ((uint32 *)vdgCLUT)[i] = 0x00000000UL;
-  }
+    vdgCLUT[i] = 0;
 
   QueryPerformanceFrequency(&tickFrequency);
 }
@@ -167,14 +164,12 @@ GLclampf clearColorG = 0.0;
 GLclampf clearColorB = 0.0;
 
 bool bTexturesInitialized = false;
-bool bMainChannelMemoryAGP = false;
-bool bOverlayChannelMemoryAGP = false;
 
 vidTexInfo videoTexInfo;
 
-uint8 *AllocateTextureMemory(uint32 size,bool bOverlay)
+uint32 *AllocateTextureMemory32(uint32 size, const bool bOverlay)
 {
-  uint8 *ptr = 0;
+  uint32 *ptr = 0;
 
   if(bOverlay)
   {
@@ -182,14 +177,8 @@ uint8 *AllocateTextureMemory(uint32 size,bool bOverlay)
 
     if(!overlayChannelBuffer)
     {
-      bOverlayChannelMemoryAGP = true;
-      //ptr = (uint8 *)wglAllocateMemoryNV(size,0.0,0.5,0.5);
-      if(!ptr)
-      {
-        bOverlayChannelMemoryAGP = false;
-        ptr = new uint8[size];
-        overlayChannelBuffer = ptr;
-      }
+      ptr = new uint32[size];
+      overlayChannelBuffer = ptr;
     }
   }
   else
@@ -198,52 +187,30 @@ uint8 *AllocateTextureMemory(uint32 size,bool bOverlay)
 
     if(!mainChannelBuffer)
     {
-      bMainChannelMemoryAGP = true;
-      //ptr = (uint8 *)wglAllocateMemoryNV(size,0.0,1.0,1.0);
-      if(!ptr)
-      {
-        bMainChannelMemoryAGP = false;
-        ptr = new uint8[size];
-        mainChannelBuffer = ptr;
-      }
+      ptr = new uint32[size];
+      mainChannelBuffer = ptr;
     }
   }
 
   return ptr;
 }
 
-void FreeTextureMemory(uint8 *ptr,bool bOverlay)
+void FreeTextureMemory(uint32 *ptr, const bool bOverlay)
 {
   if(bOverlay)
   {
     if(overlayChannelBuffer)
     {
-      if(bOverlayChannelMemoryAGP)
-      {
-        wglFreeMemoryNV(ptr);
-        overlayChannelBuffer = 0;
-      }
-      else
-      {
-        delete [] overlayChannelBuffer;
-        overlayChannelBuffer = 0;
-      }
+      delete [] overlayChannelBuffer;
+      overlayChannelBuffer = 0;
     }
   }
   else
   {
     if(mainChannelBuffer)
     {
-      if(bMainChannelMemoryAGP)
-      {
-        wglFreeMemoryNV(ptr);
-        mainChannelBuffer = 0;
-      }
-      else
-      {
-        delete [] mainChannelBuffer;
-        mainChannelBuffer = 0;
-      }
+      delete [] mainChannelBuffer;
+      mainChannelBuffer = 0;
     }
   }
 }
@@ -301,16 +268,16 @@ void UpdateTextureStates(void)
 
   if(bMainChannelActive)
   {
-    x0 = -((float)structMainChannel.dest_xoff * (float)structMainChannel.src_width)/((float)structMainChannel.dest_width);
-    xf = ((float)(structMainDisplay.dispwidth - structMainChannel.dest_xoff) * (float)structMainChannel.src_width/(float)structMainChannel.dest_width);
-    y0 = ((float)(structMainDisplay.dispheight - structMainChannel.dest_yoff) * (float)structMainChannel.src_height)/((float)structMainChannel.dest_height);
-    yf = -((float)structMainChannel.dest_yoff * (float)structMainChannel.src_height)/((float)structMainChannel.dest_height);
+    x0 = -((double)structMainChannel.dest_xoff * (double)structMainChannel.src_width)/((double)structMainChannel.dest_width);
+    xf = ((double)(structMainDisplay.dispwidth - structMainChannel.dest_xoff) * (double)structMainChannel.src_width/(double)structMainChannel.dest_width);
+    y0 = ((double)(structMainDisplay.dispheight - structMainChannel.dest_yoff) * (double)structMainChannel.src_height)/((double)structMainChannel.dest_height);
+    yf = -((double)structMainChannel.dest_yoff * (double)structMainChannel.src_height)/((double)structMainChannel.dest_height);
 
 #if (TEXTURE_TARGET == GL_TEXTURE_2D)
-    x0 = (GLfloat)(x0 * (1.0/((float)ALLOCATED_TEXTURE_WIDTH)));
-    xf = (GLfloat)(xf * (1.0/((float)ALLOCATED_TEXTURE_WIDTH)));
-    y0 = (GLfloat)(y0 * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT)));
-    yf = (GLfloat)(yf * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT)));
+    x0 = (GLfloat)(x0 * (1.0/ALLOCATED_TEXTURE_WIDTH));
+    xf = (GLfloat)(xf * (1.0/ALLOCATED_TEXTURE_WIDTH));
+    y0 = (GLfloat)(y0 * (1.0/ALLOCATED_TEXTURE_HEIGHT));
+    yf = (GLfloat)(yf * (1.0/ALLOCATED_TEXTURE_HEIGHT));
 #endif
     
     //uint8 *pBuffer = (uint8 *)mainChannelBuffer;
@@ -340,10 +307,10 @@ void UpdateTextureStates(void)
     //yf = 0.0;
 
 #if (TEXTURE_TARGET == GL_TEXTURE_2D)
-    //x0 = x0 * (1.0/((float)ALLOCATED_TEXTURE_WIDTH));
-    //xf = xf * (1.0/((float)ALLOCATED_TEXTURE_WIDTH));
-    //y0 = y0 * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT));
-    //yf = yf * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT));   
+    //x0 = x0 * (1.0/ALLOCATED_TEXTURE_WIDTH);
+    //xf = xf * (1.0/ALLOCATED_TEXTURE_WIDTH);
+    //y0 = y0 * (1.0/ALLOCATED_TEXTURE_HEIGHT);
+    //yf = yf * (1.0/ALLOCATED_TEXTURE_HEIGHT);   
 #endif
 
     //UpdateTexCoords(x0,y0,&videoTexInfo.mainTexCoords[0]);
@@ -367,16 +334,16 @@ void UpdateTextureStates(void)
 
   if(bOverlayChannelActive)
   {
-    x0 = -((float)structOverlayChannel.dest_xoff * (float)structOverlayChannel.src_width)/((float)structOverlayChannel.dest_width);
-    xf = ((float)(structMainDisplay.dispwidth - structOverlayChannel.dest_xoff) * (float)structOverlayChannel.src_width/(float)structOverlayChannel.dest_width);
-    y0 = ((float)(structMainDisplay.dispheight - structOverlayChannel.dest_yoff) * (float)structOverlayChannel.src_height)/((float)structOverlayChannel.dest_height);
-    yf = -((float)structOverlayChannel.dest_yoff * (float)structOverlayChannel.src_height)/((float)structOverlayChannel.dest_height);
+    x0 = -((double)structOverlayChannel.dest_xoff * (double)structOverlayChannel.src_width)/((double)structOverlayChannel.dest_width);
+    xf = ((double)(structMainDisplay.dispwidth - structOverlayChannel.dest_xoff) * (double)structOverlayChannel.src_width/(double)structOverlayChannel.dest_width);
+    y0 = ((double)(structMainDisplay.dispheight - structOverlayChannel.dest_yoff) * (double)structOverlayChannel.src_height)/((double)structOverlayChannel.dest_height);
+    yf = -((double)structOverlayChannel.dest_yoff * (double)structOverlayChannel.src_height)/((double)structOverlayChannel.dest_height);
 
 #if (TEXTURE_TARGET == GL_TEXTURE_2D)
-    x0 = (GLfloat)(x0 * (1.0/((float)ALLOCATED_TEXTURE_WIDTH)));
-    xf = (GLfloat)(xf * (1.0/((float)ALLOCATED_TEXTURE_WIDTH)));
-    y0 = (GLfloat)(y0 * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT)));
-    yf = (GLfloat)(yf * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT)));
+    x0 = (GLfloat)(x0 * (1.0/ALLOCATED_TEXTURE_WIDTH));
+    xf = (GLfloat)(xf * (1.0/ALLOCATED_TEXTURE_WIDTH));
+    y0 = (GLfloat)(y0 * (1.0/ALLOCATED_TEXTURE_HEIGHT));
+    yf = (GLfloat)(yf * (1.0/ALLOCATED_TEXTURE_HEIGHT));
 #endif
 
     UpdateTexCoords(x0,y0,&videoTexInfo.osdTexCoords[0]);
@@ -406,10 +373,10 @@ void UpdateTextureStates(void)
     //yf = 0.0;
 
 #if (TEXTURE_TARGET == GL_TEXTURE_2D)
-    //x0 = x0 * (1.0/((float)ALLOCATED_TEXTURE_WIDTH));
-    //xf = xf * (1.0/((float)ALLOCATED_TEXTURE_WIDTH));
-    //y0 = y0 * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT));
-    //yf = yf * (1.0/((float)ALLOCATED_TEXTURE_HEIGHT));
+    //x0 = x0 * (1.0/ALLOCATED_TEXTURE_WIDTH);
+    //xf = xf * (1.0/ALLOCATED_TEXTURE_WIDTH);
+    //y0 = y0 * (1.0/ALLOCATED_TEXTURE_HEIGHT);
+    //yf = yf * (1.0/ALLOCATED_TEXTURE_HEIGHT);
 #endif
 
     //UpdateTexCoords(x0,y0,&videoTexInfo.osdTexCoords[0]);
@@ -526,9 +493,7 @@ void InitTextures(void)
   videoTexInfo.bUpdateDisplayList = false;
 }
 
-uint32 audioCounter = 3;
-
-void RenderVideo_Type4(uint8* pDestBuffer, uint8 *pSrcBuffer, uint32 maxRow, uint32 maxCol, bool bOverlay)
+void RenderVideo_Type4(uint32* pDestBuffer, const uint8 * pSrcBuffer, const uint32 maxRow, const uint32 maxCol, const bool bOverlay)
 {
   if(!nuonEnv->videoOptions.bUseShaders)
   {
@@ -537,34 +502,19 @@ void RenderVideo_Type4(uint8* pDestBuffer, uint8 *pSrcBuffer, uint32 maxRow, uin
       for(uint32 colCount = 0; colCount < maxCol; colCount++)
       {
         //32 or 32+32Z
-        uint8 Y, CR, CB, A;
-        Y = LuminanceTable[pSrcBuffer[0]];
-        CR = ChromianceTable[pSrcBuffer[1]];
-        CB = ChromianceTable[pSrcBuffer[2]];
-
-        uint32 pixel;
+        uint32 pixel = (ChromianceTable[pSrcBuffer[2]] << 16) | (ChromianceTable[pSrcBuffer[1]] << 8) | LuminanceTable[pSrcBuffer[0]];
         if(bOverlay)
         {
-          A = 255 - pSrcBuffer[3];
-          if(!(Y|CR|CB))
-          {
-            pixel = 0;
-          }
-          else
-          {
-            pixel = (A << 24) | (CB << 16) | (CR << 8) | Y;
-          } 
+          if(pixel)
+            pixel |= ((0xFFu - pSrcBuffer[3]) << 24);
         }
         else
-        {
-          A = 0xFF;
-          pixel = (A << 24) | (CB << 16) | (CR << 8) | Y;
-        }
+          pixel |= (0xFFu << 24);
 
-        ((uint32 *)pDestBuffer)[0] = pixel;
+        *pDestBuffer = pixel;
 
         pSrcBuffer += 4;
-        pDestBuffer += 4; //Always RGBA 32 bit
+        pDestBuffer++; //Always RGBA 32 bit
       }
     }
   }  
@@ -572,22 +522,19 @@ void RenderVideo_Type4(uint8* pDestBuffer, uint8 *pSrcBuffer, uint32 maxRow, uin
 
 void IncrementVideoFieldCounter(void)
 {
-  uint32 fieldCounter;
-
   if(nuonEnv->systemBusDRAM)
   {
-    fieldCounter = *((uint32 *)&nuonEnv->systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
+    uint32 fieldCounter = *((uint32 *)&nuonEnv->systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
     SwapScalarBytes(&fieldCounter);
     fieldCounter++;
     SwapScalarBytes(&fieldCounter);
-    *((uint32 *)&nuonEnv->systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK])
-      = fieldCounter;
+    *((uint32 *)&nuonEnv->systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]) = fieldCounter;
   }
 }
 
-void RenderVideo(int winwidth, int winheight)
+void RenderVideo(const int winwidth, const int winheight)
 {
-  uint8 *ptrMainDisplayBuffer;
+  uint32 *ptrMainDisplayBuffer;
   uint8 *ptrNuonFrameBuffer;
   uint8 *ptrNextRow;
   uint32 maxCol;
@@ -635,7 +582,6 @@ void RenderVideo(int winwidth, int winheight)
     glLoadIdentity();
     bSetupViewport = true;
   }
-
 
   if(bMainChannelActive)
   {
@@ -713,13 +659,13 @@ void RenderVideo(int winwidth, int winheight)
     {
       for(uint32 colCount = 0; colCount < maxCol; colCount++)
       {
-        uint8 Y,CR,CB,A;
+        uint8 Y,CR,CB;
         switch(pixType)
         {
           case 2:
           case 5:
             //16 or 16+16Z
-            Y = ptrNuonFrameBuffer[0] & 0xFC; 
+            Y  = ptrNuonFrameBuffer[0] & 0xFC; 
             CR = (ptrNuonFrameBuffer[0] << 6) | ((ptrNuonFrameBuffer[1] >> 2) & 0x38);
             CB = ptrNuonFrameBuffer[1] << 3;
             break;
@@ -727,23 +673,17 @@ void RenderVideo(int winwidth, int winheight)
           case 6:
           default:
             //32 or 32+32Z
-            Y = ptrNuonFrameBuffer[0];
+            Y  = ptrNuonFrameBuffer[0];
             CR = ptrNuonFrameBuffer[1];
             CB = ptrNuonFrameBuffer[2];
             break;
         }
 
-        Y = LuminanceTable[Y];
-        CR = ChromianceTable[CR];
-        CB = ChromianceTable[CB];
-
-        A = 255 - 0; //Alpha for main channel is opaque
-
-        const uint32 pixel = (A << 24) | (CB << 16) | (CR << 8) | Y;
-        *((uint32 *)ptrMainDisplayBuffer) = pixel;
+        //Alpha for main channel is opaque
+        *ptrMainDisplayBuffer = (0xFFu << 24) | (ChromianceTable[CB] << 16) | (ChromianceTable[CR] << 8) | LuminanceTable[Y];
 
         ptrNuonFrameBuffer += pixWidth;
-        ptrMainDisplayBuffer += 4; //Always RGBA 32 bit
+        ptrMainDisplayBuffer++; //Always RGBA 32 bit
       }
     }
   }
@@ -844,90 +784,76 @@ process_overlay_buffer:
           case 1:
             //4-bit
             clutPtr = (uint8 *)&vdgCLUT[ptrNuonFrameBuffer[0] >> 4];
-            Y = clutPtr[0];
+            Y  = clutPtr[0];
             CR = clutPtr[1];
             CB = clutPtr[2];
-            A = clutPtr[3];
+            A  = clutPtr[3];
             clutPtr = (uint8 *)&vdgCLUT[ptrNuonFrameBuffer[0] & 0xF];
-            Y2 = clutPtr[0];
+            Y2  = clutPtr[0];
             CR2 = clutPtr[1];
             CB2 = clutPtr[2];
-            A2 = clutPtr[3];
+            A2  = clutPtr[3];
             break;
           case 2:
             //16-bit
-            Y = ptrNuonFrameBuffer[0] & 0xFC;
+            Y  = ptrNuonFrameBuffer[0] & 0xFC;
             CR = (ptrNuonFrameBuffer[0] << 6) | ((ptrNuonFrameBuffer[1] >> 2) & 0x38);
             CB = ptrNuonFrameBuffer[1] << 3;
-            A = structOverlayChannel.alpha;
+            A  = structOverlayChannel.alpha;
             break;
           case 3:
             //8-bit
             clutPtr = (uint8 *)&vdgCLUT[ptrNuonFrameBuffer[0]];
-            Y = clutPtr[0];
+            Y  = clutPtr[0];
             CR = clutPtr[1];
             CB = clutPtr[2];
-            A = clutPtr[3];
+            A  = clutPtr[3];
             break;
           case 4:
             //32-bit
-            Y = ptrNuonFrameBuffer[0];
+            Y  = ptrNuonFrameBuffer[0];
             CR = ptrNuonFrameBuffer[1];
             CB = ptrNuonFrameBuffer[2];
-            A = ptrNuonFrameBuffer[3];
+            A  = ptrNuonFrameBuffer[3];
             break;
           case 5:
             //16+16Z
-            Y = ptrNuonFrameBuffer[0] & 0xFC;
+            Y  = ptrNuonFrameBuffer[0] & 0xFC;
             CR = (ptrNuonFrameBuffer[0] << 6) | ((ptrNuonFrameBuffer[1] >> 2) & 0x38);
             CB = ptrNuonFrameBuffer[1] << 3;
-            A = 0; //Z buffered pixels are always opaque
+            A  = 0; //Z buffered pixels are always opaque
             break;
           case 6:
             //32+32Z
-            Y = ptrNuonFrameBuffer[0];
+            Y  = ptrNuonFrameBuffer[0];
             CR = ptrNuonFrameBuffer[1];
             CB = ptrNuonFrameBuffer[2];
-            A = 0; //Z buffered pixels are always opaque
+            A  = 0; //Z buffered pixels are always opaque
           default:
             break;
         }
 
-        uint32 pixel;
-        if(Y|CR|CB)
+        uint32 pixel = (ChromianceTable[CB] << 16) | (ChromianceTable[CR] << 8) | LuminanceTable[Y];
+        //Color (0,0,0) is always transparent per Nuon architecture document
+        if(pixel)
         {
-          Y = LuminanceTable[Y];
-          CR = ChromianceTable[CR];
-          CB = ChromianceTable[CB];
-          A = 255 - A;
-          pixel = (A << 24) | (CB << 16) | (CR << 8) | Y;
-        }
-        else
-        {
-          //Color (0,0,0) is always transparent per Nuon architecture document
-          pixel = 0;
+          pixel |= (0xFFu - A) << 24;
         }
 
-        *((uint32 *)ptrMainDisplayBuffer) = pixel;
-        ptrMainDisplayBuffer += 4; //Always RGBA 32 bit
+        *ptrMainDisplayBuffer = pixel;
+        ptrMainDisplayBuffer++; //Always RGBA 32 bit
 
         if(pixType == 1)
         {
-          if(Y2|CR2|CB2)
+          pixel = (ChromianceTable[CB2] << 16) | (ChromianceTable[CR2] << 8) | LuminanceTable[Y2];
+          //Color (0,0,0) is always transparent per Nuon architecture document
+          if(pixel)
           {
-            Y2 = LuminanceTable[Y2];
-            CR2 = ChromianceTable[CR2];
-            CB2 = ChromianceTable[CB2];
-            A2 = 255 - A2;
-            pixel = (A2 << 24) | (CB2 << 16) | (CR2 << 8) | Y2;
+            pixel |= (0xFFu - A2) << 24;
           }
-          else
-          {
-            //Color (0,0,0) is always transparent per Nuon architecture document
-            pixel = 0;
-          }
-          *((uint32 *)ptrMainDisplayBuffer) = pixel;
-          ptrMainDisplayBuffer += 4; //Always RGBA 32 bit
+
+          *ptrMainDisplayBuffer = pixel;
+          ptrMainDisplayBuffer++; //Always RGBA 32 bit
         }
 
         ptrNuonFrameBuffer += pixWidth;
@@ -1021,7 +947,7 @@ void UpdateBufferLengths(void)
 
 void VidQueryConfig(MPE *mpe)
 {
-  VidDisplay *displayStruct = (VidDisplay *)nuonEnv->GetPointerToMemory(mpe,mpe->regs[0]);
+  VidDisplay * const displayStruct = (VidDisplay *)nuonEnv->GetPointerToMemory(mpe,mpe->regs[0]);
 
   displayStruct->dispwidth = structMainDisplay.dispwidth;
   displayStruct->dispheight = structMainDisplay.dispheight;
@@ -1045,7 +971,6 @@ void VidQueryConfig(MPE *mpe)
   SwapWordBytes((uint16 *)&displayStruct->pixel_aspect_y);
   SwapWordBytes((uint16 *)&displayStruct->screen_aspect_x);
   SwapWordBytes((uint16 *)&displayStruct->screen_aspect_y);
-
 
   //Return 1 to specify NTSC
   mpe->regs[0] = 1;
@@ -1131,7 +1056,7 @@ void VidConfig(MPE *mpe)
 
   if(!mainDisplayBuffer)
   {
-    mainDisplayBuffer = new uint8[structMainDisplay.dispwidth * structMainDisplay.dispheight * 4];
+    mainDisplayBuffer = new uint32[structMainDisplay.dispwidth * structMainDisplay.dispheight];
   }
   bMainChannelActive = false;
   bOverlayChannelActive = false;
@@ -1199,7 +1124,7 @@ void VidConfig(MPE *mpe)
       structMainChannel.dest_yoff = (structMainDisplay.dispheight - structMainChannel.dest_height) >> 1;
     }
 
-    //mainChannelBuffer = AllocateTextureMemory(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)) << 2,false);
+    //mainChannelBuffer = AllocateTextureMemory32(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)),false);
     mainChannelScaleX = (float)structMainChannel.dest_width/(float)structMainChannel.src_width;
     mainChannelScaleY = (float)structMainChannel.dest_height/(float)structMainChannel.src_height;
     bMainChannelActive = true;
@@ -1283,7 +1208,7 @@ void VidConfig(MPE *mpe)
       structOverlayChannel.dest_yoff = (structMainDisplay.dispheight - structOverlayChannel.dest_height) >> 1;
     }
 
-    //overlayChannelBuffer = AllocateTextureMemory(((structOverlayChannel.src_width & 0xFFFF) * (structOverlayChannel.src_height & 0xFFFF)) << 2,true);
+    //overlayChannelBuffer = AllocateTextureMemory32(((structOverlayChannel.src_width & 0xFFFF) * (structOverlayChannel.src_height & 0xFFFF)),true);
     overlayChannelScaleX = (float)structOverlayChannel.dest_width/(float)structOverlayChannel.src_width;
     overlayChannelScaleY = (float)structOverlayChannel.dest_height/(float)structOverlayChannel.src_height;
     bOverlayChannelActive = true;
@@ -1374,7 +1299,7 @@ void VidSetup(MPE *mpe)
 
   if(!mainDisplayBuffer)
   {
-    mainDisplayBuffer = new uint8[(structMainDisplay.dispwidth << 2) * structMainDisplay.dispheight];
+    mainDisplayBuffer = new uint32[structMainDisplay.dispwidth * structMainDisplay.dispheight];
   }
 
   structMainChannel.dmaflags = dmaFlags;
@@ -1434,7 +1359,7 @@ void VidSetup(MPE *mpe)
   //Center along Y
   structMainChannel.dest_yoff = (structMainDisplay.dispheight - structMainChannel.dest_height) >> 1;
 
-  //mainChannelBuffer = AllocateTextureMemory(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)) << 2,false);
+  //mainChannelBuffer = AllocateTextureMemory32(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)),false);
   mainChannelScaleX = (float)structMainChannel.dest_width/(float)structMainChannel.src_width;
   mainChannelScaleY = (float)structMainChannel.dest_height/(float)structMainChannel.src_height;
   bMainChannelActive = true;
@@ -1463,7 +1388,7 @@ void VidSetup(MPE *mpe)
     bUpdateOpenGLData |= (structMainChannel.src_yoff != structMainChannelPrev.src_yoff);
     bUpdateOpenGLData |= (structMainChannel.vfilter != structMainChannelPrev.vfilter);
 
-  if(bUpdateOpenGLData  || (channelState != channelStatePrev))
+  if(bUpdateOpenGLData || (channelState != channelStatePrev))
   {
     videoTexInfo.bUpdateDisplayList = true;
     UpdateTextureStates();
@@ -1485,19 +1410,15 @@ void SetVideoMode(void)
   //always output in RGBA format
   if(!mainDisplayBuffer)
   {
-    mainDisplayBuffer = new uint8[720 * 480 * 4];
+    mainDisplayBuffer = new uint32[720 * 480]; //NUON framebuffer size
   }
-  //NUON framebuffer size
 }
 
 void VidChangeBase(MPE *mpe)
 {
-  int32 which, dmaflags, base;
-  uint32 map;
-
-  which = mpe->regs[0];
-  dmaflags = mpe->regs[1];
-  base = mpe->regs[2];
+  const int32 which = mpe->regs[0];
+  const int32 dmaflags = mpe->regs[1];
+  const int32 base = mpe->regs[2];
 
   mpe->regs[0] = 1;
 
@@ -1514,7 +1435,7 @@ void VidChangeBase(MPE *mpe)
   }
   else
   {
-    map = (dmaflags >> 4) & 0x0FUL;
+    uint32 map = (dmaflags >> 4) & 0x0FUL;
 
     switch(which)
     {
