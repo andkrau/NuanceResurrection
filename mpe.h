@@ -228,15 +228,15 @@ struct PacketStruct
   uint32 rcu_handler;
 };
 
-#define BilinearInfo_XRev(data) (data & (1UL << 30))
-#define BilinearInfo_YRev(data) (data & (1UL << 29))
-#define BilinearInfo_XYChnorm(data) (data & (1UL << 28))
-#define BilinearInfo_XYMipmap(data) ((data >> 24) & 0x07UL)
-#define BilinearInfo_XYType(data) ((data >> 20) & 0x0FUL)
-#define BilinearInfo_XTile(data) ((data >> 16) & 0x0FUL)
-#define BilinearInfo_YTile(data) ((data >> 12) & 0x0FUL)
-#define BilinearInfo_XYWidth(data) (data & 0x7FFUL)
-#define BilinearInfo_PixelWidth(table,data) (table[(data >> 20) & 0x0FUL])
+#define BilinearInfo_XRev(data) ((data) & (1UL << 30))
+#define BilinearInfo_YRev(data) ((data) & (1UL << 29))
+#define BilinearInfo_XYChnorm(data) ((data) & (1UL << 28))
+#define BilinearInfo_XYMipmap(data) (((data) >> 24) & 0x07UL)
+#define BilinearInfo_XYType(data) (((data) >> 20) & 0x0FUL)
+#define BilinearInfo_XTile(data) (((data) >> 16) & 0x0FUL)
+#define BilinearInfo_YTile(data) (((data) >> 12) & 0x0FUL)
+#define BilinearInfo_XYWidth(data) ((data) & 0x7FFUL)
+#define BilinearInfo_PixelWidth(table,data) ((table)[((data) >> 20) & 0x0FUL])
 
 struct sBilinearInfo
 {

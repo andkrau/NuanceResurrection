@@ -761,29 +761,23 @@ bool CheckForInvalidCommStatus(MPE *mpe)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
   HWND hDlg, hStatusDlg;
-  MSG msg;
   uint32 nCycles = 500;
-  uint32 displayCycles;
   static uint32 prevPcexec;
   static uint32 prevCommctl;
   static uint32 prevIntsrc;
 
-  //Create the Nuon environment object
-  nuonEnv = new NuonEnvironment;
-  //Initialize the BIOS
-  nuonEnv->InitBios();
   hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_SPLASH_SCREEN),NULL,SplashScreenDialogProc);
   Sleep(1000);
   ShowWindow(hDlg,FALSE);
   EndDialog(hDlg,IDOK);
 
+  //Create the Nuon environment object
+  nuonEnv = new NuonEnvironment;
+  //Initialize the BIOS
+  nuonEnv->InitBios();
+
   display = new GLWindow();
   display->title = displayWindowTitle;
-  display->clientWidth = 720;
-  display->clientHeight = 480;
-  display->x = 100;
-  display->y = 100;
-  display->bUseSeparateThread = false;
   display->resizeHandler = OnDisplayResize;
   display->keyDownHandler = OnDisplayKeyDown;
   display->keyUpHandler = OnDisplayKeyUp;
@@ -792,6 +786,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   display->Create();
   while (!display->bVisible) {}
+
   const GLenum err = glewInit();
   if(err != GLEW_OK)
   {
@@ -802,7 +797,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   overlayChannelBuffer = AllocateTextureMemory(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT*4,true);
   InitializeYCrCbColorSpace();
   
-  HMODULE hRichEditLibrary = LoadLibrary("Riched20.dll"); // needs to be loaded, otherwise program hangs
+  const HMODULE hRichEditLibrary = LoadLibrary("Riched20.dll"); // needs to be loaded, otherwise program hangs
   hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_CONTROL_PANEL),NULL,ControlPanelDialogProc);
   hStatusDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_STATUS_DIALOG),NULL,StatusWindowDialogProc);
 
@@ -854,6 +849,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   while(!bQuit)
   {
+    MSG msg;
     if(PeekMessage(&msg,hDlg,0,0,PM_REMOVE))
     {
       IsDialogMessage(hDlg,&msg);

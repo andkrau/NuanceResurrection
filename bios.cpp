@@ -565,10 +565,7 @@ void BiosPoll(MPE *the_mpe)
 
 void InitBios(MPE *the_mpe)
 {
-  uint32 *IntVectors, *RecvHandlers;
-  bool loadStatus = false;
-
-  loadStatus = nuonEnv->mpe[3]->LoadCoffFile("bios.cof",false);
+  const bool loadStatus = nuonEnv->mpe[3]->LoadCoffFile("bios.cof",false);
 
   if(!loadStatus)
   {

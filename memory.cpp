@@ -9,36 +9,31 @@
 
 extern NuonEnvironment *nuonEnv;
 
-void MemLocalScratch(MPE *the_mpe)
+void MemLocalScratch(MPE * const the_mpe)
 {
-  uint32 pSize = the_mpe->regs[0];
-  uint32 *pMem;
+  const uint32 pSize = the_mpe->regs[0];
 
   the_mpe->regs[0] = 0x20100C80;
 
   //pointer to size buffer may be zero
   if(pSize != 0)
   {
-    //MML2D will corrupt memory in most commercial games of a size greater than 3968 is returned.
+    //MML2D will corrupt memory in most commercial games if a size greater than 3968 is returned.
     //The address and size returned in this implementation are identical to the values returned by
     //the VMLabs BIOS
-    pMem = (uint32 *)nuonEnv->GetPointerToMemory(the_mpe, pSize);
+    uint32* const pMem = (uint32 *)nuonEnv->GetPointerToMemory(the_mpe, pSize);
     *pMem = 512;
 
     SwapScalarBytes(pMem);
   }
 }
 
-void MemAlloc(MPE *mpe)
+void MemAlloc(MPE * const mpe)
 {
-  uint32 *address = 0;
-
-  uint32 requestedBytes = mpe->regs[0];
-  uint32 requestedAlignment = mpe->regs[1];
-  uint32 flags = mpe->regs[2];
-  uint32 result;
-
-  result = nuonEnv->nuonMemoryManager.Alloc(requestedBytes, requestedAlignment, flags);
+  const uint32 requestedBytes = mpe->regs[0];
+  const uint32 requestedAlignment = mpe->regs[1];
+  const uint32 flags = mpe->regs[2];
+  const uint32 result = nuonEnv->nuonMemoryManager.Alloc(requestedBytes, requestedAlignment, flags);
   mpe->regs[0] = result;
   if(!result)
   {
@@ -46,20 +41,14 @@ void MemAlloc(MPE *mpe)
   }
 }
 
-void MemFree(MPE *mpe)
+void MemFree(MPE * const mpe)
 {
-  uint32 address = mpe->regs[0];
+  const uint32 address = mpe->regs[0];
 
   nuonEnv->nuonMemoryManager.Free(address);
 }
 
-
-void MemInit(MPE *mpe)
+void MemInit(MPE * const mpe)
 {
   nuonEnv->nuonMemoryManager.Init();
 }
-
-
-
-
-

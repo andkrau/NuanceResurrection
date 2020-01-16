@@ -367,6 +367,7 @@ void CallPEHandler(MPE *mpe, uint32 address)
         break;
       default:
         assert(false);
+        table = NULL;
         break;
     }
   

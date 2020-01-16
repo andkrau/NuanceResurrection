@@ -72,28 +72,6 @@ NativeCodeCacheEntry *PageMap::AllocatePage(const uint32 address)
   return pL2Node;
 }
 
-NativeCodeCacheEntry *PageMap::FindEntry(const uint32 address)
-{
-  const uint32 rootIndex = address >> 23;
-  const Level1PageNode* const pL1Node = root.entries[rootIndex];
-
-  if(!pL1Node)
-  {
-    return 0;
-  }
-  
-  const uint32 l1Index = (address >> 10) & 0x1FFFUL;
-  NativeCodeCacheEntry* const pL2Node = pL1Node->entries[l1Index];
-  
-  if(!pL2Node)
-  {
-    return 0;
-  }
-
-  const uint32 l2Index = address & 0x3FFUL;
-  return &(pL2Node[l2Index]);
-}
-
 void PageMap::InvalidateEntry(const uint32 address)
 { 
   const uint32 rootIndex = (address >> 23);
