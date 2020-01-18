@@ -9,23 +9,19 @@ extern NuonEnvironment *nuonEnv;
 
 void BDMA_Type12_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
-  uint16 *pSrcColor, *pDestColor, *pSrcZ, *pDestZ;
   void *intMemory, *baseMemory;
-  uint16 directZ;
-  uint32 type, pixtype, directValue, map, zmap;
+  uint32 type, pixtype, map, zmap;
   uint32 aCount, bCount;
   uint32 srcA, srcB, destA, destB, srcOffset, destOffset;
   int32 srcAStep, srcBStep, destAStep, destBStep, xsize;
   uint32 xlen, xpos, ylen, ypos, zcompare, bva;
-  uint32 mode, sdramBase, mpeBase, srcStrideShift;
+  uint32 mode, sdramBase, mpeBase;
 
-  bool bRead, bDirect, bDup, bRemote, bTrigger, bCompareZ, bUpdatePixel, bUpdateZ, bZTestResult;
-
-  bRemote = flags & (1UL << 28);
-  bDirect = flags & (1UL << 27);
-  bDup = flags & (3UL << 26); //bDup = dup | direct
-  bTrigger = flags & (1UL << 25);
-  bRead = flags & (1UL << 13);
+  const bool bRemote = flags & (1UL << 28);
+        bool bDirect = flags & (1UL << 27);
+  const bool bDup = flags & (3UL << 26); //bDup = dup | direct
+  const bool bTrigger = flags & (1UL << 25);
+  const bool bRead = flags & (1UL << 13);
   xsize = (flags >> 13) & 0x7F8UL;
   type = (flags >> 14) & 0x03UL;
   mode = flags & 0xFFFUL;
@@ -38,8 +34,6 @@ void BDMA_Type12_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 ba
   xpos = xinfo & 0x7FFUL;
   ylen = (yinfo >> 16) & 0x3FFUL;
   ypos = yinfo & 0x7FFUL;
-
-  directValue = intaddr;
 
   map = 0;
   zmap = 1;
@@ -55,20 +49,20 @@ void BDMA_Type12_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 ba
     zmap = 3;
   }
 
-
+  bool bCompareZ/*, bUpdatePixel, bUpdateZ*/;
   if(zcompare != 7)
   {
-    bCompareZ = (zcompare ? true : false);
+    bCompareZ = (zcompare != 0);
     //Z write, no pixel (16Z)
-    bUpdatePixel = false;
-    bUpdateZ = true;
+    //bUpdatePixel = false;
+    //bUpdateZ = true;
   }
   else
   {
     //Z write, no pixel (16Z, no compare?)
     bCompareZ = false;
-    bUpdatePixel = false;
-    bUpdateZ = true;
+    //bUpdatePixel = false;
+    //bUpdateZ = true;
   }
 
   if(bRemote)
@@ -85,6 +79,7 @@ void BDMA_Type12_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 ba
   //base address is always a system address (absolute)
   baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
+  uint16* pSrcColor, * pDestColor;
   pSrcColor = ((uint16 *)intMemory) + 1;
   pDestColor = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * zmap);
 
@@ -127,6 +122,7 @@ void BDMA_Type12_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 ba
   aCount = xlen;
   bCount = ylen;
 
+  pSrcColor += srcOffset;
   pDestColor += destOffset;
   srcB = 0;
   destB = 0;
@@ -150,53 +146,46 @@ void BDMA_Type12_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 ba
 
     while(aCount--)
     {
-      bZTestResult = false;
+      bool bZTestResult = false;
 
-      if(bCompareZ && (zcompare != 0))
+      if(bCompareZ)
       {
-        bool result;
-        uint16 ztarget, ztransfer;
-
-        ztarget = pDestColor[destA + destB];
-        ztransfer = pSrcColor[srcA + srcB];
-        SwapWordBytes((uint16 *)&ztarget);
-        SwapWordBytes((uint16 *)&ztransfer);
+        uint16 ztarget = pDestColor[destA + destB];
+        uint16 ztransfer = pSrcColor[srcA + srcB];
+        SwapWordBytes(&ztarget);
+        SwapWordBytes(&ztransfer);
 
         switch(zcompare)
         {
-          case 0x0:
-            result = false;
-            break;
+          //case 0x0:
+            //bZTestResult = false;
+            //break;
           case 0x1:
-            result = (ztarget < ztransfer);
+            bZTestResult = (ztarget < ztransfer);
             break;
           case 0x2:
-            result = (ztarget == ztransfer);
+            bZTestResult = (ztarget == ztransfer);
             break;
           case 0x3:
-            result = (ztarget <= ztransfer);
+            bZTestResult = (ztarget <= ztransfer);
             break;
           case 0x4:
-            result = (ztarget > ztransfer);
+            bZTestResult = (ztarget > ztransfer);
             break;
           case 0x5:
-            result = (ztarget != ztransfer);
+            bZTestResult = (ztarget != ztransfer);
             break;
           case 0x6:
-            result = (ztarget >= ztransfer);
+            bZTestResult = (ztarget >= ztransfer);
             break;
-          case 0x7:
-            result = false;
-            break;
+          //case 0x7:
+            //bZTestResult = false;
+            //break;
         }
-
-        bZTestResult = result;
       }
 
       if(!bZTestResult)
-      {
         pDestColor[destA + destB] = pSrcColor[srcA + srcB];
-      }
 
       srcA += srcAStep;
       destA += 1;
@@ -237,27 +226,24 @@ void BDMA_Type12_Write_7(MPE* const the_mpe, const uint32 flags, const uint32 ba
 
 void BDMA_Type12_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
-  uint16 *pSrcColor, *pDestColor, *pSrcZ, *pDestZ;
-  uint16 directColor, directZ;
   void *intMemory, *baseMemory, *pSrc, *pDest;
-  uint16 *pDest16;
-  uint32 *pSrc32, *pDest32;
-  uint32 directValue, type, pixtype, srcStrideShift;
+  uint32 type, pixtype;
   uint32 srcAStart, srcBStart, destAStart, destBStart, aCount, bCount, aCountInit;
-  uint32 srcA, srcB, destA, destB, srcOffset, destOffset, map, zmap;
+  uint32 srcA, srcB, destA, destB, srcOffset, destOffset;
   int32 srcAStep, srcBStep, destAStep, destBStep, xsize;
   uint32 xlen, xpos, ylen, ypos, zcompare, bva;
-  uint32 mode, wordsize, pixsize, sdramBase, mpeBase, skipsize;
-  uint32 lowerLimit, upperLimit, whichRoutine;
+  uint32 mode, wordsize, pixsize, sdramBase, mpeBase;
 
-  bool bReadZ, bDirect, bDup, bBatch, bChain, bRemote, bTrigger, bCompareZ, bUpdatePixel, bUpdateZ, bZTestResult;
+  const bool bBatch = flags & (1UL << 30);
+  const bool bChain = flags & (1UL << 29);
 
-  bBatch = flags & (1UL << 30);
-  bChain = flags & (1UL << 29);
-  bRemote = flags & (1UL << 28);
-  bDirect = flags & (1UL << 27);
-  bDup = flags & (3UL << 26); //bDup = dup | direct
-  bTrigger = flags & (1UL << 25);
+  if (bChain)
+    return;
+
+  const bool bRemote = flags & (1UL << 28);
+  const bool bDirect = flags & (1UL << 27);
+  const bool bDup = flags & (3UL << 26); //bDup = dup | direct
+  const bool bTrigger = flags & (1UL << 25);
   xsize = (flags >> 13) & 0x7F8UL;
   type = (flags >> 14) & 0x03UL;
   mode = flags & 0xFFFUL;
@@ -270,17 +256,9 @@ void BDMA_Type12_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
   xpos = xinfo & 0x7FFUL;
   ylen = (yinfo >> 16) & 0x3FFUL;
   ypos = yinfo & 0x7FFUL;
-  skipsize = 0;
-  bUpdatePixel = true;
 
-  directValue = intaddr;
-
-  if(bChain)
-  {
-    return;
-  }
-
-  map = 0;
+  /*uint32 map = 0;
+  uint32 zmap;
 
   if(pixtype >= 13)
   {
@@ -291,12 +269,15 @@ void BDMA_Type12_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
   {
     map = pixtype - 9;
     zmap = 3;
-  }
+  }*/
 
+  /*
+  bool bCompareZ, bUpdatePixel, bUpdateZ;
+  uint32 srcStrideShift;
   if(zcompare != 7)
   {
     //pixel+Z write (16 + 16Z)
-    bCompareZ = (zcompare ? true : false);
+    bCompareZ = (zcompare != 0);
     bUpdatePixel = true;
     bUpdateZ = true;
     srcStrideShift = 1;
@@ -308,7 +289,7 @@ void BDMA_Type12_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
     bUpdatePixel = true;
     bUpdateZ = false;
     srcStrideShift = 0;
-  }
+  }*/
 
   if(bRemote)
   {
@@ -364,12 +345,11 @@ void BDMA_Type12_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
   bCount = ylen;
   aCountInit = xlen;
 
-  pSrc32 = (uint32 *)pSrc;
-  pSrc32 += srcOffset;
-  pDest16 = (uint16 *)pDest;
-  pDest16 += destOffset;
-  pDest32 = (uint32 *)pDest;
-  pDest32 += destOffset;
+  const uint32* const pSrc32 = ((uint32 *)pSrc) + srcOffset;
+  const uint16* const pSrc16 = ((uint16*)pSrc) + srcOffset;
+  uint16* const pDest16 = ((uint16 *)pDest) + destOffset;
+  uint32* const pDest32 = ((uint32 *)pDest) + destOffset;
+
   srcB = 0;
   destB = 0;
 
@@ -383,7 +363,7 @@ void BDMA_Type12_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
 
       while(aCount--)
       {
-        pDest16[destA + destB] = ((uint16 *)(&pSrc32[srcA + srcB]))[0];
+        pDest16[destA + destB] = pSrc16[srcA + srcB];
 
         srcA += 1;
         destA += 1;

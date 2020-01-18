@@ -18,9 +18,9 @@ void BDMA_Type9_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
   uint32 srcA, srcB, destA, destB, srcOffset, destOffset;
   int32 srcAStep, srcBStep, destAStep, destBStep, xsize;
   uint32 xlen, xpos, ylen, ypos, zcompare, bva;
-  uint32 mode, sdramBase, mpeBase, map, zmap, destZOffset, srcZOffset, mapOffset;
+  uint32 mode, sdramBase, mpeBase, map, zmap, destZOffset, mapOffset;
 
-  bool bRead, bDirect, bDup, bRemote, bTrigger, bCompareZ, bUpdatePixel, bUpdateZ, bZTestResult;
+  bool bRead, bDirect, bDup, bRemote, bTrigger, bUpdatePixel, bUpdateZ, bZTestResult;
 
   bRemote = flags & (1UL << 28);
   bDirect = flags & (1UL << 27);
@@ -43,7 +43,7 @@ void BDMA_Type9_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
   uint32 directValue = intaddr;
 
   //pixel+Z write (16 + 16Z)
-  bCompareZ = true;
+  const bool bCompareZ = (zcompare != 0);
   bUpdatePixel = true;
   bUpdateZ = true;
 
@@ -147,7 +147,7 @@ void BDMA_Type9_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
     {
       bZTestResult = false;
 
-      if(bCompareZ && (zcompare != 0))
+      if(bCompareZ)
       {
         bool result;
         int16 ztarget, ztransfer;

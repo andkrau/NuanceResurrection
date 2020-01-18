@@ -612,12 +612,9 @@ void UnimplementedBilinearDMAHandler(MPE * const the_mpe, const uint32 flags, co
 void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 intaddr)
 {
   uint32 directValue;
-  uint32 destStride, srcStride, wordSize;
   void *intMemory, *baseMemory, *pSrc, *pDest;
-  uint32 *pDest32, *pSrc32;
   //LARGE_INTEGER timeStart, timeEnd, timeFreq, timeOverhead;
 
-        bool bByteMode = false;
   const bool bRemote = flags & (1UL << 28);
   const bool bDirect = flags & (1UL << 27);
   const bool bDup = (flags & (3UL << 26));
@@ -711,7 +708,7 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
         //internal address is local to MPE
         intMemory = nuonEnv->GetPointerToMemory(the_mpe, (intaddr & 0x207FFFFC), false);
       }
-      pDest32 = (uint32 *)intMemory;
+      uint32* const pDest32 = (uint32 *)intMemory;
       nuonEnv->flashEEPROM->ReadData(baseaddr - 0xF0000000,pDest32);
       SwapScalarBytes(pDest32);
     }
@@ -727,9 +724,8 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
         //internal address is local to MPE
         intMemory = nuonEnv->GetPointerToMemory(the_mpe, (intaddr & 0x207FFFFC), false);
       }
-      pSrc32 = (uint32 *)intMemory;
-      uint32 tempScalar;
-      tempScalar = pSrc32[0];
+      const uint32* const pSrc32 = (uint32 *)intMemory;
+      uint32 tempScalar = *pSrc32;
       SwapScalarBytes(&tempScalar);
       nuonEnv->flashEEPROM->WriteData(baseaddr - 0xF0000000,tempScalar);
     }
@@ -745,7 +741,10 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
   //dest stride specifies the stride in 32-bit scalars from the start of one written data item to the next
   //for example, alternate word write locations are spaced 32-bits apart, for a stride of one
 
-  srcStride = 1;
+  uint32 destStride, wordSize;
+  bool bByteMode = false;
+
+  uint32 srcStride = 1;
   switch(flags & 0x07)
   {
     //Determine stride in scalars, or in words for byte mode
@@ -940,7 +939,7 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
       {
         *((uint16 *)pDest) = *((uint16 *)pSrc);
         pSrc = ((uint16 *)pSrc) + srcStride;
-        pDest = ((uint32 *)pDest) + destStride;
+        pDest = ((uint16 *)pDest) + destStride;
       }
     }
   }
@@ -1078,16 +1077,16 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       break;
   }
 
-  const bool bBatch = flags & (1UL << 30);
+  //const bool bBatch = flags & (1UL << 30);
   const bool bChain = flags & (1UL << 29);
   const bool bRemote = flags & (1UL << 28);
   const bool bDirect = flags & (1UL << 27);
   const bool bDup = flags & (3UL << 26); //bDup = dup | direct
-  const bool bTrigger = flags & (1UL << 25);
+  //const bool bTrigger = flags & (1UL << 25);
   const bool bRead = flags & (1UL << 13);
         int32 xsize = (flags >> 13) & 0x7F8UL;
-  const uint32 type = (flags >> 14) & 0x03UL;
-  const uint32 mode = flags & 0xFFFUL;
+  //const uint32 type = (flags >> 14) & 0x03UL;
+  //const uint32 mode = flags & 0xFFFUL;
   const uint32 zcompare = (flags >> 1) & 0x07UL;
   const uint32 pixtype = (flags >> 4) & 0x0FUL;
   const uint32 bva = ((flags >> 7) & 0x06UL) | (flags & 0x01UL);
@@ -1097,10 +1096,8 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         uint32 xpos = xinfo & 0x7FFUL;
   const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
   const uint32 ypos = yinfo & 0x7FFUL;
-  const uint32 skipsize = 0;
         bool bCompareZ = false;
         bool bUpdateZ = false;
-  const bool bUpdatePixel = true;
 
   uint32 directValue = intaddr;
 
@@ -1152,7 +1149,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       if(zcompare != 7)
       {
         //pixel+Z write (16 + 16Z)
-        bCompareZ = true;
+        bCompareZ = (zcompare != 0);
         bUpdateZ = true;
       }
       else
@@ -1171,7 +1168,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       if(zcompare != 7)
       {
         //pixel+Z write (32 + 32Z)
-        bCompareZ = true;
+        bCompareZ = (zcompare != 0);
         bUpdateZ = true;
       }
       else
@@ -1198,7 +1195,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       if(zcompare != 7)
       {
         //pixel+Z write (16 + 16Z)
-        bCompareZ = true;
+        bCompareZ = (zcompare != 0);
         bUpdateZ = true;
       }
       else
@@ -1217,7 +1214,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       if(zcompare != 7)
       {
         //pixel+Z write (16 + 16Z)
-        bCompareZ = true;
+        bCompareZ = (zcompare != 0);
         bUpdateZ = true;
       }
       else
@@ -1236,7 +1233,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       if(zcompare != 7)
       {
         //pixel+Z write (16 + 16Z)
-        bCompareZ = true;
+        bCompareZ = (zcompare != 0);
         bUpdateZ = true;
       }
       else
@@ -1259,7 +1256,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       if(zcompare != 7)
       {
         //pixel+Z write (16 + 16Z)
-        bCompareZ = true;
+        bCompareZ = (zcompare != 0);
         bUpdateZ = true;
       }
       else
@@ -1277,7 +1274,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       if(zcompare != 7)
       {
         //pixel+Z write (16 + 16Z)
-        bCompareZ = true;
+        bCompareZ = (zcompare != 0);
         bUpdateZ = true;
       }
       else
@@ -1320,7 +1317,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
 
   void* const baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
-  uint32 srcAStart, srcBStart, destAStart, destBStart, aCount, bCount, srcOffset, destOffset;
+  uint32 srcAStart, srcBStart, destAStart, destBStart, aCountInit, bCount, srcOffset, destOffset;
   int32 srcAStep, srcBStep, destAStep, destBStep;
 
   void *pSrc, *pDest;
@@ -1344,7 +1341,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         srcAStep = 1;
         srcBStart = 0;
         srcBStep = xsize;
-        aCount = xlen;
+        aCountInit = xlen;
         bCount = ylen;
         break;
       case 1:
@@ -1353,7 +1350,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         srcAStep = -1;
         srcBStart = 0;
         srcBStep = xsize;
-        aCount = xlen;
+        aCountInit = xlen;
         bCount = ylen;
         break;
       case 2:
@@ -1362,7 +1359,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         srcAStep = xsize;
         srcBStart = 0;
         srcBStep = 1;
-        aCount = ylen;
+        aCountInit = ylen;
         bCount = xlen;
         break;
       case 3:
@@ -1371,7 +1368,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         srcAStep = -xsize;
         srcBStart = 0;
         srcBStep = 1;
-        aCount = ylen;
+        aCountInit = ylen;
         bCount = xlen;
         break;
       case 4:
@@ -1380,7 +1377,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         srcAStep = 1;
         srcBStart = (ylen - 1) * xsize;
         srcBStep = -xsize;
-        aCount = xlen;
+        aCountInit = xlen;
         bCount = ylen;
         break;
       case 5:
@@ -1389,7 +1386,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         srcAStep = -1;
         srcBStart = (ylen - 1) * xsize;
         srcBStep = -xsize;
-        aCount = xlen;
+        aCountInit = xlen;
         bCount = ylen;
         break;
       case 6:
@@ -1398,7 +1395,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         srcAStep = xsize;
         srcBStart = xlen - 1;
         srcBStep = -1;
-        aCount = ylen;
+        aCountInit = ylen;
         bCount = xlen;
         break;
       case 7:
@@ -1407,7 +1404,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         srcAStep = -xsize;
         srcBStart = xlen - 1;
         srcBStep = -1;
-        aCount = ylen;
+        aCountInit = ylen;
         bCount = xlen;
         break;
     }
@@ -1468,7 +1465,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         destAStep = 1;
         destBStart = 0;
         destBStep = xsize;
-        aCount = xlen;
+        aCountInit = xlen;
         bCount = ylen;
         break;
       case 1:
@@ -1477,7 +1474,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         destAStep = -1;
         destBStart = 0;
         destBStep = xsize;
-        aCount = xlen;
+        aCountInit = xlen;
         bCount = ylen;
         break;
       case 2:
@@ -1486,7 +1483,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         destAStep = xsize;
         destBStart = 0;
         destBStep = 1;
-        aCount = ylen;
+        aCountInit = ylen;
         bCount = xlen;
         break;
       case 3:
@@ -1495,7 +1492,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         destAStep = -xsize;
         destBStart = 0;
         destBStep = 1;
-        aCount = ylen;
+        aCountInit = ylen;
         bCount = xlen;
         break;
       case 4:
@@ -1504,7 +1501,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         destAStep = 1;
         destBStart = (ylen - 1) * xsize;
         destBStep = -xsize;
-        aCount = xlen;
+        aCountInit = xlen;
         bCount = ylen;
         break;
       case 5:
@@ -1513,7 +1510,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         destAStep = -1;
         destBStart = (ylen - 1) * xsize;
         destBStep = -xsize;
-        aCount = xlen;
+        aCountInit = xlen;
         bCount = ylen;
         break;
       case 6:
@@ -1522,7 +1519,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         destAStep = xsize;
         destBStart = xlen - 1;
         destBStep = -1;
-        aCount = ylen;
+        aCountInit = ylen;
         bCount = xlen;
         break;
       case 7:
@@ -1531,26 +1528,14 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
         destAStep = -xsize;
         destBStart = xlen - 1;
         destBStep = -1;
-        aCount = ylen;
+        aCountInit = ylen;
         bCount = xlen;
         break;
     }
   }
 
-  const uint32 aCountInit = aCount;
-
-  uint32 srcA, srcB, destA, destB;
-
-  bool bZTestResult;
   if(wordsize == 2)
   {
-    const uint32* pSrc32 = (uint32 *)pSrc;
-    pSrc32 += srcOffset;
-    uint32 * pDest32 = (uint32 *)pDest;
-    pDest32 += destOffset;
-    srcB = srcBStart;
-    destB = destBStart;
-
     if(!bRead)
     {
       if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv->mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv->mainChannelUpperLimit) ||
@@ -1565,28 +1550,33 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       }
     }
 
+    const uint32* const pSrc32 = ((uint32*)pSrc) + srcOffset;
+    uint32* const pDest32 = ((uint32*)pDest) + destOffset;
+    uint32 srcB = srcBStart;
+    uint32 destB = destBStart;
+
     while(bCount--)
     {
-      srcA = srcAStart;
-      destA = destAStart;
-      aCount = aCountInit;
+      uint32 srcA = srcAStart + srcB;
+      uint32 destA = destAStart + destB;
+      uint32 aCount = aCountInit;
 
       while(aCount--)
       {
-        bZTestResult = false;
+        bool bZTestResult = false;
 
-        if(bCompareZ && (zcompare != 0))
+        if(bCompareZ)
         {
-          uint16 ztarget = ((uint16 *)&pDest32[destA + destB])[1];
-          uint16 ztransfer = ((uint16 *)&pSrc32[srcA + srcB])[1];
+          uint16 ztarget = ((uint16 *)&pDest32[destA])[1];
+          uint16 ztransfer = ((uint16 *)&pSrc32[srcA])[1];
           SwapWordBytes(&ztarget);
           SwapWordBytes(&ztransfer);
 
           switch(zcompare)
           {
-            case 0x0:
-              bZTestResult = false;
-              break;
+            //case 0x0:
+              //bZTestResult = false;
+              //break;
             case 0x1:
               bZTestResult = (ztarget < ztransfer);
               break;
@@ -1605,16 +1595,14 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
             case 0x6:
               bZTestResult = (ztarget >= ztransfer);
               break;
-            case 0x7:
-              bZTestResult = false;
-              break;
+            //case 0x7:
+              //bZTestResult = false;
+              //break;
           }
         }
 
         if(!bZTestResult)
-        {
-          pDest32[destA + destB] = pSrc32[srcA + srcB];
-        }
+          pDest32[destA] = pSrc32[srcA];
 
         srcA += srcAStep;
         destA += destAStep;
@@ -1626,13 +1614,6 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
   }
   else
   {
-    const uint16* pSrc16 = (uint16 *)pSrc;
-    pSrc16 += srcOffset;
-    uint16* pDest16 = (uint16 *)pDest;
-    pDest16 += destOffset;
-    srcB = srcBStart;
-    destB = destBStart;
-
     if(!bRead)
     {
       if((GetPixBaseAddr(sdramBase,destOffset,1) >= nuonEnv->mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,1) <= nuonEnv->mainChannelUpperLimit) ||
@@ -1647,15 +1628,20 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       }
     }
 
+    const uint16* const pSrc16 = ((uint16*)pSrc) + srcOffset;
+    uint16* const pDest16 = ((uint16*)pDest) + destOffset;
+    uint32 srcB = srcBStart;
+    uint32 destB = destBStart;
+
     while(bCount--)
     {
-      srcA = srcAStart;
-      destA = destAStart;
-      aCount = aCountInit;
+      uint32 srcA = srcAStart + srcB;
+      uint32 destA = destAStart + destB;
+      uint32 aCount = aCountInit;
 
       while(aCount--)
       {
-        pDest16[destA + destB] = pSrc16[srcA + srcB];
+        pDest16[destA] = pSrc16[srcA];
 
         srcA += srcAStep;
         destA += destAStep;

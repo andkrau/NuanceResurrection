@@ -10,38 +10,25 @@ extern VidChannel structOverlayChannel;
 
 void BDMA_Type8_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
-  uint32 *pSrc32, pix32;
-  uint16 *pDest16, pix16;
-  void *intMemory, *baseMemory, *pSrc, *pDest;
-  uint32 type, pixtype;
-  uint32 aCount, bCount;
-  uint32 srcA, srcB, destA, destB, srcOffset, destOffset;
-  int32 srcAStep, srcBStep, destAStep, destBStep, xsize;
-  uint32 xlen, xpos, ylen, ypos, zcompare, bva;
-  uint32 mode, sdramBase, mpeBase, map, zmap, destZOffset, srcZOffset, mapOffset;
+  const bool bRemote = flags & (1UL << 28);
+  const bool bDirect = flags & (1UL << 27);
+  const bool bDup = flags & (3UL << 26); //bDup = dup | direct
+  //const bool bTrigger = flags & (1UL << 25);
+  //const bool bRead = flags & (1UL << 13);
+  const uint32 xsize = (flags >> 13) & 0x7F8UL;
+  //const uint32 type = (flags >> 14) & 0x03UL;
+  //const uint32 mode = flags & 0xFFFUL;
+  //const uint32 zcompare = (flags >> 1) & 0x07UL;
+  //const uint32 pixtype = (flags >> 4) & 0x0FUL;
+  //const uint32 bva = ((flags >> 7) & 0x06UL) | (flags & 0x01UL);
+  const uint32 sdramBase = baseaddr & 0x7FFFFFFEUL;
+  const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
+  const uint32 xlen = (xinfo >> 16) & 0x3FFUL;
+  const uint32 xpos = xinfo & 0x7FFUL;
+  const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
+  const uint32 ypos = yinfo & 0x7FFUL;
 
-  bool bRead, bDirect, bDup, bRemote, bTrigger, bCompareZ, bUpdatePixel, bUpdateZ, bZTestResult;
-
-  bRemote = flags & (1UL << 28);
-  bDirect = flags & (1UL << 27);
-  bDup = flags & (3UL << 26); //bDup = dup | direct
-  bTrigger = flags & (1UL << 25);
-  bRead = flags & (1UL << 13);
-  xsize = (flags >> 13) & 0x7F8UL;
-  type = (flags >> 14) & 0x03UL;
-  mode = flags & 0xFFFUL;
-  zcompare = (flags >> 1) & 0x07UL;
-  pixtype = (flags >> 4) & 0x0FUL;
-  bva = ((flags >> 7) & 0x06UL) | (flags & 0x01UL);
-  sdramBase = baseaddr & 0x7FFFFFFEUL;
-  mpeBase = intaddr & 0x7FFFFFFCUL;
-  xlen = (xinfo >> 16) & 0x3FFUL;
-  xpos = xinfo & 0x7FFUL;
-  ylen = (yinfo >> 16) & 0x3FFUL;
-  ypos = yinfo & 0x7FFUL;
-
-  uint32 directValue = intaddr;
-
+  void* intMemory;
   if(bRemote)
   {
     //internal address is system address (but still in MPE memory)
@@ -54,11 +41,13 @@ void BDMA_Type8_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
   }
 
   //base address is always a system address (absolute)
-  baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
+  void* const baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
-  pSrc = intMemory;
-  pDest = baseMemory;
+  void* pSrc = intMemory;
+  void* const pDest = baseMemory;
 
+  uint32 directValue = intaddr;
+  int32 srcAStep, srcBStep;
   if(bDup)
   {
     if(bDirect)
@@ -84,19 +73,8 @@ void BDMA_Type8_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
     srcBStep = xlen;
   }
 
-  srcOffset = 0;
-  destOffset = ((ypos * (uint32)xsize)) + xpos;
-
-  //BVA = 000 (horizontal DMA, x increment, y increment)
-  destAStep = 1;
-  destBStep = xsize;
-  aCount = xlen;
-  bCount = ylen;
-
-  pSrc32 = (uint32 *)pSrc + srcOffset;
-  pDest16 = (uint16 *)pDest + destOffset;
-  srcB = 0;
-  destB = 0;
+  const uint32 srcOffset = 0;
+  const uint32 destOffset = ((ypos * (uint32)xsize)) + xpos;
 
   if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv->mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv->mainChannelUpperLimit) ||
       (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv->mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv->mainChannelUpperLimit))
@@ -109,26 +87,36 @@ void BDMA_Type8_Write_0(MPE* const the_mpe, const uint32 flags, const uint32 bas
     nuonEnv->bOverlayBufferModified = true;
   }
 
+  //BVA = 000 (horizontal DMA, x increment, y increment)
+  const int32 destAStep = 1;
+  const int32 destBStep = xsize;
+  uint32 bCount = ylen;
+
+  const uint32* const pSrc32 = (uint32 *)pSrc + srcOffset;
+  uint16* const pDest16 = (uint16 *)pDest + destOffset;
+  uint32 srcB = 0;
+  uint32 destB = 0;
+
   while(bCount--)
   {
-    srcA = 0;
-    destA = 0;
-    aCount = xlen;
+    uint32 srcA = srcB;
+    uint32 destA = destB;
+    uint32 aCount = xlen;
 
     while(aCount--)
     {
-      pix32 = pSrc32[srcA + srcB];
+      uint32 pix32 = pSrc32[srcA];
       SwapScalarBytes(&pix32);
-      pix16 = ((pix32 >> 16) & 0xFC00UL) | ((pix32 >> 14) & 0x03E0UL) | ((pix32 >> 11) & 0x001FUL);
+      uint16 pix16 = ((pix32 >> 16) & 0xFC00UL) | ((pix32 >> 14) & 0x03E0UL) | ((pix32 >> 11) & 0x001FUL);
       SwapWordBytes(&pix16);
-      pDest16[destA + destB] = pix16;
+      pDest16[destA] = pix16;
 
       srcA += srcAStep;
-      destA += 1;
+      destA += destAStep;
     }
 
     srcB += srcBStep;
-    destB += xsize;
+    destB += destBStep;
   }
 }
 
