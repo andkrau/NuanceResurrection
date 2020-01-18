@@ -10,8 +10,8 @@
 #include "NuonMemoryMap.h"
 #include "NuonEnvironment.h"
 
-extern NuonEnvironment *nuonEnv;
-void UnimplementedBilinearDMAHandler(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr);
+extern NuonEnvironment nuonEnv;
+void UnimplementedBilinearDMAHandler(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr);
 
 /* DMA types:
 
@@ -604,12 +604,12 @@ const BilinearDMAHandler BilinearDMAHandlers[] =
   UnimplementedBilinearDMAHandler
 };
 
-void UnimplementedBilinearDMAHandler(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void UnimplementedBilinearDMAHandler(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   return;
 }
 
-void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 intaddr)
+void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 intaddr)
 {
   uint32 directValue;
   void *intMemory, *baseMemory, *pSrc, *pDest;
@@ -627,18 +627,18 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
     {
       if(bRead)
       {
-        directValue = nuonEnv->mpe[(baseaddr >> 23) & 0x1FUL]->ReadControlRegister((baseaddr & 0x207FFFFCUL) - MPE_CTRL_BASE,&the_mpe->ICacheEntry_SaveFlags);
+        directValue = nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].ReadControlRegister((baseaddr & 0x207FFFFCUL) - MPE_CTRL_BASE,&mpe.ICacheEntry_SaveFlags);
         SwapScalarBytes(&directValue);
 
         if(bRemote)
         {
           if((intaddr & MPE_CTRL_BASE) == MPE_CTRL_BASE)
           {
-            nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->WriteControlRegister(intaddr & 0x207FFFFC - MPE_CTRL_BASE,directValue);
+            nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].WriteControlRegister(intaddr & 0x207FFFFC - MPE_CTRL_BASE,directValue);
           }
           else
           {
-            intMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
+            intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
             *((uint32 *)intMemory) = directValue;
           }
         }
@@ -646,11 +646,11 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
         {          
           if((intaddr & MPE_CTRL_BASE) == MPE_CTRL_BASE)
           {
-            the_mpe->WriteControlRegister(intaddr & 0x207FFFFC, directValue);
+            mpe.WriteControlRegister(intaddr & 0x207FFFFC, directValue);
           }
           else
           {
-            intMemory = nuonEnv->GetPointerToMemory(the_mpe, (intaddr & 0x207FFFFC));
+            intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC));
             *((uint32 *)intMemory) = directValue;
           }
         }
@@ -661,29 +661,29 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
         {
           if((intaddr & 0xF0700000) == MPE_CTRL_BASE)
           {
-            directValue = nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,&the_mpe->ICacheEntry_SaveFlags);
+            directValue = nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,&mpe.ICacheEntry_SaveFlags);
           }
           else
           {
-            intMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
+            intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
             directValue = *((uint32 *)intMemory);
           }
           SwapScalarBytes(&directValue);
-          nuonEnv->mpe[(baseaddr >> 23) & 0x1FUL]->WriteControlRegister((baseaddr & 0x207FFFF) - MPE_CTRL_BASE, directValue);
+          nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].WriteControlRegister((baseaddr & 0x207FFFF) - MPE_CTRL_BASE, directValue);
         }
         else
         {          
           if((intaddr & MPE_CTRL_BASE) == MPE_CTRL_BASE)
           {
-            directValue = the_mpe->ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,&the_mpe->ICacheEntry_SaveFlags);
+            directValue = mpe.ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,&mpe.ICacheEntry_SaveFlags);
           }
           else
           {
-            intMemory = nuonEnv->GetPointerToMemory(the_mpe, (intaddr & 0x207FFFFC));
+            intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC));
             directValue = *((uint32 *)intMemory);
           }
           SwapScalarBytes(&directValue);
-          nuonEnv->mpe[(baseaddr >> 23) & 0x1FUL]->WriteControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,directValue);
+          nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].WriteControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,directValue);
         }
       }
 
@@ -691,7 +691,7 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
     }
     else
     {
-      baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(baseaddr >> 23) & 0x1FUL], (baseaddr & 0xFFFFFFFC));
+      baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL], (baseaddr & 0xFFFFFFFC));
     }
   }
   else
@@ -701,15 +701,15 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
       if(bRemote)
       {
         //internal address is system address (but still in MPE memory)
-        intMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
+        intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
       }
       else
       {
         //internal address is local to MPE
-        intMemory = nuonEnv->GetPointerToMemory(the_mpe, (intaddr & 0x207FFFFC), false);
+        intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false);
       }
       uint32* const pDest32 = (uint32 *)intMemory;
-      nuonEnv->flashEEPROM->ReadData(baseaddr - 0xF0000000,pDest32);
+      nuonEnv.flashEEPROM->ReadData(baseaddr - 0xF0000000,pDest32);
       SwapScalarBytes(pDest32);
     }
     else
@@ -717,17 +717,17 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
       if(bRemote)
       {
         //internal address is system address (but still in MPE memory)
-        intMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
+        intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
       }
       else
       {
         //internal address is local to MPE
-        intMemory = nuonEnv->GetPointerToMemory(the_mpe, (intaddr & 0x207FFFFC), false);
+        intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false);
       }
       const uint32* const pSrc32 = (uint32 *)intMemory;
       uint32 tempScalar = *pSrc32;
       SwapScalarBytes(&tempScalar);
-      nuonEnv->flashEEPROM->WriteData(baseaddr - 0xF0000000,tempScalar);
+      nuonEnv.flashEEPROM->WriteData(baseaddr - 0xF0000000,tempScalar);
     }
     return;
   }
@@ -803,7 +803,7 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
     if(bRemote)
     {
       //internal address is system address (but still in MPE memory)
-      pDest = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
+      pDest = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
       if(bFlushCache)
       {
         //Maintain cache coherency!  This assumes that code will not be
@@ -828,13 +828,13 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
 
         //QueryPerformanceFrequency(&timeFreq);
         //QueryPerformanceCounter(&timeStart);
-        //nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->InvalidateICacheRegion((intaddr & 0xF07FFFFF), (intaddr & 0xF07FFFFF) + (length << 2) - 1);
-        //nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->InvalidateICache();
-        //nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->nativeCodeCache->FlushRegion(intaddr & 0xF07FFFFF, (intaddr & 0xF07FFFFF) + (length << 2) - 1);
+        //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].InvalidateICacheRegion((intaddr & 0xF07FFFFF), (intaddr & 0xF07FFFFF) + (length << 2) - 1);
+        //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].InvalidateICache();
+        //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].nativeCodeCache->FlushRegion(intaddr & 0xF07FFFFF, (intaddr & 0xF07FFFFF) + (length << 2) - 1);
       
-        nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->UpdateInvalidateRegion(intaddr & 0xF07FFFFF, length << 2);
-        //nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
-        //nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->nativeCodeCache->FlushRegion(0x20300000, (intaddr & 0xF07FFFFF) + ((length - 1) << 2));
+        nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].UpdateInvalidateRegion(intaddr & 0xF07FFFFF, length << 2);
+        //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
+        //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].nativeCodeCache->FlushRegion(0x20300000, (intaddr & 0xF07FFFFF) + ((length - 1) << 2));
         //QueryPerformanceCounter(&timeEnd);
         //char tempBuf[128];
         //sprintf(tempBuf,"DMA caused cache invalidations: %lf seconds wasted.",((double)(timeEnd.QuadPart - timeStart.QuadPart - timeOverhead.QuadPart)) / ((double)timeFreq.QuadPart));
@@ -844,18 +844,18 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
     else
     {
       //internal address is local to MPE
-      pDest = nuonEnv->GetPointerToMemory(the_mpe, (intaddr & 0x207FFFFC), false);
+      pDest = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false);
       if(bFlushCache)
       {
         //Maintain cache coherency!  This assumes that code will not be
         //dynamically created in the dtrom/dtram section, bypassing the need
         //to flush the cache on data writes.
-        //the_mpe->InvalidateICacheRegion(intaddr, intaddr + (length << 2) - 1);
-        //the_mpe->InvalidateICache();
-        //the_mpe->nativeCodeCache->FlushRegion(intaddr, intaddr + (length << 2) - 1);
-        the_mpe->UpdateInvalidateRegion(intaddr,length << 2);
-        //the_mpe->UpdateInvalidateRegion(MPE_IRAM_BASE,OVERLAY_SIZE);
-        //the_mpe->nativeCodeCache->FlushRegion(0x20300000, intaddr + ((length - 1) << 2));
+        //mpe.InvalidateICacheRegion(intaddr, intaddr + (length << 2) - 1);
+        //mpe.InvalidateICache();
+        //mpe.nativeCodeCache->FlushRegion(intaddr, intaddr + (length << 2) - 1);
+        mpe.UpdateInvalidateRegion(intaddr,length << 2);
+        //mpe.UpdateInvalidateRegion(MPE_IRAM_BASE,OVERLAY_SIZE);
+        //mpe.nativeCodeCache->FlushRegion(0x20300000, intaddr + ((length - 1) << 2));
       }
     }
   }
@@ -883,12 +883,12 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
         if(bRemote)
         {
           //internal address is system address (but still in MPE memory)
-          directValue = *((uint32 *)nuonEnv->GetPointerToMemory(nuonEnv->mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC)));
+          directValue = *((uint32 *)nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC)));
         }
         else
         {
           //internal address is local to MPE
-          directValue = *((uint32 *)nuonEnv->GetPointerToMemory(the_mpe, (intaddr & 0x207FFFFC), false));
+          directValue = *((uint32 *)nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false));
         }
 
         //change srcStride to 0 to keep pSrc pointed at directValue
@@ -909,12 +909,12 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
       if(bRemote)
       {
         //internal address is system address (but still in MPE memory)
-        intMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
+        intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
       }
       else
       {
         //internal address is local to MPE
-        intMemory = nuonEnv->GetPointerToMemory(the_mpe, (intaddr & 0x207FFFFC), false);
+        intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false);
       }
     }
 
@@ -979,21 +979,21 @@ void DMALinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, c
   }
 }
 
-void DMALinear(MPE * const the_mpe)
+void DMALinear(MPE &mpe)
 {
-  const uint32 flags = the_mpe->regs[0];
-  const uint32 baseaddr = the_mpe->regs[1];
-  const uint32 intaddr = the_mpe->regs[2];
+  const uint32 flags = mpe.regs[0];
+  const uint32 baseaddr = mpe.regs[1];
+  const uint32 intaddr = mpe.regs[2];
 
   //For the BIOS call, simulate the latency of the call assuming
   //40 cycles of setup time (copying to command buffer, determining
   //which bus to write to, etc) plus one cycle per long transfered
-  nuonEnv->cycleCounter += (40 + (flags >> 16) & 0xFF); //Only 1-127 is valid according to docs but field is 8 bits
+  nuonEnv.cycleCounter += (40 + (flags >> 16) & 0xFF); //Only 1-127 is valid according to docs but field is 8 bits
 
-  DMALinear(the_mpe,flags,baseaddr,intaddr);
+  DMALinear(mpe,flags,baseaddr,intaddr);
 }
 
-void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   uint32 whichRoutine;
 
@@ -1036,7 +1036,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       {
         case 0:
         case 8:
-          BilinearDMAHandlers[whichRoutine](the_mpe,flags,baseaddr,xinfo,yinfo,intaddr);
+          BilinearDMAHandlers[whichRoutine](mpe,flags,baseaddr,xinfo,yinfo,intaddr);
           return;
           break;
         default:
@@ -1045,30 +1045,30 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
       }
       break;
     case 6:
-      BilinearDMAHandlers[whichRoutine](the_mpe,flags,baseaddr,xinfo,yinfo,intaddr);
+      BilinearDMAHandlers[whichRoutine](mpe,flags,baseaddr,xinfo,yinfo,intaddr);
       return;
       break;
     case 8:
-      BilinearDMAHandlers[whichRoutine](the_mpe,flags,baseaddr,xinfo,yinfo,intaddr);
+      BilinearDMAHandlers[whichRoutine](mpe,flags,baseaddr,xinfo,yinfo,intaddr);
       return;
       break;
     case 9:
     case 10:
     case 11:
-      BilinearDMAHandlers[whichRoutine](the_mpe,flags,baseaddr,xinfo,yinfo,intaddr);
+      BilinearDMAHandlers[whichRoutine](mpe,flags,baseaddr,xinfo,yinfo,intaddr);
       return;
       break;
     case 12:
-      BilinearDMAHandlers[whichRoutine](the_mpe,flags,baseaddr,xinfo,yinfo,intaddr);
+      BilinearDMAHandlers[whichRoutine](mpe,flags,baseaddr,xinfo,yinfo,intaddr);
       return;
       break;
     case 13:
     case 14:
-      BilinearDMAHandlers[whichRoutine](the_mpe,flags,baseaddr,xinfo,yinfo,intaddr);
+      BilinearDMAHandlers[whichRoutine](mpe,flags,baseaddr,xinfo,yinfo,intaddr);
       return;
       break;
     case 15:
-      BilinearDMAHandlers[whichRoutine](the_mpe,flags,baseaddr,xinfo,yinfo,intaddr);
+      BilinearDMAHandlers[whichRoutine](mpe,flags,baseaddr,xinfo,yinfo,intaddr);
       return;
       break;
     default:
@@ -1294,12 +1294,12 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
   if(bRemote)
   {
     //internal address is system address (but still in MPE memory)
-    intMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
+    intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
   }
   else
   {
     //internal address is local to MPE
-    intMemory = nuonEnv->GetPointerToMemory(the_mpe, mpeBase, false);
+    intMemory = nuonEnv.GetPointerToMemory(mpe, mpeBase, false);
   }
 
   //base address is always a system address (absolute)
@@ -1307,7 +1307,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
   if((sdramBase < 0x40000000) || (sdramBase > 0x407FFFFF))
   {
     char msgBuf[512];
-    sprintf(msgBuf,"sdramBase is out of range on mpe%d: 0x%lx\n",the_mpe->mpeIndex,sdramBase);
+    sprintf(msgBuf,"sdramBase is out of range on mpe%d: 0x%lx\n",mpe.mpeIndex,sdramBase);
     ::MessageBox(NULL,msgBuf,"DMABiLinear error",MB_OK);
   }
   else
@@ -1315,7 +1315,7 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
 
   }
 
-  void* const baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
+  void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
   uint32 srcAStart, srcBStart, destAStart, destBStart, aCountInit, bCount, srcOffset, destOffset;
   int32 srcAStep, srcBStep, destAStep, destBStep;
@@ -1538,15 +1538,15 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
   {
     if(!bRead)
     {
-      if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv->mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv->mainChannelUpperLimit) ||
-         (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv->mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv->mainChannelUpperLimit))
+      if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv.mainChannelUpperLimit) ||
+         (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv.mainChannelUpperLimit))
       {
-        nuonEnv->bMainBufferModified = true;
+        nuonEnv.bMainBufferModified = true;
       }
-      else if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv->overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv->overlayChannelUpperLimit) ||
-         (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv->overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv->overlayChannelUpperLimit))
+      else if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv.overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv.overlayChannelUpperLimit) ||
+         (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv.overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv.overlayChannelUpperLimit))
       {
-        nuonEnv->bOverlayBufferModified = true;
+        nuonEnv.bOverlayBufferModified = true;
       }
     }
 
@@ -1616,15 +1616,15 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
   {
     if(!bRead)
     {
-      if((GetPixBaseAddr(sdramBase,destOffset,1) >= nuonEnv->mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,1) <= nuonEnv->mainChannelUpperLimit) ||
-         (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),1) >= nuonEnv->mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),1) <= nuonEnv->mainChannelUpperLimit))
+      if((GetPixBaseAddr(sdramBase,destOffset,1) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,1) <= nuonEnv.mainChannelUpperLimit) ||
+         (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),1) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),1) <= nuonEnv.mainChannelUpperLimit))
       {
-        nuonEnv->bMainBufferModified = true;
+        nuonEnv.bMainBufferModified = true;
       }
-      else if((GetPixBaseAddr(sdramBase,destOffset,1) >= nuonEnv->overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,1) <= nuonEnv->overlayChannelUpperLimit) ||
-         (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv->overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),1) <= nuonEnv->overlayChannelUpperLimit))
+      else if((GetPixBaseAddr(sdramBase,destOffset,1) >= nuonEnv.overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,1) <= nuonEnv.overlayChannelUpperLimit) ||
+         (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv.overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),1) <= nuonEnv.overlayChannelUpperLimit))
       {
-        nuonEnv->bOverlayBufferModified = true;
+        nuonEnv.bOverlayBufferModified = true;
       }
     }
 
@@ -1653,38 +1653,38 @@ void DMABiLinear(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr,
   }
 }
 
-void DMABiLinear(MPE * const the_mpe)
+void DMABiLinear(MPE &mpe)
 {
-  const uint32 flags = the_mpe->regs[0];
-  const uint32 baseaddr = the_mpe->regs[1];
-  const uint32 xinfo = the_mpe->regs[2];
-  const uint32 yinfo = the_mpe->regs[3];
-  const uint32 intaddr = the_mpe->regs[4];
+  const uint32 flags = mpe.regs[0];
+  const uint32 baseaddr = mpe.regs[1];
+  const uint32 xinfo = mpe.regs[2];
+  const uint32 yinfo = mpe.regs[3];
+  const uint32 intaddr = mpe.regs[4];
 
   //For the BIOS call, simulate the latency of the call assuming
   //25 cycles of setup time plus 1 cycle per pixel transfered (xlen * ylen)
-  nuonEnv->cycleCounter += (25 + (((xinfo >> 16) & 0x3FFUL) * ((yinfo >> 16) & 0x3FFUL)));
+  nuonEnv.cycleCounter += (25 + (((xinfo >> 16) & 0x3FFUL) * ((yinfo >> 16) & 0x3FFUL)));
 
-  DMABiLinear(the_mpe,flags,baseaddr,xinfo,yinfo,intaddr);
+  DMABiLinear(mpe,flags,baseaddr,xinfo,yinfo,intaddr);
 }
 
-void DMADo(MPE * const the_mpe)
+void DMADo(MPE &mpe)
 {
   uint32 dmaflags, intaddr, baseaddr;
   uint32 *cmdptr;
 
-  const uint32 ctrl = the_mpe->regs[0];
-  const uint32 cmdBlock = the_mpe->regs[1] & 0x3FFFFFF0UL;
-  const uint32 waitFlag = the_mpe->regs[2];
+  const uint32 ctrl = mpe.regs[0];
+  const uint32 cmdBlock = mpe.regs[1] & 0x3FFFFFF0UL;
+  //const uint32 waitFlag = mpe.regs[2];
 
   if(ctrl == 0x20500500)
   {
-    the_mpe->odmacptr = cmdBlock;
+    mpe.odmacptr = cmdBlock;
 
-    if(the_mpe->odmactl & 0x60UL)
+    if(mpe.odmactl & 0x60UL)
     {
       //other bus DMA is enabled so do it!
-      cmdptr = (uint32 *)nuonEnv->GetPointerToMemory(the_mpe,cmdBlock);
+      cmdptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,cmdBlock);
       dmaflags = *cmdptr;
       baseaddr = *(cmdptr + 1);
       intaddr = *(cmdptr + 2);
@@ -1693,16 +1693,16 @@ void DMADo(MPE * const the_mpe)
       SwapScalarBytes(&intaddr);
       //clear all bits except bits 13, 16 - 23, and 28
       dmaflags &= ((1UL << 13) | (0xFFUL << 16) | (1 << 28));
-      DMALinear(the_mpe,dmaflags,baseaddr,intaddr);
+      DMALinear(mpe,dmaflags,baseaddr,intaddr);
     }
   }
   else if(ctrl == 0x20500600)
   {
     //mdmacptr
-    the_mpe->mdmacptr = cmdBlock;
+    mpe.mdmacptr = cmdBlock;
 
 do_mdmacmd:
-    cmdptr = (uint32 *)nuonEnv->GetPointerToMemory(the_mpe,cmdBlock,false);
+    cmdptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,cmdBlock,false);
     dmaflags = *cmdptr;
     baseaddr = *(cmdptr + 1);
     intaddr = *(cmdptr + 2);
@@ -1714,10 +1714,10 @@ do_mdmacmd:
     {
       case 0:
         //linear DMA
-        DMALinear(the_mpe,dmaflags,baseaddr,intaddr);
+        DMALinear(mpe,dmaflags,baseaddr,intaddr);
         if(dmaflags & (1UL << 30))
         {
-          the_mpe->mdmacptr += 16;
+          mpe.mdmacptr += 16;
           goto do_mdmacmd;
         }
         return;
@@ -1729,10 +1729,10 @@ do_mdmacmd:
         intaddr = *(cmdptr + 4);
         SwapScalarBytes(&yptr);
         SwapScalarBytes(&intaddr);
-        DMABiLinear(the_mpe,dmaflags,baseaddr,xptr,yptr,intaddr);
+        DMABiLinear(mpe,dmaflags,baseaddr,xptr,yptr,intaddr);
         if(dmaflags & (1UL << 30))
         {
-          the_mpe->mdmacptr += 16;
+          mpe.mdmacptr += 16;
           goto do_mdmacmd;
         }
         return;
@@ -1743,7 +1743,7 @@ do_mdmacmd:
   }
 }
 
-void DMAWait(MPE * const the_mpe)
+void DMAWait(MPE &mpe)
 {
   return;
 }

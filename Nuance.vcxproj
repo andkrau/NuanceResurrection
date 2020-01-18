@@ -363,6 +363,7 @@
     <ClInclude Include="PageMap.h" />
     <ClInclude Include="PatchManager.h" />
     <ClInclude Include="PerformanceTimer.h" />
+    <ClInclude Include="PresentationEngine.h" />
     <ClInclude Include="PrintALU.h" />
     <ClInclude Include="PrintECU.h" />
     <ClInclude Include="PrintMEM.h" />

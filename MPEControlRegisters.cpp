@@ -7,7 +7,7 @@
 #include "NuonEnvironment.h"
 #include <assert.h>
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 
 uint32 MPE::ReadControlRegister(const uint32 address, const InstructionCacheEntry * const entry)
 {
@@ -328,7 +328,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       intsrc |= data;
       if(data)
       {
-        Syscall_InterruptTriggered(this);
+        Syscall_InterruptTriggered(*this);
       }
       return;
     case 0xE:
@@ -495,7 +495,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       //odmacptr: writing triggers Other BUS DMA
       odmacptr = data & 0x207FFFF0UL;
       //Call GetPointerToMemory to warn if the address is invalid
-      nuonEnv->GetPointerToMemory(this,odmacptr & 0xFFFFFFF0);
+      nuonEnv.GetPointerToMemory(*this,odmacptr & 0xFFFFFFF0);
 
       if(odmactl & 0x60UL)
       {
@@ -515,7 +515,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
           //return;
         }
 
-        DMALinear(this,dmaflags,baseaddr,intaddr);
+        DMALinear(*this,dmaflags,baseaddr,intaddr);
       }
       return;
     case 0x60:
@@ -577,7 +577,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       //mdmacptr: writing triggers Main BUS DMA
       mdmacptr = data & 0x207FFFF0UL;
       //Call GetPointerToMemory to warn if the address is invalid
-      nuonEnv->GetPointerToMemory(this,data & 0xFFFFFFF0);
+      nuonEnv.GetPointerToMemory(*this,data & 0xFFFFFFF0);
 do_mdmacmd:
       dmacmd = (uint32 *)(&dtrom[mdmacptr & MPE_VALID_MEMORY_MASK]);
       dmaflags = *dmacmd;
@@ -600,7 +600,7 @@ do_mdmacmd:
             default:
               return;
           }
-          DMALinear(this,dmaflags,baseaddr,intaddr);
+          DMALinear(*this,dmaflags,baseaddr,intaddr);
           if(data & (1UL << 30))
           {
             mdmacptr += 16;
@@ -647,7 +647,7 @@ do_mdmacmd:
           intaddr = *(dmacmd + 4);
           SwapScalarBytes(&yptr);
           SwapScalarBytes(&intaddr);
-          DMABiLinear(this,dmaflags,baseaddr,xptr,yptr,intaddr);
+          DMABiLinear(*this,dmaflags,baseaddr,xptr,yptr,intaddr);
           if(dmaflags & (1UL << 30))
           {
             mdmacptr += 16;
@@ -721,7 +721,7 @@ do_mdmacmd:
           commxmit3 = data;
           commctl &= ~(COMM_XMIT_FAILED_BIT);
           commctl |= COMM_XMIT_BUFFER_FULL_BIT;
-          nuonEnv->pendingCommRequests++;
+          nuonEnv.pendingCommRequests++;
           return;
       }
     }
@@ -734,7 +734,7 @@ do_mdmacmd:
       {
         case 0x00:
           //configa: treat as syscall
-          ExecuteSyscall(this, data);
+          ExecuteSyscall(*this, data);
           return;
         case 0x04:
           //configb: read only

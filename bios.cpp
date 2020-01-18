@@ -20,13 +20,13 @@
 #include "timer.h"
 #include "video.h"
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 extern VidChannel structOverlayChannel;
 extern VidChannel structMainChannel;
 extern VidChannel structMainChannelPrev;
 extern VidChannel structOverlayChannelPrev;
 
-void KPrintf(MPE *mpe);
+void KPrintf(MPE &mpe);
 
 const char *BiosRoutineNames[512] = {
 "CommSend",
@@ -182,27 +182,27 @@ const char *BiosRoutineNames[512] = {
 "CompatibilityMode"
 };
 
-void UnimplementedFileHandler(MPE *mpe)
+void UnimplementedFileHandler(MPE &mpe)
 {
   //::MessageBox(NULL,"This BIOS Handler does nothing","Unimplemented File Routine",MB_OK);
 }
 
-void UnimplementedMediaHandler(MPE *mpe)
+void UnimplementedMediaHandler(MPE &mpe)
 {
   MessageBox(NULL,"This BIOS Handler does nothing","Unimplemented Media Routine",MB_OK);
 }
 
-void UnimplementedCacheHandler(MPE *mpe)
+void UnimplementedCacheHandler(MPE &mpe)
 {
   //::MessageBox(NULL,"This BIOS Handler does nothing","Unimplemented Cache Routine",MB_OK);
 }
 
-void UnimplementedCommHandler(MPE *mpe)
+void UnimplementedCommHandler(MPE &mpe)
 {
   MessageBox(NULL,"This BIOS Handler does nothing","Unimplemented Comm Routine",MB_OK);
 }
 
-void NullBiosHandler(MPE *mpe)
+void NullBiosHandler(MPE &mpe)
 {
   //char msg[512];
   //sprintf(msg,"This BIOS Handler does nothing: %ld",(mpe->pcexec >> 1) & 0xFFUL);
@@ -210,7 +210,7 @@ void NullBiosHandler(MPE *mpe)
   return;
 }
 
-void AssemblyBiosHandler(MPE *mpe)
+void AssemblyBiosHandler(MPE &mpe)
 {
   return;
 }
@@ -220,16 +220,16 @@ void AssemblyBiosHandler(MPE *mpe)
 
 uint32 *InterruptVectors;
 
-void SetISRExitHook(MPE *mpe)
+void SetISRExitHook(MPE &mpe)
 {
-  uint32 newvec = mpe->regs[0];
+  uint32 newvec = mpe.regs[0];
   SwapScalarBytes(&newvec);
-  *((uint32 *)nuonEnv->GetPointerToMemory(mpe,ISR_EXIT_HOOK_ADDRESS)) = newvec;
+  *((uint32 *)nuonEnv.GetPointerToMemory(mpe,ISR_EXIT_HOOK_ADDRESS)) = newvec;
 }
 
-bool InstallCommHandler(MPE *the_mpe, uint32 address, uint32 *handlerList, uint32 *nHandlers)
+bool InstallCommHandler(MPE &mpe, uint32 address, uint32 *handlerList, uint32 *nHandlers)
 {
-  uint32 numHandlers = *((uint32 *)nuonEnv->GetPointerToMemory(the_mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS));
+  uint32 numHandlers = *((uint32 *)nuonEnv.GetPointerToMemory(mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS));
   uint32 *pHandlers = handlerList;
   bool bFound = false;
 
@@ -261,7 +261,7 @@ bool InstallCommHandler(MPE *the_mpe, uint32 address, uint32 *handlerList, uint3
     i++;
     *nHandlers = i;
     SwapScalarBytes(&i);
-    *((uint32 *)nuonEnv->GetPointerToMemory(the_mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS)) = i;
+    *((uint32 *)nuonEnv.GetPointerToMemory(mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS)) = i;
     return true;
   }
 
@@ -277,33 +277,33 @@ bool InstallCommHandler(MPE *the_mpe, uint32 address, uint32 *handlerList, uint3
   numHandlers--;
   *nHandlers = numHandlers;
   SwapScalarBytes(&numHandlers);
-  *((uint32 *)nuonEnv->GetPointerToMemory(the_mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS)) = numHandlers;
+  *((uint32 *)nuonEnv.GetPointerToMemory(mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS)) = numHandlers;
   return false;
 }
 
-void IntGetVector(MPE *the_mpe)
+void IntGetVector(MPE &mpe)
 {
-  const uint32 which = the_mpe->regs[0];
+  const uint32 which = mpe.regs[0];
 
-  the_mpe->regs[0] = 0;
+  mpe.regs[0] = 0;
 
-  InterruptVectors = (uint32 *)nuonEnv->GetPointerToMemory(the_mpe,INTERRUPT_VECTOR_ADDRESS);
+  InterruptVectors = (uint32 *)nuonEnv.GetPointerToMemory(mpe,INTERRUPT_VECTOR_ADDRESS);
 
   if(which < 32)
   {
-    the_mpe->regs[0] = InterruptVectors[which];
-    SwapScalarBytes(&(the_mpe->regs[0]));
+    mpe.regs[0] = InterruptVectors[which];
+    SwapScalarBytes(&(mpe.regs[0]));
   }
 }
 
-void IntSetVector(MPE *mpe)
+void IntSetVector(MPE &mpe)
 {
-  const uint32 which = mpe->regs[0];
-  const uint32 newvec = mpe->regs[1];
-  uint32 index, *recvHandlers;
+  const uint32 which = mpe.regs[0];
+  const uint32 newvec = mpe.regs[1];
+  uint32 *recvHandlers;
   uint32 numHandlers;
 
-  mpe->regs[0] = 0;
+  mpe.regs[0] = 0;
 
   if(which < 32)
   {
@@ -314,29 +314,29 @@ void IntSetVector(MPE *mpe)
         return;
       }
 
-      recvHandlers = ((uint32 *)nuonEnv->GetPointerToMemory(mpe,COMMRECV_HANDLER_LIST_ADDRESS));
+      recvHandlers = ((uint32 *)nuonEnv.GetPointerToMemory(mpe,COMMRECV_HANDLER_LIST_ADDRESS));
       if(InstallCommHandler(mpe, newvec, recvHandlers, &numHandlers))
       {
-        mpe->regs[0] = newvec;
+        mpe.regs[0] = newvec;
       }
     }
     else
     {
-      InterruptVectors = (uint32 *)nuonEnv->GetPointerToMemory(mpe,INTERRUPT_VECTOR_ADDRESS);
-      mpe->regs[0] = InterruptVectors[which];
+      InterruptVectors = (uint32 *)nuonEnv.GetPointerToMemory(mpe,INTERRUPT_VECTOR_ADDRESS);
+      mpe.regs[0] = InterruptVectors[which];
 
       if(!newvec)
       {
         //disable the interrupt
-        mpe->inten1 &= (~(1UL << which));
+        mpe.inten1 &= (~(1UL << which));
 
       }
       else
       {
         //Not needed in this implementation, but needed if this IntSetVector is moved to aries assembly
-        mpe->intsrc &= (~(1UL << which));
+        mpe.intsrc &= (~(1UL << which));
         //Enable the interrupt in case it was previously disabled
-        mpe->inten1 |= (1UL << which);
+        mpe.inten1 |= (1UL << which);
       }
       InterruptVectors[which] = newvec;
       SwapScalarBytes(&InterruptVectors[which]);
@@ -344,13 +344,13 @@ void IntSetVector(MPE *mpe)
   }
 }
 
-void BiosExit(MPE *mpe)
+void BiosExit(MPE &mpe)
 {
-  //const uint32 return_value = mpe->regs[0];
-  mpe->Halt();
+  //const uint32 return_value = mpe.regs[0];
+  mpe.Halt();
 }
 
-uint32 PatchJumptable(uint32 vectorAddress, uint32 newEntry)
+uint32 PatchJumptable(const uint32 vectorAddress, uint32 newEntry)
 {
   uint32 oldEntryImmExt;
   uint32 oldEntryInst;
@@ -363,15 +363,15 @@ uint32 PatchJumptable(uint32 vectorAddress, uint32 newEntry)
   inst = 0x9220BA00UL | ((newEntry & 0x1FUL) << 16) | ((newEntry & 0x1FE0UL) >> 5);
   immExt = 0x88000000UL | ((newEntry & 0x7FFFE000UL) >> 4);
   //get the old entry stored in the BIOS vector address
-  oldEntryImmExt = *((uint32 *)(&(nuonEnv->systemBusDRAM[vectorAddress - SYSTEM_BUS_BASE + 0])));
-  oldEntryInst = *((uint32 *)(&(nuonEnv->systemBusDRAM[vectorAddress - SYSTEM_BUS_BASE + 4])));
+  oldEntryImmExt = *((uint32 *)(&(nuonEnv.systemBusDRAM[vectorAddress - SYSTEM_BUS_BASE + 0])));
+  oldEntryInst = *((uint32 *)(&(nuonEnv.systemBusDRAM[vectorAddress - SYSTEM_BUS_BASE + 4])));
   SwapScalarBytes(&inst);
   SwapScalarBytes(&immExt);
   SwapScalarBytes(&oldEntryImmExt);
   SwapScalarBytes(&oldEntryInst);
   //load the new entry into the BIOS vector
-  *((uint32 *)(&(nuonEnv->systemBusDRAM[vectorAddress - SYSTEM_BUS_BASE + 0]))) = immExt;
-  *((uint32 *)(&(nuonEnv->systemBusDRAM[vectorAddress - SYSTEM_BUS_BASE + 4]))) = inst;
+  *((uint32 *)(&(nuonEnv.systemBusDRAM[vectorAddress - SYSTEM_BUS_BASE + 0]))) = immExt;
+  *((uint32 *)(&(nuonEnv.systemBusDRAM[vectorAddress - SYSTEM_BUS_BASE + 4]))) = inst;
 
   //extract the old BIOS function address from the previous entry's JMP instruction
   const uint32 oldAddress = (((oldEntryImmExt & 0x7FFFE00UL) << 4) | ((oldEntryInst & 0xFFUL) << 5) | ((oldEntryInst & 0x1F0000) >> 16)) << 1;
@@ -379,17 +379,17 @@ uint32 PatchJumptable(uint32 vectorAddress, uint32 newEntry)
   return oldAddress;
 }
 
-void PatchJumptable(MPE *mpe)
+void PatchJumptable(MPE &mpe)
 {
-  const uint32 vectorAddress = mpe->regs[0];
-  const uint32 newAddress = mpe->regs[1];
+  const uint32 vectorAddress = mpe.regs[0];
+  const uint32 newAddress = mpe.regs[1];
 
-  mpe->regs[0] = PatchJumptable(vectorAddress, newAddress);
+  mpe.regs[0] = PatchJumptable(vectorAddress, newAddress);
 }
 
-void BiosGetInfo(MPE *mpe)
+void BiosGetInfo(MPE &mpe)
 {
-  mpe->regs[0] = 0x80760000;
+  mpe.regs[0] = 0x80760000;
 }
 
 NuonBiosHandler BiosJumpTable[256] = {
@@ -547,25 +547,25 @@ NullBiosHandler //_CompatibilityMode (150)
 };
 
 
-void BiosPauseMsg(MPE *the_mpe)
+void BiosPauseMsg(MPE &mpe)
 {
-  //const uint32 rval = the_mpe->regs[0];
-  //char *msg = (char *)nuonEnv->GetPointerToMemory(the_mpe,the_mpe->regs[1]);
-  //uint8 *framebuffer = (uint8 *)nuonEnv->GetPointerToMemory(the_mpe,the_mpe->regs[2]);
+  //const uint32 rval = mpe.regs[0];
+  //char *msg = (char *)nuonEnv.GetPointerToMemory(mpe,mpe.regs[1]);
+  //uint8 *framebuffer = (uint8 *)nuonEnv.GetPointerToMemory(mpe,mpe.regs[2]);
 
   //allow application to continue
-  the_mpe->regs[0] = kPollContinue;
+  mpe.regs[0] = kPollContinue;
 }
 
-void BiosPoll(MPE *the_mpe)
+void BiosPoll(MPE &mpe)
 {
   //no events
-  the_mpe->regs[0] = 0;
+  mpe.regs[0] = 0;
 }
 
-void InitBios(MPE *the_mpe)
+void InitBios(MPE &mpe)
 {
-  const bool loadStatus = nuonEnv->mpe[3]->LoadCoffFile("bios.cof",false);
+  const bool loadStatus = nuonEnv.mpe[3].LoadCoffFile("bios.cof",false);
 
   if(!loadStatus)
   {
@@ -573,36 +573,36 @@ void InitBios(MPE *the_mpe)
   }
 
   //Reset MPEAlloc flags to reset values
-  ResetMPEFlags(the_mpe);
+  ResetMPEFlags(mpe);
 
   //MEMORY MANAGEMENT INITIALIZATION
-  MemInit(the_mpe);
+  MemInit(mpe);
 
   //HAL Setup
   //HalSetup();
 
   for(uint32 i = 0; i < 4; i++)
   {
-    nuonEnv->mpe[i]->WriteControlRegister(0xB0UL, INTVEC1_HANDLER_ADDRESS);
-    nuonEnv->mpe[i]->WriteControlRegister(0xC0UL, INTVEC2_HANDLER_ADDRESS);
+    nuonEnv.mpe[i].WriteControlRegister(0xB0UL, INTVEC1_HANDLER_ADDRESS);
+    nuonEnv.mpe[i].WriteControlRegister(0xC0UL, INTVEC2_HANDLER_ADDRESS);
 
     if(i == 3)
     {
-      nuonEnv->mpe[i]->WriteControlRegister(0x110UL, 0);
+      nuonEnv.mpe[i].WriteControlRegister(0x110UL, 0);
       //Commrecv needs to be enabled immediately as level2 because some programs use CommRecv and and CommRecvQuery to obtain comm packets
       //rather than installing a user comm ISR
-      nuonEnv->mpe[i]->WriteControlRegister(0x130UL, kIntrCommRecv);
+      nuonEnv.mpe[i].WriteControlRegister(0x130UL, kIntrCommRecv);
     }
     else if(i == 0)
     {
       //Don't need to set anything for level1... InitMediaMPE will enable commrecv when minibios is loaded
-      //nuonEnv->mpe[i]->WriteControlRegister(0x110UL, INT_COMMRECV);
-      nuonEnv->mpe[i]->WriteControlRegister(0x130UL, kIntrHost);
+      //nuonEnv.mpe[i].WriteControlRegister(0x110UL, INT_COMMRECV);
+      nuonEnv.mpe[i].WriteControlRegister(0x130UL, kIntrHost);
     }
     else
     {
-      nuonEnv->mpe[i]->WriteControlRegister(0x110UL, 0);
-      nuonEnv->mpe[i]->WriteControlRegister(0x130UL, kIntrHost);
+      nuonEnv.mpe[i].WriteControlRegister(0x110UL, 0);
+      nuonEnv.mpe[i].WriteControlRegister(0x130UL, kIntrHost);
     }
   }
 
@@ -668,15 +668,14 @@ void InitBios(MPE *the_mpe)
   TimerInit(2,16000);
 }
 
-void KPrintf(MPE *mpe)
+void KPrintf(MPE &mpe)
 { 
-  uint32 pStr = *((uint32 *)(nuonEnv->GetPointerToMemory(mpe,mpe->regs[31],true)));
-  char *str;
+  uint32 pStr = *((uint32 *)(nuonEnv.GetPointerToMemory(mpe,mpe.regs[31],true)));
 
   SwapScalarBytes(&pStr);
   if(pStr)
   {
-    str = (char *)(nuonEnv->GetPointerToMemory(mpe,pStr,true));
+    char* str = (char *)(nuonEnv.GetPointerToMemory(mpe,pStr,true));
     //MessageBox(NULL,(char *)str,"kprintf",MB_OK);
   }
 }

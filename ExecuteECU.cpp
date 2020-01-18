@@ -1,8 +1,5 @@
 #include "InstructionCache.h"
 #include "mpe.h"
-#include "NuonEnvironment.h"
-
-extern NuonEnvironment *nuonEnv;
 
 void Execute_ECU_NOP(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {

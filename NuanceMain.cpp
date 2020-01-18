@@ -19,7 +19,7 @@
 #include "joystick.h"
 #include "video.h"
 
-NuonEnvironment *nuonEnv = NULL;
+NuonEnvironment nuonEnv;
 CriticalSection *csVideoDisplay = NULL;
 CriticalSection *csDebugDisplay = NULL;
 char **pArgs = 0;
@@ -71,18 +71,18 @@ extern vidTexInfo videoTexInfo;
 
 bool GetMPERunStatus(uint32 which)
 {
-  return (nuonEnv->mpe[which & 0x03]->mpectl & MPECTRL_MPEGO) != 0;
+  return (nuonEnv.mpe[which & 0x03].mpectl & MPECTRL_MPEGO) != 0;
 }
 
 void SetMPERunStatus(uint32 which, bool bRun)
 {
   if(bRun)
   {
-    nuonEnv->mpe[which & 0x03]->mpectl |= MPECTRL_MPEGO;
+    nuonEnv.mpe[which & 0x03].mpectl |= MPECTRL_MPEGO;
   }
   else
   {
-    nuonEnv->mpe[which & 0x03]->mpectl &= ~MPECTRL_MPEGO;
+    nuonEnv.mpe[which & 0x03].mpectl &= ~MPECTRL_MPEGO;
   }
 }
 
@@ -91,18 +91,18 @@ void UpdateStatusWindowDisplay()
   if(whichStatus == 0)
   {
     char buf[1024];
-    sprintf(buf,"Pending Comm Requests = %lu\n",nuonEnv->pendingCommRequests);
+    sprintf(buf,"Pending Comm Requests = %lu\n",nuonEnv.pendingCommRequests);
     SendMessage(reStatus,WM_SETTEXT,NULL,LPARAM(buf));
-    sprintf(buf,"MPE0 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv->mpe[0]->commctl,nuonEnv->mpe[0]->commxmit0,nuonEnv->mpe[0]->commrecv0,nuonEnv->mpe[0]->comminfo);
+    sprintf(buf,"MPE0 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[0].commctl,nuonEnv.mpe[0].commxmit0,nuonEnv.mpe[0].commrecv0,nuonEnv.mpe[0].comminfo);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"MPE1 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv->mpe[1]->commctl,nuonEnv->mpe[1]->commxmit0,nuonEnv->mpe[1]->commrecv0,nuonEnv->mpe[1]->comminfo);
+    sprintf(buf,"MPE1 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[1].commctl,nuonEnv.mpe[1].commxmit0,nuonEnv.mpe[1].commrecv0,nuonEnv.mpe[1].comminfo);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"MPE2 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv->mpe[2]->commctl,nuonEnv->mpe[2]->commxmit0,nuonEnv->mpe[2]->commrecv0,nuonEnv->mpe[2]->comminfo);
+    sprintf(buf,"MPE2 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[2].commctl,nuonEnv.mpe[2].commxmit0,nuonEnv.mpe[2].commrecv0,nuonEnv.mpe[2].comminfo);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"MPE3 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv->mpe[3]->commctl,nuonEnv->mpe[3]->commxmit0,nuonEnv->mpe[3]->commrecv0,nuonEnv->mpe[3]->comminfo);
+    sprintf(buf,"MPE3 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[3].commctl,nuonEnv.mpe[3].commxmit0,nuonEnv.mpe[3].commrecv0,nuonEnv.mpe[3].comminfo);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
   }
@@ -161,86 +161,86 @@ void UpdateStatusWindowDisplay()
   {
     char buf[1024];
     sprintf(buf,"Interpreter cache flushes: (%d, %d, %d, %d)\n",
-      nuonEnv->mpe[0]->numInterpreterCacheFlushes,
-      nuonEnv->mpe[1]->numInterpreterCacheFlushes,
-      nuonEnv->mpe[2]->numInterpreterCacheFlushes,
-      nuonEnv->mpe[3]->numInterpreterCacheFlushes);
+      nuonEnv.mpe[0].numInterpreterCacheFlushes,
+      nuonEnv.mpe[1].numInterpreterCacheFlushes,
+      nuonEnv.mpe[2].numInterpreterCacheFlushes,
+      nuonEnv.mpe[3].numInterpreterCacheFlushes);
     SendMessage(reStatus,WM_SETTEXT,NULL,LPARAM(buf));
     sprintf(buf,"Native code cache flushes: (%d, %d, %d, %d)\n",
-      nuonEnv->mpe[0]->numNativeCodeCacheFlushes,
-      nuonEnv->mpe[1]->numNativeCodeCacheFlushes,
-      nuonEnv->mpe[2]->numNativeCodeCacheFlushes,
-      nuonEnv->mpe[3]->numNativeCodeCacheFlushes);
+      nuonEnv.mpe[0].numNativeCodeCacheFlushes,
+      nuonEnv.mpe[1].numNativeCodeCacheFlushes,
+      nuonEnv.mpe[2].numNativeCodeCacheFlushes,
+      nuonEnv.mpe[3].numNativeCodeCacheFlushes);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     sprintf(buf,"Non-compilable packets: (%d, %d, %d, %d)\n",
-      nuonEnv->mpe[0]->numNonCompilablePackets,
-      nuonEnv->mpe[1]->numNonCompilablePackets,
-      nuonEnv->mpe[2]->numNonCompilablePackets,
-      nuonEnv->mpe[3]->numNonCompilablePackets);
+      nuonEnv.mpe[0].numNonCompilablePackets,
+      nuonEnv.mpe[1].numNonCompilablePackets,
+      nuonEnv.mpe[2].numNonCompilablePackets,
+      nuonEnv.mpe[3].numNonCompilablePackets);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     sprintf(buf,"Overlays in use: (%d, %d, %d, %d)\n",
-      nuonEnv->mpe[0]->overlayManager->GetOverlaysInUse(),
-      nuonEnv->mpe[1]->overlayManager->GetOverlaysInUse(),
-      nuonEnv->mpe[2]->overlayManager->GetOverlaysInUse(),
-      nuonEnv->mpe[3]->overlayManager->GetOverlaysInUse());     
+      nuonEnv.mpe[0].overlayManager->GetOverlaysInUse(),
+      nuonEnv.mpe[1].overlayManager->GetOverlaysInUse(),
+      nuonEnv.mpe[2].overlayManager->GetOverlaysInUse(),
+      nuonEnv.mpe[3].overlayManager->GetOverlaysInUse());     
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"MPE3 invec1 = $%8.8lx, intvec2 = $%8.8lx\n",nuonEnv->mpe[3]->intvec1,nuonEnv->mpe[3]->intvec2);
+    sprintf(buf,"MPE3 invec1 = $%8.8lx, intvec2 = $%8.8lx\n",nuonEnv.mpe[3].intvec1,nuonEnv.mpe[3].intvec2);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"MPE3 intctl = $%8.8lx, inten1 = $%8.8lx, inten2sel = $%8.8lx\n",nuonEnv->mpe[3]->intctl,nuonEnv->mpe[3]->inten1,nuonEnv->mpe[3]->inten2sel);
+    sprintf(buf,"MPE3 intctl = $%8.8lx, inten1 = $%8.8lx, inten2sel = $%8.8lx\n",nuonEnv.mpe[3].intctl,nuonEnv.mpe[3].inten1,nuonEnv.mpe[3].inten2sel);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"MPE3 intsrc = $%8.8lx, excepsrc = $%8.8lx\n",nuonEnv->mpe[3]->intsrc,nuonEnv->mpe[3]->excepsrc);
+    sprintf(buf,"MPE3 intsrc = $%8.8lx, excepsrc = $%8.8lx\n",nuonEnv.mpe[3].intsrc,nuonEnv.mpe[3].excepsrc);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"MPE2 invec1 = $%8.8lx, intvec2 = $%8.8lx\n",nuonEnv->mpe[2]->intvec1,nuonEnv->mpe[2]->intvec2);
+    sprintf(buf,"MPE2 invec1 = $%8.8lx, intvec2 = $%8.8lx\n",nuonEnv.mpe[2].intvec1,nuonEnv.mpe[2].intvec2);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"MPE2 intctl = $%8.8lx, inten1 = $%8.8lx, inten2sel = $%8.8lx\n",nuonEnv->mpe[2]->intctl,nuonEnv->mpe[2]->inten1,nuonEnv->mpe[2]->inten2sel);
+    sprintf(buf,"MPE2 intctl = $%8.8lx, inten1 = $%8.8lx, inten2sel = $%8.8lx\n",nuonEnv.mpe[2].intctl,nuonEnv.mpe[2].inten1,nuonEnv.mpe[2].inten2sel);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"MPE2 intsrc = $%8.8lx, excepsrc = $%8.8lx\n",nuonEnv->mpe[2]->intsrc,nuonEnv->mpe[2]->excepsrc);
+    sprintf(buf,"MPE2 intsrc = $%8.8lx, excepsrc = $%8.8lx\n",nuonEnv.mpe[2].intsrc,nuonEnv.mpe[2].excepsrc);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"MPE1 invec1 = $%8.8lx, intvec2 = $%8.8lx\n",nuonEnv->mpe[1]->intvec1,nuonEnv->mpe[1]->intvec2);
+    sprintf(buf,"MPE1 invec1 = $%8.8lx, intvec2 = $%8.8lx\n",nuonEnv.mpe[1].intvec1,nuonEnv.mpe[1].intvec2);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"MPE1 intctl = $%8.8lx, inten1 = $%8.8lx, inten2sel = $%8.8lx\n",nuonEnv->mpe[1]->intctl,nuonEnv->mpe[1]->inten1,nuonEnv->mpe[1]->inten2sel);
+    sprintf(buf,"MPE1 intctl = $%8.8lx, inten1 = $%8.8lx, inten2sel = $%8.8lx\n",nuonEnv.mpe[1].intctl,nuonEnv.mpe[1].inten1,nuonEnv.mpe[1].inten2sel);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"MPE1 intsrc = $%8.8lx, excepsrc = $%8.8lx\n",nuonEnv->mpe[1]->intsrc,nuonEnv->mpe[1]->excepsrc);
+    sprintf(buf,"MPE1 intsrc = $%8.8lx, excepsrc = $%8.8lx\n",nuonEnv.mpe[1].intsrc,nuonEnv.mpe[1].excepsrc);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"MPE0 invec1 = $%8.8lx, intvec2 = $%8.8lx\n",nuonEnv->mpe[0]->intvec1,nuonEnv->mpe[0]->intvec2);
+    sprintf(buf,"MPE0 invec1 = $%8.8lx, intvec2 = $%8.8lx\n",nuonEnv.mpe[0].intvec1,nuonEnv.mpe[0].intvec2);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"MPE0 intctl = $%8.8lx, inten1 = $%8.8lx, inten2sel = $%8.8lx\n",nuonEnv->mpe[0]->intctl,nuonEnv->mpe[0]->inten1,nuonEnv->mpe[0]->inten2sel);
+    sprintf(buf,"MPE0 intctl = $%8.8lx, inten1 = $%8.8lx, inten2sel = $%8.8lx\n",nuonEnv.mpe[0].intctl,nuonEnv.mpe[0].inten1,nuonEnv.mpe[0].inten2sel);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"MPE0 intsrc = $%8.8lx, excepsrc = $%8.8lx\n",nuonEnv->mpe[0]->intsrc,nuonEnv->mpe[0]->excepsrc);
+    sprintf(buf,"MPE0 intsrc = $%8.8lx, excepsrc = $%8.8lx\n",nuonEnv.mpe[0].intsrc,nuonEnv.mpe[0].excepsrc);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"Stack pointers = [$%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx]\n",nuonEnv->mpe[0]->sp,nuonEnv->mpe[1]->sp,nuonEnv->mpe[2]->sp,nuonEnv->mpe[3]->sp);
+    sprintf(buf,"Stack pointers = [$%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx]\n",nuonEnv.mpe[0].sp,nuonEnv.mpe[1].sp,nuonEnv.mpe[2].sp,nuonEnv.mpe[3].sp);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"v0: = ($%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv->mpe[disassemblyMPE]->regs[0],nuonEnv->mpe[disassemblyMPE]->regs[1],nuonEnv->mpe[disassemblyMPE]->regs[2],nuonEnv->mpe[disassemblyMPE]->regs[3]);
-    SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"v1: = ($%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv->mpe[disassemblyMPE]->regs[4],nuonEnv->mpe[disassemblyMPE]->regs[5],nuonEnv->mpe[disassemblyMPE]->regs[6],nuonEnv->mpe[disassemblyMPE]->regs[7]);
+    sprintf(buf,"v0: = ($%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv.mpe[disassemblyMPE].regs[0],nuonEnv.mpe[disassemblyMPE].regs[1],nuonEnv.mpe[disassemblyMPE].regs[2],nuonEnv.mpe[disassemblyMPE].regs[3]);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"v2: = ($%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv->mpe[disassemblyMPE]->regs[8],nuonEnv->mpe[disassemblyMPE]->regs[9],nuonEnv->mpe[disassemblyMPE]->regs[10],nuonEnv->mpe[disassemblyMPE]->regs[11]);
+    sprintf(buf,"v1: = ($%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv.mpe[disassemblyMPE].regs[4],nuonEnv.mpe[disassemblyMPE].regs[5],nuonEnv.mpe[disassemblyMPE].regs[6],nuonEnv.mpe[disassemblyMPE].regs[7]);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"v7: = ($%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv->mpe[disassemblyMPE]->regs[28],nuonEnv->mpe[disassemblyMPE]->regs[29],nuonEnv->mpe[disassemblyMPE]->regs[30],nuonEnv->mpe[disassemblyMPE]->regs[31]);
+    sprintf(buf,"v2: = ($%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv.mpe[disassemblyMPE].regs[8],nuonEnv.mpe[disassemblyMPE].regs[9],nuonEnv.mpe[disassemblyMPE].regs[10],nuonEnv.mpe[disassemblyMPE].regs[11]);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"rx/ry/ru/rv: = ($%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv->mpe[disassemblyMPE]->rx,nuonEnv->mpe[disassemblyMPE]->ry,nuonEnv->mpe[disassemblyMPE]->ru,nuonEnv->mpe[disassemblyMPE]->rv);
+    sprintf(buf,"v7: = ($%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv.mpe[disassemblyMPE].regs[28],nuonEnv.mpe[disassemblyMPE].regs[29],nuonEnv.mpe[disassemblyMPE].regs[30],nuonEnv.mpe[disassemblyMPE].regs[31]);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-    sprintf(buf,"rz/rzi1/rzi2: = ($%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv->mpe[disassemblyMPE]->rz,nuonEnv->mpe[disassemblyMPE]->rzi1,nuonEnv->mpe[disassemblyMPE]->rzi2);
+    sprintf(buf,"rx/ry/ru/rv: = ($%8.8lx, $%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv.mpe[disassemblyMPE].rx,nuonEnv.mpe[disassemblyMPE].ry,nuonEnv.mpe[disassemblyMPE].ru,nuonEnv.mpe[disassemblyMPE].rv);
+    SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
+    SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
+    sprintf(buf,"rz/rzi1/rzi2: = ($%8.8lx, $%8.8lx, $%8.8lx}\n",nuonEnv.mpe[disassemblyMPE].rz,nuonEnv.mpe[disassemblyMPE].rzi1,nuonEnv.mpe[disassemblyMPE].rzi2);
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
   }
@@ -255,15 +255,15 @@ void UpdateControlPanelDisplay()
   {
     SendMessage(ledHandles[i],STM_SETIMAGE,IMAGE_BITMAP, GetMPERunStatus(i) ? LPARAM(bmpLEDOn) : LPARAM(bmpLEDOff));
     char addressStr[10];
-    sprintf(addressStr,"$%8.8lX",nuonEnv->mpe[i]->pcexec);
+    sprintf(addressStr,"$%8.8lX",nuonEnv.mpe[i].pcexec);
     SendMessage(pcexecHandles[i],WM_SETTEXT,0,LPARAM(addressStr));
   }
 
   char buf[1024];
-  sprintf(buf,"mpe%lu: $%8.8X\n{\n", disassemblyMPE, nuonEnv->mpe[disassemblyMPE]->pcexec);
+  sprintf(buf,"mpe%lu: $%8.8X\n{\n", disassemblyMPE, nuonEnv.mpe[disassemblyMPE].pcexec);
   SendMessage(reTermDisplay,WM_SETTEXT,NULL,LPARAM(buf));
   SendMessage(reTermDisplay,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-  nuonEnv->mpe[disassemblyMPE]->PrintInstructionCachePacket(buf,nuonEnv->mpe[disassemblyMPE]->pcexec);
+  nuonEnv.mpe[disassemblyMPE].PrintInstructionCachePacket(buf,nuonEnv.mpe[disassemblyMPE].pcexec);
   SendMessage(reTermDisplay,EM_REPLACESEL,NULL,LPARAM(buf));
   sprintf(buf,"}\n");
   SendMessage(reTermDisplay,EM_REPLACESEL,NULL,LPARAM(buf));
@@ -285,11 +285,11 @@ void OnMPELEDDoubleClick(uint32 which)
 
 void ExecuteSingleStep()
 {
-  nuonEnv->mpe[3]->ExecuteSingleStep();
-  nuonEnv->mpe[2]->ExecuteSingleStep();
-  nuonEnv->mpe[1]->ExecuteSingleStep();
-  nuonEnv->mpe[0]->ExecuteSingleStep();
-  if(nuonEnv->pendingCommRequests)
+  nuonEnv.mpe[3].ExecuteSingleStep();
+  nuonEnv.mpe[2].ExecuteSingleStep();
+  nuonEnv.mpe[1].ExecuteSingleStep();
+  nuonEnv.mpe[0].ExecuteSingleStep();
+  if(nuonEnv.pendingCommRequests)
   {
     DoCommBusController();
   }
@@ -331,25 +331,25 @@ BOOL CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM 
             outFile = fopen("mpe0.bin","wb");
             if(outFile)
             {
-              fwrite(nuonEnv->mpe[0]->dtrom,sizeof(uint8),MPE_LOCAL_MEMORY_SIZE,outFile);
+              fwrite(nuonEnv.mpe[0].dtrom,sizeof(uint8),MPE_LOCAL_MEMORY_SIZE,outFile);
               fclose(outFile);
             }
             outFile = fopen("mpe1.bin","wb");
             if(outFile)
             {
-              fwrite(nuonEnv->mpe[1]->dtrom,sizeof(uint8),MPE_LOCAL_MEMORY_SIZE,outFile);
+              fwrite(nuonEnv.mpe[1].dtrom,sizeof(uint8),MPE_LOCAL_MEMORY_SIZE,outFile);
               fclose(outFile);
             }
             outFile = fopen("mpe2.bin","wb");
             if(outFile)
             {
-              fwrite(nuonEnv->mpe[2]->dtrom,sizeof(uint8),MPE_LOCAL_MEMORY_SIZE,outFile);
+              fwrite(nuonEnv.mpe[2].dtrom,sizeof(uint8),MPE_LOCAL_MEMORY_SIZE,outFile);
               fclose(outFile);
             }
             outFile = fopen("mpe3.bin","wb");
             if(outFile)
             {
-              fwrite(nuonEnv->mpe[3]->dtrom,sizeof(uint8),MPE_LOCAL_MEMORY_SIZE,outFile);
+              fwrite(nuonEnv.mpe[3].dtrom,sizeof(uint8),MPE_LOCAL_MEMORY_SIZE,outFile);
               fclose(outFile);
             }
             return TRUE;
@@ -387,10 +387,10 @@ Run:
               fclose(inFile);
             }
 
-            nuonEnv->mpe[0]->breakpointAddress = bpAddr;
-            nuonEnv->mpe[1]->breakpointAddress = bpAddr;
-            nuonEnv->mpe[2]->breakpointAddress = bpAddr;
-            nuonEnv->mpe[3]->breakpointAddress = bpAddr;
+            nuonEnv.mpe[0].breakpointAddress = bpAddr;
+            nuonEnv.mpe[1].breakpointAddress = bpAddr;
+            nuonEnv.mpe[2].breakpointAddress = bpAddr;
+            nuonEnv.mpe[3].breakpointAddress = bpAddr;
 
             EnableWindow(cbLoadFile,FALSE);
             EnableWindow(cbRun,FALSE);
@@ -425,7 +425,7 @@ Run:
           {
             for(uint32 i = 0; i < 4; i++)
             {
-              nuonEnv->mpe[i]->Reset();
+              nuonEnv.mpe[i].Reset();
             }
             return TRUE;
           }
@@ -433,10 +433,10 @@ Run:
           {
             if(GetOpenFileName(&ofn))
             {
-              bool bSuccess = nuonEnv->mpe[3]->LoadNuonRomFile(ofn.lpstrFile);
+              bool bSuccess = nuonEnv.mpe[3].LoadNuonRomFile(ofn.lpstrFile);
               if(!bSuccess)
               {
-                bSuccess = nuonEnv->mpe[3]->LoadCoffFile(ofn.lpstrFile);
+                bSuccess = nuonEnv.mpe[3].LoadCoffFile(ofn.lpstrFile);
                 if(!bSuccess)
                 {
                   MessageBox(NULL,"Invalid COFF or NUONROM-DISK file",ERROR,MB_ICONWARNING);
@@ -445,8 +445,8 @@ Run:
               
               if(bSuccess)
               {
-                nuonEnv->SetDVDBaseFromFileName(ofn.lpstrFile);
-                nuonEnv->mpe[3]->Go();
+                nuonEnv.SetDVDBaseFromFileName(ofn.lpstrFile);
+                nuonEnv.mpe[3].Go();
                 UpdateControlPanelDisplay();
                 goto Run;
               }
@@ -518,8 +518,8 @@ bool OnDisplayPaint(WPARAM wparam, LPARAM lparam)
 {
   if(bRun)
   {
-    nuonEnv->bMainBufferModified = true;
-    nuonEnv->bOverlayBufferModified = true;
+    nuonEnv.bMainBufferModified = true;
+    nuonEnv.bOverlayBufferModified = true;
     RenderVideo(display->clientWidth,display->clientHeight);
   }
   else
@@ -555,7 +555,7 @@ void OnDisplayTimer(uint32 idEvent)
 {
   InvalidateRect(display->hWnd,NULL,FALSE);
   UpdateWindow(display->hWnd);
-  nuonEnv->TriggerVideoInterrupt();
+  nuonEnv.TriggerVideoInterrupt();
 }
 
 bool OnDisplayKeyDown(int16 vkey, uint32 keydata)
@@ -707,39 +707,39 @@ bool OnDisplayKeyUp(int16 vkey, uint32 keydata)
 
 inline void ProcessCycleBasedEvents(void)
 {
-  nuonEnv->audioInterruptCycleCount--;
-  if(nuonEnv->audioInterruptCycleCount == 0)
+  nuonEnv.audioInterruptCycleCount--;
+  if(nuonEnv.audioInterruptCycleCount == 0)
   {
-    if(nuonEnv->IsAudioSampleInterruptEnabled())
+    if(nuonEnv.IsAudioSampleInterruptEnabled())
     {
-      nuonEnv->TriggerAudioInterrupt();
+      nuonEnv.TriggerAudioInterrupt();
     }
-    else if(nuonEnv->whichAudioInterrupt == 0)
+    else if(!nuonEnv.whichAudioInterrupt)
     {
-      if(nuonEnv->IsAudioHalfInterruptEnabled())
+      if(nuonEnv.IsAudioHalfInterruptEnabled())
       {
-        nuonEnv->TriggerAudioInterrupt();
+        nuonEnv.TriggerAudioInterrupt();
       }
     }
     else
     {
-      if(nuonEnv->IsAudioWrapInterruptEnabled())
+      if(nuonEnv.IsAudioWrapInterruptEnabled())
       {
-        nuonEnv->TriggerAudioInterrupt();
+        nuonEnv.TriggerAudioInterrupt();
       }
     }
-    nuonEnv->audioInterruptCycleCount = nuonEnv->cyclesPerAudioInterrupt;
-    nuonEnv->whichAudioInterrupt = 1 - nuonEnv->whichAudioInterrupt;
+    nuonEnv.audioInterruptCycleCount = nuonEnv.cyclesPerAudioInterrupt;
+    nuonEnv.whichAudioInterrupt = !nuonEnv.whichAudioInterrupt;
   }
 
-  //nuonEnv->videoDisplayCycleCount--;
-  //if(nuonEnv->videoDisplayCycleCount == 0 && nuonEnv->bUseCycleBasedTiming)
+  //nuonEnv.videoDisplayCycleCount--;
+  //if(nuonEnv.videoDisplayCycleCount == 0 && nuonEnv.bUseCycleBasedTiming)
   //{
     //SendMessage(videoDisplayWindow.hWnd,WM_TIMER,16,NULL);
     //RenderVideo(display->clientWidth,display->clientHeight);
  //   InvalidateRect(display->hWnd,NULL,FALSE);
  //   UpdateWindow(display->hWnd);
- //   nuonEnv->videoDisplayCycleCount = nuonEnv->cyclesPerVideoDisplay;
+ //   nuonEnv.videoDisplayCycleCount = nuonEnv.cyclesPerVideoDisplay;
  // }
 }
 
@@ -760,21 +760,18 @@ bool CheckForInvalidCommStatus(MPE *mpe)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-  HWND hDlg, hStatusDlg;
   uint32 nCycles = 500;
   static uint32 prevPcexec;
   static uint32 prevCommctl;
   static uint32 prevIntsrc;
 
-  hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_SPLASH_SCREEN),NULL,SplashScreenDialogProc);
+  HWND hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_SPLASH_SCREEN),NULL,SplashScreenDialogProc);
   Sleep(1000);
   ShowWindow(hDlg,FALSE);
   EndDialog(hDlg,IDOK);
 
-  //Create the Nuon environment object
-  nuonEnv = new NuonEnvironment;
   //Initialize the BIOS
-  nuonEnv->InitBios();
+  nuonEnv.InitBios();
 
   display = new GLWindow();
   display->title = displayWindowTitle;
@@ -799,7 +796,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   const HMODULE hRichEditLibrary = LoadLibrary("Riched20.dll"); // needs to be loaded, otherwise program hangs
   hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_CONTROL_PANEL),NULL,ControlPanelDialogProc);
-  hStatusDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_STATUS_DIALOG),NULL,StatusWindowDialogProc);
+  const HWND hStatusDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_STATUS_DIALOG),NULL,StatusWindowDialogProc);
 
   iconApp = LoadIcon(hInstance,MAKEINTRESOURCE(IDI_APPICON));
   bmpLEDOn = LoadBitmap(hInstance,MAKEINTRESOURCE(IDB_LED_ON));
@@ -842,10 +839,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   UpdateControlPanelDisplay();
 
-  display->timerInterval = 1000/nuonEnv->fps;
+  display->timerInterval = 1000/nuonEnv.fps;
   display->SetTimer();
 
-  nuonEnv->videoDisplayCycleCount = 0;
+  nuonEnv.videoDisplayCycleCount = 0;
 
   while(!bQuit)
   {
@@ -866,22 +863,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     {
       while(nCycles--)
       {
-        nuonEnv->mpe[3]->ExecuteSingleCycle();
-        nuonEnv->mpe[2]->ExecuteSingleCycle();
-        nuonEnv->mpe[1]->ExecuteSingleCycle();
-        nuonEnv->mpe[0]->ExecuteSingleCycle();
-        if(nuonEnv->pendingCommRequests)
+        nuonEnv.mpe[3].ExecuteSingleCycle();
+        nuonEnv.mpe[2].ExecuteSingleCycle();
+        nuonEnv.mpe[1].ExecuteSingleCycle();
+        nuonEnv.mpe[0].ExecuteSingleCycle();
+        if(nuonEnv.pendingCommRequests)
         {
           DoCommBusController();
         }
-        //nuonEnv->videoDisplayCycleCount += nuonEnv->mpe[3]->cycleCounter;
+        //nuonEnv.videoDisplayCycleCount += nuonEnv.mpe[3]->cycleCounter;
         //ProcessCycleBasedEvents();
       }      
 
-      //if(nuonEnv->videoDisplayCycleCount >= (54000000/60))
+      //if(nuonEnv.videoDisplayCycleCount >= (54000000/60))
       //{
       //  IncrementVideoFieldCounter();
-      //  nuonEnv->videoDisplayCycleCount -= (54000000/60);
+      //  nuonEnv.videoDisplayCycleCount -= (54000000/60);
       //}
     }
 
@@ -899,9 +896,6 @@ CLEANUP AND APPLICATION SHUTDOWN CODE
 
   FreeTextureMemory(mainChannelBuffer,false);
   FreeTextureMemory(overlayChannelBuffer,true);
-
-  //Destroy the Nuon environment object
-  delete nuonEnv;
 
   display->Close();
 

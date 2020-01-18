@@ -270,8 +270,7 @@ struct sBilinearInfo
 
 __declspec(align(16)) class MPE
 {
-  public:
-
+public:
   //don't change the order of these registers! (regs to svshift)
   uint32 regs[32];
   uint32 cc;
@@ -438,10 +437,10 @@ __declspec(align(16)) class MPE
   void DecodeInstruction_MUL16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void DecodeInstruction_MUL32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void GenerateMirrorLookupTable();
-  void InitializeBankTable(uint8 *mainBusPtr, uint8 *systemBusPtr, uint8 *flashEEPROMPtr);
   bool TestConditionCode(uint32 whichCondition);
   
-  MPE(uint32 index);
+  MPE() {}
+  void Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr);
   ~MPE();
 
   bool LoadBinaryFile(uchar *filename, bool bIRAM);
@@ -485,7 +484,7 @@ __declspec(align(16)) class MPE
   inline void TriggerInterrupt(const uint32 which)
   {
     intsrc |= which;
-    Syscall_InterruptTriggered(this);
+    Syscall_InterruptTriggered(*this);
   }
 
   inline void *GetPointerToMemory(void) const
@@ -498,7 +497,7 @@ __declspec(align(16)) class MPE
     return bankPtrTable[address >> 28] + (address & MPE_VALID_MEMORY_MASK);
   }
 
-  void UpdateInvalidateRegion(uint32 start, uint32 length);
+  void UpdateInvalidateRegion(const uint32 start, const uint32 length);
 
   void PrintInstructionCachePacket(char *buffer, uint32 address);
   void PrintInstructionCachePacket(char *buffer, InstructionCacheEntry &entry);
