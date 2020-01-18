@@ -9,40 +9,40 @@
 
 class MPE;
 
-void FileOpen(MPE *);
-void FileClose(MPE *);
-void FileRead(MPE *);
-void FileWrite(MPE *);
-void FileIoctl(MPE *);
-void FileFstat(MPE *);
-void FileStat(MPE *);
-void FileIsatty(MPE *);
-void FileLseek(MPE *);
-void FileLink(MPE *);
-void FileLstat(MPE *);
-void FileUnlink(MPE *);
+void FileOpen(MPE &mpe);
+void FileClose(MPE &mpe);
+void FileRead(MPE &mpe);
+void FileWrite(MPE &mpe);
+void FileIoctl(MPE &mpe);
+void FileFstat(MPE &mpe);
+void FileStat(MPE &mpe);
+void FileIsatty(MPE &mpe);
+void FileLseek(MPE &mpe);
+void FileLink(MPE &mpe);
+void FileLstat(MPE &mpe);
+void FileUnlink(MPE &mpe);
 
-#define	_FREAD		0x0001	/* read enabled */
-#define	_FWRITE		0x0002	/* write enabled */
-#define	_FNDELAY	0x0004	/* non blocking I/O (4.2 style) */
-#define	_FAPPEND	0x0008	/* append (writes guaranteed at the end) */
-#define	_FMARK		0x0010	/* internal; mark during gc() */
-#define	_FDEFER		0x0020	/* internal; defer for next gc pass */
-#define	_FASYNC		0x0040	/* signal pgrp when data ready */
-#define	_FSHLOCK	0x0080	/* BSD flock() shared lock present */
-#define	_FEXLOCK	0x0100	/* BSD flock() exclusive lock present */
-#define	_FCREAT		0x0200	/* open with file create */
-#define	_FTRUNC		0x0400	/* open with truncation */
-#define	_FEXCL		0x0800	/* error on open if file exists */
-#define	_FNBIO		0x1000	/* non blocking I/O (sys5 style) */
-#define	_FSYNC		0x2000	/* do all writes synchronously */
-#define	_FNONBLOCK	0x4000	/* non blocking I/O (POSIX style) */
-#define	_FNOCTTY	0x8000	/* don't assign a ctty on this open */
+#define	_FREAD      0x0001	/* read enabled */
+#define	_FWRITE     0x0002	/* write enabled */
+#define	_FNDELAY    0x0004	/* non blocking I/O (4.2 style) */
+#define	_FAPPEND    0x0008	/* append (writes guaranteed at the end) */
+#define	_FMARK      0x0010	/* internal; mark during gc() */
+#define	_FDEFER     0x0020	/* internal; defer for next gc pass */
+#define	_FASYNC     0x0040	/* signal pgrp when data ready */
+#define	_FSHLOCK    0x0080	/* BSD flock() shared lock present */
+#define	_FEXLOCK    0x0100	/* BSD flock() exclusive lock present */
+#define	_FCREAT     0x0200	/* open with file create */
+#define	_FTRUNC     0x0400	/* open with truncation */
+#define	_FEXCL      0x0800	/* error on open if file exists */
+#define	_FNBIO      0x1000	/* non blocking I/O (sys5 style) */
+#define	_FSYNC      0x2000	/* do all writes synchronously */
+#define	_FNONBLOCK  0x4000	/* non blocking I/O (POSIX style) */
+#define	_FNOCTTY    0x8000	/* don't assign a ctty on this open */
 
-#define _FBINARY        0x10000
-#define _FTEXT          0x20000
+#define _FBINARY    0x10000
+#define _FTEXT      0x20000
 
-#define	NUON_IFMT	 0x0170000	/* type of file */
+#define	NUON_IFMT  0x0170000	/* type of file */
 #define	NUON_IFDIR 0x0040000	/* directory */
 #define	NUON_IFCHR 0x0020000	/* character special */
 #define	NUON_IFBLK 0x0060000	/* block special */

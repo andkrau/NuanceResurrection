@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <windows.h>
 #include <stdio.h>
 #include "audio.h"
@@ -16,7 +17,7 @@
 
 extern VidDisplay structMainDisplay;
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 extern char **pArgs;
 
 static bool bFMODInitialized = false;
@@ -27,19 +28,19 @@ void NuonEnvironment::TriggerAudioInterrupt(void)
 {
   if(bAudioInterruptsEnabled)
   {
-    mpe[0]->TriggerInterrupt(INT_AUDIO);
-    mpe[1]->TriggerInterrupt(INT_AUDIO);
-    mpe[2]->TriggerInterrupt(INT_AUDIO);
-    mpe[3]->TriggerInterrupt(INT_AUDIO);
+    mpe[0].TriggerInterrupt(INT_AUDIO);
+    mpe[1].TriggerInterrupt(INT_AUDIO);
+    mpe[2].TriggerInterrupt(INT_AUDIO);
+    mpe[3].TriggerInterrupt(INT_AUDIO);
   }
 }
 
 void NuonEnvironment::TriggerVideoInterrupt(void)
 {
-  mpe[0]->TriggerInterrupt(INT_VIDTIMER);
-  mpe[1]->TriggerInterrupt(INT_VIDTIMER);
-  mpe[2]->TriggerInterrupt(INT_VIDTIMER);
-  mpe[3]->TriggerInterrupt(INT_VIDTIMER);
+  mpe[0].TriggerInterrupt(INT_VIDTIMER);
+  mpe[1].TriggerInterrupt(INT_VIDTIMER);
+  mpe[2].TriggerInterrupt(INT_VIDTIMER);
+  mpe[3].TriggerInterrupt(INT_VIDTIMER);
 }
 
 class AudioCallbacks
@@ -51,7 +52,7 @@ public:
   void *pBuf2WriteStart;
   unsigned long pBuf2WriteBytes;
 
-  static void ConvertNuonAudioData(uint8 *pNuonAudioBuffer, uint8 *pPCAudioBuffer, uint32 numBytes)
+  static void ConvertNuonAudioData(const uint8 *pNuonAudioBuffer, uint8 *pPCAudioBuffer, const uint32 numBytes)
   {
     uint32 byteCount = 0;
 
@@ -69,41 +70,30 @@ public:
 
   static schar F_CALLBACKAPI StreamCallback(FSOUND_STREAM *stream, void *buff, int len, void* userdata)
   {
-    static uint32 position = 0;
+    static bool position = false;
 
-    if(!buff) 
-    {
+    if(!buff)
       return FALSE;
-    }
 
-    switch(position)
+    if (nuonEnv.pNuonAudioBuffer && (nuonEnv.nuonAudioBufferSize >= 1024))
     {
-      case 0:
-        if(nuonEnv->pNuonAudioBuffer && (nuonEnv->nuonAudioBufferSize >= 1024))
-        {
-          ConvertNuonAudioData((uint8 *)&nuonEnv->pNuonAudioBuffer[nuonEnv->nuonAudioBufferSize >> 1], (uint8 *)buff, nuonEnv->nuonAudioBufferSize >> 1);
-          if((nuonEnv->nuonAudioChannelMode & ENABLE_WRAP_INT) && !nuonEnv->bUseCycleBasedTiming)
-          {
-            nuonEnv->TriggerAudioInterrupt();
-          }
-        }
-        position = 1 - position;
-        break;
-      case 1:
-        if(nuonEnv->pNuonAudioBuffer && (nuonEnv->nuonAudioBufferSize >= 1024))
-        {
-          ConvertNuonAudioData((uint8 *)nuonEnv->pNuonAudioBuffer,(uint8 *)buff,nuonEnv->nuonAudioBufferSize >> 1);
-          if((nuonEnv->nuonAudioChannelMode & ENABLE_HALF_INT) && !nuonEnv->bUseCycleBasedTiming)
-          {
-            nuonEnv->TriggerAudioInterrupt();
-          }
-        }
-        position = 1 - position;
-        break;
+    if(!position)
+    {
+      ConvertNuonAudioData((uint8 *)&nuonEnv.pNuonAudioBuffer[nuonEnv.nuonAudioBufferSize >> 1], (uint8 *)buff, nuonEnv.nuonAudioBufferSize >> 1);
+      if((nuonEnv.nuonAudioChannelMode & ENABLE_WRAP_INT) && !nuonEnv.bUseCycleBasedTiming)
+        nuonEnv.TriggerAudioInterrupt();
+    }
+    else
+    {
+      ConvertNuonAudioData((uint8 *)nuonEnv.pNuonAudioBuffer, (uint8 *)buff, nuonEnv.nuonAudioBufferSize >> 1);
+      if((nuonEnv.nuonAudioChannelMode & ENABLE_HALF_INT) && !nuonEnv.bUseCycleBasedTiming)
+        nuonEnv.TriggerAudioInterrupt();
+    }
+    position = !position;
     }
 
     return TRUE;
-  };
+  }
 };
 
 AudioCallbacks audioCallbacks;
@@ -141,8 +131,10 @@ void NuonEnvironment::InitAudio(void)
 
   if(audioStream)
   {
+    FSOUND_Stream_Stop(audioStream);
     FSOUND_Stream_Close(audioStream);
   }
+
   //Create stream
   audioStream = FSOUND_Stream_Create(AudioCallbacks::StreamCallback, nuonAudioBufferSize,
     (DEFAULT_SAMPLE_FORMAT | FSOUND_LOOP_NORMAL | FSOUND_NONBLOCKING), nuonAudioPlaybackRate, USER_PARAM);
@@ -157,24 +149,21 @@ void NuonEnvironment::CloseAudio()
 {
   if(bFMODInitialized)
   {
-    MuteAudio(0xFFFFFFFFUL);
-    StopAudio();
+    MuteAudio(true);
     if(audioStream)
     {
       FSOUND_Stream_Stop(audioStream);
       FSOUND_Stream_Close(audioStream);
       audioStream = 0;
     }
-    FSOUND_Close();
-    bFMODInitialized = false;
   }
 }
 
-void NuonEnvironment::MuteAudio(uint32 param)
+void NuonEnvironment::MuteAudio(const bool mute)
 {
   if(bFMODInitialized)
   {
-    FSOUND_SetMute(FSOUND_ALL,param ? TRUE : FALSE);
+    FSOUND_SetMute(FSOUND_ALL,mute ? TRUE : FALSE);
   }
 }
 
@@ -220,54 +209,52 @@ void NuonEnvironment::SetAudioVolume(uint32 volume)
   if(bFMODInitialized)
   {
     if(volume > 255)
-    {
       volume = 255;
-    }
 
     FSOUND_SetVolume(FSOUND_ALL,volume);
     //lastLinearVolumeSetting = volume;
   }
 }
 
-void *NuonEnvironment::GetPointerToMemory(MPE * const the_mpe, const uint32 address, const bool bCheckAddress)
+void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, const bool bCheckAddress)
 {
   if(address < MAIN_BUS_BASE)
   {
-#ifndef NDEBUG
+#if 1//def _DEBUG
     if(bCheckAddress)
     {
       if((address < MPE_ADDR_SPACE_BASE) || (address >= MPE1_ADDR_BASE))
       {
         char textBuf[1024];
-        sprintf(textBuf,"MPE%d Illegal Memory Address Operand %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
-          the_mpe->mpeIndex,
+        sprintf(textBuf,"MPE%d Illegal Memory Address Operand (MAIN) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+          mpe.mpeIndex,
           address,
-          mpe[0]->pcexec,
-          mpe[1]->pcexec,
-          mpe[2]->pcexec,
-          mpe[3]->pcexec);
+          this->mpe[0].pcexec,
+          this->mpe[1].pcexec,
+          this->mpe[2].pcexec,
+          this->mpe[3].pcexec);
 
         MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
       }
     }
 #endif
-    return (void *)(((uint8 *)the_mpe->dtrom) + (address & MPE_VALID_MEMORY_MASK));
+    return (void *)(((uint8 *)mpe.dtrom) + (address & MPE_VALID_MEMORY_MASK));
   }
   else if(address < SYSTEM_BUS_BASE)
   {
-#ifndef NDEBUG
+#if 1//def _DEBUG
     if(bCheckAddress)
     {
       if((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK)))
       {
         char textBuf[1024];
-        sprintf(textBuf,"MPE%d Illegal Memory Address Operand %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
-          the_mpe->mpeIndex,
+        sprintf(textBuf,"MPE%d Illegal Memory Address Operand (SYSTEM) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+          mpe.mpeIndex,
           address,
-          mpe[0]->pcexec,
-          mpe[1]->pcexec,
-          mpe[2]->pcexec,
-          mpe[3]->pcexec);
+          this->mpe[0].pcexec,
+          this->mpe[1].pcexec,
+          this->mpe[2].pcexec,
+          this->mpe[3].pcexec);
 
         MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
       }
@@ -277,19 +264,19 @@ void *NuonEnvironment::GetPointerToMemory(MPE * const the_mpe, const uint32 addr
   }
   else if(address < ROM_BIOS_BASE)
   {
-#ifndef NDEBUG
+#if 1//def _DEBUG
     if(bCheckAddress)
     {
       if((address > (SYSTEM_BUS_BASE + SYSTEM_BUS_VALID_MEMORY_MASK)))
       {
         char textBuf[1024];
-        sprintf(textBuf,"MPE%d Illegal Memory Address Operand %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
-          the_mpe->mpeIndex,
+        sprintf(textBuf,"MPE%d Illegal Memory Address Operand (ROM_BIOS) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+          mpe.mpeIndex,
           address,
-          mpe[0]->pcexec,
-          mpe[1]->pcexec,
-          mpe[2]->pcexec,
-          mpe[3]->pcexec);
+          this->mpe[0].pcexec,
+          this->mpe[1].pcexec,
+          this->mpe[2].pcexec,
+          this->mpe[3].pcexec);
 
         MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
       }
@@ -303,9 +290,46 @@ void *NuonEnvironment::GetPointerToMemory(MPE * const the_mpe, const uint32 addr
   }
 }
 
-void NuonEnvironment::WriteFile(MPE *pMPE, uint32 fd, uint32 buf, uint32 len)
+// copy of above, specialized to not need a MPE
+void *NuonEnvironment::GetPointerToSystemMemory(const uint32 address, const bool bCheckAddress)
 {
-  char *pBuf = (char *)GetPointerToMemory(pMPE, buf, false);
+  if(address < MAIN_BUS_BASE)
+  {
+    assert(false);
+    return NULL;
+  }
+  else if(address < SYSTEM_BUS_BASE)
+  {
+#if 1//def _DEBUG
+    if(bCheckAddress)
+    {
+      if((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK)))
+      {
+        char textBuf[1024];
+        sprintf(textBuf,"Illegal Memory Address Operand (SYSTEM) %8.8X\n",address);
+
+        MessageBox( NULL, textBuf, "GetPointerToSystemMemory error", MB_OK);
+      }
+    }
+#endif
+    return &mainBusDRAM[address & MAIN_BUS_VALID_MEMORY_MASK];
+  }
+  else if(address < ROM_BIOS_BASE)
+  {
+    assert(false);
+    return NULL;
+  }
+  else
+  {
+    assert(false);
+    return NULL;
+  }
+}
+
+
+void NuonEnvironment::WriteFile(MPE &MPE, uint32 fd, uint32 buf, uint32 len)
+{
+  char * const pBuf = (char *)GetPointerToMemory(MPE, buf, false);
   char tempChar = pBuf[len];
   pBuf[len] = '\0';
 
@@ -359,23 +383,16 @@ NuonEnvironment::NuonEnvironment()
   bAudioInterruptsEnabled = true;
 
   for(uint32 i = 0; i < 4; i++)
-  {
-    mpe[i] = new MPE(i);
-    mpe[i]->InitializeBankTable(mainBusDRAM,systemBusDRAM,flashEEPROM->GetBasePointer());
-  }
+    mpe[i].Init(i, mainBusDRAM, systemBusDRAM, flashEEPROM->GetBasePointer());
 
-  mpe[0]->mpeIndex = 0;
-  mpe[0]->mpeStartAddress = 0x20000000;
-  mpe[0]->mpeEndAddress = 0x207FFFFF;
-  mpe[1]->mpeIndex = 1;
-  mpe[1]->mpeStartAddress = 0x20800000;
-  mpe[1]->mpeEndAddress = 0x20FFFFFF;
-  mpe[2]->mpeIndex = 2;
-  mpe[2]->mpeStartAddress = 0x21000000;
-  mpe[2]->mpeEndAddress = 0x217FFFFF;
-  mpe[3]->mpeIndex = 3;
-  mpe[3]->mpeStartAddress = 0x21800000;
-  mpe[3]->mpeEndAddress = 0x21FFFFFF;
+  mpe[0].mpeStartAddress = 0x20000000;
+  mpe[0].mpeEndAddress = 0x207FFFFF;
+  mpe[1].mpeStartAddress = 0x20800000;
+  mpe[1].mpeEndAddress = 0x20FFFFFF;
+  mpe[2].mpeStartAddress = 0x21000000;
+  mpe[2].mpeEndAddress = 0x217FFFFF;
+  mpe[3].mpeStartAddress = 0x21800000;
+  mpe[3].mpeEndAddress = 0x21FFFFFF;
 
   bProcessorStartStopChange = false;
   pendingCommRequests = 0;
@@ -412,12 +429,11 @@ NuonEnvironment::NuonEnvironment()
     RATE_48_KHZ |
     RATE_96_KHZ;
 
-  bSoundDeviceChosen = false;
   bUseCycleBasedTiming = false;
   cyclesPerAudioInterrupt = 1728000;
   audioInterruptCycleCount = cyclesPerAudioInterrupt;
   videoDisplayCycleCount = 120000;
-  whichAudioInterrupt = 0;
+  whichAudioInterrupt = false;
 
   if(!pArgs)
   {
@@ -454,22 +470,14 @@ void NuonEnvironment::InitBios()
 
 NuonEnvironment::~NuonEnvironment()
 {
-  uint32 i;
+  //Stop the processor thread
+  for(uint32 i = 0; i < 4; i++)
+    mpe[i].Halt();
 
   //Close stream and shut down audio library
   CloseAudio();
-
-  //Stop the processor thread
-  for(i = 0; i < 4; i++)
-  {
-    mpe[i]->Halt();
-  }
-
-  //Delete the MPE objects
-  for(i = 0; i < 4; i++)
-  {
-    delete mpe[i];
-  }
+  FSOUND_Close();
+  bFMODInitialized = false;
 
   //Free up allocated RAM 
   delete [] mainBusDRAM;

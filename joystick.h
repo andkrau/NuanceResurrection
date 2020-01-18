@@ -168,7 +168,7 @@ struct ControllerData
 //restore pushed alignment
 #pragma pack(pop)
 
-void ControllerInitialize(MPE *mpe);
-void DeviceDetect(MPE *mpe);
+void ControllerInitialize(MPE &mpe);
+void DeviceDetect(MPE &mpe);
 
 #endif

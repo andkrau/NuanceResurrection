@@ -5,12 +5,12 @@
 
 class MPE;
 
-typedef void (*NuonBiosHandler)(MPE *);
+typedef void (*NuonBiosHandler)(MPE &);
 
-void InitBios(MPE *mpe);
-void BiosPoll(MPE *mpe);
-void BiosPauseMsg(MPE *mpe);
-uint32 PatchJumptable(uint32 vectorAddress, uint32 newEntry);
+void InitBios(MPE &mpe);
+void BiosPoll(MPE &mpe);
+void BiosPauseMsg(MPE &mpe);
+uint32 PatchJumptable(const uint32 vectorAddress, uint32 newEntry);
 
 struct BiosInfo {
     unsigned short major_version;
@@ -90,6 +90,5 @@ struct BiosInfo {
 #define kPollSaveExit    1
 #define kPollDisplayMsg  2
 #define kPollPauseMsg    3
-
 
 #endif

@@ -108,13 +108,13 @@ struct VidChannel
 
 uint32 *AllocateTextureMemory32(uint32 size, const bool bOverlay);
 void FreeTextureMemory(uint32 *pBuffer, const bool bOverlay);
-void VidConfig(MPE *mpe);
-void VidQueryConfig(MPE *mpe);
-void VidSetup(MPE *mpe);
-void VidChangeScroll(MPE *mpe);
-void VidChangeBase(MPE *mpe);
-void SetDefaultColor(MPE *mpe);
-void VidSetCLUTRange(MPE *mpe);
+void VidConfig(MPE &mpe);
+void VidQueryConfig(MPE &mpe);
+void VidSetup(MPE &mpe);
+void VidChangeScroll(MPE &mpe);
+void VidChangeBase(MPE &mpe);
+void SetDefaultColor(MPE &mpe);
+void VidSetCLUTRange(MPE &mpe);
 void SetVideoMode(void);
 void InitializeColorSpaceTables(void);
 void RenderVideo(int width, int height);

@@ -437,6 +437,9 @@
     <ClInclude Include="bdma_type8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PresentationEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="bitmap1.bmp">

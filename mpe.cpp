@@ -52,7 +52,7 @@
 #endif
 #endif
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 extern NuonBiosHandler BiosJumpTable[];
 extern NuonBiosHandler DVDJumpTable[];
 extern char *BiosRoutineNames[];
@@ -769,7 +769,7 @@ FILE *logfile = NULL;
 double timeDelta;
 uint64 timer_start, timer_end;
 
-MPE::MPE(uint32 index)
+void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr)
 {
   EmitterVariables emitvars;
   const uint32 numCacheEntries[] = {4096,2048,2048,262144};
@@ -805,6 +805,7 @@ MPE::MPE(uint32 index)
   //SuperBlock(mpe,maxPackets, maxInstructionsPerPacket)
   superBlock = new SuperBlock(this,120,5);
   InitStaticICacheEntries();
+
   if(mpeIndex == LOG_MPE_INDEX)
   {      
     if(!logfile)
@@ -818,6 +819,35 @@ MPE::MPE(uint32 index)
     }
   }
   Reset();
+
+//Initialize the bank pointer lookup table for use with indirect
+//loads and stores.  This table assumes that the only banks present
+//are local MPE memory, system bus memory and main bus memory.  All
+//other banks map to main bus memory in the hope that a bad memory address
+//write will simply cause main bus graphics corruption
+
+//This table cannot distinguish between the ROM, reserved and other bus IO
+//banks in the $F0000000/$F1000000/$FE000000 range but programs should
+//never read or write in this range anyways.  If these banks are emulated
+//at some future point, this table will need to expand to 256 entries in
+//order to factor in the entire upper byte of the 32 bit address range
+
+  bankPtrTable[0x0] = dtrom;
+  bankPtrTable[0x1] = dtrom;
+  bankPtrTable[0x2] = dtrom;
+  bankPtrTable[0x3] = mainBusPtr;
+  bankPtrTable[0x4] = mainBusPtr;
+  bankPtrTable[0x5] = mainBusPtr;
+  bankPtrTable[0x6] = mainBusPtr;
+  bankPtrTable[0x7] = mainBusPtr;
+  bankPtrTable[0x8] = systemBusPtr;
+  bankPtrTable[0x9] = systemBusPtr;
+  bankPtrTable[0xA] = systemBusPtr;
+  bankPtrTable[0xB] = systemBusPtr;
+  bankPtrTable[0xC] = systemBusPtr;
+  bankPtrTable[0xD] = systemBusPtr;
+  bankPtrTable[0xE] = systemBusPtr;
+  bankPtrTable[0xF] = flashEEPROMPtr;
 }
 
 MPE::~MPE()
@@ -867,38 +897,6 @@ void MPE::GenerateMirrorLookupTable()
 
     mirrorLookup[i] = mirror;
   }
-}
-
-void MPE::InitializeBankTable(uint8 *mainBusPtr, uint8 *systemBusPtr, uint8 *flashEEPROMPtr)
-{
-  //Initialize the bank pointer lookup table for use with indirect
-  //loads and stores.  This table assumes that the only banks present
-  //are local MPE memory, system bus memory and main bus memory.  All
-  //other banks map to main bus memory in the hope that a bad memory address
-  //write will simply cause main bus graphics corruption
-
-  //This table cannot distinguish between the ROM, reserved and other bus IO
-  //banks in the $F0000000/$F1000000/$FE000000 range but programs should
-  //never read or write in this range anyways.  If these banks are emulated
-  //at some future point, this table will need to expand to 256 entries in
-  //order to factor in the entire upper byte of the 32 bit address range
-
-  bankPtrTable[0x0] = dtrom;
-  bankPtrTable[0x1] = dtrom;
-  bankPtrTable[0x2] = dtrom;
-  bankPtrTable[0x3] = mainBusPtr;
-  bankPtrTable[0x4] = mainBusPtr;
-  bankPtrTable[0x5] = mainBusPtr;
-  bankPtrTable[0x6] = mainBusPtr;
-  bankPtrTable[0x7] = mainBusPtr;
-  bankPtrTable[0x8] = systemBusPtr;
-  bankPtrTable[0x9] = systemBusPtr;
-  bankPtrTable[0xA] = systemBusPtr;
-  bankPtrTable[0xB] = systemBusPtr;
-  bankPtrTable[0xC] = systemBusPtr;
-  bankPtrTable[0xD] = systemBusPtr;
-  bankPtrTable[0xE] = systemBusPtr;
-  bankPtrTable[0xF] = flashEEPROMPtr;
 }
 
 const uint32 COMPILE_THRESHOLD = 50UL;
@@ -1670,7 +1668,7 @@ void MPE::DecompressPacket(uint8 *iBuffer, InstructionCacheEntry *pICacheEntry, 
   pICacheEntry->packetInfo = pStruct.packetInfo;
   pICacheEntry->ecuConditionCode = pStruct.ecuConditionCode;
 
-  if(!nuonEnv->compilerOptions.bAllowCompile)
+  if(!nuonEnv.compilerOptions.bAllowCompile)
   {
     pICacheEntry->packetInfo |= PACKETINFO_NEVERCOMPILE;
   }
@@ -1906,16 +1904,16 @@ void MPE::ScheduleInstructionQuartet(InstructionCacheEntry *destEntry, uint32 ba
   destEntry->CopyInstructionData(baseSlot + destSlotMEM[minIndex], srcEntry, SLOT_MEM);
 }
 
-void LogMemoryLocation(FILE *outFile, char *varname, uint32 address, MPE *mpe)
+void LogMemoryLocation(FILE *outFile, char *varname, uint32 address, MPE &mpe)
 {
-  uint32 value = *((uint32 *)nuonEnv->GetPointerToMemory(mpe,address));
+  uint32 value = *((uint32 *)nuonEnv.GetPointerToMemory(mpe,address));
   SwapScalarBytes(&value);
   fprintf(outFile,"%s = $%8.8lx\n",varname,value);
 }
 
-void MPE::UpdateInvalidateRegion(uint32 start, uint32 length)
+void MPE::UpdateInvalidateRegion(const uint32 start, const uint32 length)
 {
-  uint32 end = (start + length - 1);
+  const uint32 end = (start + length - 1);
 
   invalidateRegionStart = (((start < invalidateRegionStart) || !invalidateRegionStart) ? start : invalidateRegionStart);
   invalidateRegionEnd = ((end > invalidateRegionEnd) ? end : invalidateRegionEnd);
@@ -2106,7 +2104,7 @@ check_compile_threshhold:
             if (pNativeCodeCacheEntry && pNativeCodeCacheEntry->virtualAddress != pcexecLookupValue)
               pNativeCodeCacheEntry = 0;
 
-            if(nuonEnv->compilerOptions.bDumpBlocks)
+            if(nuonEnv.compilerOptions.bDumpBlocks)
             {
               //if(pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
               //if(pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK)
@@ -2246,7 +2244,7 @@ execute_block:
         {
           cycleCounter++;
           //Execute BIOS function: force to one of 256 entries
-          BiosJumpTable[(pcexec >> 1) & 0xFF](this);
+          BiosJumpTable[(pcexec >> 1) & 0xFF](*this);
 
           if(!bCallingMediaCallback)
           {
@@ -2258,7 +2256,7 @@ execute_block:
         {
           //Execute PE function
           cycleCounter++;
-          CallPEHandler(this, pcexec);
+          CallPEHandler(*this, pcexec);
           if(!bCallingMediaCallback)
           {
             //Perform an implicit RTS, nop

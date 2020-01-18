@@ -10,7 +10,7 @@
 #include "mpe.h"
 #include "NuonEnvironment.h"
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 extern HWND hWndStdErr;
 extern HWND hWndStdOut;
 
@@ -160,16 +160,16 @@ void ConvertSeparatorCharacters(char *pathname)
   }
 }
 
-void FileOpen(MPE *mpe)
+void FileOpen(MPE &mpe)
 {
-  uint32 path = mpe->regs[0];
-  uint32 access = mpe->regs[1];
-  uint32 mode = mpe->regs[2];
-  uint32 errnum = mpe->regs[3];
+  uint32 path = mpe.regs[0];
+  uint32 access = mpe.regs[1];
+  uint32 mode = mpe.regs[2];
+  uint32 errnum = mpe.regs[3];
   uint32 *pErr;
   char name[513];
 
-  char *pPath = (char *)nuonEnv->GetPointerToMemory(mpe,path);
+  char *pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
   int index, fd;
 
   if((index = FindFileDescriptorIndex(-1)) >= 0)
@@ -187,7 +187,7 @@ void FileOpen(MPE *mpe)
       pPath += 5;
     }
 
-    strcpy(name,nuonEnv->GetDVDBase());
+    strcpy(name,nuonEnv.GetDVDBase());
     strcat(name,pPath);
     
     ConvertSeparatorCharacters(name);
@@ -198,23 +198,23 @@ void FileOpen(MPE *mpe)
       goto Error;
     }
     fileDescriptors[index] = fd;
-    mpe->regs[0] = fd;
+    mpe.regs[0] = fd;
   }
   else
   {
 Error:
-    pErr = (uint32 *)nuonEnv->GetPointerToMemory(mpe,errnum);
+    pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,errnum);
     *pErr = errno;
     SwapScalarBytes(pErr);
-    mpe->regs[0] = -1;
+    mpe.regs[0] = -1;
   }
   
 }
 
-void FileClose(MPE *mpe)
+void FileClose(MPE &mpe)
 {
-  int32 fd = mpe->regs[0];
-  uint32 errnum = mpe->regs[1];
+  int32 fd = mpe.regs[0];
+  uint32 errnum = mpe.regs[1];
   uint32 *pErr;
 
   int result, index;
@@ -228,63 +228,63 @@ void FileClose(MPE *mpe)
     }
 
     fileDescriptors[index] = -1;
-    mpe->regs[0] = 0;
+    mpe.regs[0] = 0;
   }
   else
   {
 Error:
-    pErr = (uint32 *)nuonEnv->GetPointerToMemory(mpe, errnum);
+    pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
     *pErr = EINVAL;
     SwapScalarBytes(pErr);
-    mpe->regs[0] = -1;
+    mpe.regs[0] = -1;
   }
 }
 
-void FileRead(MPE *mpe)
+void FileRead(MPE &mpe)
 {
-  uint32 fd = mpe->regs[0];
-  uint32 buf = mpe->regs[1];
-  uint32 len = mpe->regs[2];
-  uint32 errnum = mpe->regs[3];
+  uint32 fd = mpe.regs[0];
+  uint32 buf = mpe.regs[1];
+  uint32 len = mpe.regs[2];
+  uint32 errnum = mpe.regs[3];
   uint32 *pErr;
   int32 index, result;
   void *pBuf;
 
   if((index = FindFileDescriptorIndex(fd)) >= 0)
   {
-    pBuf = nuonEnv->GetPointerToMemory(mpe, buf);
+    pBuf = nuonEnv.GetPointerToMemory(mpe, buf);
     result = _read(fileDescriptors[index], pBuf, len);
     if(result == -1)
     {
       goto Error;
     }
-      mpe->regs[0] = result;
+      mpe.regs[0] = result;
   }
   else
   {
 Error:
-    pErr = (uint32 *)nuonEnv->GetPointerToMemory(mpe, errnum);
+    pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
     *pErr = EBADF;
     SwapScalarBytes(pErr);
-    mpe->regs[0] = -1;
+    mpe.regs[0] = -1;
   }
 }
 
-void FileWrite(MPE *mpe)
+void FileWrite(MPE &mpe)
 {
-  uint32 fd = mpe->regs[0];
-  uint32 buf = mpe->regs[1];
-  uint32 len = mpe->regs[2];
-  uint32 errnum = mpe->regs[3];
+  uint32 fd = mpe.regs[0];
+  uint32 buf = mpe.regs[1];
+  uint32 len = mpe.regs[2];
+  uint32 errnum = mpe.regs[3];
   uint32 *pErr;
   int32 index, result;
 
-  char *pBuf = (char *)nuonEnv->GetPointerToMemory(mpe,buf);
+  char *pBuf = (char *)nuonEnv.GetPointerToMemory(mpe,buf);
 
   if((fd == NUON_FD_STDOUT) || (fd == NUON_FD_STDERR))
   {
-    nuonEnv->WriteFile(mpe,fd,buf,len);
-    mpe->regs[0] = len;
+    nuonEnv.WriteFile(mpe,fd,buf,len);
+    mpe.regs[0] = len;
   }
   else
   {
@@ -295,43 +295,43 @@ void FileWrite(MPE *mpe)
       {
         goto Error;
       }
-      mpe->regs[0] = result;
+      mpe.regs[0] = result;
     }
     else
     {
   Error:
-      pErr = (uint32 *)nuonEnv->GetPointerToMemory(mpe, errnum);
+      pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
       *pErr = errno;
       SwapScalarBytes(pErr);
-      mpe->regs[0] = -1;
+      mpe.regs[0] = -1;
     }
   }
 }
 
-void FileIoctl(MPE *mpe)
+void FileIoctl(MPE &mpe)
 {
-  uint32 fd = mpe->regs[0];
-  uint32 request = mpe->regs[1];
-  uint32 argp = mpe->regs[2];
-  uint32 errnum = mpe->regs[3];
+  uint32 fd = mpe.regs[0];
+  uint32 request = mpe.regs[1];
+  uint32 argp = mpe.regs[2];
+  uint32 errnum = mpe.regs[3];
 
   MessageBox(NULL,"This handler does nothing","Unimplemented File Call: FileIoctl",MB_OK);
 }
 
-void FileFstat(MPE *mpe)
+void FileFstat(MPE &mpe)
 {
   int32 index, result;
   uint32 *pErr;
   struct _stat32 st;
-  uint32 fd = mpe->regs[0];
-  uint32 buf = mpe->regs[1];
-  uint32 errnum = mpe->regs[2];
+  uint32 fd = mpe.regs[0];
+  uint32 buf = mpe.regs[1];
+  uint32 errnum = mpe.regs[2];
 
-  nuon_stat *pBuf = (nuon_stat *)nuonEnv->GetPointerToMemory(mpe,buf);
+  nuon_stat *pBuf = (nuon_stat *)nuonEnv.GetPointerToMemory(mpe,buf);
 
   if(fd <= NUON_FD_STDERR)
   {
-    mpe->regs[0] = -1;
+    mpe.regs[0] = -1;
 
     switch(fd)
     {
@@ -341,7 +341,7 @@ void FileFstat(MPE *mpe)
         SwapWordBytes((uint16 *)&pBuf->st_dev);
         SwapWordBytes((uint16 *)&pBuf->st_rdev);
         SwapScalarBytes((uint32 *)&pBuf->st_mode);
-        mpe->regs[0] = 0;
+        mpe.regs[0] = 0;
         break;
       case NUON_FD_STDOUT:
         pBuf->st_mode = NUON_IFCHR | NUON_S_IWUSR | NUON_S_IWGRP | NUON_S_IWOTH;
@@ -349,7 +349,7 @@ void FileFstat(MPE *mpe)
         SwapWordBytes((uint16 *)&pBuf->st_dev);
         SwapWordBytes((uint16 *)&pBuf->st_rdev);
         SwapScalarBytes((uint32 *)&pBuf->st_mode);
-        mpe->regs[0] = 0;
+        mpe.regs[0] = 0;
         break;
       case NUON_FD_STDERR:
         pBuf->st_mode = NUON_IFCHR | NUON_S_IWUSR | NUON_S_IWGRP | NUON_S_IWOTH;
@@ -357,7 +357,7 @@ void FileFstat(MPE *mpe)
         SwapWordBytes((uint16 *)&pBuf->st_dev);
         SwapWordBytes((uint16 *)&pBuf->st_rdev);
         SwapScalarBytes((uint32 *)&pBuf->st_mode);
-        mpe->regs[0] = 0;
+        mpe.regs[0] = 0;
         break;
     }
   }
@@ -398,48 +398,48 @@ void FileFstat(MPE *mpe)
       SwapScalarBytes((uint32 *)&pBuf->st_size);
       SwapScalarBytes((uint32 *)&pBuf->st_blocks);      
       SwapScalarBytes((uint32 *)&pBuf->st_blksize);      
-      mpe->regs[0] = 0;
+      mpe.regs[0] = 0;
     }
     else
     {
   Error:
-      pErr = (uint32 *)nuonEnv->GetPointerToMemory(mpe, errnum);
+      pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
       *pErr = errno;
       SwapScalarBytes(pErr);
-      mpe->regs[0] = -1;
+      mpe.regs[0] = -1;
     }
   }
 }
 
-void FileStat(MPE *mpe)
+void FileStat(MPE &mpe)
 {
-  uint32 path = mpe->regs[0];
-  uint32 buf = mpe->regs[1];
-  uint32 errnum = mpe->regs[2];
+  uint32 path = mpe.regs[0];
+  uint32 buf = mpe.regs[1];
+  uint32 errnum = mpe.regs[2];
 
-  char *pPath = (char *)nuonEnv->GetPointerToMemory(mpe,path);
+  char *pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
 
   MessageBox(NULL,pPath,"Unimplemented File Call: FileStat",MB_OK);
 
-  mpe->regs[0] = 0;
+  mpe.regs[0] = 0;
 }
 
-void FileIsatty(MPE *mpe)
+void FileIsatty(MPE &mpe)
 {
-  uint32 path = mpe->regs[0];
-  uint32 errnum = mpe->regs[1];
+  uint32 path = mpe.regs[0];
+  uint32 errnum = mpe.regs[1];
 
-  char *pPath = (char *)nuonEnv->GetPointerToMemory(mpe,path);
+  char *pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
 
   MessageBox(NULL,pPath,"Unimplemented File Call: FileIsatty",MB_OK);
 }
 
-void FileLseek(MPE *mpe)
+void FileLseek(MPE &mpe)
 {
-  uint32 fd = mpe->regs[0];
-  uint32 offset = mpe->regs[1];
-  uint32 whence = mpe->regs[2];
-  uint32 errnum = mpe->regs[3];
+  uint32 fd = mpe.regs[0];
+  uint32 offset = mpe.regs[1];
+  uint32 whence = mpe.regs[2];
+  uint32 errnum = mpe.regs[3];
   int32 index, result;
   uint32 *pErr;
 
@@ -450,46 +450,44 @@ void FileLseek(MPE *mpe)
     {
       goto Error;
     }
-    mpe->regs[0] = result;
+    mpe.regs[0] = result;
   }
   else
   {
 Error:
-    pErr = (uint32 *)nuonEnv->GetPointerToMemory(mpe, errnum);
+    pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
     *pErr = EBADF;
     SwapScalarBytes(pErr);
-    mpe->regs[0] = -1;
+    mpe.regs[0] = -1;
   }
 }
 
-void FileLink(MPE *mpe)
+void FileLink(MPE &mpe)
 {
-  uint32 oldpath = mpe->regs[0];
-  uint32 newpath = mpe->regs[1];
-  uint32 errnum = mpe->regs[2];
+  uint32 oldpath = mpe.regs[0];
+  uint32 newpath = mpe.regs[1];
+  uint32 errnum = mpe.regs[2];
 
   MessageBox(NULL,"This handler does nothing","Unimplemented File Call: FileLink",MB_OK);
 }
 
-void FileLstat(MPE *mpe)
+void FileLstat(MPE &mpe)
 {
-  uint32 file_name = mpe->regs[0];
-  uint32 buf = mpe->regs[1];
-  uint32 errnum = mpe->regs[2];
+  uint32 file_name = mpe.regs[0];
+  uint32 buf = mpe.regs[1];
+  uint32 errnum = mpe.regs[2];
 
-  char *pFilename = (char *)nuonEnv->GetPointerToMemory(mpe,file_name);
+  char *pFilename = (char *)nuonEnv.GetPointerToMemory(mpe,file_name);
 
   MessageBox(NULL,pFilename,"Unimplemented File Call: FileLstat",MB_OK);
 }
 
-void FileUnlink(MPE *mpe)
+void FileUnlink(MPE &mpe)
 {
-  uint32 pathname = mpe->regs[0];
-  uint32 errnum = mpe->regs[1];
+  uint32 pathname = mpe.regs[0];
+  uint32 errnum = mpe.regs[1];
 
-  char *pPathname = (char *)nuonEnv->GetPointerToMemory(mpe,pathname);
+  char *pPathname = (char *)nuonEnv.GetPointerToMemory(mpe,pathname);
 
   MessageBox(NULL,pPathname,"Unimplemented File Call: FileUnlink",MB_OK);
 }
-
-

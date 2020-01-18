@@ -41,12 +41,13 @@ class MPE;
 #define ENABLE_DMA_SKIP	(0x0800UL)
 #define ENABLE_DMA_STALL (0x1000UL)
 
-void AudioMute(MPE * const);
-void AudioReset(MPE * const);
-void AudioQuerySampleRates(MPE * const);
-void AudioSetSampleRate(MPE * const);
-void AudioQueryChannelMode(MPE * const);
-void AudioSetChannelMode(MPE * const);
-void AudioSetDMABuffer(MPE * const);
+
+void AudioMute(MPE& mpe);
+void AudioReset(MPE& mpe);
+void AudioQuerySampleRates(MPE &mpe);
+void AudioSetSampleRate(MPE &mpe);
+void AudioQueryChannelMode(MPE &mpe);
+void AudioSetChannelMode(MPE &mpe);
+void AudioSetDMABuffer(MPE &mpe);
 
 #endif

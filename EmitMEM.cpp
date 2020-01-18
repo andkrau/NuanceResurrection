@@ -9,7 +9,7 @@
 #include "NuonEnvironment.h"
 #include "X86EmitTypes.h"
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 extern structBilinearAddressInfo bilinearAddressInfo;
 
 void EmitControlRegisterLoad(EmitterVariables *vars, uint32 address, x86Reg destReg);
@@ -163,9 +163,9 @@ void Emit_LoadByteLinear(EmitterVariables *vars, Nuance &nuance)
   Emit_ExitBlock(vars);
   vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -204,9 +204,9 @@ void Emit_LoadByteBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -243,9 +243,9 @@ void Emit_LoadByteBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -296,9 +296,9 @@ void Emit_LoadWordLinear(EmitterVariables *vars, Nuance &nuance)
   Emit_ExitBlock(vars);
   vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -338,9 +338,9 @@ void Emit_LoadWordBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -378,9 +378,9 @@ void Emit_LoadWordBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -447,9 +447,9 @@ void Emit_LoadScalarLinear(EmitterVariables *vars, Nuance &nuance)
   Emit_ExitBlock(vars);
   vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -491,9 +491,9 @@ void Emit_LoadScalarBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -534,9 +534,9 @@ void Emit_LoadScalarBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -591,9 +591,9 @@ void Emit_LoadShortVectorLinear(EmitterVariables *vars, Nuance &nuance)
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -649,9 +649,9 @@ void Emit_LoadShortVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -707,9 +707,9 @@ void Emit_LoadShortVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -785,9 +785,9 @@ void Emit_LoadVectorLinear(EmitterVariables *vars, Nuance &nuance)
   Emit_ExitBlock(vars);
   vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -840,9 +840,9 @@ void Emit_LoadVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -893,9 +893,9 @@ void Emit_LoadVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -971,9 +971,9 @@ void Emit_LoadPixelLinear(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVRM(x86Reg_edx, (uint32)&bilinearAddressInfo.clutBase);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1008,9 +1008,9 @@ void Emit_LoadPixelZLinear(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVRM(x86Reg_edx, (uint32)&bilinearAddressInfo.clutBase);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1054,9 +1054,9 @@ void Emit_LoadPixelBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1101,9 +1101,9 @@ void Emit_LoadPixelZBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1148,9 +1148,9 @@ void Emit_LoadPixelBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1195,9 +1195,9 @@ void Emit_LoadPixelZBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1279,9 +1279,9 @@ void Emit_StoreScalarLinear(EmitterVariables *vars, Nuance &nuance)
   Emit_ExitBlock(vars);
   vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1324,9 +1324,9 @@ void Emit_StoreScalarBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1368,9 +1368,9 @@ void Emit_StoreScalarBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1426,9 +1426,9 @@ void Emit_StoreShortVectorLinear(EmitterVariables *vars, Nuance &nuance)
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1482,9 +1482,9 @@ void Emit_StoreShortVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_CALLI((uint32)GetBilinearAddress,0);
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1538,9 +1538,9 @@ void Emit_StoreShortVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1617,9 +1617,9 @@ void Emit_StoreVectorLinear(EmitterVariables *vars, Nuance &nuance)
   Emit_ExitBlock(vars);
   vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1690,9 +1690,9 @@ void Emit_StoreVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1747,9 +1747,9 @@ void Emit_StoreVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1809,9 +1809,9 @@ void Emit_StorePixelLinear(EmitterVariables *vars, Nuance &nuance)
 	vars->codeCache->X86Emit_MOVRR(x86Reg_ebx, x86Reg_eax);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1845,9 +1845,9 @@ void Emit_StorePixelZLinear(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr_dword, (uint32)&bilinearAddressInfo.pRegs);
 
   vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1885,9 +1885,9 @@ void Emit_StorePixelBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1929,9 +1929,9 @@ void Emit_StorePixelZBilinearUV(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -1974,9 +1974,9 @@ void Emit_StorePixelBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);
@@ -2019,9 +2019,9 @@ void Emit_StorePixelZBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->mainBusDRAM), x86Reg_ecx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->systemBusDRAM), x86Reg_edx);
-  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv->flashEEPROM->GetBasePointer()), x86Reg_ebp);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
+  //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM->GetBasePointer()), x86Reg_ebp);
   //vars->codeCache->X86Emit_CMPIR(0x40000000, x86Reg_eax);
   //vars->codeCache->X86Emit_CMOVNBRR(x86Reg_ebx, x86Reg_ecx);
   //vars->codeCache->X86Emit_CMPIR(0x80000000, x86Reg_eax);

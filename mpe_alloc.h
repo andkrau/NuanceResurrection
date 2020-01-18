@@ -29,17 +29,17 @@ class MPE;
 
 /* function definitions */
 
-void ResetMPEFlags(MPE *mpe);
-void MPEAlloc(MPE *mpe);
-void MPEAllocSpecific(MPE *mpe);
-void MPEFree(MPE *mpe);
-void MPEStatus(MPE *mpe);
-void MPEsAvailable(MPE *mpe);
-void MPERun(MPE *mpe);
-void MPERunThread(MPE *the_mpe);
-void MPEStop(MPE *mpe);
-void MPELoad(MPE *mpe);
-void MPEReadRegister(MPE *the_mpe);
-void MPEWriteRegister(MPE *the_mpe);
+void ResetMPEFlags(MPE &mpe);
+void MPEAlloc(MPE &mpe);
+void MPEAllocSpecific(MPE &mpe);
+void MPEFree(MPE &mpe);
+void MPEStatus(MPE &mpe);
+void MPEsAvailable(MPE &mpe);
+void MPERun(MPE &mpe);
+void MPERunThread(MPE &mpe);
+void MPEStop(MPE &mpe);
+void MPELoad(MPE &mpe);
+void MPEReadRegister(MPE &mpe);
+void MPEWriteRegister(MPE &mpe);
 
 #endif

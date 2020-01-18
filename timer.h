@@ -20,9 +20,9 @@ struct _currenttime {
 };
 
 void InitializeTimingMethod(void);
-void TimeElapsed(MPE *mpe);
-void TimeOfDay(MPE *mpe);
-void TimerInit(uint32 whichTimer, uint32 rate);
-void TimerInit(MPE *mpe);
+void TimeElapsed(MPE &mpe);
+void TimeOfDay(MPE &mpe);
+void TimerInit(const uint32 whichTimer, const uint32 rate);
+void TimerInit(MPE &mpe);
 
 #endif

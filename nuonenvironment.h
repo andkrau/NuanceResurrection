@@ -26,44 +26,47 @@ public:
   NuonEnvironment();
   ~NuonEnvironment();
 
-  void WriteFile(MPE *pMPE, uint32 fd, uint32 buf, uint32 len);
-  void *GetPointerToMemory(MPE * const the_mpe,const uint32 address, const bool bCheckAddress = true);
+  void WriteFile(MPE &mpe, uint32 fd, uint32 buf, uint32 len);
+  void *GetPointerToMemory(const MPE &mpe, const uint32 address, const bool bCheckAddress = true);
+  void *GetPointerToSystemMemory(const uint32 address, const bool bCheckAddress = true);
   void InitBios(void);
   void InitAudio(void);
   void CloseAudio(void);
-  void MuteAudio(uint32 param);
+  void MuteAudio(const bool mute);
   void StopAudio(void);
   void RestartAudio(void);
-  void StartAudio(void);
   void SetAudioVolume(uint32 volume);
   void SetAudioPlaybackRate(uint32 rate);
-  bool IsAudioHalfInterruptEnabled(void)
+
+  bool IsAudioHalfInterruptEnabled(void) const
   {
     return (nuonAudioChannelMode & ENABLE_HALF_INT);
   }
-
-  bool IsAudioWrapInterruptEnabled(void)
+  bool IsAudioWrapInterruptEnabled(void) const
   {
     return (nuonAudioChannelMode & ENABLE_WRAP_INT);
   }
-
-  bool IsAudioSampleInterruptEnabled(void)
+  bool IsAudioSampleInterruptEnabled(void) const
   {
     return (nuonAudioChannelMode & ENABLE_SAMP_INT);
   }
 
-  uint32 GetInterruptCycleRate(uint32 newMode);
-
-  char *GetDVDBase()
+  char *GetDVDBase() const
   {
     return dvdBase;
   }
 
-
   void TriggerAudioInterrupt(void);
   void TriggerVideoInterrupt(void);
 
-  MPE *mpe[4];
+  void RegisterMainWindowHandle(uint32 handle)
+  {
+      mainWindowHandle = handle;
+  }
+
+  void SetDVDBaseFromFileName(const char* const filename);
+
+  MPE mpe[4];
   NuonMemoryManager nuonMemoryManager;
   uint8 *mainBusDRAM;
   uint8 *systemBusDRAM;
@@ -72,11 +75,6 @@ public:
   uint32 pendingCommRequests;
   uint32 mainChannelUpperLimit, mainChannelLowerLimit;
   uint32 overlayChannelUpperLimit, overlayChannelLowerLimit;
-
-  void RegisterMainWindowHandle(uint32 handle)
-  {
-    mainWindowHandle = handle;
-  }
 
   //Last accepted value stored using _AudioSetChannelMode
   uint32 nuonAudioChannelMode;
@@ -96,23 +94,23 @@ public:
   bool bProcessorStartStopChange;
   bool bMainBufferModified;
   bool bOverlayBufferModified;
-  bool bSoundDeviceChosen;
   bool bUseCycleBasedTiming;
+  bool whichAudioInterrupt;
   uint32 cyclesPerAudioInterrupt;
   uint32 fps;
   uint32 audioInterruptCycleCount;
   uint32 videoDisplayCycleCount;
-  uint32 whichAudioInterrupt;
   uint32 GetBufferSize(uint32 channelMode);
   CompilerOptions compilerOptions;
   VideoOptions videoOptions;
-  void SetDVDBaseFromFileName(const char * const filename);
+
 private:
+  ConfigTokenType ReadConfigLine(FILE *file, char *buf);
+  bool LoadConfigFile(const char * const fileName);
+
   char *dvdBase;
   bool bAudioInterruptsEnabled;
   uint32 mainWindowHandle;
-  ConfigTokenType ReadConfigLine(FILE *file, char *buf);
-  bool LoadConfigFile(const char * const fileName);
 };
 
 #endif

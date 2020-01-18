@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <windows.h>
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 extern NativeEmitHandler emitHandlers[];
 
 FILE *blockFile;
@@ -476,14 +476,14 @@ NativeCodeCacheEntryPoint SuperBlock::CompileBlock(MPE * const mpe, const uint32
   }
   else
   {
-    if(nuonEnv->compilerOptions.bConstantPropagation)
+    if(nuonEnv.compilerOptions.bConstantPropagation)
     {
       //Step 2, perform constant propagation
       UpdateDependencyInfo();
       PerformConstantPropagation();
     }
     
-    if(nuonEnv->compilerOptions.bDeadCodeElimination)
+    if(nuonEnv.compilerOptions.bDeadCodeElimination)
     {
       //Step 3, perform dead code elimination
       UpdateDependencyInfo();
@@ -924,7 +924,7 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
   {
     packet.pcexec = packetAddress;
 
-    mpe.DecompressPacket((uint8 *)nuonEnv->GetPointerToMemory(&mpe,packetAddress,false),&packet, decodeOptions);
+    mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),&packet, decodeOptions);
     packetAddress = packet.pcroute;
 
     packetsProcessed++;
@@ -960,10 +960,10 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
           {
             //Delayed branch with explicit delay slot instructions
             packetDelaySlot1.pcexec = packetAddress;
-            mpe.DecompressPacket((uint8 *)nuonEnv->GetPointerToMemory(&mpe,packetAddress,false),&packetDelaySlot1, decodeOptions);
+            mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),&packetDelaySlot1, decodeOptions);
             packetAddress = packetDelaySlot1.pcroute;
             packetDelaySlot2.pcexec = packetAddress;
-            mpe.DecompressPacket((uint8 *)nuonEnv->GetPointerToMemory(&mpe,packetAddress,false),&packetDelaySlot2, decodeOptions);
+            mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),&packetDelaySlot2, decodeOptions);
             packet.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
             packetDelaySlot1.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
             packetDelaySlot2.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;

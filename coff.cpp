@@ -6,7 +6,7 @@
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 
 #define bswap32(n) (((n & 0xFF) << 24) | ((n & 0xFF00) << 8) | ((n & 0xFF0000) >> 8) | (n >> 24))
 #define bswap16(n) ((n << 8) | ((n >> 8) & 0xFF))
@@ -120,15 +120,14 @@ bool MPE::LoadCoffFile(const char * const filename, bool bSetEntryPoint, int han
           //BIOS patching in the C startup code
 
           for(int i = 0; i < 16; i++)
-          {
-            nuonEnv->mainBusDRAM[(sectionhdr.s_paddr & MAIN_BUS_VALID_MEMORY_MASK) + i] = 0;
-          }
+            nuonEnv.mainBusDRAM[(sectionhdr.s_paddr & MAIN_BUS_VALID_MEMORY_MASK) + i] = 0;
+
           _lseek(handle,16,SEEK_CUR);
-          _read(handle,&(nuonEnv->mainBusDRAM[(sectionhdr.s_paddr & MAIN_BUS_VALID_MEMORY_MASK) + 16]),sectionhdr.s_size - 16);
+          _read(handle,&(nuonEnv.mainBusDRAM[(sectionhdr.s_paddr & MAIN_BUS_VALID_MEMORY_MASK) + 16]),sectionhdr.s_size - 16);
         }
         else
         {
-          _read(handle,&(nuonEnv->mainBusDRAM[sectionhdr.s_paddr & MAIN_BUS_VALID_MEMORY_MASK]),sectionhdr.s_size);
+          _read(handle,&(nuonEnv.mainBusDRAM[sectionhdr.s_paddr & MAIN_BUS_VALID_MEMORY_MASK]),sectionhdr.s_size);
         }
       }
       else
@@ -140,15 +139,14 @@ bool MPE::LoadCoffFile(const char * const filename, bool bSetEntryPoint, int han
           //BIOS patching in the C startup code
 
           for(int i = 0; i < 16; i++)
-          {
-            nuonEnv->systemBusDRAM[(sectionhdr.s_paddr & SYSTEM_BUS_VALID_MEMORY_MASK) + i] = 0;
-          }
+            nuonEnv.systemBusDRAM[(sectionhdr.s_paddr & SYSTEM_BUS_VALID_MEMORY_MASK) + i] = 0;
+
           _lseek(handle,16,SEEK_CUR);
-          _read(handle,&(nuonEnv->systemBusDRAM[(sectionhdr.s_paddr & SYSTEM_BUS_VALID_MEMORY_MASK) + 16]),sectionhdr.s_size - 16);
+          _read(handle,&(nuonEnv.systemBusDRAM[(sectionhdr.s_paddr & SYSTEM_BUS_VALID_MEMORY_MASK) + 16]),sectionhdr.s_size - 16);
         }
         else
         {
-          _read(handle,&(nuonEnv->systemBusDRAM[(sectionhdr.s_paddr & SYSTEM_BUS_VALID_MEMORY_MASK)]),sectionhdr.s_size);
+          _read(handle,&(nuonEnv.systemBusDRAM[(sectionhdr.s_paddr & SYSTEM_BUS_VALID_MEMORY_MASK)]),sectionhdr.s_size);
         }
       }
 

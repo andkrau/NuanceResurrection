@@ -5,9 +5,9 @@
 #include "video.h"
 
 extern VidChannel structMainChannel;
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 
-void BDMA_Type5_Write_0(MPE * const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   const bool bRemote = flags & (1UL << 28);
   const bool bDirect = flags & (1UL << 27);
@@ -62,16 +62,16 @@ void BDMA_Type5_Write_0(MPE * const the_mpe, const uint32 flags, const uint32 ba
   if(bRemote)
   {
     //internal address is system address (but still in MPE memory)
-    intMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
+    intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
   }
   else
   {
     //internal address is local to MPE
-    intMemory = nuonEnv->GetPointerToMemory(the_mpe, mpeBase & 0x207FFFFF, false);
+    intMemory = nuonEnv.GetPointerToMemory(mpe, mpeBase & 0x207FFFFF, false);
   }
 
   //base address is always a system address (absolute)
-  void* const baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
+  void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
   //const uint32 srcOffset = 0;
   const uint32 destOffset = ypos*(uint32)xsize + xpos;
@@ -117,15 +117,15 @@ void BDMA_Type5_Write_0(MPE * const the_mpe, const uint32 flags, const uint32 ba
     srcBStep = xsize << srcStrideShift;
   }
 
-  if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv->mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv->mainChannelUpperLimit) ||
-      (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv->mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv->mainChannelUpperLimit))
+  if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv.mainChannelUpperLimit) ||
+      (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv.mainChannelUpperLimit))
   {
-    nuonEnv->bMainBufferModified = true;
+    nuonEnv.bMainBufferModified = true;
   }
-  else if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv->overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv->overlayChannelUpperLimit) ||
-      (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv->overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv->overlayChannelUpperLimit))
+  else if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv.overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv.overlayChannelUpperLimit) ||
+      (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv.overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv.overlayChannelUpperLimit))
   {
-    nuonEnv->bOverlayBufferModified = true;
+    nuonEnv.bOverlayBufferModified = true;
   }
 
   uint32 srcB = 0;
@@ -198,35 +198,35 @@ void BDMA_Type5_Write_0(MPE * const the_mpe, const uint32 flags, const uint32 ba
   }
 }
 
-void BDMA_Type5_Write_1(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Write_1(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_2(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Write_2(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_3(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Write_3(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_4(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Write_4(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_5(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Write_5(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_6(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Write_6(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Write_7(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Write_7(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   //const bool bBatch = flags & (1UL << 30);
   const bool bChain = flags & (1UL << 29);
@@ -288,17 +288,17 @@ void BDMA_Type5_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 base
   if(bRemote)
   {
     //internal address is system address (but still in MPE memory)
-    intMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
+    intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
   }
   else
   {
     //internal address is local to MPE
-    intMemory = nuonEnv->GetPointerToMemory(the_mpe, mpeBase, false);
+    intMemory = nuonEnv.GetPointerToMemory(mpe, mpeBase, false);
   }
 
   //base address is always a system address (absolute)
 
-  void * const baseMemory = nuonEnv->GetPointerToMemory(nuonEnv->mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
+  void * const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
   const void* const pSrc = (void *)baseMemory;
   void* const pDest = (void *)intMemory;
@@ -312,15 +312,15 @@ void BDMA_Type5_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 base
     //to flush the cache on data writes.
     if(bRemote)
     {
-      nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->InvalidateICache();
-      nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->nativeCodeCache->Flush();
-      nuonEnv->mpe[(intaddr >> 23) & 0x1FUL]->UpdateInvalidateRegion(MPE_IRAM_BASE, length << 2);
+      nuonEnv.mpe[(intaddr >> 23) & 0x1FUL]->InvalidateICache();
+      nuonEnv.mpe[(intaddr >> 23) & 0x1FUL]->nativeCodeCache->Flush();
+      nuonEnv.mpe[(intaddr >> 23) & 0x1FUL]->UpdateInvalidateRegion(MPE_IRAM_BASE, length << 2);
     }
     else
     {
-      the_mpe->InvalidateICache();
-      the_mpe->nativeCodeCache->Flush();
-      the_mpe->UpdateInvalidateRegion(MPE_IRAM_BASE, length << 2)
+      mpe.InvalidateICache();
+      mpe.nativeCodeCache->Flush();
+      mpe.UpdateInvalidateRegion(MPE_IRAM_BASE, length << 2)
     }
   }
 */
@@ -387,30 +387,30 @@ void BDMA_Type5_Read_0(MPE* const the_mpe, const uint32 flags, const uint32 base
   }
 }
 
-void BDMA_Type5_Read_1(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Read_1(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_2(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Read_2(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_3(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Read_3(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_4(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Read_4(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_5(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Read_5(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_6(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Read_6(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }
 
-void BDMA_Type5_Read_7(MPE* const the_mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
+void BDMA_Type5_Read_7(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
 }

@@ -8,7 +8,7 @@
 
 //#define USE_QUEUE_TIMERS //!! test which variant is better in practice
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 
 bool bHighPerformanceTimerAvailable = false;
 extern _LARGE_INTEGER tickFrequency;
@@ -29,10 +29,10 @@ void CALLBACK SysTimer0Callback(void* lpParameter,BOOLEAN TimerOrWaitFired)
 void CALLBACK SysTimer0Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2)
 #endif
 { 
-  nuonEnv->mpe[0]->TriggerInterrupt(INT_SYSTIMER0);
-  nuonEnv->mpe[1]->TriggerInterrupt(INT_SYSTIMER0);
-  nuonEnv->mpe[2]->TriggerInterrupt(INT_SYSTIMER0);
-  nuonEnv->mpe[3]->TriggerInterrupt(INT_SYSTIMER0);
+  nuonEnv.mpe[0].TriggerInterrupt(INT_SYSTIMER0);
+  nuonEnv.mpe[1].TriggerInterrupt(INT_SYSTIMER0);
+  nuonEnv.mpe[2].TriggerInterrupt(INT_SYSTIMER0);
+  nuonEnv.mpe[3].TriggerInterrupt(INT_SYSTIMER0);
 } 
 
 #ifdef USE_QUEUE_TIMERS
@@ -41,10 +41,10 @@ void CALLBACK SysTimer1Callback(void* lpParameter, BOOLEAN TimerOrWaitFired)
 void CALLBACK SysTimer1Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2)
 #endif
 { 
-  nuonEnv->mpe[0]->TriggerInterrupt(INT_SYSTIMER1);
-  nuonEnv->mpe[1]->TriggerInterrupt(INT_SYSTIMER1);
-  nuonEnv->mpe[2]->TriggerInterrupt(INT_SYSTIMER1);
-  nuonEnv->mpe[3]->TriggerInterrupt(INT_SYSTIMER1);
+  nuonEnv.mpe[0].TriggerInterrupt(INT_SYSTIMER1);
+  nuonEnv.mpe[1].TriggerInterrupt(INT_SYSTIMER1);
+  nuonEnv.mpe[2].TriggerInterrupt(INT_SYSTIMER1);
+  nuonEnv.mpe[3].TriggerInterrupt(INT_SYSTIMER1);
 }
 
 #ifdef USE_QUEUE_TIMERS
@@ -58,16 +58,16 @@ void CALLBACK SysTimer2Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32
 
 //  for(uint32 i = 0; i < 4; i++)
 //  {
-//    uint64 delta = nuonEnv->mpe[i]->cycleCounter - cycleCounter[i];
+//    uint64 delta = nuonEnv.mpe[i]->cycleCounter - cycleCounter[i];
 //    if(delta > max_delta[i])
 //    {
 //      max_delta[i] = delta;
 //    }
-//    cycleCounter[i] = nuonEnv->mpe[i]->cycleCounter;
+//    cycleCounter[i] = nuonEnv.mpe[i]->cycleCounter;
 //  }
 
   IncrementVideoFieldCounter();
-  nuonEnv->TriggerVideoInterrupt();
+  nuonEnv.TriggerVideoInterrupt();
 }
 
 void InitializeTimingMethod(void)
@@ -89,19 +89,19 @@ void InitializeTimingMethod(void)
   }
 }
 
-void TimeOfDay(MPE *mpe)
+void TimeOfDay(MPE &mpe)
 {
   time_t currTime;
   tm *pcTime;
   _currenttime *nuonTime;
   uint32 ptrNuonTime, getset;
 
-  ptrNuonTime = mpe->regs[0];
-  getset = mpe->regs[1];
+  ptrNuonTime = mpe.regs[0];
+  getset = mpe.regs[1];
 
   if(getset == 0)
   {
-    nuonTime = (_currenttime *)nuonEnv->GetPointerToMemory(mpe,ptrNuonTime,true);
+    nuonTime = (_currenttime *)nuonEnv.GetPointerToMemory(mpe,ptrNuonTime,true);
 
     //Get time and fill time structure
 
@@ -142,18 +142,18 @@ void TimeOfDay(MPE *mpe)
     SwapScalarBytes((uint32 *)&nuonTime->isdst);
     SwapScalarBytes((uint32 *)&nuonTime->timezone);
 
-    mpe->regs[0] = 0;
+    mpe.regs[0] = 0;
   }
   else
   {
     //Set time using values in time structure
 
     //Not allowed to set the time
-    mpe->regs[0] = -1;
+    mpe.regs[0] = -1;
   }
 }
 
-void TimeElapsed(MPE *mpe)
+void TimeElapsed(MPE &mpe)
 {
   uint64 seconds, useconds, mseconds;
 
@@ -177,13 +177,13 @@ void TimeElapsed(MPE *mpe)
     useconds = 0;
   }
 
-  const uint32 ptrSecs = mpe->regs[0];
-  const uint32 ptrUSecs = mpe->regs[1];
+  const uint32 ptrSecs = mpe.regs[0];
+  const uint32 ptrUSecs = mpe.regs[1];
 
   //Store seconds if pointer is not NULL
   if(ptrSecs)
   {
-    uint32 *const memPtr = (uint32 *)nuonEnv->GetPointerToMemory(mpe,ptrSecs,true);
+    uint32 *const memPtr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,ptrSecs,true);
     *memPtr = (uint32)seconds;
     SwapScalarBytes(memPtr);
   }
@@ -191,15 +191,15 @@ void TimeElapsed(MPE *mpe)
   //Store microseconds if pointer is not NULL
   if(ptrUSecs)
   {
-    uint32 *const memPtr = (uint32 *)nuonEnv->GetPointerToMemory(mpe,ptrUSecs,true);
+    uint32 *const memPtr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,ptrUSecs,true);
     *memPtr = (uint32)useconds;
     SwapScalarBytes(memPtr);
   }
 
-  mpe->regs[0] = (uint32)mseconds;
+  mpe.regs[0] = (uint32)mseconds;
 }
 
-void TimerInit(uint32 whichTimer, uint32 rate)
+void TimerInit(const uint32 whichTimer, const uint32 rate)
 {
   if(whichTimer == 0)
   {
@@ -249,18 +249,18 @@ void TimerInit(uint32 whichTimer, uint32 rate)
 
 }
 
-void TimerInit(MPE *mpe)
+void TimerInit(MPE &mpe)
 {
-  const int32 whichTimer = mpe->regs[0];
-  const int32 rate = mpe->regs[1];
+  const int32 whichTimer = mpe.regs[0];
+  const int32 rate = mpe.regs[1];
 
   if((whichTimer < 0) || (whichTimer > 1))
   {
-    mpe->regs[0] = 0;
+    mpe.regs[0] = 0;
   }
   else
   {
     TimerInit(whichTimer,rate);
-    mpe->regs[0] = 1;
+    mpe.regs[0] = 1;
   }
 }

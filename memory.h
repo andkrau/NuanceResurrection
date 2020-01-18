@@ -3,9 +3,9 @@
 
 class MPE;
 
-void MemAlloc(MPE * const);
-void MemFree(MPE * const);
-void MemInit(MPE * const);
-void MemLocalScratch(MPE * const the_mpe);
+void MemAlloc(MPE &mpe);
+void MemFree(MPE &mpe);
+void MemInit(MPE &mpe);
+void MemLocalScratch(MPE &mpe);
 
 #endif

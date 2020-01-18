@@ -78,16 +78,16 @@ struct MediaHandleInfo
 #define MEDIA_DEVICES_AVAILABLE ((HAVE_DVD_MEDIA) | (HAVE_BOOT_MEDIA))
 
 //LONG HANDLE, LONG CTL, LONG *VALUE
-void MediaIoctl(MPE *mpe);
-void MediaGetDevicesAvailable(MPE *mpe);
-void MediaGetInfo(MPE *mpe);
-void MediaOpen(MPE *mpe);
-void MediaClose(MPE *mpe);
-void MediaRead(MPE *mpe);
-void MediaWrite(MPE *mpe);
-void MediaShutdownMPE(MPE *mpe);
-void MediaInitMPE(MPE *mpe);
-void MediaInitMPE(uint32 i);
-void SpinWait(MPE *mpe);
+void MediaIoctl(MPE &mpe);
+void MediaGetDevicesAvailable(MPE &mpe);
+void MediaGetInfo(MPE &mpe);
+void MediaOpen(MPE &mpe);
+void MediaClose(MPE &mpe);
+void MediaRead(MPE &mpe);
+void MediaWrite(MPE &mpe);
+void MediaShutdownMPE(MPE &mpe);
+void MediaInitMPE(MPE &mpe);
+void MediaInitMPE(const uint32 i);
+void SpinWait(MPE &mpe);
 
 #endif

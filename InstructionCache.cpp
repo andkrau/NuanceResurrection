@@ -31,10 +31,8 @@ InstructionCache::~InstructionCache()
 
 void InstructionCache::Invalidate()
 {
-  for(uint32 i = 0; i < ((numEntries/32) + 1); i++)
-  {
+  for(uint32 i = 0; i < (numEntries/32 + 1); i++)
     validBitmap[i] = 0;
-  }
 }
 
 void InstructionCache::InvalidateRegion(const uint32 start, const uint32 end)

@@ -2,8 +2,10 @@
 #define PRESENTATION_ENGINE_H
 
 #include "basetypes.h"
+
 class MPE;
 
 void InitDVDJumpTable();
-void CallPEHandler(MPE *mpe, uint32 address);
+void CallPEHandler(MPE &mpe, const uint32 address);
+
 #endif

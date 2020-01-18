@@ -1,22 +1,19 @@
-//---------------------------------------------------------------------------
 #ifndef MEMORY_MANAGER_H
 #define MEMORY_MANAGER_H
-//---------------------------------------------------------------------------
 
 #include <vector>
+
 using namespace std;
 
-class FreeMemoryBlock
+struct FreeMemoryBlock
 {
-  public:
   uint32 startAddress;
   uint32 endAddress;
   uint32 numBytes;
 };
 
-class AllocatedMemoryBlock
+struct AllocatedMemoryBlock
 {
-  public:
   uint32 startAddress;
   uint32 numBytes;
 };
@@ -29,6 +26,7 @@ public:
   void Add(uint32 startAddress, uint32 endAddress, uint32 index = 0);
   void *Allocate(uint32 requestedBytes, uint32 requestedAlignment);
   void Free(uint32 address);
+
   inline void Reset()
   {
     freeBlockVector.clear();
@@ -43,13 +41,5 @@ private:
   vector<FreeMemoryBlock> freeBlockVector;
   vector<AllocatedMemoryBlock> allocatedBlockVector;
 };
-
-/*
-void MemAlloc(MPE *);
-void MemFree(MPE *);
-void MemInit(MPE *);
-void MemLocalScratch(MPE *the_mpe);
-void FreeListEntryMemory(TList *blockList);
-*/
 
 #endif

@@ -36,7 +36,7 @@ static const int32 pixel_type_width[16] = {
 0 //Type 15: Reserved
 };
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 
 inline void SaturateColorComponents(uint32 &Y, uint32 &Cr, uint32 &Cb, const bool bChnorm)
 {
@@ -56,17 +56,11 @@ inline void SaturateColorComponents(uint32 &Y, uint32 &Cr, uint32 &Cb, const boo
       break;
     case 1:
       //clamp to 0x7F or 0xFF
-      if(bChnorm)
-        Cr = 0x7F;
-      else
-        Cr = 0xFF;
+      Cr = bChnorm ? 0x7F : 0xFF;
       break;
     case 2:
       //clamp to 0x80 or 0x00
-      if(bChnorm)
-        Cr = 0x80;
-      else
-        Cr = 0x00;
+      Cr = bChnorm ? 0x80 : 0x00;
       break;
     case 3:
       //Clamp to 0x80 or 0x00
@@ -93,17 +87,11 @@ inline void SaturateColorComponents(uint32 &Y, uint32 &Cr, uint32 &Cb, const boo
       break;
     case 1:
       //clamp to 0x7F or 0xFF
-      if(bChnorm)
-        Cb = 0x7F;
-      else
-        Cb = 0xFF;
+      Cb = bChnorm ? 0x7F : 0xFF;
       break;
     case 2:
       //clamp to 0x80 or 0x00
-      if(bChnorm)
-        Cb = 0x80;
-      else
-        Cb = 0x00;
+      Cb = bChnorm ? 0x80 : 0x00;
       break;
     case 3:
       //Clamp to 0x80 or 0x00
@@ -483,7 +471,7 @@ void Execute_LoadScalarLinear(MPE &mpe, const InstructionCacheEntry &entry, cons
     //the epilogue code
     if(address >= MPE_ADDR_SPACE_BASE)
     {
-      data = *((uint32 *)(nuonEnv->GetPointerToMemory(&mpe,address & 0xFFFFFFFC)));
+      data = *((uint32 *)(nuonEnv.GetPointerToMemory(mpe,address & 0xFFFFFFFC)));
       SwapScalarBytes(&data);
     }
     else
@@ -890,7 +878,7 @@ void Execute_LoadByteLinear(MPE &mpe, const InstructionCacheEntry &entry, const 
 {
   const uint32 address = entry.pScalarRegs[nuance.fields[FIELD_MEM_FROM]];
 
-  const uint32 data = *((uint8 *)(nuonEnv->GetPointerToMemory(&mpe,address)));
+  const uint32 data = *((uint8 *)(nuonEnv.GetPointerToMemory(mpe,address)));
   mpe.regs[nuance.fields[FIELD_MEM_TO]] = data << 24;
 }
 
@@ -901,7 +889,7 @@ void Execute_LoadByteBilinearUV(MPE &mpe, const InstructionCacheEntry &entry, co
   address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(*entry.pUvctl >> 20) & 0x0FUL]);
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (uint32)Execute_LoadByteAbsolute;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   newNuance.fields[FIELD_MEM_FROM] = address;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   Execute_LoadByteAbsolute(mpe,entry,newNuance);
@@ -914,7 +902,7 @@ void Execute_LoadByteBilinearXY(MPE &mpe, const InstructionCacheEntry &entry, co
   address = (mpe.xybase & 0xFFFFFFC) + (address << pixel_type_width[(*entry.pXyctl >> 20) & 0x0FUL]);
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (uint32)Execute_LoadByteAbsolute;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   newNuance.fields[FIELD_MEM_FROM] = address;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   Execute_LoadByteAbsolute(mpe,entry,newNuance);
@@ -925,7 +913,7 @@ void Execute_LoadWordLinear(MPE &mpe, const InstructionCacheEntry &entry, const 
   const uint32 dest = nuance.fields[FIELD_MEM_TO];
   const uint32 address = entry.pScalarRegs[nuance.fields[FIELD_MEM_FROM]];
 
-  const uint8* const memPtr = (uint8 *)(nuonEnv->GetPointerToMemory(&mpe,address & 0xFFFFFFFE));
+  const uint8* const memPtr = (uint8 *)(nuonEnv.GetPointerToMemory(mpe,address & 0xFFFFFFFE));
   uint32 data = ((uint32)(*memPtr)) << 24;
   data |= ((uint32)(*(memPtr + 1))) << 16;
 
@@ -939,7 +927,7 @@ void Execute_LoadWordBilinearUV(MPE &mpe, const InstructionCacheEntry &entry, co
   address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(*entry.pUvctl >> 20) & 0x0FUL]);
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (uint32)Execute_LoadWordAbsolute;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   newNuance.fields[FIELD_MEM_FROM] = address;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   Execute_LoadWordAbsolute(mpe,entry,newNuance);
@@ -952,7 +940,7 @@ void Execute_LoadWordBilinearXY(MPE &mpe, const InstructionCacheEntry &entry, co
   address = (mpe.xybase & 0xFFFFFFFC) + (address << pixel_type_width[(*entry.pXyctl >> 20) & 0x0FUL]);
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (uint32)Execute_LoadWordAbsolute;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   newNuance.fields[FIELD_MEM_FROM] = address;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   Execute_LoadWordAbsolute(mpe,entry,newNuance);
@@ -965,7 +953,7 @@ void Execute_LoadScalarBilinearUV(MPE &mpe, const InstructionCacheEntry &entry, 
   address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(*entry.pUvctl >> 20) & 0x0FUL]);
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (uint32)Execute_LoadScalarAbsolute;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   newNuance.fields[FIELD_MEM_FROM] = address;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   Execute_LoadScalarAbsolute(mpe,entry,newNuance);
@@ -978,7 +966,7 @@ void Execute_LoadScalarBilinearXY(MPE &mpe, const InstructionCacheEntry &entry, 
   address = (mpe.xybase & 0xFFFFFFFC) + (address << pixel_type_width[(*entry.pXyctl >> 20) & 0x0FUL]);
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (uint32)Execute_LoadScalarAbsolute;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   newNuance.fields[FIELD_MEM_FROM] = address;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   Execute_LoadScalarAbsolute(mpe,entry,newNuance);
@@ -1010,7 +998,7 @@ void Execute_LoadShortVectorLinear(MPE &mpe, const InstructionCacheEntry &entry,
 {
   uint32 data[4];
   const uint32 dest = nuance.fields[FIELD_MEM_TO];
-  const uint8 * const ptr = (uint8 *)(nuonEnv->GetPointerToMemory(&mpe,entry.pScalarRegs[nuance.fields[FIELD_MEM_FROM]] & 0xFFFFFFF8));
+  const uint8 * const ptr = (uint8 *)(nuonEnv.GetPointerToMemory(mpe,entry.pScalarRegs[nuance.fields[FIELD_MEM_FROM]] & 0xFFFFFFF8));
   
   data[0] = *((uint32 *)(ptr + 0));
   data[1] = *((uint32 *)(ptr + 2));
@@ -1035,7 +1023,7 @@ void Execute_LoadShortVectorBilinearUV(MPE &mpe, const InstructionCacheEntry &en
   address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(*entry.pUvctl >> 20) & 0x0FUL]);
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (uint32)Execute_LoadShortVectorAbsolute;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   newNuance.fields[FIELD_MEM_FROM] = address;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   Execute_LoadShortVectorAbsolute(mpe,entry,newNuance);
@@ -1058,7 +1046,7 @@ void Execute_LoadVectorLinear(MPE &mpe, const InstructionCacheEntry &entry, cons
 {
   const uint32 address = entry.pScalarRegs[nuance.fields[FIELD_MEM_FROM]];
   uint32 * const destPtr = &mpe.regs[nuance.fields[FIELD_MEM_TO]];
-  const uint32 * const srcPtr = (uint32 *)(nuonEnv->GetPointerToMemory(&mpe,address & 0xFFFFFFF0));
+  const uint32 * const srcPtr = (uint32 *)(nuonEnv.GetPointerToMemory(mpe,address & 0xFFFFFFF0));
 
   if((address < MPE_CTRL_BASE) || (address >= MPE_RESV_BASE))
   {
@@ -1084,7 +1072,7 @@ void Execute_LoadVectorBilinearUV(MPE &mpe, const InstructionCacheEntry &entry, 
   address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(*entry.pUvctl >> 20) & 0x0FUL]);
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (uint32)Execute_LoadVectorAbsolute;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   newNuance.fields[FIELD_MEM_FROM] = address;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   Execute_LoadVectorAbsolute(mpe,entry,newNuance);
@@ -1097,7 +1085,7 @@ void Execute_LoadVectorBilinearXY(MPE &mpe, const InstructionCacheEntry &entry, 
   address = (mpe.xybase & 0xFFFFFFFC) + (address << pixel_type_width[(*entry.pXyctl >> 20) & 0x0FUL]);
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (uint32)Execute_LoadVectorAbsolute;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   newNuance.fields[FIELD_MEM_FROM] = address;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   Execute_LoadVectorAbsolute(mpe,entry,newNuance);
@@ -1111,7 +1099,7 @@ void Execute_LoadPixelLinear(MPE &mpe, const InstructionCacheEntry &entry, const
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_LINEAR_INDIRECT;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   newNuance.fields[FIELD_MEM_FROM] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_LoadPixelAbsolute(mpe,entry,newNuance);
 }
 
@@ -1134,7 +1122,7 @@ void Execute_LoadPixelBilinearUV(MPE &mpe, const InstructionCacheEntry &entry, c
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_UV;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   newNuance.fields[FIELD_MEM_FROM] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_LoadPixelAbsolute(mpe,entry,newNuance);
 }
 
@@ -1157,7 +1145,7 @@ void Execute_LoadPixelBilinearXY(MPE &mpe, const InstructionCacheEntry &entry, c
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_XY;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   newNuance.fields[FIELD_MEM_FROM] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_LoadPixelAbsolute(mpe,entry,newNuance);
 }
 
@@ -1168,7 +1156,7 @@ void Execute_LoadPixelZLinear(MPE &mpe, const InstructionCacheEntry &entry, cons
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_LINEAR_INDIRECT;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   newNuance.fields[FIELD_MEM_FROM] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_LoadPixelZAbsolute(mpe,entry,newNuance);
 }
 
@@ -1181,7 +1169,7 @@ void Execute_LoadPixelZBilinearUV(MPE &mpe, const InstructionCacheEntry &entry, 
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_UV;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   newNuance.fields[FIELD_MEM_FROM] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_LoadPixelZAbsolute(mpe,entry,newNuance);
 }
 
@@ -1194,7 +1182,7 @@ void Execute_LoadPixelZBilinearXY(MPE &mpe, const InstructionCacheEntry &entry, 
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_XY;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];
   newNuance.fields[FIELD_MEM_FROM] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_LoadPixelZAbsolute(mpe,entry,newNuance);
 }
 
@@ -1224,7 +1212,7 @@ void Execute_StoreScalarLinear(MPE &mpe, const InstructionCacheEntry &entry, con
   const uint32 address = entry.pScalarRegs[nuance.fields[FIELD_MEM_TO]] & 0xFFFFFFFC;
   if((address < MPE_ITAGS_BASE) || (address >= MPE_RESV_BASE))
   {
-    uint32* const destPtr = (uint32 *)(nuonEnv->GetPointerToMemory(&mpe,address));
+    uint32* const destPtr = (uint32 *)(nuonEnv.GetPointerToMemory(mpe,address));
     *destPtr = entry.pScalarRegs[nuance.fields[FIELD_MEM_FROM]];
     SwapScalarBytes(destPtr);
   }
@@ -1250,7 +1238,7 @@ void Execute_StoreScalarBilinearUV(MPE &mpe, const InstructionCacheEntry &entry,
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_UV;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StoreScalarAbsolute(mpe,entry,newNuance);
 }
 
@@ -1263,7 +1251,7 @@ void Execute_StoreScalarBilinearXY(MPE &mpe, const InstructionCacheEntry &entry,
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_XY;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StoreScalarAbsolute(mpe,entry,newNuance);
 }
 
@@ -1351,7 +1339,7 @@ void Execute_StorePixelAbsolute(MPE &mpe, const InstructionCacheEntry &entry, co
 {
   const uint32 src = nuance.fields[FIELD_MEM_FROM];
   const uint32 address = nuance.fields[FIELD_MEM_TO];
-  void * const memPtr = (void *)(nuonEnv->GetPointerToMemory(&mpe,address));
+  void * const memPtr = (void *)(nuonEnv.GetPointerToMemory(mpe,address));
 
   uint32 pixType;
   bool bChnorm;
@@ -1513,10 +1501,10 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const InstructionCacheEntry &entry, c
 {
   const uint32 src = nuance.fields[FIELD_MEM_FROM];
   const uint32 address = nuance.fields[FIELD_MEM_TO];
-  const uint32* const srcPtr = &((entry.pScalarRegs)[src]);
-  uint16* const destPtr = (uint16 *)nuance.fields[FIELD_MEM_POINTER];
+  //const uint32* const srcPtr = &((entry.pScalarRegs)[src]);
+  //uint16* const destPtr = (uint16 *)nuance.fields[FIELD_MEM_POINTER];
 
-  void * const memPtr = (void *)(nuonEnv->GetPointerToMemory(&mpe,address));
+  void * const memPtr = (void *)(nuonEnv.GetPointerToMemory(mpe,address));
 
   uint32 pixType;
   bool bChnorm;
@@ -1631,7 +1619,7 @@ void Execute_StoreShortVectorAbsolute(MPE &mpe, const InstructionCacheEntry &ent
 void Execute_StoreShortVectorLinear(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   const uint32* const srcPtr = &entry.pScalarRegs[nuance.fields[FIELD_MEM_FROM]];
-  uint16* const destPtr = (uint16 *)(nuonEnv->GetPointerToMemory(&mpe,entry.pScalarRegs[nuance.fields[FIELD_MEM_TO]] & 0xFFFFFFF8));
+  uint16* const destPtr = (uint16 *)(nuonEnv.GetPointerToMemory(mpe,entry.pScalarRegs[nuance.fields[FIELD_MEM_TO]] & 0xFFFFFFF8));
 
   destPtr[0] = srcPtr[0] >> 16UL; //!! why is this unsigned and above signed
   destPtr[1] = srcPtr[1] >> 16UL;
@@ -1649,7 +1637,7 @@ void Execute_StoreShortVectorBilinearUV(MPE &mpe, const InstructionCacheEntry &e
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_UV;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StoreShortVectorAbsolute(mpe,entry,newNuance);
 }
 
@@ -1662,7 +1650,7 @@ void Execute_StoreShortVectorBilinearXY(MPE &mpe, const InstructionCacheEntry &e
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_XY;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StoreShortVectorAbsolute(mpe,entry,newNuance);
 }
 
@@ -1684,7 +1672,7 @@ void Execute_StoreVectorLinear(MPE &mpe, const InstructionCacheEntry &entry, con
 
   if((address < MPE_ITAGS_BASE) || (address >= MPE_RESV_BASE))
   {
-    uint32 * const destPtr = (uint32 *)(nuonEnv->GetPointerToMemory(&mpe,address));
+    uint32 * const destPtr = (uint32 *)(nuonEnv.GetPointerToMemory(mpe,address));
     destPtr[0] = srcPtr[0];
     destPtr[1] = srcPtr[1];
     destPtr[2] = srcPtr[2];
@@ -1716,7 +1704,7 @@ void Execute_StoreVectorBilinearUV(MPE &mpe, const InstructionCacheEntry &entry,
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_UV;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StoreVectorAbsolute(mpe,entry,newNuance);
 }
 
@@ -1729,7 +1717,7 @@ void Execute_StoreVectorBilinearXY(MPE &mpe, const InstructionCacheEntry &entry,
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_XY;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StoreVectorAbsolute(mpe,entry,newNuance);
 }
 
@@ -1740,7 +1728,7 @@ void Execute_StorePixelLinear(MPE &mpe, const InstructionCacheEntry &entry, cons
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_LINEAR_INDIRECT;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StorePixelAbsolute(mpe,entry,newNuance);
 }
 
@@ -1753,7 +1741,7 @@ void Execute_StorePixelBilinearUV(MPE &mpe, const InstructionCacheEntry &entry, 
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_UV;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StorePixelAbsolute(mpe,entry,newNuance);
 }
 
@@ -1766,7 +1754,7 @@ void Execute_StorePixelBilinearXY(MPE &mpe, const InstructionCacheEntry &entry, 
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_XY;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StorePixelAbsolute(mpe,entry,newNuance);
 }
 
@@ -1777,7 +1765,7 @@ void Execute_StorePixelZLinear(MPE &mpe, const InstructionCacheEntry &entry, con
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_LINEAR_INDIRECT;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StorePixelZAbsolute(mpe,entry,newNuance);
 }
 
@@ -1790,7 +1778,7 @@ void Execute_StorePixelZBilinearUV(MPE &mpe, const InstructionCacheEntry &entry,
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_UV;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StorePixelZAbsolute(mpe,entry,newNuance);
 }
 
@@ -1803,6 +1791,6 @@ void Execute_StorePixelZBilinearXY(MPE &mpe, const InstructionCacheEntry &entry,
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_XY;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
   newNuance.fields[FIELD_MEM_TO] = address;
-  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv->GetPointerToMemory(&mpe,address));
+  newNuance.fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(mpe,address));
   Execute_StorePixelZAbsolute(mpe,entry,newNuance);
 }

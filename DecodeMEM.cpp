@@ -6,7 +6,7 @@
 #include "NuonMemoryMap.h"
 #include "NuonEnvironment.h"
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 
 #define loadPixelBilinearXYFlags 0
 #define loadPixelBilinearUVFlags 0
@@ -72,7 +72,7 @@ void MPE::DecodeInstruction_MEM16(const uint8 * const iPtr, InstructionCacheEntr
       //ld_s (Si),Sk
       entry->packetInfo |= PACKETINFO_MEMORY_INDIRECT;
       entry->packetInfo |= loadScalarLinearFlags;
-      if(nuonEnv->compilerOptions.bT3KCompilerHack)
+      if(nuonEnv.compilerOptions.bT3KCompilerHack)
       {
         entry->packetInfo |= PACKETINFO_NEVERCOMPILE;
       }
@@ -88,7 +88,7 @@ void MPE::DecodeInstruction_MEM16(const uint8 * const iPtr, InstructionCacheEntr
       //st_s Sj,(Si)
       entry->packetInfo |= PACKETINFO_MEMORY_INDIRECT;
       entry->packetInfo |= storeScalarLinearFlags;
-      if(nuonEnv->compilerOptions.bT3KCompilerHack)
+      if(nuonEnv.compilerOptions.bT3KCompilerHack)
       {
         entry->packetInfo |= PACKETINFO_NEVERCOMPILE;
       }
@@ -197,7 +197,7 @@ void MPE::DecodeInstruction_MEM16(const uint8 * const iPtr, InstructionCacheEntr
       }
       else
       {
-        if(nuonEnv->compilerOptions.bT3KCompilerHack)
+        if(nuonEnv.compilerOptions.bT3KCompilerHack)
         {
           entry->packetInfo |= PACKETINFO_NEVERCOMPILE;
         }

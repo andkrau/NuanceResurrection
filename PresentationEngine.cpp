@@ -5,99 +5,99 @@
 #include "mpe.h"
 #include "NuonEnvironment.h"
 
-extern NuonEnvironment *nuonEnv;
-extern void NullBiosHandler(MPE *mpe);
+extern NuonEnvironment nuonEnv;
+extern void NullBiosHandler(MPE &mpe);
 
-void API_EnterPE(MPE *mpe)
+void API_EnterPE(MPE &mpe)
 {
 }
 
-void API_NDK(MPE *mpe)
+void API_NDK(MPE &mpe)
 {
 }
 
-void API_DVD(MPE *mpe)
+void API_DVD(MPE &mpe)
 {
 }
 
-void API_FindDiskType(MPE *mpe)
+void API_FindDiskType(MPE &mpe)
 {
   //Ballistic routine wont exit loop until FindDiskType returns non-zero
-  mpe->regs[0] = -1;
+  mpe.regs[0] = -1;
 }
 
-void API_IsPresenting(MPE *mpe)
+void API_IsPresenting(MPE &mpe)
 {
   //Return "not presenting" for now
-  mpe->regs[0] = 0;
+  mpe.regs[0] = 0;
 }
 
-void API_GetFieldCounter(MPE *mpe)
+void API_GetFieldCounter(MPE &mpe)
 {
-  uint32 fieldCounter = *((uint32 *)&nuonEnv->systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
+  uint32 fieldCounter = *((uint32 *)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
   SwapScalarBytes(&fieldCounter);
 
-  mpe->regs[0] = fieldCounter;
+  mpe.regs[0] = fieldCounter;
 }
 
-void API_IsNDK(MPE *mpe)
+void API_IsNDK(MPE &mpe)
 {
-  mpe->regs[0] = 0;
+  mpe.regs[0] = 0;
 }
 
-void API_IsDVD(MPE *mpe)
+void API_IsDVD(MPE &mpe)
 {
-  mpe->regs[0] = 1;
+  mpe.regs[0] = 1;
 }
 
-void API_StepOneFrame(MPE *mpe)
+void API_StepOneFrame(MPE &mpe)
 {
-  //mpe->regs[0] = 1;
+  //mpe.regs[0] = 1;
 }
 
-void API_AUDIOStreamSelect(MPE *mpe)
+void API_AUDIOStreamSelect(MPE &mpe)
 {
-  //mpe->regs[0] = 1;
+  //mpe.regs[0] = 1;
 }
 
-void API_ForwardSpeed(MPE *mpe)
+void API_ForwardSpeed(MPE &mpe)
 {
-  //mpe->regs[0] = 1;
+  //mpe.regs[0] = 1;
 }
 
-void API_PresentVOB(MPE *mpe)
+void API_PresentVOB(MPE &mpe)
 {
-  //mpe->regs[0] = 1;
+  //mpe.regs[0] = 1;
 }
 
-void API_StartCellStill(MPE *mpe)
+void API_StartCellStill(MPE &mpe)
 {
-  //mpe->regs[0] = 1;
+  //mpe.regs[0] = 1;
 }
 
-void API_CellStillDone(MPE *mpe)
+void API_CellStillDone(MPE &mpe)
 {
-  //mpe->regs[0] = 1;
+  //mpe.regs[0] = 1;
 }
 
-void API_PresentCell(MPE *mpe)
+void API_PresentCell(MPE &mpe)
 {
-  //mpe->regs[0] = 1;
+  //mpe.regs[0] = 1;
 }
 
-void API_CellReadDone(MPE *mpe)
+void API_CellReadDone(MPE &mpe)
 {
-  //mpe->regs[0] = 1;
+  //mpe.regs[0] = 1;
 }
 
-void API_ProgramChange(MPE *mpe)
+void API_ProgramChange(MPE &mpe)
 {
-  mpe->regs[0] = 0;
+  mpe.regs[0] = 0;
 }
 
-void API_SetAngle(MPE *mpe)
+void API_SetAngle(MPE &mpe)
 {
-  //mpe->regs[0] = 1;
+  //mpe.regs[0] = 1;
 }
 
 NuonBiosHandler SVC_API_Table[] = {
@@ -316,18 +316,16 @@ void InitDVDJumpTable()
   }
 }
 
-void CallPEHandler(MPE *mpe, uint32 address)
+void CallPEHandler(MPE &mpe, const uint32 address)
 {
-  NuonBiosHandler *table;
-  uint32 offset;
-
   if(((address & 0x8FFFFFFFUL) < SVC_API_JUMPTABLE_START) || ((address & 0x8FFFFFFFUL) >= PTR_API_JUMPTABLE_START))
   {
     return;
   }
   else
   {
-    offset = (address >> 3) & 0x7F;
+    const uint32 offset = (address >> 3) & 0x7F;
+    NuonBiosHandler* table;
     switch((address >> 10) & 0x7)
     {
       case 0:

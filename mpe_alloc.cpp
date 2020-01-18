@@ -6,7 +6,7 @@
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
 
-extern NuonEnvironment *nuonEnv;
+extern NuonEnvironment nuonEnv;
 extern uint32 media_mpe_allocated;
 extern uint32 media_mpe;
 
@@ -19,24 +19,19 @@ MPE_HAS_CACHES //MPE3
 
 uint32 mpeFlags[4];
 
-void ResetMPEFlags(MPE *mpe)
+void ResetMPEFlags(MPE &mpe)
 {
-  uint32 i;
-
-  for(i = 0; i < 4; i++)
-  {
+  for(uint32 i = 0; i < 4; i++)
     mpeFlags[i] = mpeFlags_init[i];
-  }
 
-  mpeFlags[mpe->mpeIndex] |= (MPE_ALLOC_BIOS|MPE_ALLOC_USER);
+  mpeFlags[mpe.mpeIndex] |= (MPE_ALLOC_BIOS|MPE_ALLOC_USER);
 }
 
-void MPEAlloc(MPE *mpe)
+void MPEAlloc(MPE &mpe)
 {
-  uint32 requestedFlags = mpe->regs[0];
-  bool bRequestedMiniBIOS;
-
-  mpe->regs[0] = 0xFFFFFFFF; //-1
+  const uint32 requestedFlags = mpe.regs[0];
+  
+  mpe.regs[0] = 0xFFFFFFFF; //-1
 
   for(uint32 i = 0; i < 3; i++)
   {
@@ -46,7 +41,7 @@ void MPEAlloc(MPE *mpe)
       if((mpeFlags[i] & ~(MPE_ALLOC_USER|MPE_ALLOC_BIOS)) == (requestedFlags & ~(MPE_ALLOC_USER|MPE_ALLOC_BIOS)))
       {
         //The MPE matched all requested flags
-        bRequestedMiniBIOS = requestedFlags & MPE_HAS_MINI_BIOS;
+        const bool bRequestedMiniBIOS = requestedFlags & MPE_HAS_MINI_BIOS;
         if(!bRequestedMiniBIOS && (mpeFlags[i] & MPE_HAS_MINI_BIOS))
         {          
           //MINIBIOS was not explicitly requested and this MPE
@@ -62,90 +57,90 @@ void MPEAlloc(MPE *mpe)
         }
 
         mpeFlags[i] |= MPE_ALLOC_USER;
-        mpe->regs[0] = i;
+        mpe.regs[0] = i;
         return;
       }
     }
   }
 }
 
-void MPEAllocSpecific(MPE *mpe)
+void MPEAllocSpecific(MPE &mpe)
 {
-  if(mpe->regs[0] < 3)
+  if(mpe.regs[0] < 3)
   {
-    if(mpeFlags[mpe->regs[0]] & MPE_ALLOC_ANY)
+    if(mpeFlags[mpe.regs[0]] & MPE_ALLOC_ANY)
     {
       //MPE already allocated
-      mpe->regs[0] = 0xFFFFFFFF; //-1
+      mpe.regs[0] = 0xFFFFFFFF; //-1
     }
     else
     {
       //Mark MPE as allocated
-      mpeFlags[mpe->regs[0]] |= MPE_ALLOC_USER;
+      mpeFlags[mpe.regs[0]] |= MPE_ALLOC_USER;
     }
   }
   else
   {
     //Invalid MPE number, return already allocated
-    mpe->regs[0] = 0xFFFFFFFF; //-1
+    mpe.regs[0] = 0xFFFFFFFF; //-1
   }
 }
 
-void MPEFree(MPE *mpe)
+void MPEFree(MPE &mpe)
 {
-  if(mpe->regs[0] < 3)
+  if(mpe.regs[0] < 3)
   {
-    if(mpeFlags[mpe->regs[0]] & MPE_ALLOC_USER)
+    if(mpeFlags[mpe.regs[0]] & MPE_ALLOC_USER)
     {
       //MPE allocated by user: mark as free for user allocation
-      mpeFlags[mpe->regs[0]] &= ~MPE_ALLOC_USER;
-      mpe->regs[0] = 0;
+      mpeFlags[mpe.regs[0]] &= ~MPE_ALLOC_USER;
+      mpe.regs[0] = 0;
     }
   }
   else
   {
     //Invalid MPE number, return already free
-    mpe->regs[0] = 0xFFFFFFFF; //-1
+    mpe.regs[0] = 0xFFFFFFFF; //-1
   }
 }
 
-void MPEStatus(MPE *mpe)
+void MPEStatus(MPE &mpe)
 {
-  if(mpe->regs[0] < 4)
+  if(mpe.regs[0] < 4)
   {
-    mpe->regs[0] = mpeFlags[mpe->regs[0]];
+    mpe.regs[0] = mpeFlags[mpe.regs[0]];
   }
   else
   {
-    mpe->regs[0] = 0;
+    mpe.regs[0] = 0;
   }
 }
 
-void MPEsAvailable(MPE *mpe)
+void MPEsAvailable(MPE &mpe)
 {
-  if(mpe->regs[0] == 1)
+  if(mpe.regs[0] == 1)
   {
     //Return number of MPEs in system
-    mpe->regs[0] = 4;
+    mpe.regs[0] = 4;
   }
   else
   {
-    mpe->regs[0] = 0;
+    mpe.regs[0] = 0;
 
     for(int i = 0; i < 3; i++)
     {
       if(!(mpeFlags[i] & MPE_ALLOC_ANY))
       {
-        mpe->regs[0] += 1;
+        mpe.regs[0]++;
       }
     }
   }
 }
 
-void MPERun(MPE *the_mpe)
+void MPERun(MPE &mpe)
 {
-  uint32 which = the_mpe->regs[0];
-  uint32 entrypoint = the_mpe->regs[1];
+  const uint32 which = mpe.regs[0];
+  const uint32 entrypoint = mpe.regs[1];
 
   /*
   The following behavior differs from the real BIOS particularly in that
@@ -161,116 +156,116 @@ void MPERun(MPE *the_mpe)
 
   if(media_mpe_allocated && (which == media_mpe))
   {
-    //nuonEnv->mpe[which]->rz = nuonEnv->mpe[which]->pcexec;
-    //nuonEnv->mpe[which]->pcexec = entrypoint;
-    //nuonEnv->mpe[which]->ecuSkipCounter = 0;
-    //nuonEnv->mpe[which]->excephalten = 0xFFFFFFFE;
-    //nuonEnv->mpe[which]->sp = 0x20102000;
+    //nuonEnv.mpe[which].rz = nuonEnv.mpe[which].pcexec;
+    //nuonEnv.mpe[which].pcexec = entrypoint;
+    //nuonEnv.mpe[which].ecuSkipCounter = 0;
+    //nuonEnv.mpe[which].excephalten = 0xFFFFFFFE;
+    //nuonEnv.mpe[which].sp = 0x20102000;
     //Invalidate cached instruction packets
-    //nuonEnv->mpe[which]->InvalidateICache();
-    nuonEnv->mpe[which]->UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
-    nuonEnv->mpe[which]->Go();
-    nuonEnv->bProcessorStartStopChange = true;
+    //nuonEnv.mpe[which].InvalidateICache();
+    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
+    nuonEnv.mpe[which].Go();
+    nuonEnv.bProcessorStartStopChange = true;
     //Let MPERunMediaMPE set a comm packet to the media MPE to start it
-    the_mpe->regs[2] = the_mpe->rz;
-    the_mpe->rz = MPERUNMEDIAMPE_ADDRESS;
-    the_mpe->ecuSkipCounter = 0;
+    mpe.regs[2] = mpe.rz;
+    mpe.rz = MPERUNMEDIAMPE_ADDRESS;
+    mpe.ecuSkipCounter = 0;
   }
   else
   {
-    nuonEnv->mpe[which]->Halt();
+    nuonEnv.mpe[which].Halt();
     //Set up entry point
-    nuonEnv->mpe[which]->pcexec = entrypoint;
+    nuonEnv.mpe[which].pcexec = entrypoint;
     //set return address to zero, per vmlabs implementation (MML3D uses this to halt after the pipeline finishes)
-    nuonEnv->mpe[which]->rz = 0;
-    nuonEnv->mpe[which]->ecuSkipCounter = 0;
+    nuonEnv.mpe[which].rz = 0;
+    nuonEnv.mpe[which].ecuSkipCounter = 0;
     //Clear exceptions 
-    nuonEnv->mpe[which]->excepsrc = 0;
+    nuonEnv.mpe[which].excepsrc = 0;
     //Mask level1 and level2 interupts
-    nuonEnv->mpe[which]->intctl = 0x88;
-    nuonEnv->mpe[which]->sp = 0x20101000;
+    nuonEnv.mpe[which].intctl = 0x88;
+    nuonEnv.mpe[which].sp = 0x20101000;
     //Invalidate cached instruction packets
-    //nuonEnv->mpe[which]->InvalidateICache();
-    //nuonEnv->mpe[which]->nativeCodeCache->Flush();
-    nuonEnv->mpe[which]->UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
+    //nuonEnv.mpe[which].InvalidateICache();
+    //nuonEnv.mpe[which].nativeCodeCache->Flush();
+    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
     //Sets mpego bit
-    nuonEnv->mpe[which]->Go();
-    nuonEnv->bProcessorStartStopChange = true;
+    nuonEnv.mpe[which].Go();
+    nuonEnv.bProcessorStartStopChange = true;
   }
 }
 
-void MPERunThread(MPE *the_mpe)
+void MPERunThread(MPE &mpe)
 {
-  uint32 which = the_mpe->regs[0];
-  uint32 funcptr = the_mpe->regs[1];
-  uint32 arg = the_mpe->regs[2];
-  uint32 stacktop = the_mpe->regs[3];
+  const uint32 which = mpe.regs[0];
+  const uint32 funcptr = mpe.regs[1];
+  const uint32 arg = mpe.regs[2];
+        uint32 stacktop = mpe.regs[3];
 
   //assume failure
-  the_mpe->regs[0] = 0;
+  mpe.regs[0] = 0;
 
   //Official implementation requires that the MPE is not allocated by BIOS and 
   //that the MPE has both icache and dcache
   if((mpeFlags[which] & (MPE_ALLOC_BIOS | MPE_HAS_CACHES)) == MPE_HAS_CACHES)
   {
     //Official implementation simply modifies stacktop to be vector aligned
-    stacktop &= 0xFFFFFFF0;    nuonEnv->mpe[which]->ecuSkipCounter = 0;
+    stacktop &= 0xFFFFFFF0;
+    nuonEnv.mpe[which].ecuSkipCounter = 0;
 
-
-    nuonEnv->mpe[which]->Halt();
+    nuonEnv.mpe[which].Halt();
     //Invalidate cached instruction packets
-    //nuonEnv->mpe[which]->InvalidateICache();
-    //nuonEnv->mpe[which]->nativeCodeCache->Flush();
-    nuonEnv->mpe[which]->UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
-    nuonEnv->mpe[which]->rz = MPE_THREAD_RETURN_ADDRESS;
+    //nuonEnv.mpe[which].InvalidateICache();
+    //nuonEnv.mpe[which].nativeCodeCache->Flush();
+    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
+    nuonEnv.mpe[which].rz = MPE_THREAD_RETURN_ADDRESS;
     //Set up entry point
-    nuonEnv->mpe[which]->pcexec = funcptr;
-    nuonEnv->mpe[which]->ecuSkipCounter = 0;
+    nuonEnv.mpe[which].pcexec = funcptr;
+    nuonEnv.mpe[which].ecuSkipCounter = 0;
     //Set up argument using C calling convention (first arg is r0)
-    nuonEnv->mpe[which]->regs[0] = arg;
+    nuonEnv.mpe[which].regs[0] = arg;
     //Set up C stack pointer (r31)
-    nuonEnv->mpe[which]->regs[31] = stacktop;
+    nuonEnv.mpe[which].regs[31] = stacktop;
   
     //** Stuff done by MPERun
     //Clear exceptions 
-    nuonEnv->mpe[which]->excepsrc = 0;
+    nuonEnv.mpe[which].excepsrc = 0;
     //Mask level1 and level2 interupts
-    nuonEnv->mpe[which]->intctl = 0x88;
+    nuonEnv.mpe[which].intctl = 0x88;
 
     //** Stuff done by MPERunThread bootcode
 
     //Clear inten1 
-    nuonEnv->mpe[which]->inten1 = 0;
+    nuonEnv.mpe[which].inten1 = 0;
     //Clear interrupts 
-    nuonEnv->mpe[which]->intsrc = 0;
+    nuonEnv.mpe[which].intsrc = 0;
     //Clear dtags
     //Clear itags
     //Clear acshift
-    nuonEnv->mpe[which]->acshift = 0;
+    nuonEnv.mpe[which].acshift = 0;
 
     //Sets mpego bit
-    nuonEnv->mpe[which]->Go();
+    nuonEnv.mpe[which].Go();
     //Return 1 to indicate success;
-    the_mpe->regs[0] = 1;
-    nuonEnv->bProcessorStartStopChange = true;
+    mpe.regs[0] = 1;
+    nuonEnv.bProcessorStartStopChange = true;
   }
 }
 
-void MPEStop(MPE *the_mpe)
+void MPEStop(MPE &mpe)
 {
-  if(the_mpe->regs[0] < 4)
+  if(mpe.regs[0] < 4)
   {
-    nuonEnv->mpe[the_mpe->regs[0]]->mpectl &= ~MPECTRL_MPEGO;
-    nuonEnv->bProcessorStartStopChange = true;
+    nuonEnv.mpe[mpe.regs[0]].mpectl &= ~MPECTRL_MPEGO;
+    nuonEnv.bProcessorStartStopChange = true;
   }
 }
 
-void MPELoad(MPE *the_mpe)
+void MPELoad(MPE &mpe)
 {
-  uint32 which = the_mpe->regs[0];
-  uint32 mpeaddr = the_mpe->regs[1];
-  uint32 linkaddr = the_mpe->regs[2];
-  uint32 size = the_mpe->regs[3];
+  const uint32 which = mpe.regs[0];
+  const uint32 mpeaddr = mpe.regs[1];
+  const uint32 linkaddr = mpe.regs[2];
+  const uint32 size = mpe.regs[3];
   uint8 *mpeMemPtr, *systemMemPtr;
 
   if(which < 4)
@@ -279,14 +274,14 @@ void MPELoad(MPE *the_mpe)
     {
       if(linkaddr < SYSTEM_BUS_BASE)
       {
-        systemMemPtr = &(nuonEnv->mainBusDRAM[linkaddr & MAIN_BUS_VALID_MEMORY_MASK]);
+        systemMemPtr = &(nuonEnv.mainBusDRAM[linkaddr & MAIN_BUS_VALID_MEMORY_MASK]);
       }
       else
       {
-        systemMemPtr = &(nuonEnv->systemBusDRAM[linkaddr & SYSTEM_BUS_VALID_MEMORY_MASK]);
+        systemMemPtr = &(nuonEnv.systemBusDRAM[linkaddr & SYSTEM_BUS_VALID_MEMORY_MASK]);
       }
 
-      mpeMemPtr = &(((uint8 *)(nuonEnv->mpe[which]->GetPointerToMemory()))[mpeaddr & MPE_VALID_MEMORY_MASK]);
+      mpeMemPtr = &(((uint8 *)(nuonEnv.mpe[which].GetPointerToMemory()))[mpeaddr & MPE_VALID_MEMORY_MASK]);
 
       for(uint32 count = 0; count < size; count++)
       {
@@ -296,31 +291,31 @@ void MPELoad(MPE *the_mpe)
         systemMemPtr++;
       }
 
-      //nuonEnv->mpe[which]->InvalidateICacheRegion(mpeaddr, mpeaddr + size - 1);
-      //nuonEnv->mpe[which]->InvalidateICache();
-      //nuonEnv->mpe[which]->nativeCodeCache->FlushRegion(mpeaddr, mpeaddr + size - 1);
-      nuonEnv->mpe[which]->UpdateInvalidateRegion(mpeaddr, size - 1);
-      //nuonEnv->mpe[which]->nativeCodeCache->FlushRegion(0x20300000, mpeaddr + size - 1);
+      //nuonEnv.mpe[which].InvalidateICacheRegion(mpeaddr, mpeaddr + size - 1);
+      //nuonEnv.mpe[which].InvalidateICache();
+      //nuonEnv.mpe[which].nativeCodeCache->FlushRegion(mpeaddr, mpeaddr + size - 1);
+      nuonEnv.mpe[which].UpdateInvalidateRegion(mpeaddr, size - 1);
+      //nuonEnv.mpe[which].nativeCodeCache->FlushRegion(0x20300000, mpeaddr + size - 1);
     }
   }
 }
 
-void MPEReadRegister(MPE *the_mpe)
+void MPEReadRegister(MPE &mpe)
 {
-  InstructionCacheEntry entry;
-  uint32 which = the_mpe->regs[0];
-  uint32 mpeaddr = the_mpe->regs[1];
+  const uint32 which = mpe.regs[0];
+  const uint32 mpeaddr = mpe.regs[1];
 
-  entry.pScalarRegs = the_mpe->regs;
-  entry.pIndexRegs = &the_mpe->rx;
-  entry.pCounterRegs = &the_mpe->rc0;
-  entry.pRzRegs = &the_mpe->rz;
-  entry.pXyctl = &the_mpe->xyctl;
-  entry.pUvctl = &the_mpe->uvctl;
-  entry.pXyrange = &the_mpe->xyrange;
-  entry.pUvrange = &the_mpe->uvrange;
-  entry.pAcshift = &the_mpe->acshift;
-  entry.pSvshift = &the_mpe->svshift;
+  InstructionCacheEntry entry;
+  entry.pScalarRegs = mpe.regs;
+  entry.pIndexRegs = &mpe.rx;
+  entry.pCounterRegs = &mpe.rc0;
+  entry.pRzRegs = &mpe.rz;
+  entry.pXyctl = &mpe.xyctl;
+  entry.pUvctl = &mpe.uvctl;
+  entry.pXyrange = &mpe.xyrange;
+  entry.pUvrange = &mpe.uvrange;
+  entry.pAcshift = &mpe.acshift;
+  entry.pSvshift = &mpe.svshift;
 
   if((which < 4) && (mpeaddr >= MPE_CTRL_BASE) && (mpeaddr < MPE1_ADDR_BASE))
   {
@@ -331,21 +326,20 @@ void MPEReadRegister(MPE *the_mpe)
     //on the target processor (this will always be the case when a single
     //thread handles emulation of all four processors)
 
-    nuonEnv->mpe[which]->SaveRegisters();
+    nuonEnv.mpe[which].SaveRegisters();
 
-    the_mpe->regs[0] =
-      nuonEnv->mpe[which]->ReadControlRegister(mpeaddr - MPE_CTRL_BASE, &entry);
+    mpe.regs[0] = nuonEnv.mpe[which].ReadControlRegister(mpeaddr - MPE_CTRL_BASE, &entry);
   }
 }
 
-void MPEWriteRegister(MPE *the_mpe)
+void MPEWriteRegister(MPE&mpe)
 {
-  uint32 which = the_mpe->regs[0];
-  uint32 mpeaddr = the_mpe->regs[1];
-  uint32 value = the_mpe->regs[2];
+  const uint32 which = mpe.regs[0];
+  const uint32 mpeaddr = mpe.regs[1];
+  const uint32 value = mpe.regs[2];
 
   if((which < 4) && (mpeaddr >= MPE_CTRL_BASE) && (mpeaddr < MPE1_ADDR_BASE))
   {
-    nuonEnv->mpe[which]->WriteControlRegister(mpeaddr - MPE_CTRL_BASE,value);
+    nuonEnv.mpe[which].WriteControlRegister(mpeaddr - MPE_CTRL_BASE,value);
   }
 }
