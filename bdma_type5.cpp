@@ -265,14 +265,14 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
     zmap = 3;
   }
 
-  bool bCompareZ, bUpdatePixel, bUpdateZ;
+  bool bCompareZ, bUpdatePixel;
+  bool bUpdateZ = (zcompare != 7);
   uint8 srcStrideShift;
-  if(zcompare != 7)
+  if(bUpdateZ)
   {
     //pixel+Z write (16 + 16Z)
     bCompareZ = (zcompare ? true : false);
     bUpdatePixel = true;
-    bUpdateZ = true;
     srcStrideShift = 1;
   }
   else
@@ -280,7 +280,6 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
     //pixel only write (16 bit)
     bCompareZ = false;
     bUpdatePixel = true;
-    bUpdateZ = false;
     srcStrideShift = 0;
   }*/
 

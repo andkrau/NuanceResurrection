@@ -10,48 +10,32 @@ extern VidChannel structOverlayChannel;
 
 void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
-  uint32 *pSrc32;
-  uint16 *pDest16, *pSrc16;
-  void *intMemory, *baseMemory, *pSrc, *pDest;
-  uint32 type, pixtype;
-  uint32 aCount, bCount;
-  uint32 srcA, srcB, destA, destB, srcOffset, destOffset;
-  int32 srcAStep, srcBStep, destAStep, destBStep, xsize;
-  uint32 xlen, xpos, ylen, ypos, zcompare, bva;
-  uint32 mode, sdramBase, mpeBase, map, zmap, destZOffset, mapOffset;
-
-  bool bRead, bDirect, bDup, bRemote, bTrigger, bUpdatePixel, bUpdateZ, bZTestResult;
-
-  bRemote = flags & (1UL << 28);
-  bDirect = flags & (1UL << 27);
-  bDup = flags & (3UL << 26); //bDup = dup | direct
-  bTrigger = flags & (1UL << 25);
-  bRead = flags & (1UL << 13);
-  xsize = (flags >> 13) & 0x7F8UL;
-  type = (flags >> 14) & 0x03UL;
-  mode = flags & 0xFFFUL;
-  zcompare = (flags >> 1) & 0x07UL;
-  pixtype = (flags >> 4) & 0x0FUL;
-  bva = ((flags >> 7) & 0x06UL) | (flags & 0x01UL);
-  sdramBase = baseaddr & 0x7FFFFFFEUL;
-  mpeBase = intaddr & 0x7FFFFFFCUL;
-  xlen = (xinfo >> 16) & 0x3FFUL;
-  xpos = xinfo & 0x7FFUL;
-  ylen = (yinfo >> 16) & 0x3FFUL;
-  ypos = yinfo & 0x7FFUL;
-
-  uint32 directValue = intaddr;
+  const bool bRemote = flags & (1UL << 28);
+  const bool bDirect = flags & (1UL << 27);
+  const bool bDup = flags & (3UL << 26); //bDup = dup | direct
+  //const bool bTrigger = flags & (1UL << 25);
+  //const bool bRead = flags & (1UL << 13);
+  const int32 xsize = (flags >> 13) & 0x7F8UL;
+  //const uint32 type = (flags >> 14) & 0x03UL;
+  //const uint32 mode = flags & 0xFFFUL;
+  const uint32 zcompare = (flags >> 1) & 0x07UL;
+  const uint32 pixtype = (flags >> 4) & 0x0FUL;
+  //const uint32 bva = ((flags >> 7) & 0x06UL) | (flags & 0x01UL);
+  const uint32 sdramBase = baseaddr & 0x7FFFFFFEUL;
+  const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
+  const uint32 xlen = (xinfo >> 16) & 0x3FFUL;
+  const uint32 xpos = xinfo & 0x7FFUL;
+  const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
+  const uint32 ypos = yinfo & 0x7FFUL;
 
   //pixel+Z write (16 + 16Z)
   const bool bCompareZ = (zcompare != 0);
-  bUpdatePixel = true;
-  bUpdateZ = true;
 
+  uint32 map;
   if(pixtype == 15 || pixtype == 12)
-  {
     map = 2;
-  }
 
+  uint32 zmap;
   if(pixtype > 12)
   {
     map = pixtype - 13;
@@ -66,9 +50,7 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   //The formula (framebuffer width * framebuffer size * (zmap - map)) specifies the pixel
   //offset that is added to the pixel address to obtain the address of the associated z-value
 
-  destZOffset = xsize * structMainChannel.src_height * zmap;
-  mapOffset = xsize * structMainChannel.src_height * map;
-
+  void* intMemory;
   if(bRemote)
   {
     //internal address is system address (but still in MPE memory)
@@ -81,11 +63,13 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   }
 
   //base address is always a system address (absolute)
-  baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
+  void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
-  pSrc = intMemory;
-  pDest = baseMemory;
+  const void *pSrc = intMemory;
+  void* const pDest = baseMemory;
 
+  uint32 directValue;
+  int32 srcAStep, srcBStep;
   if(bDup)
   {
     if(bDirect)
@@ -111,20 +95,8 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
     srcBStep = xlen;
   }
 
-  srcOffset = 0;
-  destOffset = ((ypos * (uint32)xsize)) + xpos;
-
-  //BVA = 000 (horizontal DMA, x increment, y increment)
-  destAStep = 1;
-  destBStep = xsize;
-  aCount = xlen;
-  bCount = ylen;
-
-  pSrc32 = ((uint32 *)pSrc) + srcOffset;
-  pSrc16 = ((uint16 *)pSrc) + srcOffset;
-  pDest16 = (uint16 *)pDest + destOffset;
-  srcB = 0;
-  destB = 0;
+  const uint32 srcOffset = 0;
+  const uint32 destOffset = ypos * (uint32)xsize + xpos;
 
   if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv.mainChannelUpperLimit) ||
       (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv.mainChannelUpperLimit))
@@ -137,73 +109,83 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
     nuonEnv.bOverlayBufferModified = true;
   }
 
+  //BVA = 000 (horizontal DMA, x increment, y increment)
+  const int32 destAStep = 1;
+  const int32 destBStep = xsize;
+
+  const uint32 destZOffset = xsize * structMainChannel.src_height * zmap;
+  const uint32 mapOffset = xsize * structMainChannel.src_height * map;
+
+  const uint32* const pSrc32 = ((uint32*)pSrc) + srcOffset;
+  const uint16* const pSrc16 = ((uint16*)pSrc) + srcOffset;
+  uint16* const pDest16 = ((uint16*)pDest) + destOffset;
+
+  uint32 bCount = ylen;
+  uint32 srcB = 0;
+  uint32 destB = 0;
+
   while(bCount--)
   {
-    srcA = 0;
-    destA = 0;
-    aCount = xlen;
+    uint32 srcA = srcB;
+    uint32 destA = destB;
+    uint32 aCount = xlen;
 
     while(aCount--)
     {
-      bZTestResult = false;
+      bool bZTestResult = false;
 
       if(bCompareZ)
       {
-        bool result;
-        int16 ztarget, ztransfer;
-
-        ztarget = pDest16[destA + destB + destZOffset];
-        ztransfer = ((uint16 *)(&pSrc32[srcA + srcB]))[1];
+        int16 ztarget = pDest16[destA + destZOffset];
+        int16 ztransfer = ((uint16 *)(&pSrc32[srcA]))[1];
         SwapWordBytes((uint16 *)&ztarget);
         SwapWordBytes((uint16 *)&ztransfer);
 
         switch(zcompare)
         {
           case 0x1:
-            result = (ztarget < ztransfer);
+            bZTestResult = (ztarget < ztransfer);
             break;
           case 0x2:
-            result = (ztarget == ztransfer);
+            bZTestResult = (ztarget == ztransfer);
             break;
           case 0x3:
-            result = (ztarget <= ztransfer);
+            bZTestResult = (ztarget <= ztransfer);
             break;
           case 0x4:
-            result = (ztarget > ztransfer);
+            bZTestResult = (ztarget > ztransfer);
             break;
           case 0x5:
-            result = (ztarget != ztransfer);
+            bZTestResult = (ztarget != ztransfer);
             break;
           case 0x6:
-            result = (ztarget >= ztransfer);
+            bZTestResult = (ztarget >= ztransfer);
             break;
-          case 0x7:
-            result = false;
-            break;
+          //case 0x7:
+            //bZTestResult = false;
+            //break;
         }
-
-        bZTestResult = result;
       }
 
       if(!bZTestResult)
       {
         if(zcompare == 7)
         {
-          pDest16[destA + destB + mapOffset] = ((uint16 *)(&pSrc16[srcA + srcB]))[0];        
+          pDest16[destA + mapOffset] = ((uint16 *)(&pSrc16[srcA]))[0];
         }
         else
         {
-          pDest16[destA + destB + mapOffset] = ((uint16 *)(&pSrc32[srcA + srcB]))[0];
-          pDest16[destA + destB + destZOffset] = ((uint16 *)(&pSrc32[srcA + srcB]))[1];
+          pDest16[destA + mapOffset] = ((uint16 *)(&pSrc32[srcA]))[0];
+          pDest16[destA + destZOffset] = ((uint16 *)(&pSrc32[srcA]))[1];
         }
       }
 
       srcA += srcAStep;
-      destA += 1;
+      destA += destAStep;
     }
 
     srcB += srcBStep;
-    destB += xsize;
+    destB += destBStep;
   }
 }
 
