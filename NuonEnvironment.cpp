@@ -120,13 +120,9 @@ void NuonEnvironment::InitAudio(void)
     //FSOUND_SetMixer(FSOUND_MIXER_QUALITY_MMXP6);
     //Initialize FMOD
     if(FSOUND_Init(MIX_RATE, MAX_SOFTWARE_CHANNELS, INIT_FLAGS))
-    {
       bFMODInitialized = true;
-    }
     else
-    {
       return;
-    }
   }
 
   if(audioStream)
@@ -135,14 +131,14 @@ void NuonEnvironment::InitAudio(void)
     FSOUND_Stream_Close(audioStream);
   }
 
+  MuteAudio(false);
+
   //Create stream
   audioStream = FSOUND_Stream_Create(AudioCallbacks::StreamCallback, nuonAudioBufferSize,
     (DEFAULT_SAMPLE_FORMAT | FSOUND_LOOP_NORMAL | FSOUND_NONBLOCKING), nuonAudioPlaybackRate, USER_PARAM);
     
   if(audioStream)
-  {
     audioChannel = FSOUND_Stream_Play(FSOUND_FREE,audioStream);
-  }
 }
 
 void NuonEnvironment::CloseAudio()
@@ -162,9 +158,7 @@ void NuonEnvironment::CloseAudio()
 void NuonEnvironment::MuteAudio(const bool mute)
 {
   if(bFMODInitialized)
-  {
     FSOUND_SetMute(FSOUND_ALL,mute ? TRUE : FALSE);
-  }
 }
 
 void NuonEnvironment::SetAudioPlaybackRate(uint32 rate)
@@ -173,14 +167,11 @@ void NuonEnvironment::SetAudioPlaybackRate(uint32 rate)
   {
     if(FSOUND_IsPlaying(audioChannel))
     {
+        // both should never happen
         if (rate > 96000)
-        {
             rate = 96000;
-        }
         else if (rate < 16000)
-        {
             rate = 16000;
-        }
         
         FSOUND_SetFrequency(audioChannel,rate);
     }
@@ -197,9 +188,7 @@ void NuonEnvironment::RestartAudio()
 void NuonEnvironment::StopAudio()
 {
   if(bFMODInitialized && audioStream)
-  {
     FSOUND_Stream_Stop(audioStream);
-  }
 }
 
 //static uint32 lastLinearVolumeSetting = 0;
@@ -451,13 +440,9 @@ uint32 NuonEnvironment::GetBufferSize(uint32 channelMode)
   uint32 bufferSize;
 
   if((channelMode & BUFFER_SIZE_64K) == 0)
-  {
     bufferSize = 8192;
-  }
   else
-  {
     bufferSize = 512UL << (((channelMode & BUFFER_SIZE_64K) >> 5) & 0x7UL);
-  }
 
   return bufferSize;
 }
@@ -502,9 +487,7 @@ void ReplaceNewline(char *line, char replaceChar, uint32 maxIndex)
   while(index <= maxIndex)
   {
     if(line[index] == '\n')
-    {
       break;
-    }
 
     index++;
   }
@@ -521,9 +504,7 @@ void NuonEnvironment::SetDVDBaseFromFileName(const char * const filename)
   while(i >= 0)
   {
      if(dvdBase[i] == '\\')
-     {
        break;
-     }
    
      dvdBase[i] = '\0';
      i--;
@@ -542,33 +523,21 @@ ConfigTokenType NuonEnvironment::ReadConfigLine(FILE *file, char *buf)
   char firstChar;
 
   if(feof(file))
-  {
     return CONFIG_EOF;
-  }
 
   fscanf(file,"%s",buf);
   firstChar = buf[0];
 
   if(firstChar == CONFIG_COMMENT_CHAR)
-  {
     return CONFIG_COMMENT;
-  }
   else if(firstChar == CONFIG_VARIABLE_START_CHAR)
-  {
     return CONFIG_VARIABLE_START;
-  }
   else if(firstChar == CONFIG_VARIABLE_FINISH_CHAR)
-  {
     return CONFIG_VARIABLE_FINISH;
-  }  
   else if((firstChar == '<') || (firstChar == '>') || (firstChar == '"'))
-  {
     return CONFIG_RESERVED;
-  }
   else
-  {
     return CONFIG_STRING;
-  }
 }
 
 char *dvdWriteBase;
@@ -583,9 +552,7 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
 
   configFile = fopen(fileName,"r");
   if(!configFile)
-  {
     return false;
-  }
 
   while(!feof(configFile))
   {
@@ -654,13 +621,9 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
           tokenType = ReadConfigLine(configFile,line);
           sscanf(line,"%lu",&fps);
           if(fps < 1)
-          {
             fps = 1;
-          }
           else if(fps > 240)
-          {
             fps = 240;
-          }
         }
 
         break;
