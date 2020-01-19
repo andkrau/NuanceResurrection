@@ -446,7 +446,6 @@ public:
   bool LoadBinaryFile(uchar *filename, bool bIRAM);
 
 #define ExecuteSingleCycle() FetchDecodeExecute()
-
   //bool ExecuteSingleCycle()
   //{
   //  return FetchDecodeExecute();

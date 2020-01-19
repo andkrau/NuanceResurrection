@@ -6,7 +6,7 @@
 #include "external\glew-2.1.0\include\GL\glew.h"
 #include "external\glew-2.1.0\include\GL\wglew.h"
 
-#define ALLOCATED_TEXTURE_WIDTH (720)
+#define ALLOCATED_TEXTURE_WIDTH VIDEO_WIDTH
 #define ALLOCATED_TEXTURE_HEIGHT (480)
 
 class VideoOptions

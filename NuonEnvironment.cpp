@@ -397,7 +397,7 @@ NuonEnvironment::NuonEnvironment()
   bProcessorStartStopChange = false;
   pendingCommRequests = 0;
 
-  structMainDisplay.dispwidth = 720;
+  structMainDisplay.dispwidth = VIDEO_WIDTH;
   structMainDisplay.dispheight = 480;
   bInterlaced = false;
   fps = 40;
@@ -411,7 +411,6 @@ NuonEnvironment::NuonEnvironment()
 
   //TIMER RELATED INITIALIZATION: chooses the timing method used in TimeElapsed
   //and initializes the boot timestamp
-
   InitializeTimingMethod();
 
   pNuonAudioBuffer = 0;

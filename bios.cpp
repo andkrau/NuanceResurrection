@@ -626,9 +626,9 @@ void InitBios(MPE &mpe)
 
   //DEFAULT VIDCHANNEL INITIALIZATION
   structMainChannel.base = (void*)0x40000000;
-  structMainChannel.src_width = 720;
+  structMainChannel.src_width = VIDEO_WIDTH;
   structMainChannel.src_height = 480;
-  structMainChannel.dest_width = 720;
+  structMainChannel.dest_width = VIDEO_WIDTH;
   structMainChannel.dest_height = 480;
   structMainChannel.src_xoff = 0;
   structMainChannel.src_yoff = 0;
@@ -640,9 +640,9 @@ void InitBios(MPE &mpe)
     structMainChannel.reserved[i] = 0;
   }
   structOverlayChannel.base = (void*)0x40000000;
-  structOverlayChannel.src_width = 720;
+  structOverlayChannel.src_width = VIDEO_WIDTH;
   structOverlayChannel.src_height = 480;
-  structOverlayChannel.dest_width = 720;
+  structOverlayChannel.dest_width = VIDEO_WIDTH;
   structOverlayChannel.dest_height = 480;
   structOverlayChannel.src_xoff = 0;
   structOverlayChannel.src_yoff = 0;

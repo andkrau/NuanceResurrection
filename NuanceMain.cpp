@@ -28,9 +28,8 @@ extern ControllerData *controller;
 extern uint32 *mainChannelBuffer;
 extern uint32 *overlayChannelBuffer;
 extern char *dvdBase;
-bool bClosingApplication;
 bool bQuit = false;
-bool bRun;
+bool bRun = false;
 
 HICON iconApp;
 HBITMAP bmpLEDOn;
@@ -69,14 +68,14 @@ extern VidChannel structMainChannel, structOverlayChannel;
 extern bool bOverlayChannelActive, bMainChannelActive;
 extern vidTexInfo videoTexInfo;
 
-bool GetMPERunStatus(uint32 which)
+bool GetMPERunStatus(const uint32 which)
 {
   return (nuonEnv.mpe[which & 0x03].mpectl & MPECTRL_MPEGO) != 0;
 }
 
-void SetMPERunStatus(uint32 which, bool bRun)
+void SetMPERunStatus(const uint32 which, const bool run)
 {
-  if(bRun)
+  if(run)
   {
     nuonEnv.mpe[which & 0x03].mpectl |= MPECTRL_MPEGO;
   }
@@ -268,8 +267,6 @@ void UpdateControlPanelDisplay()
   sprintf(buf,"}\n");
   SendMessage(reTermDisplay,EM_REPLACESEL,NULL,LPARAM(buf));
 }
-
-void NuanceStart(int argc,char *argv[]);
 
 static const char displayWindowTitle[] = "Nuance Video Display";
 
@@ -902,13 +899,4 @@ CLEANUP AND APPLICATION SHUTDOWN CODE
   delete display;
 
   return 0;
-}
-
-void NuanceStart(int argc, char *argv[])
-{
-  //emulatorShell->show();
-  //registerWindow->show();
-
-  //registerWindow->UpdateDebugDisplay(3);
-  //nuanceApp.exec();
 }
