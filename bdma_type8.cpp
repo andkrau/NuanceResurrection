@@ -43,10 +43,10 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   //base address is always a system address (absolute)
   void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
-  void* pSrc = intMemory;
+  const void* pSrc = intMemory;
   void* const pDest = baseMemory;
 
-  uint32 directValue = intaddr;
+  uint32 directValue;
   int32 srcAStep, srcBStep;
   if(bDup)
   {
@@ -74,7 +74,7 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   }
 
   const uint32 srcOffset = 0;
-  const uint32 destOffset = ((ypos * (uint32)xsize)) + xpos;
+  const uint32 destOffset = ypos * (uint32)xsize + xpos;
 
   if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv.mainChannelUpperLimit) ||
       (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv.mainChannelUpperLimit))
@@ -92,8 +92,8 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   const int32 destBStep = xsize;
   uint32 bCount = ylen;
 
-  const uint32* const pSrc32 = (uint32 *)pSrc + srcOffset;
-  uint16* const pDest16 = (uint16 *)pDest + destOffset;
+  const uint32* const pSrc32 = ((uint32 *)pSrc) + srcOffset;
+  uint16* const pDest16 = ((uint16 *)pDest) + destOffset;
   uint32 srcB = 0;
   uint32 destB = 0;
 

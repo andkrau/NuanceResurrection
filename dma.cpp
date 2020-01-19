@@ -611,16 +611,14 @@ void UnimplementedBilinearDMAHandler(MPE& mpe, const uint32 flags, const uint32 
 
 void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 intaddr)
 {
-  uint32 directValue;
-  void *intMemory, *baseMemory, *pSrc, *pDest;
-  //LARGE_INTEGER timeStart, timeEnd, timeFreq, timeOverhead;
-
   const bool bRemote = flags & (1UL << 28);
   const bool bDirect = flags & (1UL << 27);
   const bool bDup = (flags & (3UL << 26));
         uint32 length = (flags >> 16) & 0xFF; //Only 1-127 is valid according to docs but field is 8 bits
   const bool bRead = flags & (1 << 13);
 
+  void* intMemory, * baseMemory;
+  uint32 directValue;
   if(baseaddr < 0xF0000000)
   {
     if((baseaddr & 0xF0700000) == MPE_CTRL_BASE)
@@ -791,6 +789,9 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
       break;
   }
 
+  const void* pSrc;
+  void* pDest;
+
   if(bRead)
   {
     //Read: base -> internal
@@ -821,6 +822,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
 
         */
 
+        //LARGE_INTEGER timeStart, timeEnd, timeFreq, timeOverhead;
         //QueryPerformanceCounter(&timeStart);
         //QueryPerformanceCounter(&timeEnd);
 
@@ -1079,6 +1081,13 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
 
   //const bool bBatch = flags & (1UL << 30);
   const bool bChain = flags & (1UL << 29);
+
+  if(bChain)
+  {
+    MessageBox(NULL,"Chained DMA not supported","DMABiLinear Error",MB_OK);
+    return;
+  }
+
   const bool bRemote = flags & (1UL << 28);
   const bool bDirect = flags & (1UL << 27);
   const bool bDup = flags & (3UL << 26); //bDup = dup | direct
@@ -1098,14 +1107,6 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
   const uint32 ypos = yinfo & 0x7FFUL;
         bool bCompareZ = false;
         bool bUpdateZ = false;
-
-  uint32 directValue = intaddr;
-
-  if(bChain)
-  {
-    MessageBox(NULL,"Chained DMA not supported","DMABiLinear Error",MB_OK);
-    return;
-  }
 
   uint32 wordsize, pixsize;
   switch(pixtype)
@@ -1146,17 +1147,16 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       wordsize = 2;
       pixsize = 1;
 
-      if(zcompare != 7)
+      bUpdateZ = (zcompare != 7);
+      if(bUpdateZ)
       {
         //pixel+Z write (16 + 16Z)
         bCompareZ = (zcompare != 0);
-        bUpdateZ = true;
       }
       else
       {
         //pixel only write (16 bit)
         bCompareZ = false;
-        bUpdateZ = false;
       }
       break;
     }
@@ -1165,17 +1165,16 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       wordsize = 2;
       pixsize = 2;
 
-      if(zcompare != 7)
+      bUpdateZ = (zcompare != 7);
+      if(bUpdateZ)
       {
         //pixel+Z write (32 + 32Z)
         bCompareZ = (zcompare != 0);
-        bUpdateZ = true;
       }
       else
       {
         //pixel only write (32 bit)
         bCompareZ = false;
-        bUpdateZ = false;
       }
       break;
     }
@@ -1192,17 +1191,16 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       wordsize = 2;
       pixsize = 1;
 
-      if(zcompare != 7)
+      bUpdateZ = (zcompare != 7);
+      if(bUpdateZ)
       {
         //pixel+Z write (16 + 16Z)
         bCompareZ = (zcompare != 0);
-        bUpdateZ = true;
       }
       else
       {
         //pixel only write (16 bit)
         bCompareZ = false;
-        bUpdateZ = false;
       }
       break;
     }
@@ -1211,17 +1209,16 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       wordsize = 2;
       pixsize = 1;
 
-      if(zcompare != 7)
+      bUpdateZ = (zcompare != 7);
+      if(bUpdateZ)
       {
         //pixel+Z write (16 + 16Z)
         bCompareZ = (zcompare != 0);
-        bUpdateZ = true;
       }
       else
       {
         //pixel only write (16 bit)
         bCompareZ = false;
-        bUpdateZ = false;
       }
       break;
     }
@@ -1230,17 +1227,16 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       wordsize = 2;
       pixsize = 1;
 
-      if(zcompare != 7)
+      bUpdateZ = (zcompare != 7);
+      if(bUpdateZ)
       {
         //pixel+Z write (16 + 16Z)
         bCompareZ = (zcompare != 0);
-        bUpdateZ = true;
       }
       else
       {
         //pixel only write (16 bit)
         bCompareZ = false;
-        bUpdateZ = false;
       }
       break;
     }
@@ -1253,17 +1249,16 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       wordsize = 2;
       pixsize = 1;
 
-      if(zcompare != 7)
+      bUpdateZ = (zcompare != 7);
+      if(bUpdateZ)
       {
         //pixel+Z write (16 + 16Z)
         bCompareZ = (zcompare != 0);
-        bUpdateZ = true;
       }
       else
       {
         //pixel only write (16 bit)
         bCompareZ = false;
-        bUpdateZ = false;
       }
       break;
     }
@@ -1271,16 +1266,15 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     {
       wordsize = 2;
 
-      if(zcompare != 7)
+      bUpdateZ = (zcompare != 7);
+      if(bUpdateZ)
       {
         //pixel+Z write (16 + 16Z)
         bCompareZ = (zcompare != 0);
-        bUpdateZ = true;
       }
       else
       {      
         bCompareZ = false;
-        bUpdateZ = false;
       }
       break;
     }
@@ -1308,24 +1302,26 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
   {
     char msgBuf[512];
     sprintf(msgBuf,"sdramBase is out of range on mpe%d: 0x%lx\n",mpe.mpeIndex,sdramBase);
-    ::MessageBox(NULL,msgBuf,"DMABiLinear error",MB_OK);
+    MessageBox(NULL,msgBuf,"DMABiLinear error",MB_OK);
   }
-  else
-  {
-
-  }
+  //else
+  //{
+  //}
 
   void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
   uint32 srcAStart, srcBStart, destAStart, destBStart, aCountInit, bCount, srcOffset, destOffset;
   int32 srcAStep, srcBStep, destAStep, destBStep;
 
-  void *pSrc, *pDest;
+  uint32 directValue = intaddr;
+  const void* pSrc;
+  void* pDest;
+
   if(bRead)
   {
     pSrc = baseMemory;
     pDest = intMemory;
-    srcOffset = ((ypos * (uint32)xsize)) + xpos;
+    srcOffset = ypos * (uint32)xsize + xpos;
     destOffset = 0;
 
     destAStart = 0;
@@ -1455,7 +1451,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     srcAStart = 0;
     srcBStart = 0;
     srcOffset = 0;
-    destOffset = ((ypos * (uint32)xsize)) + xpos;
+    destOffset = ypos * (uint32)xsize + xpos;
 
     switch(bva)
     {
