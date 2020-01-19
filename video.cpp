@@ -33,6 +33,10 @@ extern int renderWidth, renderHeight;
 
 const bool bUseBilinearFiltering = false;
 
+static bool bTexturesInitialized = false;
+
+vidTexInfo videoTexInfo;
+
 uint32 main_fetch_pixel_type;
 uint32 main_write_pixel_type;
 uint32 vdgCLUT[256];
@@ -74,10 +78,6 @@ uint8 LuminanceTable[256];
 uint8 ChromianceTable[256];
 
 ShaderProgram *shaderProgram;
-
-float render_time;
-_LARGE_INTEGER counter_start, counter_end;
-extern _LARGE_INTEGER tickFrequency;
 
 void CalculateTableEntries(uint8 *table, uint8 min, uint8 max)
 {
@@ -150,21 +150,7 @@ void InitializeColorSpaceTables(void)
 
   for(uint32 i = 0; i < 256; i++)
     vdgCLUT[i] = 0;
-
-  QueryPerformanceFrequency(&tickFrequency);
 }
-
-
-uint32 lineIncrement = 1;
-uint32 fieldIncrement = 2;
-uint32 fieldMask = 0;
-GLclampf clearColorR = 0.0;
-GLclampf clearColorG = 0.0;
-GLclampf clearColorB = 0.0;
-
-bool bTexturesInitialized = false;
-
-vidTexInfo videoTexInfo;
 
 uint32 *AllocateTextureMemory32(uint32 size, const bool bOverlay)
 {
@@ -224,7 +210,6 @@ void UpdateTextureStates(void)
 {
   GLfloat x0, xf, y0, yf;
   GLint uniformLoc, filterType;
-  bool status;
   static bool bShadersInstalled = false;
 
   if(bUseBilinearFiltering)
@@ -245,7 +230,7 @@ void UpdateTextureStates(void)
     shaderProgram->InstallShaderSourceFromFile("video_m32_o32.fs",GL_FRAGMENT_SHADER_ARB);
     shaderProgram->AttachShader(GL_VERTEX_SHADER_ARB);
     shaderProgram->AttachShader(GL_FRAGMENT_SHADER_ARB);
-    status = shaderProgram->CompileAndLinkShaders();
+    bool status = shaderProgram->CompileAndLinkShaders();
     bShadersInstalled = status;
     if(status)
     {
@@ -533,16 +518,11 @@ void IncrementVideoFieldCounter(void)
 
 void RenderVideo(const int winwidth, const int winheight)
 {
-  uint32 *ptrMainDisplayBuffer;
   uint8 *ptrNuonFrameBuffer;
-  uint32 maxCol;
-  uint32 maxRow;
   uint32 activeChannels;
   uint32 pixWidthShift;
   uint32 pixWidth;
-  uint32 pixType;
   uint32 rowWidth;
-  bool useCannedAlpha;
   uint8 *pMainChannelBuffer;
   uint8 *pOverlayChannelBuffer;
 
@@ -582,10 +562,10 @@ void RenderVideo(const int winwidth, const int winheight)
 
   if(bMainChannelActive)
   {
-    pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
-    maxCol = structMainChannel.src_width;
-    maxRow = structMainChannel.src_height;
-    useCannedAlpha = false;
+    const uint32 pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
+    const uint32 maxCol = structMainChannel.src_width;
+    const uint32 maxRow = structMainChannel.src_height;
+    bool useCannedAlpha = false;
 
     switch(pixType)
     {
@@ -628,7 +608,7 @@ void RenderVideo(const int winwidth, const int winheight)
         break;
     }
 
-    ptrMainDisplayBuffer = mainChannelBuffer;
+    uint32* ptrMainDisplayBuffer = mainChannelBuffer;
     ptrNuonFrameBuffer =
       (uint8 *)(nuonEnv.GetPointerToSystemMemory((uint32)structMainChannel.base + (((structMainChannel.src_yoff * structMainChannel.src_width) + structMainChannel.src_xoff) << pixWidthShift)));
     pMainChannelBuffer = ptrNuonFrameBuffer;
@@ -688,11 +668,10 @@ void RenderVideo(const int winwidth, const int winheight)
 process_overlay_buffer:
   if(bOverlayChannelActive)
   {
-    maxCol = structOverlayChannel.src_width;
-    maxRow = structOverlayChannel.src_height;
-    ptrMainDisplayBuffer = overlayChannelBuffer;
-    pixType = (structOverlayChannel.dmaflags >> 4) & 0x0F;
-    useCannedAlpha = false;
+    const uint32 maxCol = structOverlayChannel.src_width;
+          uint32 maxRow = structOverlayChannel.src_height;
+    uint32 *ptrMainDisplayBuffer = overlayChannelBuffer;
+    const uint32 pixType = (structOverlayChannel.dmaflags >> 4) & 0x0F;
 
     switch(pixType)
     {
@@ -995,7 +974,7 @@ void VidConfig(MPE &mpe)
     memcpy(&maindisplay,pMainDisplay,sizeof(VidDisplay));
     SwapScalarBytes((uint32 *)&maindisplay.bordcolor);
 
-    maindisplay.dispwidth = 720;
+    maindisplay.dispwidth = VIDEO_WIDTH;
     maindisplay.dispheight = 480;
     maindisplay.fps = 0;
     maindisplay.progressive = -1;
@@ -1261,7 +1240,7 @@ void VidSetup(MPE &mpe)
   bool bUpdateOpenGLData = false;
 
   structMainDisplay.bordcolor = 0x10808000; //Black
-  structMainDisplay.dispwidth = 720;
+  structMainDisplay.dispwidth = VIDEO_WIDTH;
   structMainDisplay.dispheight = 480;
   structMainDisplay.fps = 0;
   structMainDisplay.progressive = 0;
@@ -1299,7 +1278,7 @@ void VidSetup(MPE &mpe)
   }
 
   structMainChannel.dmaflags = dmaFlags;
-  structMainChannel.dest_width = 720;
+  structMainChannel.dest_width = VIDEO_WIDTH;
   structMainChannel.dest_height = 480;
   structMainChannel.src_width = sourceWidth;
   structMainChannel.src_height = sourceHeight;
@@ -1406,7 +1385,7 @@ void SetVideoMode(void)
   //always output in RGBA format
   if(!mainDisplayBuffer)
   {
-    mainDisplayBuffer = new uint32[720 * 480]; //NUON framebuffer size
+    mainDisplayBuffer = new uint32[VIDEO_WIDTH * 480]; //NUON framebuffer size
   }
 }
 

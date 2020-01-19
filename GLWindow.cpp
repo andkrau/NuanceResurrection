@@ -4,6 +4,7 @@
 #include "external\glew-2.1.0\include\GL\glew.h"
 #include "GLWindow.h"
 #include <GL/gl.h>
+#include "video.h"
 //---------------------------------------------------------------------------
 /****************************************************************************
 OpenGL Window Code
@@ -31,7 +32,7 @@ GLWindow::GLWindow()
   timerID = 0;
   if(!bFullScreen)
   {
-    fullScreenWidth = clientWidth = 720; // native res
+    fullScreenWidth = clientWidth = VIDEO_WIDTH; // native res
     fullScreenHeight = clientHeight = 480;
     x = 100;
     y = 100;
