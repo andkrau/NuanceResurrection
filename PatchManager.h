@@ -1,6 +1,7 @@
 #ifndef PATCH_MANAGER_H
 #define PATCH_MANAGER_H
 
+#include <memory.h>
 #include "basetypes.h"
 
 #define MAX_PATCH_LABELS (64)
@@ -34,8 +35,7 @@ public:
 
   PatchManager()
   {
-    numPatches = 0;
-    numLabels = 0;
+    memset(this,0,sizeof(PatchManager));
   }
 
   void ApplyPatches();
