@@ -675,7 +675,7 @@ void KPrintf(MPE &mpe)
   SwapScalarBytes(&pStr);
   if(pStr)
   {
-    char* str = (char *)(nuonEnv.GetPointerToMemory(mpe,pStr,true));
+    const char* const str = (char *)(nuonEnv.GetPointerToMemory(mpe,pStr,true));
     //MessageBox(NULL,(char *)str,"kprintf",MB_OK);
   }
 }

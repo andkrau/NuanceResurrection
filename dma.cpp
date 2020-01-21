@@ -625,14 +625,14 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
     {
       if(bRead)
       {
-        directValue = nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].ReadControlRegister((baseaddr & 0x207FFFFCUL) - MPE_CTRL_BASE,&mpe.ICacheEntry_SaveFlags);
+        directValue = nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].ReadControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,&mpe.ICacheEntry_SaveFlags);
         SwapScalarBytes(&directValue);
 
         if(bRemote)
         {
           if((intaddr & MPE_CTRL_BASE) == MPE_CTRL_BASE)
           {
-            nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].WriteControlRegister(intaddr & 0x207FFFFC - MPE_CTRL_BASE,directValue);
+            nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].WriteControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,directValue);
           }
           else
           {
@@ -667,7 +667,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
             directValue = *((uint32 *)intMemory);
           }
           SwapScalarBytes(&directValue);
-          nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].WriteControlRegister((baseaddr & 0x207FFFF) - MPE_CTRL_BASE, directValue);
+          nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].WriteControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE, directValue);
         }
         else
         {          
@@ -878,6 +878,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
           directValue >>= 16;
         }
 #endif
+        intMemory = (void *)&directValue;
       }
       else
       {
@@ -1420,10 +1421,10 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
         //swap back to big endian format
         SwapScalarBytes(&directValue);
 #else
-	      if(wordsize == 1)
-	      {
+        if(wordsize == 1)
+        {
           directValue >>= 16;
-	      }
+        }
 #endif
       }
       else
