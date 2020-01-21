@@ -264,7 +264,7 @@ void Execute_Range(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &n
       break;
     case 1:
       //Use y range as integer portion.  Limit to 10 bits.
-      rcu_range = (*entry.pXyrange << 16) & 0x003FF0000UL;
+      rcu_range = (*entry.pXyrange << 16) & 0x03FF0000UL;
       break;
     case 2:
       //Use u range.  Limit to 10 bits.

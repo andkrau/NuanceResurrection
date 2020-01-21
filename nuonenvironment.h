@@ -59,11 +59,6 @@ public:
   void TriggerAudioInterrupt(void);
   void TriggerVideoInterrupt(void);
 
-  void RegisterMainWindowHandle(uint32 handle)
-  {
-      mainWindowHandle = handle;
-  }
-
   void SetDVDBaseFromFileName(const char* const filename);
 
   MPE mpe[4];
@@ -110,7 +105,6 @@ private:
 
   char *dvdBase;
   bool bAudioInterruptsEnabled;
-  uint32 mainWindowHandle;
 };
 
 #endif

@@ -557,52 +557,42 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       }
       break;
 
-		case WM_SIZE:
-			switch(wParam)
-			{
-				case SIZE_MINIMIZED:
-					window->bVisible = false;
-				  return 0;
+    case WM_SIZE:
+      switch(wParam)
+      {
+        case SIZE_MINIMIZED:
+          window->bVisible = false;
+          return 0;
 
-				case SIZE_MAXIMIZED:
-					window->bVisible = true;
-	        window->OnResize(LOWORD(lParam), HIWORD(lParam));
+        case SIZE_MAXIMIZED:
+        case SIZE_RESTORED:
+          window->bVisible = true;
+          window->OnResize(LOWORD(lParam), HIWORD(lParam));
           if(window->resizeHandler)
           {
             window->resizeHandler(LOWORD(lParam),HIWORD(lParam));
           }
-				  return 0;
+          return 0;
+      }
+      break;
 
-				case SIZE_RESTORED:
-					window->bVisible = true;
-	        window->OnResize(LOWORD(lParam), HIWORD(lParam));
-          if(window->resizeHandler)
-          {
-            window->resizeHandler(LOWORD(lParam),HIWORD(lParam));
-          }
-				  return 0;
-			}
-		  break;
-
-		case WM_KEYDOWN:
+    case WM_KEYDOWN:
       if(window->keyDownHandler)
       {
         window->keyDownHandler((int)wParam,(unsigned __int32)lParam);
       }
+      if((int)wParam == VK_F1)
+      {
+        window->ToggleFullscreen();
+      }
+      break;
 
-	    if((int)wParam == VK_F1)
-	    {
-		    window->ToggleFullscreen();
-	    }
-
-		  break;
-
-		case WM_KEYUP:
+    case WM_KEYUP:
       if(window->keyUpHandler)
       {
         window->keyUpHandler((int)wParam,(unsigned __int32)lParam);
       }
-		  break;
+      break;
 
     case WM_PAINT:
       BeginPaint(hWnd,&ps);
@@ -615,13 +605,13 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         glClear(GL_COLOR_BUFFER_BIT);
       }
       EndPaint(hWnd,&ps);
-		  break;
+      break;
 
     case WM_ERASEBKGND:
       return 0;
 
-		case WM_TOGGLEFULLSCREEN:
-			window->bFullScreen = !window->bFullScreen;
+    case WM_TOGGLEFULLSCREEN:
+      window->bFullScreen = !window->bFullScreen;
       if(window->bFullScreen)
       {
         window->restoreX = window->x;
@@ -633,7 +623,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         windowRect.top = 0;
         windowRect.right = window->fullScreenWidth;
         windowRect.bottom = window->fullScreenHeight;
-     		AdjustWindowRectEx(&windowRect, window->windowStyle, 0, window->windowExtendedStyle);
+        AdjustWindowRectEx(&windowRect, window->windowStyle, 0, window->windowExtendedStyle);
 
         window->clientWidth = window->fullScreenWidth;
         window->clientHeight = window->fullScreenHeight;
@@ -664,7 +654,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         window->clientWidth = windowRect.right;
         window->clientHeight = windowRect.bottom;
       }
-		  break;
+      break;
   }
 
   return DefWindowProc(hWnd, uMsg, wParam, lParam);
