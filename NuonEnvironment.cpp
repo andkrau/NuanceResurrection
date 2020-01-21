@@ -52,19 +52,18 @@ public:
   void *pBuf2WriteStart;
   unsigned long pBuf2WriteBytes;
 
-  static void ConvertNuonAudioData(const uint8 *pNuonAudioBuffer, uint8 *pPCAudioBuffer, const uint32 numBytes)
+  static void ConvertNuonAudioData(const uint8 * const pNuonAudioBuffer, uint8 * const pPCAudioBuffer, const uint32 numBytes)
   {
-    uint32 byteCount = 0;
+    assert((numBytes % 4) == 0);
 
+    uint32 byteCount = 0;
     while(byteCount < numBytes)
     {
-      pPCAudioBuffer[0] = pNuonAudioBuffer[1];
-      pPCAudioBuffer[1] = pNuonAudioBuffer[0];
-      pPCAudioBuffer[2] = pNuonAudioBuffer[3];
-      pPCAudioBuffer[3] = pNuonAudioBuffer[2];
+      pPCAudioBuffer[byteCount  ] = pNuonAudioBuffer[byteCount+1];
+      pPCAudioBuffer[byteCount+1] = pNuonAudioBuffer[byteCount  ];
+      pPCAudioBuffer[byteCount+2] = pNuonAudioBuffer[byteCount+3];
+      pPCAudioBuffer[byteCount+3] = pNuonAudioBuffer[byteCount+2];
       byteCount += 4;
-      pNuonAudioBuffer += 4;
-      pPCAudioBuffer += 4;
     }
   }
 
@@ -75,24 +74,27 @@ public:
     if(!buff)
       return FALSE;
 
+    assert(len == nuonEnv.nuonAudioBufferSize>>1);
+
     if (nuonEnv.pNuonAudioBuffer && (nuonEnv.nuonAudioBufferSize >= 1024))
     {
     if(!position)
     {
-      ConvertNuonAudioData((uint8 *)&nuonEnv.pNuonAudioBuffer[nuonEnv.nuonAudioBufferSize >> 1], (uint8 *)buff, nuonEnv.nuonAudioBufferSize >> 1);
+      ConvertNuonAudioData(&nuonEnv.pNuonAudioBuffer[nuonEnv.nuonAudioBufferSize>>1], (uint8 *)buff, nuonEnv.nuonAudioBufferSize>>1); // kinda double buffering in here
       if((nuonEnv.nuonAudioChannelMode & ENABLE_WRAP_INT) && !nuonEnv.bUseCycleBasedTiming)
         nuonEnv.TriggerAudioInterrupt();
     }
     else
     {
-      ConvertNuonAudioData((uint8 *)nuonEnv.pNuonAudioBuffer, (uint8 *)buff, nuonEnv.nuonAudioBufferSize >> 1);
+      ConvertNuonAudioData(nuonEnv.pNuonAudioBuffer, (uint8 *)buff, nuonEnv.nuonAudioBufferSize>>1); // kinda double buffering in here
       if((nuonEnv.nuonAudioChannelMode & ENABLE_HALF_INT) && !nuonEnv.bUseCycleBasedTiming)
         nuonEnv.TriggerAudioInterrupt();
     }
     position = !position;
+    return TRUE;
     }
 
-    return TRUE;
+    return FALSE;
   }
 };
 
@@ -134,7 +136,7 @@ void NuonEnvironment::InitAudio(void)
   MuteAudio(false);
 
   //Create stream
-  audioStream = FSOUND_Stream_Create(AudioCallbacks::StreamCallback, nuonAudioBufferSize,
+  audioStream = FSOUND_Stream_Create(AudioCallbacks::StreamCallback, nuonAudioBufferSize>>1, // >>1: see callback, kinda double buffering in there
     (DEFAULT_SAMPLE_FORMAT | FSOUND_LOOP_NORMAL | FSOUND_NONBLOCKING), nuonAudioPlaybackRate, USER_PARAM);
     
   if(audioStream)
