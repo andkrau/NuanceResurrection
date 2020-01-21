@@ -253,8 +253,8 @@ void UpdateTextureStates(void)
   if(bMainChannelActive)
   {
     x0 = (GLfloat)(-((double)structMainChannel.dest_xoff * (double)structMainChannel.src_width)/((double)structMainChannel.dest_width));
-    xf = (GLfloat)(((double)(structMainDisplay.dispwidth - structMainChannel.dest_xoff) * (double)structMainChannel.src_width/(double)structMainChannel.dest_width));
-    y0 = (GLfloat)(((double)(structMainDisplay.dispheight - structMainChannel.dest_yoff) * (double)structMainChannel.src_height)/((double)structMainChannel.dest_height));
+    xf = (GLfloat)((double)(structMainDisplay.dispwidth - structMainChannel.dest_xoff) * (double)structMainChannel.src_width/(double)structMainChannel.dest_width);
+    y0 = (GLfloat)((double)(structMainDisplay.dispheight - structMainChannel.dest_yoff) * (double)structMainChannel.src_height/(double)structMainChannel.dest_height);
     yf = (GLfloat)(-((double)structMainChannel.dest_yoff * (double)structMainChannel.src_height)/((double)structMainChannel.dest_height));
 
 #if (TEXTURE_TARGET == GL_TEXTURE_2D)
@@ -1454,7 +1454,7 @@ void VidChangeBase(MPE &mpe)
         structOverlayChannel.dmaflags = dmaflags;
         structOverlayChannel.base = (void *)base;
         //Handle 16_16Z double and triple buffer frame buffers
-        if(map >= 9)
+        if((map >= 9) || map == 5)
         {
           if(map == 5)
           {

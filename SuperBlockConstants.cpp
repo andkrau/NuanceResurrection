@@ -250,6 +250,7 @@ bool SuperBlockConstants::EvaluateBranchCondition(const uint32 whichCondition, b
         //(~N)(~V) || NV
         *branchResult = ((flag1 ^ flag2) == 0);
       }
+      break;
     case 21:
       if(IsMiscRegisterConstant(CONSTANT_REG_MODGE))
       {
