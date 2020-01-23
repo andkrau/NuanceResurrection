@@ -20,10 +20,10 @@
 const GLint mainInternalTextureFormat = GL_RGBA8;
       GLint mainExternalTextureFormat = GL_BGRA;
 const GLint mainPixelType = GL_UNSIGNED_BYTE;
-const GLint mainTextureUnit = GL_TEXTURE0_ARB;
+const GLint mainTextureUnit = GL_TEXTURE0;
 const GLint osdInternalTextureFormat = GL_RGBA8;
       GLint osdExternalTextureFormat = GL_BGRA;
-const GLint osdTextureUnit = GL_TEXTURE1_ARB;
+const GLint osdTextureUnit = GL_TEXTURE1;
 
 extern NuonEnvironment nuonEnv;
 extern GLWindow videoDisplayWindow;
@@ -226,10 +226,10 @@ void UpdateTextureStates(void)
     shaderProgram = new ShaderProgram;
 
     shaderProgram->Initialize();
-    shaderProgram->InstallShaderSourceFromFile("video_generic.vs",GL_VERTEX_SHADER_ARB);
-    shaderProgram->InstallShaderSourceFromFile("video_m32_o32.fs",GL_FRAGMENT_SHADER_ARB);
-    shaderProgram->AttachShader(GL_VERTEX_SHADER_ARB);
-    shaderProgram->AttachShader(GL_FRAGMENT_SHADER_ARB);
+    shaderProgram->InstallShaderSourceFromFile("video_generic.vs",GL_VERTEX_SHADER);
+    shaderProgram->InstallShaderSourceFromFile("video_m32_o32.fs",GL_FRAGMENT_SHADER);
+    shaderProgram->AttachShader(GL_VERTEX_SHADER);
+    shaderProgram->AttachShader(GL_FRAGMENT_SHADER);
     bool status = shaderProgram->CompileAndLinkShaders();
     bShadersInstalled = status;
     if(status)
@@ -237,10 +237,10 @@ void UpdateTextureStates(void)
       status = shaderProgram->StartShaderProgram();
       if(status)
       {
-        uniformLoc = glGetUniformLocationARB(shaderProgram->GetProgramObject(),"mainChannelSampler");
-        glUniform1iARB(uniformLoc,0);
-        uniformLoc = glGetUniformLocationARB(shaderProgram->GetProgramObject(),"overlayChannelSampler");
-        glUniform1iARB(uniformLoc,1);
+        uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(),"mainChannelSampler");
+        glUniform1i(uniformLoc,0);
+        uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(),"overlayChannelSampler");
+        glUniform1i(uniformLoc,1);
       }
     }
   }
@@ -248,7 +248,7 @@ void UpdateTextureStates(void)
   bMainTextureCreated = false;
   bOverlayTextureCreated = false;
 
-  glActiveTextureARB(mainTextureUnit);
+  glActiveTexture(mainTextureUnit);
 
   if(bMainChannelActive)
   {
@@ -308,13 +308,13 @@ void UpdateTextureStates(void)
   }
 
   glTexParameterfv(TEXTURE_TARGET, GL_TEXTURE_BORDER_COLOR, videoTexInfo.borderColor);
-  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_ARB);
-  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER_ARB);
+  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MIN_FILTER, filterType);
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MAG_FILTER, filterType);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-  glActiveTextureARB(GL_TEXTURE1_ARB);
+  glActiveTexture(GL_TEXTURE1);
 
   if(bOverlayChannelActive)
   {
@@ -374,8 +374,8 @@ void UpdateTextureStates(void)
   }
 
   glTexParameterfv(TEXTURE_TARGET, GL_TEXTURE_BORDER_COLOR, videoTexInfo.transColor);
-  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER_ARB);
-  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER_ARB);
+  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MIN_FILTER, filterType);
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MAG_FILTER, filterType);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
@@ -395,17 +395,17 @@ void UpdateDisplayList(void)
   {
     glNewList(videoTexInfo.displayListName[CHANNELSTATE_MAIN_ACTIVE|CHANNELSTATE_OVERLAY_ACTIVE],GL_COMPILE);
     glBegin(GL_QUADS);
-    glMultiTexCoord2fvARB(mainTextureUnit, &videoTexInfo.mainTexCoords[0]);
-    glMultiTexCoord2fvARB(osdTextureUnit, &videoTexInfo.osdTexCoords[0]);
+    glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[0]);
+    glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[0]);
     glVertex2f(0.0,0.0);
-    glMultiTexCoord2fvARB(mainTextureUnit, &videoTexInfo.mainTexCoords[2]);
-    glMultiTexCoord2fvARB(osdTextureUnit, &videoTexInfo.osdTexCoords[2]);
+    glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[2]);
+    glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[2]);
     glVertex2f(0.0,1.0);
-    glMultiTexCoord2fvARB(mainTextureUnit, &videoTexInfo.mainTexCoords[4]);
-    glMultiTexCoord2fvARB(osdTextureUnit, &videoTexInfo.osdTexCoords[4]);
+    glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[4]);
+    glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[4]);
     glVertex2f(1.0,1.0);
-    glMultiTexCoord2fvARB(mainTextureUnit, &videoTexInfo.mainTexCoords[6]);
-    glMultiTexCoord2fvARB(osdTextureUnit, &videoTexInfo.osdTexCoords[6]);
+    glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[6]);
+    glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[6]);
     glVertex2f(1.0,0.0);
     glEnd();
     glEndList();
@@ -414,13 +414,13 @@ void UpdateDisplayList(void)
   {
     glNewList(videoTexInfo.displayListName[CHANNELSTATE_OVERLAY_ACTIVE],GL_COMPILE);
     glBegin(GL_QUADS);
-    glMultiTexCoord2fvARB(osdTextureUnit, &videoTexInfo.osdTexCoords[0]);
+    glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[0]);
     glVertex2f(0.0,0.0);
-    glMultiTexCoord2fvARB(osdTextureUnit, &videoTexInfo.osdTexCoords[2]);
+    glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[2]);
     glVertex2f(0.0,1.0);
-    glMultiTexCoord2fvARB(osdTextureUnit, &videoTexInfo.osdTexCoords[4]);
+    glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[4]);
     glVertex2f(1.0,1.0);
-    glMultiTexCoord2fvARB(osdTextureUnit, &videoTexInfo.osdTexCoords[6]);
+    glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[6]);
     glVertex2f(1.0,0.0);
     glEnd();
     glEndList();
@@ -429,13 +429,13 @@ void UpdateDisplayList(void)
   {
     glNewList(videoTexInfo.displayListName[CHANNELSTATE_MAIN_ACTIVE],GL_COMPILE);
     glBegin(GL_QUADS);
-    glMultiTexCoord2fvARB(mainTextureUnit, &videoTexInfo.mainTexCoords[0]);
+    glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[0]);
     glVertex2f(0.0,0.0);
-    glMultiTexCoord2fvARB(mainTextureUnit, &videoTexInfo.mainTexCoords[2]);
+    glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[2]);
     glVertex2f(0.0,1.0);
-    glMultiTexCoord2fvARB(mainTextureUnit, &videoTexInfo.mainTexCoords[4]);
+    glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[4]);
     glVertex2f(1.0,1.0);
-    glMultiTexCoord2fvARB(mainTextureUnit, &videoTexInfo.mainTexCoords[6]);
+    glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[6]);
     glVertex2f(1.0,0.0);
     glEnd();
     glEndList();
@@ -467,7 +467,7 @@ void InitTextures(void)
   glActiveTexture(mainTextureUnit);
   glBindTexture(TEXTURE_TARGET, videoTexInfo.borderTexName);
   glTexImage2D(TEXTURE_TARGET, 0, mainInternalTextureFormat, 2, 2, 0, mainExternalTextureFormat, GL_UNSIGNED_BYTE, borderTexture);
-  glActiveTextureARB(osdTextureUnit);
+  glActiveTexture(osdTextureUnit);
   glBindTexture(TEXTURE_TARGET, videoTexInfo.transparencyTexName);
   glTexImage2D(TEXTURE_TARGET, 0, osdExternalTextureFormat, 2, 2, 0, osdExternalTextureFormat, GL_UNSIGNED_BYTE, transparencyTexture);
 
@@ -490,7 +490,7 @@ void RenderVideo_Type4(uint32* pDestBuffer, const uint8 * pSrcBuffer, const uint
         if(bOverlay)
         {
           if(pixel)
-            pixel |= ((0xFFu - pSrcBuffer[3]) << 24);
+            pixel |= ((0xFFu - (uint32)pSrcBuffer[3]) << 24);
         }
         else
           pixel |= (0xFFu << 24);
@@ -625,10 +625,7 @@ void RenderVideo(const int winwidth, const int winheight)
 
     if(pixType == 4)
     {
-      if(!nuonEnv.videoOptions.bUseShaders)
-      {
-        RenderVideo_Type4(mainChannelBuffer,ptrNuonFrameBuffer,maxRow,maxCol,false);
-      }
+      RenderVideo_Type4(mainChannelBuffer,ptrNuonFrameBuffer,maxRow,maxCol,false);
       goto process_overlay_buffer;
     }
 
@@ -741,10 +738,7 @@ process_overlay_buffer:
 
     if(pixType == 4)
     {
-      if(!nuonEnv.videoOptions.bUseShaders)
-      {
-        RenderVideo_Type4(overlayChannelBuffer,ptrNuonFrameBuffer,maxRow,maxCol,true);
-      }
+      RenderVideo_Type4(overlayChannelBuffer,ptrNuonFrameBuffer,maxRow,maxCol,true);
       goto render_main_buffer;
     }
 
@@ -803,6 +797,7 @@ process_overlay_buffer:
             CR = ptrNuonFrameBuffer[1];
             CB = ptrNuonFrameBuffer[2];
             A  = 0; //Z buffered pixels are always opaque
+            break;
           default:
             break;
         }
@@ -811,7 +806,7 @@ process_overlay_buffer:
         //Color (0,0,0) is always transparent per Nuon architecture document
         if(pixel)
         {
-          pixel |= (0xFFu - A) << 24;
+          pixel |= (0xFFu - (uint32)A) << 24;
         }
 
         *ptrMainDisplayBuffer = pixel;
@@ -823,7 +818,7 @@ process_overlay_buffer:
           //Color (0,0,0) is always transparent per Nuon architecture document
           if(pixel)
           {
-            pixel |= (0xFFu - A2) << 24;
+            pixel |= (0xFFu - (uint32)A2) << 24;
           }
 
           *ptrMainDisplayBuffer = pixel;
@@ -838,7 +833,7 @@ process_overlay_buffer:
 render_main_buffer:
   if(bMainChannelActive && nuonEnv.bMainBufferModified)
   {
-    glActiveTextureARB(mainTextureUnit);
+    glActiveTexture(mainTextureUnit);
     glBindTexture(TEXTURE_TARGET,videoTexInfo.mainTexName);
     if(!bMainTextureCreated)
     {
@@ -846,7 +841,8 @@ render_main_buffer:
       bMainTextureCreated = true;
     }
 
-    if(nuonEnv.videoOptions.bUseShaders)
+    const uint32 pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
+    if(nuonEnv.videoOptions.bUseShaders && pixType == 4)
     {
       glTexSubImage2D(TEXTURE_TARGET,0,0,0,structMainChannel.src_width,structMainChannel.src_height,mainExternalTextureFormat,mainPixelType,pMainChannelBuffer);
     }
@@ -858,7 +854,7 @@ render_main_buffer:
 
   if(bOverlayChannelActive && nuonEnv.bOverlayBufferModified)
   {
-    glActiveTextureARB(osdTextureUnit);
+    glActiveTexture(osdTextureUnit);
     glBindTexture(TEXTURE_TARGET,videoTexInfo.osdTexName);
     if(!bOverlayTextureCreated)
     {
@@ -866,7 +862,8 @@ render_main_buffer:
       bOverlayTextureCreated = true;
     }
 
-    if(nuonEnv.videoOptions.bUseShaders)
+    const uint32 pixType = (structOverlayChannel.dmaflags >> 4) & 0x0F;
+    if(nuonEnv.videoOptions.bUseShaders && pixType == 4)
     {
       glTexSubImage2D(TEXTURE_TARGET,0,0,0,structOverlayChannel.src_width,structOverlayChannel.src_height,osdExternalTextureFormat,GL_UNSIGNED_BYTE,pOverlayChannelBuffer);
     }
@@ -953,15 +950,12 @@ void VidQueryConfig(MPE &mpe)
 
 void VidConfig(MPE &mpe)
 {
-  uint32 map;
-  uint32 display = mpe.regs[0];
-  uint32 main = mpe.regs[1];
-  uint32 osd = mpe.regs[2];
-  uint32 reserved = mpe.regs[3];
+  const uint32 display = mpe.regs[0];
+  const uint32 main = mpe.regs[1];
+  const uint32 osd = mpe.regs[2];
+  const uint32 reserved = mpe.regs[3];
   VidDisplay maindisplay;
   VidChannel mainchannel, osdchannel;
-  VidDisplay *pMainDisplay;
-  VidChannel *pMainChannel, *pOSDChannel;
 
   bool bUpdateOpenGLData = false;
 
@@ -970,7 +964,7 @@ void VidConfig(MPE &mpe)
 
   if(display)
   {
-    pMainDisplay = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe, display);
+    VidDisplay *const pMainDisplay = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe, display);
     memcpy(&maindisplay,pMainDisplay,sizeof(VidDisplay));
     SwapScalarBytes((uint32 *)&maindisplay.bordcolor);
 
@@ -979,10 +973,12 @@ void VidConfig(MPE &mpe)
     maindisplay.fps = 0;
     maindisplay.progressive = -1;
   }
+  else
+    return; // leave unchanged from last call
 
   if(main)
   {
-    pMainChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, main);
+    VidChannel * const pMainChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, main);
     memcpy(&mainchannel,pMainChannel,sizeof(VidChannel));
     SwapVectorBytes((uint32 *)&mainchannel.dmaflags);
     SwapVectorBytes((uint32 *)&mainchannel.dest_width);
@@ -998,7 +994,7 @@ void VidConfig(MPE &mpe)
 
   if(osd)
   {
-    pOSDChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, osd);
+    VidChannel * const pOSDChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, osd);
     memcpy(&osdchannel,pOSDChannel,sizeof(VidChannel));
     SwapVectorBytes((uint32 *)&osdchannel.dmaflags);
     SwapVectorBytes((uint32 *)&osdchannel.dest_width);
@@ -1017,7 +1013,7 @@ void VidConfig(MPE &mpe)
     memcpy(&structMainDisplayPrev,&structMainDisplay,sizeof(VidDisplay));
     memcpy(&structMainDisplay,&maindisplay,sizeof(VidDisplay));
 
-    borderTexture[0] = (structMainDisplay.bordcolor >> 24) & 0xFF;
+    borderTexture[0] = ((uint32)structMainDisplay.bordcolor >> 24) & 0xFF;
     borderTexture[1] = (structMainDisplay.bordcolor >> 16) & 0xFF;
     borderTexture[2] = (structMainDisplay.bordcolor >> 8) & 0xFF;
     borderTexture[3] = 0;
@@ -1036,6 +1032,7 @@ void VidConfig(MPE &mpe)
   bMainChannelActive = false;
   bOverlayChannelActive = false;
 
+  uint32 map;
   if(main)
   {
     memcpy(&structMainChannelPrev,&structMainChannel,sizeof(VidChannel));
@@ -1226,9 +1223,6 @@ void VidConfig(MPE &mpe)
   mpe.regs[0] = 1;
 }
 
-static uint32 lastWidth = 0;
-static uint32 lastHeight = 0;
-
 void VidSetup(MPE &mpe)
 {
   uint32 mainChannelBase = mpe.regs[0];
@@ -1392,7 +1386,7 @@ void SetVideoMode(void)
 void VidChangeBase(MPE &mpe)
 {
   const int32 which = mpe.regs[0];
-  const int32 dmaflags = mpe.regs[1];
+  const int32 dmaflags = mpe.regs[1] | (1UL << 13); // always set read bit
   const int32 base = mpe.regs[2];
 
   mpe.regs[0] = 1;
@@ -1454,7 +1448,7 @@ void VidChangeBase(MPE &mpe)
         structOverlayChannel.dmaflags = dmaflags;
         structOverlayChannel.base = (void *)base;
         //Handle 16_16Z double and triple buffer frame buffers
-        if((map >= 9) || map == 5)
+        if((map >= 9) || (map == 5))
         {
           if(map == 5)
           {
@@ -1573,7 +1567,7 @@ void VidSetCLUTRange(MPE &mpe)
     for(; (index < 256) && (count < numColors); index++, count++)
     {
       vdgCLUT[index] = pColors[count];
-      //SwapScalarBytes(&pCLUT[index]);
+      //SwapScalarBytes(&vdgCLUT[index]);
     }
   }
 
@@ -1587,7 +1581,7 @@ void VidSetCLUTRange(MPE &mpe)
 
 void VideoCleanup(void)
 {
-  for(uint32 i = 0; i < 3; i++)
+  for(uint32 i = 0; i < 4; i++)
   {
     if(glIsList(videoTexInfo.displayListName[i]))
     {
