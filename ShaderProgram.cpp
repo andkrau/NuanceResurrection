@@ -29,8 +29,8 @@ bool ShaderProgram::Initialize()
       return false;
     }
 
-    hVertexShaderObject = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
-    hFragmentShaderObject = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+    hVertexShaderObject = glCreateShaderObjectARB(GL_VERTEX_SHADER);
+    hFragmentShaderObject = glCreateShaderObjectARB(GL_FRAGMENT_SHADER);
   }
 
   return true;
@@ -67,7 +67,7 @@ void ShaderProgram::PrintInfoLog(GLhandleARB obj, const char *msg)
   glGetObjectParameterivARB(obj, GL_OBJECT_INFO_LOG_LENGTH_ARB , &blen);
   if(blen > 1)
   {
-    GLcharARB *infoLog = new GLcharARB[blen];
+    GLchar *infoLog = new GLchar[blen];
     int32 slen = 0;   /* strlen actually written to buffer */
     glGetInfoLogARB(obj, blen, &slen, infoLog);
     MessageBox(NULL,infoLog,msg,MB_OK);
@@ -79,8 +79,8 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
 {
   FILE *inFile;
   GLint length;
-  GLcharARB *buffer;
-  const GLcharARB **pBuffer = (const GLcharARB **)(&buffer);
+  GLchar *buffer;
+  const GLchar **pBuffer = (const GLchar **)(&buffer);
   bool bStatus = false;
 
   inFile = fopen(filename,"rb");
@@ -90,12 +90,12 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
     fseek(inFile,0,SEEK_END);
     length = ftell(inFile);
 
-    buffer = new GLcharARB[length+1];
+    buffer = new GLchar[length+1];
     buffer[length] = '\0';
     fseek(inFile,0,SEEK_SET);
     fread(buffer,sizeof(char),length,inFile);
 
-    if(type == GL_FRAGMENT_SHADER_ARB)
+    if(type == GL_FRAGMENT_SHADER)
     {
       if(hFragmentShaderObject)
       {
@@ -104,7 +104,7 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
         bStatus = true;
       }
     }
-    else if(type == GL_VERTEX_SHADER_ARB)
+    else if(type == GL_VERTEX_SHADER)
     {
       if(hVertexShaderObject)
       {
@@ -124,7 +124,7 @@ bool ShaderProgram::InstallShaderSourceFromMemory(char **sourceStrings, uint32 c
 {
   bool bStatus = false;
 
-  if(type == GL_FRAGMENT_SHADER_ARB)
+  if(type == GL_FRAGMENT_SHADER)
   {
     if(hFragmentShaderObject)
     {
@@ -133,7 +133,7 @@ bool ShaderProgram::InstallShaderSourceFromMemory(char **sourceStrings, uint32 c
       bStatus = true;
     }
   }
-  else if(type == GL_VERTEX_SHADER_ARB)
+  else if(type == GL_VERTEX_SHADER)
   {
     if(hVertexShaderObject)
     {
@@ -151,7 +151,7 @@ bool ShaderProgram::CompileShader(GLenum type)
   bool bStatus = false;
   GLint bCompiled = GL_FALSE;
 
-  if(type == GL_FRAGMENT_SHADER_ARB)
+  if(type == GL_FRAGMENT_SHADER)
   {
     if(hFragmentShaderObject && bFragmentShaderCodeLoaded)
     {
@@ -160,7 +160,7 @@ bool ShaderProgram::CompileShader(GLenum type)
       bStatus = bCompiled;
     }
   }
-  else if(type == GL_VERTEX_SHADER_ARB)
+  else if(type == GL_VERTEX_SHADER)
   {
     if(hVertexShaderObject && bVertexShaderCodeLoaded)
     {
@@ -197,7 +197,7 @@ bool ShaderProgram::AttachShader(GLenum type)
     return false;
   }
 
-  if(type == GL_FRAGMENT_SHADER_ARB)
+  if(type == GL_FRAGMENT_SHADER)
   {
     if(!hFragmentShaderObject)
     {
@@ -210,7 +210,7 @@ bool ShaderProgram::AttachShader(GLenum type)
       glAttachObjectARB(hProgramObject,hFragmentShaderObject);
     }
   }
-  else if(type == GL_VERTEX_SHADER_ARB)
+  else if(type == GL_VERTEX_SHADER)
   {
     if(!hVertexShaderObject)
     {
@@ -234,7 +234,7 @@ bool ShaderProgram::DetachShader(GLenum type)
     return false;
   }
 
-  if(type == GL_FRAGMENT_SHADER_ARB)
+  if(type == GL_FRAGMENT_SHADER)
   {
     if(!hFragmentShaderObject)
     {
@@ -247,7 +247,7 @@ bool ShaderProgram::DetachShader(GLenum type)
       glDetachObjectARB(hProgramObject,hFragmentShaderObject);
     }
   }
-  else if(type == GL_VERTEX_SHADER_ARB)
+  else if(type == GL_VERTEX_SHADER)
   {
     if(!hVertexShaderObject)
     {

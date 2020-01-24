@@ -14,26 +14,33 @@
 #include "video.h"
 //---------------------------------------------------------------------------
 
-//#define TEXTURE_TARGET (GL_TEXTURE_RECTANGLE_NV)
+extern NuonEnvironment nuonEnv;
+
 #define TEXTURE_TARGET (GL_TEXTURE_2D)
 
-const GLint mainInternalTextureFormat = GL_RGBA8;
-      GLint mainExternalTextureFormat = GL_BGRA;
-const GLint mainPixelType = GL_UNSIGNED_BYTE;
+const GLint mainInternalTextureFormat32 = GL_RGBA8;
+const GLint mainInternalTextureFormat16 = GL_RG8;
+const GLint mainExternalTextureFormat32 = GL_BGRA;
+const GLint mainExternalTextureFormat16 = GL_RG;
+const GLint mainPixelType32 = GL_UNSIGNED_BYTE;
+const GLint mainPixelType16 = GL_UNSIGNED_BYTE;
 const GLint mainTextureUnit = GL_TEXTURE0;
-const GLint osdInternalTextureFormat = GL_RGBA8;
-      GLint osdExternalTextureFormat = GL_BGRA;
+
+const GLint osdInternalTextureFormat32 = GL_RGBA8;
+const GLint osdInternalTextureFormat16 = GL_RG8;
+const GLint osdExternalTextureFormat32 = GL_BGRA;
+const GLint osdExternalTextureFormat16 = GL_RG;
+const GLint osdPixelType32 = GL_UNSIGNED_BYTE;
+const GLint osdPixelType16 = GL_UNSIGNED_BYTE;
 const GLint osdTextureUnit = GL_TEXTURE1;
 
-extern NuonEnvironment nuonEnv;
-extern GLWindow videoDisplayWindow;
-
-extern uint8 mybuffer[];
-extern int renderWidth, renderHeight;
+const GLint lutTextureUnit = GL_TEXTURE2;
 
 const bool bUseBilinearFiltering = false;
 
 static bool bTexturesInitialized = false;
+static bool bShadersInstalled = false;
+static bool bSetupViewport = false;
 
 vidTexInfo videoTexInfo;
 
@@ -49,10 +56,12 @@ uint32 *mainDisplayBuffer = 0;
 uint32 *mainChannelBuffer = 0;
 uint32 *overlayChannelBuffer = 0;
 uint8 *clutPtr = (uint8 *)vdgCLUT;
+
 bool bMainChannelActive = false;
 bool bOverlayChannelActive = false;
-bool bMainTextureCreated = false;
-bool bOverlayTextureCreated = false;
+
+int bMainTexturePixType = -1;
+int bOverlayTexturePixType = -1;
 
 bool bCanDisplayVideo = false;
 
@@ -74,87 +83,33 @@ float mainChannelScaleY = 1.0;
 float overlayChannelScaleX = 1.0;
 float overlayChannelScaleY = 1.0;
 
-uint8 LuminanceTable[256];
-uint8 ChromianceTable[256];
+uint32 LUT16[256][256];
 
 ShaderProgram *shaderProgram;
 
-void CalculateTableEntries(uint8 *table, uint8 min, uint8 max)
-{
-  for(uint32 i = 0; i < 256; i++)
-  {
-    uint8 clampedVal = i;
-
-    if(clampedVal < min)
-    {
-      clampedVal = min;
-    }
-    else if(clampedVal > max)
-    {
-      clampedVal = max;
-    }
-
-    table[i] = (uint8)(((uint32)(clampedVal - min)) * 255u/(max-min));
-  }
-}
-
-static int64 videoPerfCounter = 0;
-static int64 videoPerfStart = 0;
-static int64 videoPerfEnd = 0;
-static int64 videoPerfFreq = 0;
-static int64 videoPerfCycleCount = 0;
-static int64 videoPerfOverhead = 0;
-char msg[512];
-
-
-const GLfloat ycrcb2rgbColorMatrix[] = {
-1.000,  1.000, 1.000, 0.000,
-1.402, -0.700, 0.000, 0.000,
-0.000, -0.340, 1.772, 0.000,
-0.000,  0.000, 0.000, 1.000};
-
-const GLfloat ycrcb2rgbGreyscaleColorMatrix[] = {
-1.000,  1.000, 1.000, 0.000,
-0.000,  0.000, 0.000, 0.000,
-0.000,  0.000, 0.000, 0.000,
-0.000,  0.000, 0.000, 1.000};
-
-GLubyte transparencyTexture[] = {0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF};
-GLubyte borderTexture[] = {0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00};
-
-void InitializeYCrCbColorSpace(void)
-{
-  if(!nuonEnv.videoOptions.bUseShaders)
-  {
-    glMatrixMode(GL_COLOR);
-    glLoadMatrixf(ycrcb2rgbColorMatrix);
-
-    glPixelTransferf(GL_POST_COLOR_MATRIX_RED_BIAS,-1.402/2.0);
-    glPixelTransferf(GL_POST_COLOR_MATRIX_GREEN_BIAS,(0.70 + 0.34)/2.0);
-    glPixelTransferf(GL_POST_COLOR_MATRIX_BLUE_BIAS,-1.772/2.0);
-
-    mainExternalTextureFormat = GL_RGBA;
-    osdExternalTextureFormat = GL_RGBA;
-  }
-  else
-  {
-    mainExternalTextureFormat = GL_BGRA;
-    osdExternalTextureFormat = GL_BGRA;
-  }
-}
+static const GLubyte transparencyTexture[] = {0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF};
+static GLubyte borderTexture[] = {0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00};
+static const uint32 pixTypeToPixWidth[] = { 16,2,2,2,4,4,8 };
 
 void InitializeColorSpaceTables(void)
 {
-  CalculateTableEntries(LuminanceTable,16,235);
-  CalculateTableEntries(ChromianceTable,16,240);
-
   for(uint32 i = 0; i < 256; i++)
     vdgCLUT[i] = 0;
+
+  for (uint32 i = 0; i < 256; ++i)
+    for (uint32 i2 = 0; i2 < 256; ++i2)
+    {
+      const uint8 Y = (uint8)i & 0xFC;
+      const uint8 CR = ((uint8)i << 6) | (((uint8)i2 >> 2) & 0x38);
+      const uint8 CB = (uint8)i2 << 3;
+      // Alpha can differ, so leave out!
+      LUT16[i][i2] = ((uint32)CB << 16) | ((uint32)CR << 8) | (uint32)Y;
+    }
 }
 
 uint32 *AllocateTextureMemory32(uint32 size, const bool bOverlay)
 {
-  uint32 *ptr = 0;
+  uint32 *ptr;
 
   if(bOverlay)
   {
@@ -200,28 +155,12 @@ void FreeTextureMemory(uint32 *ptr, const bool bOverlay)
   }
 }
 
-inline void UpdateTexCoords(GLfloat x, GLfloat y, GLfloat *buffer)
-{
-  buffer[0] = x;
-  buffer[1] = y;
-}
-
 void UpdateTextureStates(void)
 {
-  GLfloat x0, xf, y0, yf;
-  GLint uniformLoc, filterType;
-  static bool bShadersInstalled = false;
+  GLint uniformLoc;
+  const GLint filterType = bUseBilinearFiltering ? GL_LINEAR : GL_NEAREST;
 
-  if(bUseBilinearFiltering)
-  {
-    filterType = GL_LINEAR;
-  }
-  else
-  {
-    filterType = GL_NEAREST;
-  }
-
-  if(!bShadersInstalled && nuonEnv.videoOptions.bUseShaders)
+  if(!bShadersInstalled)
   {
     shaderProgram = new ShaderProgram;
 
@@ -238,32 +177,32 @@ void UpdateTextureStates(void)
       if(status)
       {
         uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(),"mainChannelSampler");
-        glUniform1i(uniformLoc,0);
+        glUniform1i(uniformLoc, mainTextureUnit-GL_TEXTURE0);
         uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(),"overlayChannelSampler");
-        glUniform1i(uniformLoc,1);
+        glUniform1i(uniformLoc, osdTextureUnit-GL_TEXTURE0);
+        uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(),"LUTSampler");
+        glUniform1i(uniformLoc, lutTextureUnit-GL_TEXTURE0);
       }
     }
   }
 
-  bMainTextureCreated = false;
-  bOverlayTextureCreated = false;
+  uint32 pixType = (structOverlayChannel.dmaflags >> 4) & 0x0F;
+  uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(), "structOverlayChannelAlpha");
+  glUniform1f(uniformLoc, (pixType == 2) ? structOverlayChannel.alpha : -1.0f);
+  pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
+  uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(), "mainIs16bit");
+  glUniform1f(uniformLoc, (pixType == 2) ? 1.0f : 0.0f);
 
   glActiveTexture(mainTextureUnit);
 
   if(bMainChannelActive)
   {
-    x0 = (GLfloat)(-((double)structMainChannel.dest_xoff * (double)structMainChannel.src_width)/((double)structMainChannel.dest_width));
-    xf = (GLfloat)((double)(structMainDisplay.dispwidth - structMainChannel.dest_xoff) * (double)structMainChannel.src_width/(double)structMainChannel.dest_width);
-    y0 = (GLfloat)((double)(structMainDisplay.dispheight - structMainChannel.dest_yoff) * (double)structMainChannel.src_height/(double)structMainChannel.dest_height);
-    yf = (GLfloat)(-((double)structMainChannel.dest_yoff * (double)structMainChannel.src_height)/((double)structMainChannel.dest_height));
+    GLfloat x0, xf, y0, yf;
+    x0 = (GLfloat)((-((double)structMainChannel.dest_xoff * (double)structMainChannel.src_width)/((double)structMainChannel.dest_width)) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
+    xf = (GLfloat)(((double)(structMainDisplay.dispwidth - structMainChannel.dest_xoff) * (double)structMainChannel.src_width/(double)structMainChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
+    y0 = (GLfloat)(((double)(structMainDisplay.dispheight - structMainChannel.dest_yoff) * (double)structMainChannel.src_height/(double)structMainChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
+    yf = (GLfloat)((-((double)structMainChannel.dest_yoff * (double)structMainChannel.src_height)/((double)structMainChannel.dest_height)) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
 
-#if (TEXTURE_TARGET == GL_TEXTURE_2D)
-    x0 = (GLfloat)(x0 * (1.0/ALLOCATED_TEXTURE_WIDTH));
-    xf = (GLfloat)(xf * (1.0/ALLOCATED_TEXTURE_WIDTH));
-    y0 = (GLfloat)(y0 * (1.0/ALLOCATED_TEXTURE_HEIGHT));
-    yf = (GLfloat)(yf * (1.0/ALLOCATED_TEXTURE_HEIGHT));
-#endif
-    
     //uint8 *pBuffer = (uint8 *)mainChannelBuffer;
     //for(uint32 i = 0; i < (ALLOCATED_TEXTURE_WIDTH * ALLOCATED_TEXTURE_HEIGHT); i++)
     //{
@@ -274,36 +213,22 @@ void UpdateTextureStates(void)
     //  pBuffer += 4;
     //}
 
-    UpdateTexCoords(x0,y0,&videoTexInfo.mainTexCoords[0]);
-    UpdateTexCoords(x0,yf,&videoTexInfo.mainTexCoords[2]);
-    UpdateTexCoords(xf,yf,&videoTexInfo.mainTexCoords[4]);
-    UpdateTexCoords(xf,y0,&videoTexInfo.mainTexCoords[6]);
+    videoTexInfo.mainTexCoords[0] = x0;
+    videoTexInfo.mainTexCoords[1] = y0;
+    videoTexInfo.mainTexCoords[2] = x0;
+    videoTexInfo.mainTexCoords[3] = yf;
+    videoTexInfo.mainTexCoords[4] = xf;
+    videoTexInfo.mainTexCoords[5] = yf;
+    videoTexInfo.mainTexCoords[6] = xf;
+    videoTexInfo.mainTexCoords[7] = y0;
 
     glEnable(TEXTURE_TARGET);
     glBindTexture(TEXTURE_TARGET, videoTexInfo.mainTexName);
-    //glTexImage2D(TEXTURE_TARGET,0,mainInternalTextureFormat,ALLOCATED_TEXTURE_WIDTH,ALLOCATED_TEXTURE_HEIGHT,0,mainExternalTextureFormat,GL_UNSIGNED_BYTE,mainChannelBuffer);
   }
   else
   {
-    //x0 = 0.0;
-    //xf = 1.0;
-    //y0 = 1.0;
-    //yf = 0.0;
-
-#if (TEXTURE_TARGET == GL_TEXTURE_2D)
-    //x0 = x0 * (1.0/ALLOCATED_TEXTURE_WIDTH);
-    //xf = xf * (1.0/ALLOCATED_TEXTURE_WIDTH);
-    //y0 = y0 * (1.0/ALLOCATED_TEXTURE_HEIGHT);
-    //yf = yf * (1.0/ALLOCATED_TEXTURE_HEIGHT);   
-#endif
-
-    //UpdateTexCoords(x0,y0,&videoTexInfo.mainTexCoords[0]);
-    //UpdateTexCoords(x0,yf,&videoTexInfo.mainTexCoords[2]);
-    //UpdateTexCoords(xf,yf,&videoTexInfo.mainTexCoords[4]);
-    //UpdateTexCoords(xf,y0,&videoTexInfo.mainTexCoords[6]);
-
     glBindTexture(TEXTURE_TARGET, videoTexInfo.borderTexName);
-    glTexImage2D(TEXTURE_TARGET,0,mainInternalTextureFormat,2,2,0,mainExternalTextureFormat,GL_UNSIGNED_BYTE,borderTexture);
+    glTexImage2D(TEXTURE_TARGET,0,mainInternalTextureFormat32,2,2,0,mainExternalTextureFormat32, mainPixelType32,borderTexture);
     glDisable(TEXTURE_TARGET);
   }
 
@@ -314,26 +239,24 @@ void UpdateTextureStates(void)
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MAG_FILTER, filterType);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-  glActiveTexture(GL_TEXTURE1);
+  glActiveTexture(osdTextureUnit);
 
   if(bOverlayChannelActive)
   {
-    x0 = (GLfloat)(-((double)structOverlayChannel.dest_xoff * (double)structOverlayChannel.src_width)/((double)structOverlayChannel.dest_width));
-    xf = (GLfloat)(((double)(structMainDisplay.dispwidth - structOverlayChannel.dest_xoff) * (double)structOverlayChannel.src_width/(double)structOverlayChannel.dest_width));
-    y0 = (GLfloat)(((double)(structMainDisplay.dispheight - structOverlayChannel.dest_yoff) * (double)structOverlayChannel.src_height)/((double)structOverlayChannel.dest_height));
-    yf = (GLfloat)(-((double)structOverlayChannel.dest_yoff * (double)structOverlayChannel.src_height)/((double)structOverlayChannel.dest_height));
+    GLfloat x0, xf, y0, yf;
+    x0 = (GLfloat)((-((double)structOverlayChannel.dest_xoff * (double)structOverlayChannel.src_width)/((double)structOverlayChannel.dest_width)) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
+    xf = (GLfloat)((((double)(structMainDisplay.dispwidth - structOverlayChannel.dest_xoff) * (double)structOverlayChannel.src_width/(double)structOverlayChannel.dest_width)) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
+    y0 = (GLfloat)((((double)(structMainDisplay.dispheight - structOverlayChannel.dest_yoff) * (double)structOverlayChannel.src_height)/((double)structOverlayChannel.dest_height)) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
+    yf = (GLfloat)((-((double)structOverlayChannel.dest_yoff * (double)structOverlayChannel.src_height)/((double)structOverlayChannel.dest_height)) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
 
-#if (TEXTURE_TARGET == GL_TEXTURE_2D)
-    x0 = (GLfloat)(x0 * (1.0/ALLOCATED_TEXTURE_WIDTH));
-    xf = (GLfloat)(xf * (1.0/ALLOCATED_TEXTURE_WIDTH));
-    y0 = (GLfloat)(y0 * (1.0/ALLOCATED_TEXTURE_HEIGHT));
-    yf = (GLfloat)(yf * (1.0/ALLOCATED_TEXTURE_HEIGHT));
-#endif
-
-    UpdateTexCoords(x0,y0,&videoTexInfo.osdTexCoords[0]);
-    UpdateTexCoords(x0,yf,&videoTexInfo.osdTexCoords[2]);
-    UpdateTexCoords(xf,yf,&videoTexInfo.osdTexCoords[4]);
-    UpdateTexCoords(xf,y0,&videoTexInfo.osdTexCoords[6]);
+    videoTexInfo.osdTexCoords[0] = x0;
+    videoTexInfo.osdTexCoords[1] = y0;
+    videoTexInfo.osdTexCoords[2] = x0;
+    videoTexInfo.osdTexCoords[3] = yf;
+    videoTexInfo.osdTexCoords[4] = xf;
+    videoTexInfo.osdTexCoords[5] = yf;
+    videoTexInfo.osdTexCoords[6] = xf;
+    videoTexInfo.osdTexCoords[7] = y0;
 
     //uint8 *pBuffer = (uint8 *)overlayChannelBuffer;
     //for(uint32 i = 0; i < (ALLOCATED_TEXTURE_WIDTH * ALLOCATED_TEXTURE_HEIGHT); i++)
@@ -347,29 +270,11 @@ void UpdateTextureStates(void)
 
     glEnable(TEXTURE_TARGET);
     glBindTexture(TEXTURE_TARGET, videoTexInfo.osdTexName);
-    //glTexImage2D(TEXTURE_TARGET,0,osdInternalTextureFormat,ALLOCATED_TEXTURE_WIDTH,ALLOCATED_TEXTURE_HEIGHT,0,osdExternalTextureFormat,GL_UNSIGNED_BYTE,overlayChannelBuffer);
   }
   else
   {
-    //x0 = 0.0;
-    //y0 = 1.0;
-    //xf = 1.0;
-    //yf = 0.0;
-
-#if (TEXTURE_TARGET == GL_TEXTURE_2D)
-    //x0 = x0 * (1.0/ALLOCATED_TEXTURE_WIDTH);
-    //xf = xf * (1.0/ALLOCATED_TEXTURE_WIDTH);
-    //y0 = y0 * (1.0/ALLOCATED_TEXTURE_HEIGHT);
-    //yf = yf * (1.0/ALLOCATED_TEXTURE_HEIGHT);
-#endif
-
-    //UpdateTexCoords(x0,y0,&videoTexInfo.osdTexCoords[0]);
-    //UpdateTexCoords(x0,yf,&videoTexInfo.osdTexCoords[2]);
-    //UpdateTexCoords(xf,yf,&videoTexInfo.osdTexCoords[4]);
-    //UpdateTexCoords(xf,y0,&videoTexInfo.osdTexCoords[6]);
-
     glBindTexture(TEXTURE_TARGET, videoTexInfo.transparencyTexName);
-    glTexImage2D(TEXTURE_TARGET,0,osdInternalTextureFormat,2,2,0,osdExternalTextureFormat,GL_UNSIGNED_BYTE,transparencyTexture);
+    glTexImage2D(TEXTURE_TARGET,0,osdInternalTextureFormat32,2,2,0,osdExternalTextureFormat32, osdPixelType32,transparencyTexture);
     glDisable(TEXTURE_TARGET);
   }
 
@@ -379,6 +284,15 @@ void UpdateTextureStates(void)
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MIN_FILTER, filterType);
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MAG_FILTER, filterType);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+  glActiveTexture(lutTextureUnit);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, videoTexInfo.LUTTexName);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 }
 
 void UpdateDisplayList(void)
@@ -462,46 +376,23 @@ void InitTextures(void)
   glGenTextures(1,&videoTexInfo.mainTexName);
   glGenTextures(1,&videoTexInfo.osdTexName);
   glGenTextures(1,&videoTexInfo.borderTexName);
+  glGenTextures(1,&videoTexInfo.LUTTexName);
   glGenTextures(1,&videoTexInfo.transparencyTexName);
   
   glActiveTexture(mainTextureUnit);
   glBindTexture(TEXTURE_TARGET, videoTexInfo.borderTexName);
-  glTexImage2D(TEXTURE_TARGET, 0, mainInternalTextureFormat, 2, 2, 0, mainExternalTextureFormat, GL_UNSIGNED_BYTE, borderTexture);
+  glTexImage2D(TEXTURE_TARGET, 0, mainInternalTextureFormat32, 2, 2, 0, mainExternalTextureFormat32, mainPixelType32, borderTexture);
   glActiveTexture(osdTextureUnit);
   glBindTexture(TEXTURE_TARGET, videoTexInfo.transparencyTexName);
-  glTexImage2D(TEXTURE_TARGET, 0, osdExternalTextureFormat, 2, 2, 0, osdExternalTextureFormat, GL_UNSIGNED_BYTE, transparencyTexture);
+  glTexImage2D(TEXTURE_TARGET, 0, osdExternalTextureFormat32, 2, 2, 0, osdExternalTextureFormat32, osdPixelType32, transparencyTexture);
+  glActiveTexture(lutTextureUnit);
+  glBindTexture(GL_TEXTURE_2D, videoTexInfo.LUTTexName);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(LUT16[0][0]));
 
   UpdateTextureStates();
+
   UpdateDisplayList();
-
   videoTexInfo.bUpdateDisplayList = false;
-}
-
-void RenderVideo_Type4(uint32* pDestBuffer, const uint8 * pSrcBuffer, const uint32 maxRow, const uint32 maxCol, const bool bOverlay)
-{
-  if(!nuonEnv.videoOptions.bUseShaders)
-  {
-    for(uint32 rowCount = 0; rowCount < maxRow; rowCount++)
-    {
-      for(uint32 colCount = 0; colCount < maxCol; colCount++)
-      {
-        //32 or 32+32Z
-        uint32 pixel = (ChromianceTable[pSrcBuffer[2]] << 16) | (ChromianceTable[pSrcBuffer[1]] << 8) | LuminanceTable[pSrcBuffer[0]];
-        if(bOverlay)
-        {
-          if(pixel)
-            pixel |= ((0xFFu - (uint32)pSrcBuffer[3]) << 24);
-        }
-        else
-          pixel |= (0xFFu << 24);
-
-        *pDestBuffer = pixel;
-
-        pSrcBuffer += 4;
-        pDestBuffer++; //Always RGBA 32 bit
-      }
-    }
-  }  
 }
 
 void IncrementVideoFieldCounter(void)
@@ -527,27 +418,21 @@ void RenderVideo(const int winwidth, const int winheight)
   uint8 *pOverlayChannelBuffer;
 
   if(!bCanDisplayVideo)
-  {
     return;
-  }
 
   if(nuonEnv.videoOptions.bAlwaysUpdateVideo)
   {
     nuonEnv.bMainBufferModified = true;
     nuonEnv.bOverlayBufferModified = true;
   }
-  else if(!(nuonEnv.bMainBufferModified || nuonEnv.bOverlayBufferModified))
-  {
+  else if(!nuonEnv.bMainBufferModified && !nuonEnv.bOverlayBufferModified)
     return;
-  }
    
   if(!bTexturesInitialized)
   {
     InitTextures();
     bTexturesInitialized = true;
   }
-
-  static bool bSetupViewport = false;
 
   if(!bSetupViewport)
   {
@@ -615,17 +500,9 @@ void RenderVideo(const int winwidth, const int winheight)
 
     rowWidth = (structMainChannel.src_width << pixWidthShift);
 
-    if(!nuonEnv.bMainBufferModified)
+    if(!nuonEnv.bMainBufferModified
+        || pixType == 4 || pixType == 2) // pixel shader does the color conversion?
     {
-      goto process_overlay_buffer;
-    }
-
-    //uint8* ptrNextRow;
-    //!ptrNextRow = ptrNuonFrameBuffer;
-
-    if(pixType == 4)
-    {
-      RenderVideo_Type4(mainChannelBuffer,ptrNuonFrameBuffer,maxRow,maxCol,false);
       goto process_overlay_buffer;
     }
 
@@ -633,28 +510,25 @@ void RenderVideo(const int winwidth, const int winheight)
     {
       for(uint32 colCount = 0; colCount < maxCol; colCount++)
       {
-        uint8 Y,CR,CB;
         switch(pixType)
         {
           case 2:
           case 5:
             //16 or 16+16Z
-            Y  = ptrNuonFrameBuffer[0] & 0xFC; 
-            CR = (ptrNuonFrameBuffer[0] << 6) | ((ptrNuonFrameBuffer[1] >> 2) & 0x38);
-            CB = ptrNuonFrameBuffer[1] << 3;
+            //Alpha for main channel is opaque
+            *ptrMainDisplayBuffer = (0xFFu << 24) | LUT16[ptrNuonFrameBuffer[0]][ptrNuonFrameBuffer[1]];
             break;
           case 4:
           case 6:
           default:
             //32 or 32+32Z
-            Y  = ptrNuonFrameBuffer[0];
-            CR = ptrNuonFrameBuffer[1];
-            CB = ptrNuonFrameBuffer[2];
+            const uint8 Y  = ptrNuonFrameBuffer[0];
+            const uint8 CR = ptrNuonFrameBuffer[1];
+            const uint8 CB = ptrNuonFrameBuffer[2];
+            //Alpha for main channel is opaque
+            *ptrMainDisplayBuffer = (0xFFu << 24) | ((uint32)CB << 16) | ((uint32)CR << 8) | (uint32)Y;
             break;
         }
-
-        //Alpha for main channel is opaque
-        *ptrMainDisplayBuffer = (0xFFu << 24) | (ChromianceTable[CB] << 16) | (ChromianceTable[CR] << 8) | LuminanceTable[Y];
 
         ptrNuonFrameBuffer += pixWidth;
         ptrMainDisplayBuffer++; //Always RGBA 32 bit
@@ -731,14 +605,9 @@ process_overlay_buffer:
     } 
     pOverlayChannelBuffer = ptrNuonFrameBuffer;
 
-    if(!nuonEnv.bOverlayBufferModified)
+    if(!nuonEnv.bOverlayBufferModified
+        || pixType == 4 || pixType == 2) // pixel shader does the color conversion ?
     {
-      goto render_main_buffer;
-    }
-
-    if(pixType == 4)
-    {
-      RenderVideo_Type4(overlayChannelBuffer,ptrNuonFrameBuffer,maxRow,maxCol,true);
       goto render_main_buffer;
     }
 
@@ -802,7 +671,7 @@ process_overlay_buffer:
             break;
         }
 
-        uint32 pixel = (ChromianceTable[CB] << 16) | (ChromianceTable[CR] << 8) | LuminanceTable[Y];
+        uint32 pixel = ((uint32)CB << 16) | ((uint32)CR << 8) | (uint32)Y;
         //Color (0,0,0) is always transparent per Nuon architecture document
         if(pixel)
         {
@@ -814,7 +683,7 @@ process_overlay_buffer:
 
         if(pixType == 1)
         {
-          pixel = (ChromianceTable[CB2] << 16) | (ChromianceTable[CR2] << 8) | LuminanceTable[Y2];
+          pixel = ((uint32)CB2 << 16) | ((uint32)CR2 << 8) | (uint32)Y2;
           //Color (0,0,0) is always transparent per Nuon architecture document
           if(pixel)
           {
@@ -835,42 +704,40 @@ render_main_buffer:
   {
     glActiveTexture(mainTextureUnit);
     glBindTexture(TEXTURE_TARGET,videoTexInfo.mainTexName);
-    if(!bMainTextureCreated)
-    {
-      glTexImage2D(TEXTURE_TARGET,0,mainInternalTextureFormat,ALLOCATED_TEXTURE_WIDTH,ALLOCATED_TEXTURE_HEIGHT,0,mainExternalTextureFormat,mainPixelType,pMainChannelBuffer);
-      bMainTextureCreated = true;
-    }
 
     const uint32 pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
-    if(nuonEnv.videoOptions.bUseShaders && pixType == 4)
+    const GLint mainInternalTextureFormat = (pixType == 2) ? mainInternalTextureFormat16 : mainInternalTextureFormat32;
+    const GLint mainExternalTextureFormat = (pixType == 2) ? mainExternalTextureFormat16 : mainExternalTextureFormat32;
+    const GLint mainPixelType = (pixType == 2) ? mainPixelType16 : mainPixelType32;
+    const void* const mainPixels = (pixType == 4 || pixType == 2) // pixel shader does color conversion?
+        ? (void*)pMainChannelBuffer : (void*)mainChannelBuffer;
+    if(bMainTexturePixType != pixType) // format change or never created?
     {
-      glTexSubImage2D(TEXTURE_TARGET,0,0,0,structMainChannel.src_width,structMainChannel.src_height,mainExternalTextureFormat,mainPixelType,pMainChannelBuffer);
+      glTexImage2D(TEXTURE_TARGET,0,mainInternalTextureFormat, ALLOCATED_TEXTURE_WIDTH, ALLOCATED_TEXTURE_HEIGHT, 0,mainExternalTextureFormat,mainPixelType, mainPixels);
+      bMainTexturePixType = pixType;
     }
     else
-    {
-      glTexSubImage2D(TEXTURE_TARGET,0,0,0,structMainChannel.src_width,structMainChannel.src_height,mainExternalTextureFormat,mainPixelType,mainChannelBuffer);
-    }
+      glTexSubImage2D(TEXTURE_TARGET,0,0,0,structMainChannel.src_width,structMainChannel.src_height,mainExternalTextureFormat,mainPixelType, mainPixels);
   }
 
   if(bOverlayChannelActive && nuonEnv.bOverlayBufferModified)
   {
     glActiveTexture(osdTextureUnit);
     glBindTexture(TEXTURE_TARGET,videoTexInfo.osdTexName);
-    if(!bOverlayTextureCreated)
-    {
-      glTexImage2D(TEXTURE_TARGET,0,osdInternalTextureFormat,ALLOCATED_TEXTURE_WIDTH,ALLOCATED_TEXTURE_HEIGHT,0,osdExternalTextureFormat,GL_UNSIGNED_BYTE,pOverlayChannelBuffer);
-      bOverlayTextureCreated = true;
-    }
 
     const uint32 pixType = (structOverlayChannel.dmaflags >> 4) & 0x0F;
-    if(nuonEnv.videoOptions.bUseShaders && pixType == 4)
+    const GLint osdInternalTextureFormat = (pixType == 2) ? osdInternalTextureFormat16 : osdInternalTextureFormat32;
+    const GLint osdExternalTextureFormat = (pixType == 2) ? osdExternalTextureFormat16 : osdExternalTextureFormat32;
+    const GLint osdPixelType = (pixType == 2) ? osdPixelType16 : osdPixelType32;
+    const void* const osdPixels = (pixType == 4 || pixType == 2) // pixel shader does color conversion?
+        ? (void*)pOverlayChannelBuffer : (void*)overlayChannelBuffer;
+    if(bOverlayTexturePixType != pixType) // format change or never created?
     {
-      glTexSubImage2D(TEXTURE_TARGET,0,0,0,structOverlayChannel.src_width,structOverlayChannel.src_height,osdExternalTextureFormat,GL_UNSIGNED_BYTE,pOverlayChannelBuffer);
+      glTexImage2D(TEXTURE_TARGET,0,osdInternalTextureFormat, ALLOCATED_TEXTURE_WIDTH, ALLOCATED_TEXTURE_HEIGHT, 0,osdExternalTextureFormat, osdPixelType, osdPixels);
+      bOverlayTexturePixType = pixType;
     }
     else
-    {
-      glTexSubImage2D(TEXTURE_TARGET,0,0,0,structOverlayChannel.src_width,structOverlayChannel.src_height,osdExternalTextureFormat,GL_UNSIGNED_BYTE,overlayChannelBuffer);
-    }
+      glTexSubImage2D(TEXTURE_TARGET,0,0,0,structOverlayChannel.src_width,structOverlayChannel.src_height,osdExternalTextureFormat, osdPixelType, osdPixels);
   }
 
   if(videoTexInfo.bUpdateDisplayList)
@@ -888,8 +755,6 @@ render_main_buffer:
   nuonEnv.bMainBufferModified = false;
   nuonEnv.bOverlayBufferModified = false;
 }
-
-static const uint32 pixTypeToPixWidth[] = {16,2,2,2,4,4,8};
 
 void UpdateBufferLengths(void)
 {
@@ -1342,7 +1207,7 @@ void VidSetup(MPE &mpe)
   
   UpdateBufferLengths();
 
-  bUpdateOpenGLData |= (channelState != channelStatePrev);
+    bUpdateOpenGLData |= (channelState != channelStatePrev);
     bUpdateOpenGLData |= (structMainChannel.alpha != structMainChannelPrev.alpha);
     bUpdateOpenGLData |= (structMainChannel.clut_select != structMainChannelPrev.clut_select);
     bUpdateOpenGLData |= (structMainChannel.dest_height != structMainChannelPrev.dest_height);

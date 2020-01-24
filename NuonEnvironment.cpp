@@ -101,7 +101,7 @@ public:
 AudioCallbacks audioCallbacks;
 
 //InitAudio: Initialize sound library, create audio stream
-//Playback rate is 22050 Hz, Format is signed 16 bit stereo samples
+//Playback rate is 44100 Hz, Format is signed 16 bit stereo samples
 //Nuon sound samples must be byte-swapped for use by libraries which require
 //little-endian byte ordering
 
@@ -607,11 +607,6 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
         {
           tokenType = ReadConfigLine(configFile,line);
           videoOptions.bAlwaysUpdateVideo = !_stricmp(line,"Enabled");
-        }
-        else if(_strnicmp(&line[1],"PixelShaders]",sizeof("PixelShaders]")) == 0)
-        {
-          tokenType = ReadConfigLine(configFile,line);
-          videoOptions.bUseShaders = !_stricmp(line,"Enabled");
         }
         else if(_strnicmp(&line[1],"CycleBasedTiming]",sizeof("CycleBasedTiming]")) == 0)
         {

@@ -14,26 +14,25 @@ class VideoOptions
 public:
   VideoOptions()
   {
-    bUseShaders = false;
     bAlwaysUpdateVideo = false;
   }
   
-  bool bUseShaders;
   bool bAlwaysUpdateVideo;
 };
 
 struct vidTexInfo
 {
-  bool bUpdateDisplayList;
   GLuint displayListName[4];
   GLuint mainTexName;
   GLuint osdTexName;
   GLuint borderTexName;
+  GLuint LUTTexName;
   GLuint transparencyTexName;
   GLfloat borderColor[4];
   GLfloat transColor[4];
   GLfloat mainTexCoords[8];
   GLfloat osdTexCoords[8];
+  bool bUpdateDisplayList;
 };
 
 enum eVideoRequest
@@ -119,6 +118,5 @@ void SetVideoMode(void);
 void InitializeColorSpaceTables(void);
 void RenderVideo(int width, int height);
 void VideoCleanup(void);
-void InitializeYCrCbColorSpace(void);
 void IncrementVideoFieldCounter(void);
 #endif
