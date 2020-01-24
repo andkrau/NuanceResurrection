@@ -15,7 +15,7 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   const bool bDup = flags & (3UL << 26); //bDup = dup | direct
   //const bool bTrigger = flags & (1UL << 25);
   //const bool bRead = flags & (1UL << 13);
-  const uint32 xsize = (flags >> 13) & 0x7F8UL;
+  const int32 xsize = (flags >> 13) & 0x7F8UL;
   //const uint32 type = (flags >> 14) & 0x03UL;
   //const uint32 mode = flags & 0xFFFUL;
   //const uint32 zcompare = (flags >> 1) & 0x07UL;

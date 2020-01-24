@@ -59,9 +59,9 @@ containing the nuon.run and nuon.dat files.  The DVDBase config entry is prepend
 on to the file name parameters passed to MediaOpen and FileOpen.  The path names
 should have a trailing backslash.  If you wish to run of the commercial games off
 of an original DVD, set the DVDReadBase entry to "<DriveLetter>:\Nuon\" where
-<DriveLetter> is the drive letter of the DVD drive.  Pixel shaders and dynamic
-recompilation may be configured similarly using an entry labeled "PixelShaders"
-and "DynamicCompiler."  Additional settings for the dynamic compiler are discussed
+<DriveLetter> is the drive letter of the DVD drive.  Dynamic
+recompilation may be configured similarly using an entry labeled "DynamicCompiler."
+Additional settings for the dynamic compiler are discussed
 in the Dynamic Compiler section of this document.
 
 Instructions
@@ -222,16 +222,12 @@ T3K to avoid crashing during level selection, even if compiler optimizations are
 
 Pixel shader issues:
 
-The current pixel shader only supports pixel mode 4 (32-bit, no Z-buffer).  
-8-bit and 16-bit shaders (with and without Z-buffer) are planned.  
+The current pixel shader only fully supports pixel mode 2 (16-bit, no Z-buffer) & 4 (32-bit, no Z-buffer).  
+Others partially fall back to the CPU.
 
 Speed issues:
 
-This is a CPU intensive emulator and there is no way around that.  It is 
-highly recommended that antialiasing and anisotropic filtering is forced off before 
-running the emulator.  Running the emulator with 4x antialiasing and 8x anisotropic 
-filtering brings my xp2800+/Geforce6800gs system to its knees.  This should give you
-an idea of the performance decrease you will see when these features are left on.  
+This is a CPU intensive emulator and there is no way around that.
 
 NISE support:
 
@@ -362,8 +358,8 @@ stores the frame buffer in a standard linear fashion but the Nuon video
 processor stores frame buffer data in an interleaved, cache optimized fashion
 in order to speed up retrieval, particularly when filtering is used.
 
-The emulator performs YCrCb to RGB color conversion using pixel shaders when
-the shader option is enabled.  This allows complete hardware acceleration of
+The emulator performs YCrCb to RGB color conversion using pixel shaders.
+This allows complete hardware acceleration of
 the color conversion process, saving several hundred million CPU cycles per
 second that are now available for use by the processor emulation thread.
 
@@ -389,6 +385,12 @@ Z: switch between controller 0 and controller 1
 
 History
 =======
+Fix corrupted gfx in T3K
+Fix wrong DMAs in Ballistic and Merlin Racing
+(Mostly) fix distorted sound
+Optimizations
+Always enable Pixel Shaders and fully support mode 2
+
 5/30/2007, version 0.5.0:
   Fixed tons of compiler bugs.  Fixed TimeToSleep routine, allowing Snake to work again.  
 Added compiler support for all remaining instructions including delayed branches.  Implemented

@@ -8,8 +8,6 @@
 #include "SuperBlock.h"
 #include "SuperBlockConstants.h"
 #include "X86EmitTypes.h"
-#include <stdio.h>
-#include <windows.h>
 
 extern NuonEnvironment nuonEnv;
 extern NativeEmitHandler emitHandlers[];
@@ -117,7 +115,7 @@ bool IsBranchConditionCompilable(const uint32 startAddress, const uint32 mpeInde
     case 31:
       //cf1hi
       return true;
-     default:
+    default:
       return false;
   }
 }
@@ -651,7 +649,6 @@ void SuperBlock::AddPacketToList(InstructionCacheEntry &packet, uint32 index)
   packets[index].comboScalarInputDependencies = comboScalarInDep;
   packets[index].comboMiscOutputDependencies = comboMiscOutDep;
   packets[index].comboScalarOutputDependencies = comboScalarOutDep;
-
 }
 
 bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry * const pPacketEntry, const uint32 index, const bool bExplicitNOP)
