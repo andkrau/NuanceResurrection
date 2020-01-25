@@ -219,8 +219,6 @@ void AssemblyBiosHandler(MPE &mpe)
 #define WillNotImplement NullBiosHandler
 #define AssemblyImplemented AssemblyBiosHandler
 
-uint32 *InterruptVectors;
-
 void SetISRExitHook(MPE &mpe)
 {
   uint32 newvec = mpe.regs[0];
@@ -286,15 +284,14 @@ void IntGetVector(MPE &mpe)
 {
   const uint32 which = mpe.regs[0];
 
-  mpe.regs[0] = 0;
-
-  InterruptVectors = (uint32 *)nuonEnv.GetPointerToMemory(mpe,INTERRUPT_VECTOR_ADDRESS);
-
   if(which < 32)
   {
+    const uint32* const InterruptVectors = (uint32 *)nuonEnv.GetPointerToMemory(mpe,INTERRUPT_VECTOR_ADDRESS);
     mpe.regs[0] = InterruptVectors[which];
     SwapScalarBytes(&(mpe.regs[0]));
   }
+  else
+    mpe.regs[0] = 0;
 }
 
 void IntSetVector(MPE &mpe)
@@ -323,7 +320,7 @@ void IntSetVector(MPE &mpe)
     }
     else
     {
-      InterruptVectors = (uint32 *)nuonEnv.GetPointerToMemory(mpe,INTERRUPT_VECTOR_ADDRESS);
+      uint32* const InterruptVectors = (uint32 *)nuonEnv.GetPointerToMemory(mpe,INTERRUPT_VECTOR_ADDRESS);
       mpe.regs[0] = InterruptVectors[which];
 
       if(!newvec)
