@@ -268,16 +268,28 @@ struct sBilinearInfo
 #define REGINDEX_ACSHIFT (14UL)
 #define REGINDEX_SVSHIFT (15UL)
 
+typedef void (* NuanceHandler)(MPE &, const InstructionCacheEntry &, const Nuance &);
+typedef void NuanceHandlerProto(MPE &, const InstructionCacheEntry &, const Nuance &);
+typedef uint32 (* NuancePrintHandler)(char *, Nuance &, bool);
+typedef uint32 NuancePrintHandlerProto(char *, Nuance &, bool);
+typedef void (* NativeEmitHandler)(EmitterVariables *, Nuance &);
+typedef void NativeEmitHandlerProto(EmitterVariables *, Nuance &);
+typedef void (* NativeCodeBlockFunction)();
+
+extern const NuanceHandler nuanceHandlers[];
+
 __declspec(align(16)) class MPE
 {
 public:
-  //don't change the order of these registers! (regs to svshift)
-  uint32 regs[32];
-  uint32 cc;
-  uint32 rc0;
-  uint32 rc1;
   union {
       struct {
+          //don't change the order of these registers!
+          uint32 regs[32];
+
+          uint32 cc;
+          uint32 rc0;
+          uint32 rc1;
+
           uint32 rx;
           uint32 ry;
           uint32 ru;
@@ -293,28 +305,37 @@ public:
           uint32 svshift;
       };
       struct {
-          uint32 rcu_union[13];
+          uint32 reg_union[32+3+13];
       };
   };
 
-  //don't change the order of the temp registers!
-  uint32 tempScalarRegs[32];
-  uint32 tempCC;
-  uint32 tempRc0;
-  uint32 tempRc1;
-  uint32 tempRx;
-  uint32 tempRy;
-  uint32 tempRu;
-  uint32 tempRv;
-  uint32 tempRz;
-  uint32 tempRzi1;
-  uint32 tempRzi2;
-  uint32 tempXyctl;
-  uint32 tempUvctl;
-  uint32 tempXyrange;
-  uint32 tempUvrange;
-  uint32 tempAcshift;
-  uint32 tempSvshift;
+  union {
+      struct {
+          //don't change the order of the temp registers!
+          uint32 tempScalarRegs[32];
+        
+          uint32 tempCC;
+          uint32 tempRc0;
+          uint32 tempRc1;
+        
+          uint32 tempRx;
+          uint32 tempRy;
+          uint32 tempRu;
+          uint32 tempRv;
+          uint32 tempRz;
+          uint32 tempRzi1;
+          uint32 tempRzi2;
+          uint32 tempXyctl;
+          uint32 tempUvctl;
+          uint32 tempXyrange;
+          uint32 tempUvrange;
+          uint32 tempAcshift;
+          uint32 tempSvshift;
+      };
+      struct {
+          uint32 tempreg_union[32+3+13];
+      };
+  };
 
   uint32 mpectl;
   uint32 excepsrc;
@@ -375,16 +396,18 @@ public:
   uint32 strictMemoryPolicyMiscInputDependencies;
   uint32 strictMemoryPolicyMiscOutputDependencies;
 
-  uint32 overlayIndex;
+  //uint32 overlayIndex;
   uint32 overlayMask;
   uint32 interpretNextPacket;
   uint32 invalidateRegionStart;
   uint32 invalidateRegionEnd;
   uint32 interpreterInvalidateRegionStart;
   uint32 interpreterInvalidateRegionEnd;
+
   bool bInvalidateInterpreterCache;
   bool bInvalidateInstructionCaches;
   bool bInterpretedBranchTaken;
+  bool bStrictMemoryDependencyPolicy;
 
   uint32 numInterpreterCacheFlushes;
   uint32 numNativeCodeCacheFlushes;
@@ -407,24 +430,52 @@ public:
   InstructionCacheEntry ICacheEntry_SaveRegs;
   InstructionCacheEntry ICacheEntry_SaveFlags;
 
-  bool bStrictMemoryDependencyPolicy;
   uint32 strictMemoryMiscInputDependencies;
   uint32 strictMemoryMiscOutputDependencies;
   
   void AllocateMPELocalMemory();
   void FreeMPELocalMemory();
-  uint8 DecodeSingleInstruction(uint8 *iPtr, InstructionCacheEntry *pStruct, uint32 *immExt, bool &bTerminating);
-  uint32 GetPacketDelta(uint8 *iPtr, uint32 numLevels);
-  void DecompressPacket(uint8 *iBuffer, InstructionCacheEntry *pStruct, uint32 options = 0);
-  bool ChooseInstructionPairOrdering(InstructionCacheEntry *entry, uint32 slot1, uint32 slot2);
-  uint32 ScoreInstructionTriplet(InstructionCacheEntry *srcEntry, uint32 slot1, uint32 slot2, uint32 slot3);
-  void GetInstructionTripletDependencies(uint32 *comboScalarDep, uint32 *comboMiscDep, InstructionCacheEntry *srcEntry, uint32 slot1, uint32 slot2, uint32 slot3);
-  void ScheduleInstructionTriplet(InstructionCacheEntry *destEntry, uint32 baseSlot, InstructionCacheEntry *srcEntry, uint32 slot1, uint32 slot2, uint32 slot3);
-  void ScheduleInstructionQuartet(InstructionCacheEntry *destEntry, uint32 baseSlot, InstructionCacheEntry *srcEntry);
-  NativeCodeCacheEntryPoint CompileNativeCodeBlock(uint32 pcexec, SuperBlockCompileType compileType, bool &bError, bool bSinglePacket = false);
+  uint8 DecodeSingleInstruction(const uint8 * const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt, bool &bTerminating);
+  uint32 GetPacketDelta(const uint8 *iPtr, uint32 numLevels);
+  void DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const pICacheEntry, const uint32 options = 0);
+  bool ChooseInstructionPairOrdering(const InstructionCacheEntry * const entry, const uint32 slot1, const uint32 slot2);
+  uint32 ScoreInstructionTriplet(const InstructionCacheEntry * const srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
+  void GetInstructionTripletDependencies(uint32& comboScalarDep, uint32& comboMiscDep, const InstructionCacheEntry * const srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
+  void ScheduleInstructionTriplet(InstructionCacheEntry * const destEntry, const uint32 baseSlot, const InstructionCacheEntry * const srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
+  void ScheduleInstructionQuartet(InstructionCacheEntry * const destEntry, const uint32 baseSlot, const InstructionCacheEntry * const srcEntry);
+  NativeCodeCacheEntryPoint CompileNativeCodeBlock(const uint32 pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket = false);
   bool FetchDecodeExecute();
   void ExecuteSingleStep();
-  void ExecuteNuances(InstructionCacheEntry &iCacheEntry);
+  void ExecuteNuances(const InstructionCacheEntry& entry)
+  {
+    if(entry.packetInfo & PACKETINFO_BREAKPOINT)
+    {
+      excepsrc |= 0x04;
+      if(excephalten & 0x04)
+      {
+        //clear mpego bit
+        mpectl &= ~MPECTRL_MPEGO;
+      }
+      else
+      {
+        //set exception bit in interrupt source register
+        intsrc |= 0x01;
+      }
+    }
+   
+    if(!(entry.packetInfo & PACKETINFO_NOP))
+    {
+      if(entry.packetInfo & PACKETINFO_DEPENDENCY_PRESENT)
+        memcpy(tempreg_union, reg_union, sizeof(uint32) * 48);
+      else
+        tempCC = cc;
+   
+      for(uint32 i = 0; i < entry.nuanceCount; i++)
+      {
+        (nuanceHandlers[entry.handlers[i]])(*this,entry,*((Nuance *)(&entry.nuances[FIXED_FIELD(i,0)])));
+      }
+    }
+  }
   uint32 GetControlRegisterInputDependencies(const uint32 address, bool &bException);
   uint32 GetControlRegisterOutputDependencies(const uint32 address, bool &bException);
   void DecodeInstruction_RCU16(const uint8 * const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt);
@@ -451,7 +502,14 @@ public:
   //  return FetchDecodeExecute();
   //}
 
-  bool ExecuteUntilAddress(uint32 address);
+  bool ExecuteUntilAddress(const uint32 address)
+  {
+    breakpointAddress = address;
+    const bool status = FetchDecodeExecute();
+    breakpointAddress = 0;
+
+    return status;
+  }
 
   inline void InvalidateICache()
   {
@@ -466,7 +524,12 @@ public:
   }
 
   void WriteControlRegister(uint32 address, uint32 data);
-  void SaveRegisters();
+  void SaveRegisters()
+  {
+    const uint32 tmp = tempCC;
+    memcpy(tempreg_union,reg_union,sizeof(uint32)*48);
+    tempCC = tmp; //!! this was what happened with the old code, but was this intended??
+  }
   void InitStaticICacheEntries();
   uint32 ReadControlRegister(const uint32 address, const InstructionCacheEntry * const entry);
 
@@ -498,8 +561,8 @@ public:
 
   void UpdateInvalidateRegion(const uint32 start, const uint32 length);
 
-  void PrintInstructionCachePacket(char *buffer, uint32 address);
-  void PrintInstructionCachePacket(char *buffer, InstructionCacheEntry &entry);
+  void PrintInstructionCachePacket(char *buffer, const uint32 address);
+  void PrintInstructionCachePacket(char *buffer, const InstructionCacheEntry &entry);
 
   void Reset();
   bool LoadCoffFile(const char * const filename, bool bSetEntryPoint = true, int handle = -1);
@@ -520,13 +583,5 @@ public:
   //void StorePixel(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, unsigned __int32 pixType, unsigned __int32 subpixel, bool bChnorm);
   //void StorePixelZ(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, unsigned __int32 pixType, unsigned __int32 subpixel, bool bChnorm);
 };
-
-typedef void (* NuanceHandler)(MPE &, const InstructionCacheEntry &, const Nuance &);
-typedef void NuanceHandlerProto(MPE &, const InstructionCacheEntry &, const Nuance &);
-typedef uint32 (* NuancePrintHandler)(char *, Nuance &, bool);
-typedef uint32 NuancePrintHandlerProto(char *, Nuance &, bool);
-typedef void (* NativeEmitHandler)(EmitterVariables *, Nuance &);
-typedef void NativeEmitHandlerProto(EmitterVariables *, Nuance &);
-typedef void (* NativeCodeBlockFunction)();
 
 #endif

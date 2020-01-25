@@ -1,3 +1,4 @@
+#include "basetypes.h"
 #include "InstructionCache.h"
 #include "mpe.h"
 #include "SuperBlockConstants.h"
@@ -22,28 +23,7 @@ void Execute_SaveFlags(MPE &mpe, const InstructionCacheEntry &entry, const Nuanc
 
 void Execute_SaveRegs(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.tempCC = mpe.cc;
-  for(uint32 i = 0; i < 32; i++)
-  {
-    mpe.tempScalarRegs[i] = mpe.regs[i];
-  }
-
-  mpe.tempRx = mpe.rx;
-  mpe.tempRy = mpe.ry;
-  mpe.tempRu = mpe.ru;
-  mpe.tempRv = mpe.rv;
-  mpe.tempRc0 = mpe.rc0;
-  mpe.tempRc1 = mpe.rc1;
-  mpe.tempRz = mpe.rz;
-  mpe.tempRzi1 = mpe.rzi1;
-  mpe.tempRzi2 = mpe.rzi2;
-  mpe.tempXyctl = mpe.xyctl;
-  mpe.tempUvctl = mpe.uvctl;
-  mpe.tempXyrange = mpe.xyrange;
-  mpe.tempUvrange = mpe.uvrange;
-  mpe.tempAcshift = mpe.acshift;
-  mpe.tempSvshift = mpe.svshift;
-
+  memcpy(mpe.tempreg_union,mpe.reg_union,sizeof(uint32)*48);
   mpe.pICacheEntry = &(mpe.ICacheEntry_SaveRegs);
 }
 
