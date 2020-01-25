@@ -4,7 +4,6 @@
 #include "basetypes.h"
 #include "mpe.h"
 #include "external\glew-2.1.0\include\GL\glew.h"
-#include "external\glew-2.1.0\include\GL\wglew.h"
 
 #define ALLOCATED_TEXTURE_WIDTH VIDEO_WIDTH
 #define ALLOCATED_TEXTURE_HEIGHT (480)
@@ -119,4 +118,5 @@ void InitializeColorSpaceTables(void);
 void RenderVideo(int width, int height);
 void VideoCleanup(void);
 void IncrementVideoFieldCounter(void);
+
 #endif

@@ -1,6 +1,9 @@
 #ifndef BASETYPES_H
 #define BASETYPES_H
 
+#define STRICT
+#define WIN32_LEAN_AND_MEAN
+
 typedef signed __int8 int8;
 typedef signed __int16 int16;
 typedef signed __int32 int32;

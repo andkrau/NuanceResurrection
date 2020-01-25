@@ -1,11 +1,11 @@
 #include "basetypes.h"
+#include <stdlib.h>
 #include "Handlers.h"
 #include "InstructionCache.h"
 #include "mpe.h"
 #include "PropagateConstants.h"
 #include "PropagateConstants_MEM.h"
 #include "SuperBlockConstants.h"
-#include <stdlib.h>
 
 #define ALLOW_ALU_PROPAGATION true
 

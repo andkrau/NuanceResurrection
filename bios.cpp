@@ -1,7 +1,8 @@
-#include <windows.h>
+#include "basetypes.h"
 #include <string.h>
 #include <stdio.h>
-#include "basetypes.h"
+#include <windows.h>
+
 #include "byteswap.h"
 #include "media.h"
 #include "mpe.h"
@@ -329,7 +330,6 @@ void IntSetVector(MPE &mpe)
       {
         //disable the interrupt
         mpe.inten1 &= (~(1UL << which));
-
       }
       else
       {
@@ -338,6 +338,7 @@ void IntSetVector(MPE &mpe)
         //Enable the interrupt in case it was previously disabled
         mpe.inten1 |= (1UL << which);
       }
+
       InterruptVectors[which] = newvec;
       SwapScalarBytes(&InterruptVectors[which]);
     }
@@ -665,7 +666,7 @@ void InitBios(MPE &mpe)
   MediaInitMPE((uint32)0);
 
   //TIMER INITIALIZATION
-  TimerInit(2,16000);
+  TimerInit(2,16000); // triggers video int at ~1000/16=~60Hz
 }
 
 void KPrintf(MPE &mpe)
@@ -675,7 +676,7 @@ void KPrintf(MPE &mpe)
   SwapScalarBytes(&pStr);
   if(pStr)
   {
-    const char* const str = (char *)(nuonEnv.GetPointerToMemory(mpe,pStr,true));
-    //MessageBox(NULL,(char *)str,"kprintf",MB_OK);
+    const char* const str = (const char *)(nuonEnv.GetPointerToMemory(mpe,pStr,true));
+    //MessageBox(NULL,str,"kprintf",MB_OK);
   }
 }

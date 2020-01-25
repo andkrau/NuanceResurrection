@@ -1,12 +1,12 @@
-#define STRICT
+#include "basetypes.h"
 
-#include <windows.h>
-#include "commdlg.h"
-#include "external\glew-2.1.0\include\GL\glew.h"
-#include <GL/gl.h>
 #include <stdio.h>
 #include <string.h>
-#include "basetypes.h"
+#include <windows.h>
+#include <commdlg.h>
+#include "external\glew-2.1.0\include\GL\glew.h"
+#include <GL/gl.h>
+
 #include "byteswap.h"
 #include "comm.h"
 #include "CriticalSection.h"
@@ -58,8 +58,10 @@ HWND cbDisplayStatus;
 HWND cbMPEStatus;
 HWND cbDumpMPEs;
 HWND reStatus;
+
 OPENFILENAME ofn;
 char openFileName[512];
+
 unsigned long whichController = 1;
 unsigned long disassemblyMPE = 3;
 unsigned long whichStatus = 0;
@@ -783,13 +785,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   const GLenum err = glewInit();
   if(err != GLEW_OK)
-  {
     MessageBox(NULL,(char *)glewGetErrorString(err),"Error",MB_ICONWARNING);
-  }
 
   mainChannelBuffer = AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,false);
   overlayChannelBuffer = AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,true);
-  InitializeYCrCbColorSpace();
 
   const HMODULE hRichEditLibrary = LoadLibrary("Riched20.dll"); // needs to be loaded, otherwise program hangs
   hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_CONTROL_PANEL),NULL,ControlPanelDialogProc);
@@ -865,12 +864,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         nuonEnv.mpe[1].ExecuteSingleCycle();
         nuonEnv.mpe[0].ExecuteSingleCycle();
         if(nuonEnv.pendingCommRequests)
-        {
           DoCommBusController();
-        }
         //nuonEnv.videoDisplayCycleCount += nuonEnv.mpe[3]->cycleCounter;
         //ProcessCycleBasedEvents();
-      }      
+      }
 
       //if(nuonEnv.videoDisplayCycleCount >= (54000000/60))
       //{

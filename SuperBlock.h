@@ -2,10 +2,10 @@
 #define INSTRUCTION_SUPERBLOCK_H
 
 #include "basetypes.h"
+#include <stdio.h>
 #include "InstructionCache.h"
 #include "mpe.h"
 #include "NativeCodeCache.h"
-#include <stdio.h>
 
 #ifndef SUPERBLOCK_STRUCTS
 #define SUPERBLOCK_STRUCTS
@@ -75,7 +75,7 @@ public:
   ~SuperBlock();
 
   void PrintBlockToFile(SuperBlockCompileType blockType = SUPERBLOCKCOMPILETYPE_UNKNOWN, uint32 size = 0);
-  void AddPacketToList(InstructionCacheEntry &packet, uint32 index);
+  void AddPacketToList(InstructionCacheEntry &packet, const uint32 index);
   bool AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry * const pPacketEntry, const uint32 index, const bool bExplicitNOP = false);
   NativeCodeCacheEntryPoint CompileBlock(MPE * const mpe, const uint32 address, NativeCodeCache &codeCache, const SuperBlockCompileType eCompileType, const bool bSinglePacket, bool &bError);
   bool EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, const bool bContainsBranch);

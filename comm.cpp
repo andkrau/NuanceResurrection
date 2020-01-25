@@ -1,10 +1,10 @@
 //---------------------------------------------------------------------------
 #include "basetypes.h"
+#include <stdio.h>
 #include "byteswap.h"
 #include "mpe.h"
 #include "comm.h"
 #include "NuonEnvironment.h"
-#include <stdio.h>
 
 extern NuonEnvironment nuonEnv;
 char msgBuf[512];

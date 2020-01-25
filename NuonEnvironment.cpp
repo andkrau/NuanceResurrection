@@ -1,9 +1,10 @@
+#include "basetypes.h"
 #include <assert.h>
 #include <windows.h>
 #include <stdio.h>
-#include "audio.h"
 #include "external\fmod-3.75\api\inc\fmod.h"
-#include "basetypes.h"
+
+#include "audio.h"
 #include "Bios.h"
 #include "file.h"
 #include "memory.h"
@@ -27,20 +28,14 @@ static int audioChannel = 0;
 void NuonEnvironment::TriggerAudioInterrupt(void)
 {
   if(bAudioInterruptsEnabled)
-  {
-    mpe[0].TriggerInterrupt(INT_AUDIO);
-    mpe[1].TriggerInterrupt(INT_AUDIO);
-    mpe[2].TriggerInterrupt(INT_AUDIO);
-    mpe[3].TriggerInterrupt(INT_AUDIO);
-  }
+    for(uint32 i = 0; i < 4; ++i)
+      mpe[i].TriggerInterrupt(INT_AUDIO);
 }
 
 void NuonEnvironment::TriggerVideoInterrupt(void)
 {
-  mpe[0].TriggerInterrupt(INT_VIDTIMER);
-  mpe[1].TriggerInterrupt(INT_VIDTIMER);
-  mpe[2].TriggerInterrupt(INT_VIDTIMER);
-  mpe[3].TriggerInterrupt(INT_VIDTIMER);
+  for(uint32 i = 0; i < 4; ++i)
+    mpe[i].TriggerInterrupt(INT_VIDTIMER);
 }
 
 class AudioCallbacks

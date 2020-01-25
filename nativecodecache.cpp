@@ -1,5 +1,5 @@
-#include <windows.h>
 #include "basetypes.h"
+#include <windows.h>
 #include "mpe.h"
 #include "NativeCodeCache.h"
 #include "PageMap.h"
@@ -107,11 +107,6 @@ void NativeCodeCache::Flush()
 {
   pageMap->Invalidate();
   pEmitLoc = ptrNativeCodeBuffer;
-}
-
-void NativeCodeCache::FlushRegion(uint32 start, uint32 end)
-{
-  pageMap->InvalidateRegion(start, end);
 }
 
 void NativeCodeCache::X86Emit_ModRegRM(x86ModType modType, x86ModReg regSpare, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)

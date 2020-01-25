@@ -440,6 +440,15 @@
     <ClInclude Include="PresentationEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="external\fmod-3.75\api\inc\fmod.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\glew-2.1.0\include\GL\glew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\glew-2.1.0\include\GL\wglew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="bitmap1.bmp">

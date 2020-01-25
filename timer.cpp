@@ -1,6 +1,8 @@
-#include <windows.h>
-#include <time.h>
 #include "basetypes.h"
+#include <assert.h>
+#include <time.h>
+#include <windows.h>
+#include <timeapi.h>
 #include "byteswap.h"
 #include "NuonEnvironment.h"
 #include "timer.h"
@@ -47,14 +49,15 @@ void CALLBACK SysTimer1Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32
   nuonEnv.mpe[3].TriggerInterrupt(INT_SYSTIMER1);
 }
 
+// this one is set by InitBios for mpe[3] at ~60Hz
 #ifdef USE_QUEUE_TIMERS
 void CALLBACK SysTimer2Callback(void* lpParameter, BOOLEAN TimerOrWaitFired)
 #else
 void CALLBACK SysTimer2Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2)
 #endif
 { 
-  static uint64 cycleCounter[4] = {0,0,0,0};
-  static uint64 max_delta[4] = {0,0,0,0};
+  //static uint64 cycleCounter[4] = {0,0,0,0};
+  //static uint64 max_delta[4] = {0,0,0,0};
 
 //  for(uint32 i = 0; i < 4; i++)
 //  {
@@ -233,6 +236,7 @@ void TimerInit(const uint32 whichTimer, const uint32 rate)
   }
   else
   {
+    assert(rate/1000 == 16); // check if this was set (only by us) to the ~60Hz to trigger video interrupts at that pace
 #ifdef USE_QUEUE_TIMERS
     if(hSysTimer2)
     {
@@ -246,7 +250,6 @@ void TimerInit(const uint32 whichTimer, const uint32 rate)
     hSysTimer2 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer2Callback,0,TIME_PERIODIC);
 #endif
   }
-
 }
 
 void TimerInit(MPE &mpe)

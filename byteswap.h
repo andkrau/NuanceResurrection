@@ -3,8 +3,8 @@
 
 #define LITTLE_ENDIAN
 
-#include <intrin.h>
 #include "basetypes.h"
+#include <intrin.h>
 
 #ifdef LITTLE_ENDIAN
 __forceinline void SwapWordBytes(uint16 * const toswap)
