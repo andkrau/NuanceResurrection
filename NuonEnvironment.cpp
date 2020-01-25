@@ -112,9 +112,7 @@ void NuonEnvironment::InitAudio(void)
   {
     //Select default sound driver
     FSOUND_SetDriver(0);
-    //FSOUND_SetMixer(FSOUND_MIXER_QUALITY_FPU);
-    //FSOUND_SetMixer(FSOUND_MIXER_QUALITY_MMXP5);
-    //FSOUND_SetMixer(FSOUND_MIXER_QUALITY_MMXP6);
+    FSOUND_SetMixer(FSOUND_MIXER_QUALITY_AUTODETECT);
     //Initialize FMOD
     if(FSOUND_Init(MIX_RATE, MAX_SOFTWARE_CHANNELS, INIT_FLAGS))
       bFMODInitialized = true;
