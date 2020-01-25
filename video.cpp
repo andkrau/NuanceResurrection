@@ -1,4 +1,5 @@
-//---------------------------------------------------------------------------
+//#define SUPPORT_VSYNC_WAITING
+
 #include "basetypes.h"
 #include <stdio.h>
 #include <windows.h>
@@ -1245,6 +1246,32 @@ void SetVideoMode(void)
   {
     mainDisplayBuffer = new uint32[VIDEO_WIDTH * 480]; //NUON framebuffer size
   }
+}
+
+void VidSync(MPE& mpe) // should wait (as seen by the app) for mpe.regs[0] fields (= mpe.regs[0] * 1/60 or 1/50 second), if 0 or -1 just return internal field counter, -2 is internal only
+{
+#ifdef SUPPORT_VSYNC_WAITING
+  // for now wait til the timer increases the real world field counter by the requested amount, this is less then ideal and costs cycles for 'nothing' :/
+  if((int)mpe.regs[0] > 0)
+  {
+    volatile uint32 &fieldCounter = *((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
+    uint32 newFieldCounter = fieldCounter;
+    SwapScalarBytes(&newFieldCounter);
+    newFieldCounter += (int)mpe.regs[0];
+    // active wait loop :/
+    while (true)
+    {
+      uint32 curFieldCounter = fieldCounter;
+      SwapScalarBytes(&curFieldCounter);
+      if (curFieldCounter >= newFieldCounter) break;
+    }
+  }
+#endif
+
+  uint32 fieldCounter = *((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
+  SwapScalarBytes(&fieldCounter);
+
+  mpe.regs[0] = fieldCounter;
 }
 
 void VidChangeBase(MPE &mpe)

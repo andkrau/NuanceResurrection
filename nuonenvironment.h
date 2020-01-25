@@ -91,8 +91,10 @@ public:
   bool bOverlayBufferModified;
   bool bUseCycleBasedTiming;
   bool whichAudioInterrupt;
+
+  bool trigger_render_video;
+
   uint32 cyclesPerAudioInterrupt;
-  uint32 fps;
   uint32 audioInterruptCycleCount;
   uint32 videoDisplayCycleCount;
   uint32 GetBufferSize(uint32 channelMode);

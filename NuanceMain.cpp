@@ -18,6 +18,7 @@
 #include "NuanceRes.h"
 #include "joystick.h"
 #include "video.h"
+#include "PerformanceTimer.h"
 
 NuonEnvironment nuonEnv;
 CriticalSection *csVideoDisplay = NULL;
@@ -550,13 +551,6 @@ bool OnDisplayResize(uint16 width, uint16 height)
   return false;
 }
 
-void OnDisplayTimer(uint32 idEvent)
-{
-  InvalidateRect(display->hWnd,NULL,FALSE);
-  UpdateWindow(display->hWnd);
-  nuonEnv.TriggerVideoInterrupt();
-}
-
 bool OnDisplayKeyDown(int16 vkey, uint32 keydata)
 {
   uint16 buttons = 0;
@@ -734,10 +728,8 @@ inline void ProcessCycleBasedEvents(void)
   //nuonEnv.videoDisplayCycleCount--;
   //if(nuonEnv.videoDisplayCycleCount == 0 && nuonEnv.bUseCycleBasedTiming)
   //{
-    //SendMessage(videoDisplayWindow.hWnd,WM_TIMER,16,NULL);
-    //RenderVideo(display->clientWidth,display->clientHeight);
  //   InvalidateRect(display->hWnd,NULL,FALSE);
- //   UpdateWindow(display->hWnd);
+ //   //UpdateWindow(display->hWnd);
  //   nuonEnv.videoDisplayCycleCount = nuonEnv.cyclesPerVideoDisplay;
  // }
 }
@@ -759,11 +751,6 @@ bool CheckForInvalidCommStatus(MPE *mpe)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-  uint32 nCycles = 500;
-  static uint32 prevPcexec;
-  static uint32 prevCommctl;
-  static uint32 prevIntsrc;
-
   HWND hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_SPLASH_SCREEN),NULL,SplashScreenDialogProc);
   Sleep(1000);
   ShowWindow(hDlg,FALSE);
@@ -778,7 +765,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   display->keyDownHandler = OnDisplayKeyDown;
   display->keyUpHandler = OnDisplayKeyUp;
   display->paintHandler = OnDisplayPaint;
-  display->timerHandler = OnDisplayTimer;
 
   display->Create();
   while (!display->bVisible) {}
@@ -835,28 +821,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   UpdateControlPanelDisplay();
 
-  display->timerInterval = 1000/nuonEnv.fps;
-  display->SetTimer();
-
   nuonEnv.videoDisplayCycleCount = 0;
 
   while(!bQuit)
   {
     MSG msg;
-    if(PeekMessage(&msg,hDlg,0,0,PM_REMOVE))
-    {
+    while(PeekMessage(&msg,hDlg,0,0,PM_REMOVE))
       IsDialogMessage(hDlg,&msg);
-    }
 
-    if(PeekMessage(&msg,hStatusDlg,0,0,PM_REMOVE))
-    {
+    while(PeekMessage(&msg,hStatusDlg,0,0,PM_REMOVE))
       IsDialogMessage(hStatusDlg,&msg);
-    }
 
     display->MessagePump();
 
-    if(bRun)
+    StartPerformanceTimer();
+    while(bRun)
     {
+      int nCycles = 5000;
       while(nCycles--)
       {
         nuonEnv.mpe[3].ExecuteSingleCycle();
@@ -868,15 +849,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         //nuonEnv.videoDisplayCycleCount += nuonEnv.mpe[3]->cycleCounter;
         //ProcessCycleBasedEvents();
       }
+      StopPerformanceTimer();
+      const double overallMs = GetTimeDeltaMs();
+      if (overallMs > 8.)
+        break;
 
       //if(nuonEnv.videoDisplayCycleCount >= (54000000/60))
       //{
-      //  IncrementVideoFieldCounter();
+      //  IncrementVideoFieldCounter(); //!! for now all done in timer.cpp, also would need to do nuonEnv.TriggerVideoInterrupt(); here then??
       //  nuonEnv.videoDisplayCycleCount -= (54000000/60);
       //}
     }
-
-    nCycles = 500;
+    if(nuonEnv.trigger_render_video) // set by the ~60Hz timer.cpp routine
+    {
+      InvalidateRect(display->hWnd, NULL, FALSE);
+      //UpdateWindow(display->hWnd);
+      nuonEnv.trigger_render_video = false;
+    }
   }
 
 /********************************************************************

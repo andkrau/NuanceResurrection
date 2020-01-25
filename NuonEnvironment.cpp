@@ -368,6 +368,8 @@ NuonEnvironment::NuonEnvironment()
   dvdBase[0] = 0;
   bAudioInterruptsEnabled = true;
 
+  trigger_render_video = false;
+
   for(uint32 i = 0; i < 4; i++)
     mpe[i].Init(i, mainBusDRAM, systemBusDRAM, flashEEPROM->GetBasePointer());
 
@@ -386,7 +388,6 @@ NuonEnvironment::NuonEnvironment()
   structMainDisplay.dispwidth = VIDEO_WIDTH;
   structMainDisplay.dispheight = 480;
   bInterlaced = false;
-  fps = 40;
   InitializeColorSpaceTables();
   mainChannelLowerLimit = 0;
   overlayChannelLowerLimit = 0;
@@ -608,16 +609,6 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
           tokenType = ReadConfigLine(configFile,line);
           bUseCycleBasedTiming = !_stricmp(line,"Enabled");
         }
-        else if(_strnicmp(&line[1],"FieldsPerSecond]",sizeof("FieldsPerSecond]")) == 0)
-        {
-          tokenType = ReadConfigLine(configFile,line);
-          sscanf(line,"%lu",&fps);
-          if(fps < 1)
-            fps = 1;
-          else if(fps > 240)
-            fps = 240;
-        }
-
         break;
       default:
         break;

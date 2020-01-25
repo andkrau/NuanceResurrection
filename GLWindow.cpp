@@ -1,3 +1,4 @@
+//!! fullscreen window? what and how does bFullScreen work?
 #include "basetypes.h"
 #include <windows.h>
 #include "external\glew-2.1.0\include\GL\glew.h"
@@ -19,7 +20,6 @@ GLWindow::GLWindow()
   bitsPerPixel = 32;
   keyDownHandler = 0;
   keyUpHandler = 0;
-  timerHandler = 0;
   idleHandler = 0;
   createHandler = 0;
   closeHandler = 0;
@@ -27,8 +27,6 @@ GLWindow::GLWindow()
   destroyHandler = 0;
   paintHandler = 0;
   resizeHandler = 0;
-  timerInterval = 0;
-  timerID = 0;
   if(!bFullScreen)
   {
     fullScreenWidth = clientWidth = VIDEO_WIDTH; // native res
@@ -55,30 +53,6 @@ GLWindow::GLWindow()
 
 GLWindow::~GLWindow()
 {
-}
-
-void CALLBACK GLWindow::MMTimerCallback(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2)
-{
-  GLWindow *window = (GLWindow *)dwUser;
-  SendMessage(window->hWnd,WM_TIMER,uID,(LPARAM)NULL);
-}
-
-bool GLWindow::SetTimer()
-{
-  timeBeginPeriod(1);
-  timerID = timeSetEvent(timerInterval,0,this->MMTimerCallback,(UINT)this,TIME_PERIODIC);
-  return (timerID != NULL);
-}
-
-bool GLWindow::KillTimer()
-{
-  if(timerID)
-  {
-    timeEndPeriod(1);
-    timeKillEvent(timerID);
-  }
-
-  return true;
 }
 
 void GLWindow::UpdateRestoreValues()
@@ -487,12 +461,6 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
   switch(uMsg)
   {
-    case WM_TIMER:
-      if(window->timerHandler)
-      {
-        window->timerHandler((unsigned __int32)wParam);
-      }
-      return 0;
 		case WM_SYSCOMMAND:
 		{
 			switch(wParam)
@@ -724,16 +692,11 @@ bool GLWindow::Create()
 
 static const char className[] = "GLWindow";
 
-bool GLWindow::MessagePump()
+void GLWindow::MessagePump()
 {
   MSG msg;
-
-  if(PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
-  {
+  while(PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
     DispatchMessage(&msg);
-  }
-
-  return true;
 }
 
 DWORD WINAPI GLWindow::GLWindowMain(void *param)
