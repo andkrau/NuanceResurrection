@@ -23,7 +23,10 @@ public:
   ~NativeCodeCache();
 
   void Flush();
-  void FlushRegion(uint32 start, uint32 end);
+  void FlushRegion(const uint32 start, const uint32 end)
+  {
+    pageMap->InvalidateRegion(start, end);
+  }
   bool ReleaseBuffer(NativeCodeCacheEntryPoint entryPoint, uint32 virtualAddress, uint32 nextVirtualAddress, uint32 newUsedBytes, uint32 packetCount, uint32 instructionCount, SuperBlockCompileType compileType, uint32 nextDelayCount, uint32 alignment);
 
   uint8 *GetBuffer() const

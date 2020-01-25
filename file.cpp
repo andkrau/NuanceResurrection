@@ -1,10 +1,11 @@
+#include "basetypes.h"
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <windows.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <io.h>
 #include <stdlib.h>
+#include <windows.h>
 #include "byteswap.h"
 #include "file.h"
 #include "mpe.h"

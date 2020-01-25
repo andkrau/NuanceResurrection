@@ -1,6 +1,5 @@
-//---------------------------------------------------------------------------
-#include "NuonEnvironment.h"
 #include "basetypes.h"
+#include "NuonEnvironment.h"
 #include "audio.h"
 #include "NuonMemoryMap.h"
 
@@ -70,7 +69,7 @@ void AudioQueryChannelMode(MPE &mpe)
 
 void AudioSetChannelMode(MPE &mpe)
 {
-  uint32 newMode = mpe.regs[0];
+  const uint32 newMode = mpe.regs[0];
 
   nuonEnv.nuonAudioChannelMode = newMode;
   nuonEnv.nuonAudioBufferSize = nuonEnv.GetBufferSize(newMode);

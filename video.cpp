@@ -1,11 +1,12 @@
 //---------------------------------------------------------------------------
+#include "basetypes.h"
+#include <stdio.h>
 #include <windows.h>
 #include "external\glew-2.1.0\include\GL\glew.h"
 #include "external\glew-2.1.0\include\GL\wglew.h"
-#include <stdio.h>
+
 #include "GLWindow.h"
 #include "Bios.h"
-#include "basetypes.h"
 #include "byteswap.h"
 #include "mpe.h"
 #include "NuonEnvironment.h"
@@ -1069,7 +1070,6 @@ void VidConfig(MPE &mpe)
   if(nuonEnv.systemBusDRAM)
   {
     //Set the video config field counter to the current video field counter value
-
     *((uint32 *)&nuonEnv.systemBusDRAM[LAST_VIDEO_CONFIG_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK])
       = *((uint32 *)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
   }
@@ -1231,7 +1231,6 @@ void VidSetup(MPE &mpe)
   if(nuonEnv.systemBusDRAM)
   {
     //Set the video config field counter to the current video field counter value
-
     *((uint32 *)&nuonEnv.systemBusDRAM[LAST_VIDEO_CONFIG_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK])
       = *((uint32 *)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
   }
@@ -1402,7 +1401,6 @@ void VidChangeScroll(MPE &mpe)
   if(nuonEnv.systemBusDRAM)
   {
     //Set the video config field counter to the current video field counter value
-
     *((uint32 *)&nuonEnv.systemBusDRAM[LAST_VIDEO_CONFIG_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK])
       = *((uint32 *)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
   }

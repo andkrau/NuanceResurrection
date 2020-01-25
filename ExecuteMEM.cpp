@@ -1,5 +1,5 @@
-#include <assert.h>
 #include "basetypes.h"
+#include <assert.h>
 #include "byteswap.h"
 #include "ExecuteMEM.h"
 #include "InstructionCache.h"
@@ -19,8 +19,8 @@
 #define REG_V (3)
 
 static const int32 pixel_type_width[16] = {
--2, //Type 0: MPEG Pixel (macroblock size of 16 bytes)
--1, //Type 1: 4 bit (must be accessed in groups of four)
+-2,//Type 0: MPEG Pixel (macroblock size of 16 bytes)
+-1,//Type 1: 4 bit (must be accessed in groups of four)
 1, //Type 2: 16 bit
 0, //Type 3: 8 bit (must be accessed in groups of two)
 2, //Type 4: 32 bit
@@ -31,9 +31,9 @@ static const int32 pixel_type_width[16] = {
 1, //Type 9: Word
 2, //Type 10: Scalar
 3, //Type 12: Short Vector
-4, // Type 13: Vector
+4, //Type 13: Vector
 0, //Type 14: Reserved
-0 //Type 15: Reserved
+0  //Type 15: Reserved
 };
 
 extern NuonEnvironment nuonEnv;
@@ -161,7 +161,7 @@ inline void CalculateBilinearAddress(const MPE &mpe, uint32 * const pOffsetAddre
 
 structBilinearAddressInfo bilinearAddressInfo;
 
-void GetBilinearAddress(void)
+void GetBilinearAddress()
 {
   const uint32 control = bilinearAddressInfo.control;
   const int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width,control);
@@ -178,7 +178,7 @@ void GetBilinearAddress(void)
     xtmp.u8[0] = MPE::mirrorLookup[(bilinearAddressInfo.x>>8)&0xFF];
 #else
     xtmp.u8[0] = MPE::mirrorLookup[bilinearAddressInfo.x&0xFF];
-    xtmp.u8[1] = MPE::mirrorLookup[(bilinearAddressInfo.x>>8) & 0xFF];
+    xtmp.u8[1] = MPE::mirrorLookup[(bilinearAddressInfo.x>>8)&0xFF];
 #endif
     bilinearAddressInfo.x = xtmp.u32;
   }
@@ -195,7 +195,7 @@ void GetBilinearAddress(void)
     ytmp.u8[0] = MPE::mirrorLookup[(bilinearAddressInfo.y>>8)&0xFF];
 #else
     ytmp.u8[0] = MPE::mirrorLookup[bilinearAddressInfo.y&0xFF];
-    ytmp.u8[1] = MPE::mirrorLookup[(bilinearAddressInfo.y>>8) & 0xFF];
+    ytmp.u8[1] = MPE::mirrorLookup[(bilinearAddressInfo.y>>8)&0xFF];
 #endif
     bilinearAddressInfo.y = ytmp.u32;
   }

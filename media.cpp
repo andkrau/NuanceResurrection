@@ -1,5 +1,5 @@
-#include <windows.h>
 #include "basetypes.h"
+#include <windows.h>
 #include "byteswap.h"
 #include "Bios.h"
 #include "mpe.h"

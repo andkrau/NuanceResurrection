@@ -1,11 +1,11 @@
 #include "basetypes.h"
+#include <assert.h>
 #include "byteswap.h"
 #include "comm.h"
 #include "dma.h"
 #include "mpe.h"
 #include "NuonMemoryMap.h"
 #include "NuonEnvironment.h"
-#include <assert.h>
 
 extern NuonEnvironment nuonEnv;
 

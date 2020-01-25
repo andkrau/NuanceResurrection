@@ -1,6 +1,6 @@
 #include "basetypes.h"
-#include "MemoryManager.h"
 #include <stdio.h>
+#include "MemoryManager.h"
 
 MemoryManager::MemoryManager(uint32 maxBytes, uint32 defaultAlignment)
 {

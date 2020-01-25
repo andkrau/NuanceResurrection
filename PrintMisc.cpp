@@ -1,7 +1,7 @@
 #include "basetypes.h"
-#include "InstructionCache.h"
 #include <stdio.h>
 #include <string.h>
+#include "InstructionCache.h"
 
 uint32 Print_PacketStart(char *buffer, Nuance &nuance, bool bNewline)
 {

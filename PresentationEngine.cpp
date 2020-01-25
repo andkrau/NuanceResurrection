@@ -1,5 +1,5 @@
-#include <assert.h>
 #include "basetypes.h"
+#include <assert.h>
 #include "byteswap.h"
 #include "Bios.h"
 #include "mpe.h"

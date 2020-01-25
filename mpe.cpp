@@ -1,9 +1,10 @@
+#include "basetypes.h"
 #include <assert.h>
 #include <fcntl.h>
 #include <intrin.h>
 #include <io.h>
 #include <stdio.h>
-#include "basetypes.h"
+
 #include "Bios.h"
 #include "byteswap.h"
 #include "EmitMisc.h"
@@ -2545,7 +2546,7 @@ void MPE::PrintInstructionCachePacket(char *buffer, uint32 address)
 {
   uint32 bCacheEntryValid = 1;
   InstructionCacheEntry *pEntry = instructionCache->FindInstructionCacheEntry(address,bCacheEntryValid);
-  
+
   if(bCacheEntryValid && (address == pEntry->pcexec))
   {
     PrintInstructionCachePacket(buffer,*pEntry);

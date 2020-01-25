@@ -1,9 +1,8 @@
-//---------------------------------------------------------------------------
-
+#include "basetypes.h"
 #include <windows.h>
 #include "external\glew-2.1.0\include\GL\glew.h"
-#include "GLWindow.h"
 #include <GL/gl.h>
+#include "GLWindow.h"
 #include "video.h"
 //---------------------------------------------------------------------------
 /****************************************************************************
@@ -725,7 +724,7 @@ bool GLWindow::Create()
 
 static const char className[] = "GLWindow";
 
-bool GLWindow::MessagePump(void)
+bool GLWindow::MessagePump()
 {
   MSG msg;
 

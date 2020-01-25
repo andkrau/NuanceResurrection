@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include "basetypes.h"
+#include <stdio.h>
 #include "byteswap.h"
 #include "Bios.h"
 #include "memory.h"

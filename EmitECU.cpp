@@ -1,4 +1,5 @@
 #include "basetypes.h"
+#include <stdarg.h>
 #include "byteswap.h"
 #include "EmitMisc.h"
 #include "EmitECU.h"
@@ -6,7 +7,6 @@
 #include "mpe.h"
 #include "NativeCodeCache.h"
 #include "X86EmitTypes.h"
-#include <stdarg.h>
 
 void EmitConditionCheck(EmitterVariables *vars, uint32 condition, uint32 conditionFalseLabel, uint32 conditionTrueLabel)
 {

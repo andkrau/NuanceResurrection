@@ -1,10 +1,10 @@
 #include "basetypes.h"
+#include <stdlib.h>
 #include "mpe.h"
 #include "Handlers.h"
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
 #include "NuonMemoryMap.h"
-#include <stdlib.h>
 
 #define absFlags 0
 #define addScalarFlags 0

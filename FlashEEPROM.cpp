@@ -1,7 +1,7 @@
-#include <assert.h>
 #include "basetypes.h"
-#include "FlashEEPROM.h"
+#include <assert.h>
 #include <stdio.h>
+#include "FlashEEPROM.h"
 
 void FlashEEPROM::WriteData(uint32 address, uint32 data1)
 {

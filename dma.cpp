@@ -1,6 +1,7 @@
+#include "basetypes.h"
+#include <assert.h>
 #include <stdio.h>
 #include <windows.h>
-#include "basetypes.h"
 #include "bdma_type5.h"
 #include "bdma_type8.h"
 #include "bdma_type12.h"
@@ -929,20 +930,24 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
   {
     if(wordSize == 2)
     {
+      const uint32* pSrc32 = (uint32*)pSrc;
+      uint32* pDest32 = (uint32*)pDest;
       while(length--)
       {
-        *((uint32 *)pDest) = *((uint32 *)pSrc);
-        pSrc = ((uint32 *)pSrc) + srcStride;
-        pDest = ((uint32 *)pDest) + destStride;
+        *pDest32 = *pSrc32;
+        pSrc32 += srcStride;
+        pDest32 += destStride;
       }
     }
     else
     {
+      const uint16* pSrc16 = (uint16*)pSrc;
+      uint16* pDest16 = (uint16*)pDest;
       while(length--)
       {
-        *((uint16 *)pDest) = *((uint16 *)pSrc);
-        pSrc = ((uint16 *)pSrc) + srcStride;
-        pDest = ((uint16 *)pDest) + destStride;
+        *pDest16 = *pSrc16;
+        pSrc16 += srcStride;
+        pDest16 += destStride;
       }
     }
   }
@@ -953,6 +958,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
     switch((flags >> 3) & 0x3)
     {
       case 0: //illegal, but fall through to case 1 anyway
+        assert(false);
       case 1: //Byte 1 only (LSB bits [7:0] of each word)
 #ifdef LITTLE_ENDIAN
         mask = 0xFF00;
@@ -972,12 +978,13 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         break;
     }
 
+    const uint16* pSrc16 = (uint16*)pSrc;
+    uint16* pDest16 = (uint16*)pDest;
     while(length--)
     {
-      *((uint16 *)pDest) &= ~mask;
-      *((uint16 *)pDest) |= (*((uint16 *)pSrc) & mask);
-       pSrc = ((uint16 *)pSrc) + srcStride;
-       pDest = ((uint16 *)pDest) + destStride;
+       *pDest16 = (*pDest16 & ~mask) | (*pSrc16 & mask);
+       pSrc16 += srcStride;
+       pDest16 += destStride;
     }
   }
 }
@@ -1032,6 +1039,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
           break;
         default:
           whichRoutine = 0;
+          break;
       }
       break;
     case 5:

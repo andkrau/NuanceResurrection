@@ -1,8 +1,8 @@
 #ifndef NuonEnvironmentH
 #define NuonEnvironmentH
 
-#include "audio.h"
 #include "basetypes.h"
+#include "audio.h"
 #include "mpe.h"
 #include "NuonMemoryManager.h"
 #include "SuperBlock.h"
@@ -17,7 +17,7 @@ enum ConfigTokenType
   CONFIG_COMMENT,
   CONFIG_VARIABLE_START,
   CONFIG_VARIABLE_FINISH,
-  CONFIG_STRING,
+  CONFIG_STRING
 };
 
 class NuonEnvironment

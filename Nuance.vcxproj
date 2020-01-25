@@ -341,6 +341,9 @@
     <ClInclude Include="ExecuteMisc.h" />
     <ClInclude Include="ExecuteMUL.h" />
     <ClInclude Include="ExecuteRCU.h" />
+    <ClInclude Include="external\fmod-3.75\api\inc\fmod.h" />
+    <ClInclude Include="external\glew-2.1.0\include\GL\glew.h" />
+    <ClInclude Include="external\glew-2.1.0\include\GL\wglew.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="FlashEEPROM.h" />
     <ClInclude Include="GLWindow.h" />
