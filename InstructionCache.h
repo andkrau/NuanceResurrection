@@ -157,16 +157,10 @@ public:
   void Invalidate();
   void InvalidateRegion(const uint32 start, const uint32 end);
 
-  InstructionCacheEntry *FindInstructionCacheEntry(const uint32 addressKey, uint32 &bValid)
+  InstructionCacheEntry *FindInstructionCacheEntry(const uint32 addressKey, bool &bValid)
   {
     const uint32 cacheEntryIndex = (addressKey >> 1) & (numEntries - 1);
-
-    if(bValid)
-    {
-      bValid = validBitmap[cacheEntryIndex >> 5];
-      bValid &= (0x80000000UL >> (cacheEntryIndex & 0x1FUL));
-    }
-
+    bValid = (validBitmap[cacheEntryIndex >> 5] & (0x80000000UL >> (cacheEntryIndex & 0x1FUL)));
     return &cacheEntries[cacheEntryIndex];
   }
 
