@@ -15,7 +15,7 @@ void Emit_ABS(EmitterVariables *vars, Nuance &nuance)
   uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -104,7 +104,7 @@ void Emit_BITSScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -158,7 +158,7 @@ void Emit_BITSImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2Imm = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
@@ -205,7 +205,7 @@ void Emit_BTST(EmitterVariables *vars, Nuance &nuance)
   uint32 mask = nuance.fields[FIELD_ALU_SRC1];
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
@@ -243,7 +243,7 @@ void Emit_BUTT(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -327,7 +327,7 @@ void Emit_COPY(EmitterVariables *vars, Nuance &nuance)
   uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -375,7 +375,7 @@ void Emit_MSB(EmitterVariables *vars, Nuance &nuance)
   uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -475,9 +475,9 @@ void Emit_SAT(EmitterVariables *vars, Nuance &nuance)
   uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
   int32 mask = (0x01UL << nuance.fields[FIELD_ALU_SRC2]) - 1;
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
-  x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
+  //x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -760,7 +760,7 @@ void Emit_ANDScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -810,7 +810,7 @@ void Emit_ANDImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -863,7 +863,7 @@ void Emit_ANDImmediateShiftScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -946,7 +946,7 @@ void Emit_ANDScalarShiftScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
@@ -1032,7 +1032,7 @@ void Emit_ANDScalarRotateScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -1113,7 +1113,7 @@ void Emit_ANDScalarShiftLeftImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -1170,7 +1170,7 @@ void Emit_ANDScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -1221,16 +1221,16 @@ void Emit_ANDScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_FTSTImmediate(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
+  //uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   uint32 src1Imm = nuance.fields[FIELD_ALU_SRC1];
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
-  x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
@@ -1271,7 +1271,7 @@ void Emit_FTSTScalar(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -1319,8 +1319,8 @@ void Emit_FTSTImmediateShiftScalar(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -1398,8 +1398,8 @@ void Emit_FTSTScalarShiftScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -1478,8 +1478,8 @@ void Emit_FTSTScalarRotateScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -1554,8 +1554,8 @@ void Emit_FTSTScalarShiftLeftImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2Imm = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -1606,8 +1606,8 @@ void Emit_FTSTScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2Imm = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -1658,7 +1658,7 @@ void Emit_ORImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -1708,7 +1708,7 @@ void Emit_ORScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -1762,7 +1762,7 @@ void Emit_ORImmediateShiftScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -1846,7 +1846,7 @@ void Emit_ORScalarShiftScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -1931,7 +1931,7 @@ void Emit_ORScalarRotateScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -2012,7 +2012,7 @@ void Emit_ORScalarShiftLeftImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -2069,7 +2069,7 @@ void Emit_ORScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -2125,7 +2125,7 @@ void Emit_EORImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -2175,7 +2175,7 @@ void Emit_EORScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -2229,7 +2229,7 @@ void Emit_EORImmediateShiftScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -2313,7 +2313,7 @@ void Emit_EORScalarShiftScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -2398,7 +2398,7 @@ void Emit_EORScalarRotateScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -2479,7 +2479,7 @@ void Emit_EORScalarShiftLeftImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -2536,7 +2536,7 @@ void Emit_EORScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -2592,7 +2592,7 @@ void Emit_ADDImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -2669,7 +2669,7 @@ void Emit_ADDScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -2747,7 +2747,7 @@ void Emit_ADDScalarShiftLeftImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -2826,7 +2826,7 @@ void Emit_ADDScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -2904,7 +2904,7 @@ void Emit_SUBImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -2981,7 +2981,7 @@ void Emit_SUBScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -3058,7 +3058,7 @@ void Emit_SUBImmediateReverse(EmitterVariables *vars, Nuance &nuance)
   uint32 src2Imm = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -3135,7 +3135,7 @@ void Emit_SUBScalarShiftLeftImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -3214,7 +3214,7 @@ void Emit_SUBScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -3287,15 +3287,15 @@ void Emit_SUBScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_CMPImmediate(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
+  //uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   uint32 src1Imm = nuance.fields[FIELD_ALU_SRC1];
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
@@ -3358,17 +3358,17 @@ void Emit_CMPImmediate(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_CMPScalar(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
+  //uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
@@ -3431,15 +3431,15 @@ void Emit_CMPScalar(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_CMPImmediateReverse(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
+  //uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
   uint32 src2Imm = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->codeCache->X86Emit_MOVIR(src2Imm, x86Reg_ebx);
@@ -3507,8 +3507,8 @@ void Emit_CMPScalarShiftLeftImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2Imm = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -3581,8 +3581,8 @@ void Emit_CMPScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2Imm = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -3659,7 +3659,7 @@ void Emit_ROT(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -3737,7 +3737,7 @@ void Emit_ROL(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -3793,7 +3793,7 @@ void Emit_ROR(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -3853,7 +3853,7 @@ void Emit_AS(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -3952,7 +3952,7 @@ void Emit_ASL(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -4020,7 +4020,7 @@ void Emit_ASR(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -4092,7 +4092,7 @@ void Emit_LS(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -4192,7 +4192,7 @@ void Emit_LSR(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -4982,15 +4982,15 @@ void Emit_SUBWCScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_CMPWCImmediate(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
+  //uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   uint32 src1Imm = nuance.fields[FIELD_ALU_SRC1];
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ccRegReadBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
@@ -5056,15 +5056,15 @@ void Emit_CMPWCImmediate(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_CMPWCImmediateReverse(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
+  //uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
   uint32 src2Imm = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ccRegReadBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
@@ -5130,17 +5130,17 @@ void Emit_CMPWCImmediateReverse(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_CMPWCScalar(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
+  //uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
   uint32 src2RegIndex = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ccRegReadBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
@@ -5211,7 +5211,7 @@ void Emit_CMPWCScalarShiftLeftImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2Imm = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
@@ -5288,7 +5288,7 @@ void Emit_CMPWCScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2Imm = nuance.fields[FIELD_ALU_SRC2];
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
