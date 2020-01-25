@@ -756,8 +756,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   ShowWindow(hDlg,FALSE);
   EndDialog(hDlg,IDOK);
 
-  //Initialize the BIOS
-  nuonEnv.InitBios();
+  nuonEnv.Init();
 
   display = new GLWindow();
   display->title = displayWindowTitle;

@@ -356,7 +356,7 @@ void NuonEnvironment::WriteFile(MPE &MPE, uint32 fd, uint32 buf, uint32 len)
   pBuf[len] = tempChar;
 }
 
-NuonEnvironment::NuonEnvironment()
+void NuonEnvironment::Init()
 {
   mainBusDRAM = new uint8[MAIN_BUS_SIZE];
   systemBusDRAM = new uint8[SYSTEM_BUS_SIZE];
@@ -429,6 +429,9 @@ NuonEnvironment::NuonEnvironment()
   }
 
   cycleCounter = 0;
+
+  //Initialize the BIOS
+  InitBios();
 }
 
 uint32 NuonEnvironment::GetBufferSize(uint32 channelMode)
