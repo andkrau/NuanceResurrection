@@ -31,7 +31,7 @@ public:
   uint8 *GetEmitLoc() { return *ppEmitLoc; }
 };
 
-inline x86BaseReg GetScalarRegReadBaseReg(EmitterVariables *vars, uint32 regIndex)
+inline x86BaseReg GetScalarRegReadBaseReg(const EmitterVariables* const vars, const uint32 regIndex)
 {
   if(vars->scalarRegDep & SCALAR_REG_DEPENDENCY_MASK(regIndex))
   {
@@ -43,14 +43,14 @@ inline x86BaseReg GetScalarRegReadBaseReg(EmitterVariables *vars, uint32 regInde
   }
 }
 
-inline x86BaseReg GetScalarRegWriteBaseReg(EmitterVariables *vars, uint32 regIndex)
+inline x86BaseReg GetScalarRegWriteBaseReg(const EmitterVariables* const vars, const uint32 regIndex)
 {
   return x86BaseReg_esi;
 }
 
-inline x86BaseReg GetMiscRegReadBaseReg(EmitterVariables *vars, uint32 regIndex)
+inline x86BaseReg GetMiscRegReadBaseReg(const EmitterVariables * const vars, const uint32 regIndex)
 {
-  uint32 mask = regIndex;
+  uint32 mask;
 
   if(!regIndex)
   {
@@ -60,7 +60,6 @@ inline x86BaseReg GetMiscRegReadBaseReg(EmitterVariables *vars, uint32 regIndex)
   {
     mask = MISC_REG_DEPENDENCY_MASK(regIndex - 1);
   }
-    
 
   if(vars->miscRegDep & mask)
   {
@@ -71,17 +70,17 @@ inline x86BaseReg GetMiscRegReadBaseReg(EmitterVariables *vars, uint32 regIndex)
     return x86BaseReg_esi;
   }
 }
-inline x86BaseReg GetMiscRegWriteBaseReg(EmitterVariables *vars, uint32 regIndex)
+inline x86BaseReg GetMiscRegWriteBaseReg(const EmitterVariables * const vars, const uint32 regIndex)
 {
   return x86BaseReg_esi;
 }
 
-inline int32 GetMiscRegEmitDisp(EmitterVariables *vars, uint32 regIndex)
+inline int32 GetMiscRegEmitDisp(const EmitterVariables * const vars, const uint32 regIndex)
 {
   return regIndex*sizeof(uint32);
 }
 
-inline int32 GetScalarRegEmitDisp(EmitterVariables *vars, uint32 regIndex)
+inline int32 GetScalarRegEmitDisp(const EmitterVariables * const vars, const uint32 regIndex)
 {
   return -((32 - (int32)regIndex) * ((int32)sizeof(uint32)));
 }

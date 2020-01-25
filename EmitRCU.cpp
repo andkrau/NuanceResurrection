@@ -9,7 +9,7 @@
 void Emit_DECRc0(EmitterVariables *vars, Nuance &nuance)
 {
   x86BaseReg rc0ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC0);
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg rc0WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC0);
   x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 rc0Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC0);
@@ -51,7 +51,7 @@ void Emit_DECRc0(EmitterVariables *vars, Nuance &nuance)
 void Emit_DECRc1(EmitterVariables *vars, Nuance &nuance)
 {
   x86BaseReg rc1ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC1);
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg rc1WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC1);
   x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 rc1Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC1);
@@ -80,15 +80,15 @@ void Emit_DECRc1(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_DECBoth(EmitterVariables *vars, Nuance &nuance)
 {
-  x86BaseReg rc0ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC0);
-  x86BaseReg rc1ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC1);
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
-  x86BaseReg rc0WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC0);
-  x86BaseReg rc1WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC1);
-  x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  int32 rc0Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC0);
-  int32 rc1Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC1);
-  int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+  //x86BaseReg rc0ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC0);
+  //x86BaseReg rc1ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC1);
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg rc0WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC0);
+  //x86BaseReg rc1WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC1);
+  //x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
+  //int32 rc0Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC0);
+  //int32 rc1Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC1);
+  //int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   Emit_DECRc0(vars,nuance);
   Emit_DECRc1(vars,nuance);
@@ -243,26 +243,24 @@ void Emit_MVRScalar(EmitterVariables *vars, Nuance &nuance)
   Emit_DEC(vars,nuance);
 }
 
-uint32 saveReg;
-
 void Emit_RangeOnly(EmitterVariables *vars, Nuance &nuance)
 {
   uint32 l_testmodmi = 0;
   uint32 l_exit = 1;
 
   uint32 srcRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_SRC];
-  uint32 destRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //uint32 destRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg xyRangeReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYRANGE);
   x86BaseReg uvRangeReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVRANGE);
   x86BaseReg srcRegReadBaseReg = GetMiscRegReadBaseReg(vars,nuance.fields[FIELD_RCU_SRC]);
-  x86BaseReg destRegReadBaseReg = GetMiscRegReadBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
+  //x86BaseReg destRegReadBaseReg = GetMiscRegReadBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
   x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
+  //x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
   int32 xyRangeDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYRANGE);
   int32 uvRangeDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVRANGE);
   int32 srcRegDisp = GetMiscRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetMiscRegEmitDisp(vars,destRegIndex);
+  //int32 destRegDisp = GetMiscRegEmitDisp(vars,destRegIndex);
   int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->patchMgr->Reset();

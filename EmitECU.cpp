@@ -638,7 +638,7 @@ void Emit_RTSAlways(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
   int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
-  uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
+  //uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
   uint32 l_skip_ecu = 0;
 
   vars->patchMgr->Reset();
@@ -662,7 +662,7 @@ void Emit_RTSAlways_NOP(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
   int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
-  uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
+  //uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
   uint32 l_skip_ecu = 0;
 
   vars->patchMgr->Reset();
@@ -687,7 +687,7 @@ void Emit_RTSConditional(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
   int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
-  uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
+  //uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
   uint32 l_skip_ecu = 0;
   uint32 l_condition_true = 1;
 
@@ -714,7 +714,7 @@ void Emit_RTSConditional_NOP(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
   int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
-  uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
+  //uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
   uint32 l_skip_ecu = 0;
   uint32 l_condition_true = 1;
 
@@ -742,7 +742,7 @@ void Emit_RTI1Conditional(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg rzi1RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI1);
   int32 rzi1RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
 
-  uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
+  //uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
   uint32 l_skip_ecu = 0;
   uint32 l_condition_true = 1;
 
@@ -772,7 +772,7 @@ void Emit_RTI1Conditional_NOP(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg rzi1RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI1);
   int32 rzi1RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
 
-  uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
+  //uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
   uint32 l_skip_ecu = 0;
   uint32 l_condition_true = 1;
 
@@ -804,7 +804,7 @@ void Emit_RTI2Conditional(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg rzi2RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI2);
   int32 rzi2RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
 
-  uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
+  //uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
   uint32 l_skip_ecu = 0;
   uint32 l_condition_true = 1;
 
@@ -834,7 +834,7 @@ void Emit_RTI2Conditional_NOP(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg rzi2RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI2);
   int32 rzi2RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
 
-  uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
+  //uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
   uint32 l_skip_ecu = 0;
   uint32 l_condition_true = 1;
 

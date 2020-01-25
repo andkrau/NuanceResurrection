@@ -7,7 +7,7 @@
 #include "SuperBlock.h"
 #include "mpe.h"
 
-const uint32 shiftTable[4] = {16, 8, 0, 2};
+static const uint32 shiftTable[4] = {16, 8, 0, 2};
 
 void Emit_ADDM(EmitterVariables *vars, Nuance &nuance)
 {
@@ -28,6 +28,7 @@ void Emit_ADDM(EmitterVariables *vars, Nuance &nuance)
     vars->codeCache->X86Emit_MOVRM(x86Reg_eax, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
   }
 }
+
 void Emit_ADDMImmediate(EmitterVariables *vars, Nuance &nuance)
 {
   uint32 destRegIndex = nuance.fields[FIELD_MUL_DEST];
@@ -103,7 +104,7 @@ void Emit_MULScalarShiftAcshift(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg acshiftReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_ACSHIFT);
   x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
@@ -258,7 +259,7 @@ void Emit_MULScalarShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -336,7 +337,7 @@ void Emit_MULScalarShiftLeftImmediate(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -430,7 +431,7 @@ void Emit_MULImmediateShiftAcshift(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_MUL_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg acshiftReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_ACSHIFT);
   x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -587,7 +588,7 @@ void Emit_MULScalarShiftScalar(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg shiftRegReadBaseReg = GetScalarRegReadBaseReg(vars,shiftRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
@@ -738,16 +739,16 @@ void Emit_MULImmediateShiftScalar(EmitterVariables *vars, Nuance &nuance)
   const uint32 l_exit = 4;
 
   uint32 destRegIndex = nuance.fields[FIELD_MUL_DEST];
-  uint32 src1RegIndex = nuance.fields[FIELD_MUL_SRC1];
+  //uint32 src1RegIndex = nuance.fields[FIELD_MUL_SRC1];
   uint32 src2RegIndex = nuance.fields[FIELD_MUL_SRC2];
   uint32 shiftRegIndex = nuance.fields[FIELD_MUL_INFO];
-  x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
+  //x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg shiftRegReadBaseReg = GetScalarRegReadBaseReg(vars,shiftRegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
+  //int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 shiftRegDisp = GetScalarRegEmitDisp(vars,shiftRegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -890,11 +891,11 @@ mulscalarshiftacshift_exit:
 void Emit_MULImmediateShiftRightImmediate(EmitterVariables *vars, Nuance &nuance)
 {
   uint32 destRegIndex = nuance.fields[FIELD_MUL_DEST];
-  uint32 src1RegIndex = nuance.fields[FIELD_MUL_SRC1];
+  //uint32 src1RegIndex = nuance.fields[FIELD_MUL_SRC1];
   uint32 src2RegIndex = nuance.fields[FIELD_MUL_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -969,7 +970,7 @@ void Emit_MULImmediateShiftLeftImmediate(EmitterVariables *vars, Nuance &nuance)
   uint32 src2RegIndex = nuance.fields[FIELD_MUL_SRC2];
   x86BaseReg src2RegReadBaseReg = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
@@ -1439,7 +1440,7 @@ void Emit_MUL_SVVectorShiftImmediate(EmitterVariables *vars, Nuance &nuance)
   int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
   int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  uint32 shiftCount = nuance.fields[FIELD_MUL_INFO];
+  //uint32 shiftCount = nuance.fields[FIELD_MUL_INFO];
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg_0, x86IndexReg_none, x86Scale_1, src1RegDisp+0);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg_0, x86IndexReg_none, x86Scale_1, src2RegDisp+0);
@@ -1816,7 +1817,7 @@ void Emit_MUL_PRvShiftSvshift(EmitterVariables *vars, Nuance &nuance)
   x86BaseReg src2RegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,src2RegIndex);
   x86BaseReg src2RegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,src2RegIndex+1);
   x86BaseReg src2RegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,src2RegIndex+2);
-  x86BaseReg src2RegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,src2RegIndex+3);
+  //x86BaseReg src2RegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,src2RegIndex+3);
   x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
   x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
   x86BaseReg svshiftReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_SVSHIFT);
