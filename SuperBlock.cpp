@@ -622,20 +622,18 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
   fflush(blockFile);
 }
 
-void SuperBlock::AddPacketToList(InstructionCacheEntry &packet, uint32 index)
+void SuperBlock::AddPacketToList(InstructionCacheEntry &packet, const uint32 index)
 {
-  uint32 comboScalarInDep, comboMiscInDep, comboScalarOutDep, comboMiscOutDep;
-
   packets[index].pcexec = packet.pcexec;
   packets[index].pcroute = packet.pcroute;
   packets[index].pcfetchnext = packet.pcfetchnext;
   packets[index].instructionCount = packet.nuanceCount; 
   packets[index].flags = packet.packetInfo;
 
-  comboScalarInDep = 0;
-  comboMiscInDep = 0;
-  comboScalarOutDep = packet.scalarOutputDependencies[0];
-  comboMiscOutDep = packet.miscOutputDependencies[0];
+  uint32 comboScalarInDep = 0;
+  uint32 comboMiscInDep = 0;
+  uint32 comboScalarOutDep = packet.scalarOutputDependencies[0];
+  uint32 comboMiscOutDep = packet.miscOutputDependencies[0];
 
   for(uint32 i = 1; i < packet.nuanceCount; i++)
   {
@@ -655,7 +653,7 @@ bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntr
 {
   uint32 nuanceBase = 0;
   InstructionEntry *pCurrentInstruction = &instructions[index];
-  bool bCanEmitNativeCode = true;
+  bool bPacketAllowsNativeCode = true;
 
   ((Nuance &)(pCurrentInstruction->instruction)).fields[0] = Handler_PacketStart;
   ((Nuance &)(pCurrentInstruction->instruction)).fields[1] = pPacketEntry->pcexec;
@@ -693,7 +691,7 @@ bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntr
       }
     }
 
-    bCanEmitNativeCode = bCanEmitNativeCode && ((bool)emitHandlers[((Nuance &)(packet.nuances[nuanceBase])).fields[0]]);
+    bPacketAllowsNativeCode = bPacketAllowsNativeCode && ((bool)emitHandlers[((Nuance &)(packet.nuances[nuanceBase])).fields[0]]);
     pCurrentInstruction->packet = pPacketEntry;
     pCurrentInstruction->scalarInputDependencies = packet.scalarInputDependencies[i];
     pCurrentInstruction->miscInputDependencies = packet.miscInputDependencies[i];
@@ -713,11 +711,11 @@ bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntr
   pCurrentInstruction->scalarOutputDependencies = 0;
   pCurrentInstruction->miscOutputDependencies = 0;
   pCurrentInstruction->flags = (SUPERBLOCKINFO_PACKETEND | SUPERBLOCKINFO_LOCKED);
-  if(!bCanEmitNativeCode)
+  if(!bPacketAllowsNativeCode)
   {
     pPacketEntry->flags |= SUPERBLOCKINFO_NONATIVECOMPILE;
   }
-  return bCanEmitNativeCode;
+  return bPacketAllowsNativeCode;
 }
 
 uint32 SuperBlock::PerformDeadCodeElimination()
@@ -880,7 +878,6 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
   int32 packetCounter;
   uint32 decodeOptions = (DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST | DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST);
   bCanEmitNativeCode = ALLOW_NATIVE_CODE_EMIT;
-  bool bPacketAllowsNativeCode;
   bool bFirstNonNOPReached = false;
   bool bForceILBlock = false;
   
@@ -984,7 +981,7 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
               || bForceILBlock)
             {
               AddPacketToList(packet,numPackets);
-              bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
+              const bool bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
               bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
               numInstructions += (packet.nuanceCount + 2);
               numPackets++;
@@ -998,7 +995,7 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
               if((!(packetDelaySlot1.packetInfo & PACKETINFO_NOP) && (packetDelaySlot1.nuanceCount != 0)) || bForceILBlock)
               {
                 AddPacketToList(packetDelaySlot1,numPackets);              
-                bPacketAllowsNativeCode = AddInstructionsToList(packetDelaySlot1,&packets[numPackets],numInstructions,bForceILBlock);
+                const bool bPacketAllowsNativeCode = AddInstructionsToList(packetDelaySlot1,&packets[numPackets],numInstructions,bForceILBlock);
                 bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
                 numInstructions += (packetDelaySlot1.nuanceCount + 2);
                 numPackets++;
@@ -1008,7 +1005,7 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
               if((!(packetDelaySlot2.packetInfo & PACKETINFO_NOP) && (packetDelaySlot2.nuanceCount != 0)) || bForceILBlock)
               {
                 AddPacketToList(packetDelaySlot2,numPackets);              
-                bPacketAllowsNativeCode = AddInstructionsToList(packetDelaySlot2,&packets[numPackets],numInstructions,bForceILBlock);
+                const bool bPacketAllowsNativeCode = AddInstructionsToList(packetDelaySlot2,&packets[numPackets],numInstructions,bForceILBlock);
                 bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
                 numInstructions += (packetDelaySlot2.nuanceCount + 2);
                 numPackets++;
@@ -1035,7 +1032,7 @@ force_il_block:
           {
             //Delayed branch with implicit NOP
             AddPacketToList(packet,numPackets);
-            bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
+            const bool bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
             bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
             //Increment numInstructions by nuance count and add two to account for PacketStart and PacketEnd
             numInstructions += (packet.nuanceCount + 2);
@@ -1051,7 +1048,7 @@ force_il_block:
         bFirstNonNOPReached = true;
 
         AddPacketToList(packet,numPackets);
-        bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
+        const bool bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
         bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
         //Increment numInstructions by nuance count and add two to account for PacketStart and PacketEnd
         numInstructions += (packet.nuanceCount + 2);
