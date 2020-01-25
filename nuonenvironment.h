@@ -23,7 +23,8 @@ enum ConfigTokenType
 class NuonEnvironment
 {
 public:
-  NuonEnvironment();
+  NuonEnvironment() {}
+  void Init();
   ~NuonEnvironment();
 
   void WriteFile(MPE &mpe, uint32 fd, uint32 buf, uint32 len);
