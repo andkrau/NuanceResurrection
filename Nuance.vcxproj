@@ -198,6 +198,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Full</Optimization>
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StreamingSIMDExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
+    <ClCompile Include="external\MurmurHash3.cpp" />
     <ClCompile Include="file.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Full</Optimization>
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StreamingSIMDExtensions</EnableEnhancedInstructionSet>
@@ -344,6 +345,7 @@
     <ClInclude Include="external\fmod-3.75\api\inc\fmod.h" />
     <ClInclude Include="external\glew-2.1.0\include\GL\glew.h" />
     <ClInclude Include="external\glew-2.1.0\include\GL\wglew.h" />
+    <ClInclude Include="external\MurmurHash3.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="FlashEEPROM.h" />
     <ClInclude Include="GLWindow.h" />
