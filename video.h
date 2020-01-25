@@ -108,6 +108,7 @@ uint32 *AllocateTextureMemory32(uint32 size, const bool bOverlay);
 void FreeTextureMemory(uint32 *pBuffer, const bool bOverlay);
 void VidConfig(MPE &mpe);
 void VidQueryConfig(MPE &mpe);
+void VidSync(MPE& mpe);
 void VidSetup(MPE &mpe);
 void VidChangeScroll(MPE &mpe);
 void VidChangeBase(MPE &mpe);

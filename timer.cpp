@@ -71,6 +71,7 @@ void CALLBACK SysTimer2Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32
 
   IncrementVideoFieldCounter();
   nuonEnv.TriggerVideoInterrupt();
+  nuonEnv.trigger_render_video = true;
 }
 
 void InitializeTimingMethod(void)
@@ -211,12 +212,18 @@ void TimerInit(const uint32 whichTimer, const uint32 rate)
     {
       DeleteTimerQueueTimer(NULL, hSysTimer0, NULL);
       CloseHandle(hSysTimer0);
+      hSysTimer0 = 0;
     }
-    CreateTimerQueueTimer(&hSysTimer0, NULL, (WAITORTIMERCALLBACK)SysTimer0Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
+    if(rate/1000 > 0)
+      CreateTimerQueueTimer(&hSysTimer0, NULL, (WAITORTIMERCALLBACK)SysTimer0Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
 #else
     if(hSysTimer0)
+    {
       timeKillEvent(hSysTimer0);
-    hSysTimer0 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer0Callback,0,TIME_PERIODIC);
+      hSysTimer0 = 0;
+    }
+    if(rate/1000 > 0)
+      hSysTimer0 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer0Callback,0,TIME_PERIODIC);
 #endif
   }
   else if(whichTimer == 1)
@@ -226,12 +233,18 @@ void TimerInit(const uint32 whichTimer, const uint32 rate)
     {
       DeleteTimerQueueTimer(NULL, hSysTimer1, NULL);
       CloseHandle(hSysTimer1);
+      hSysTimer1 = 0;
     }
-    CreateTimerQueueTimer(&hSysTimer1, NULL, (WAITORTIMERCALLBACK)SysTimer1Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
+    if (rate/1000 > 0)
+      CreateTimerQueueTimer(&hSysTimer1, NULL, (WAITORTIMERCALLBACK)SysTimer1Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
 #else
     if(hSysTimer1)
+    {
       timeKillEvent(hSysTimer1);
-    hSysTimer1 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer1Callback,0,TIME_PERIODIC);
+      hSysTimer1 = 0;
+    }
+    if (rate/1000 > 0)
+      hSysTimer1 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer1Callback,0,TIME_PERIODIC);
 #endif
   }
   else
@@ -242,12 +255,18 @@ void TimerInit(const uint32 whichTimer, const uint32 rate)
     {
       DeleteTimerQueueTimer(NULL, hSysTimer2, NULL);
       CloseHandle(hSysTimer2);
+      hSysTimer2 = 0;
     }
-    CreateTimerQueueTimer(&hSysTimer2, NULL, (WAITORTIMERCALLBACK)SysTimer2Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
+    if (rate/1000 > 0)
+      CreateTimerQueueTimer(&hSysTimer2, NULL, (WAITORTIMERCALLBACK)SysTimer2Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
 #else
     if(hSysTimer2)
+    {
       timeKillEvent(hSysTimer2);
-    hSysTimer2 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer2Callback,0,TIME_PERIODIC);
+      hSysTimer2 = 0;
+    }
+    if (rate/1000 > 0)
+      hSysTimer2 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer2Callback,0,TIME_PERIODIC);
 #endif
   }
 }

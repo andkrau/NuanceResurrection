@@ -4,8 +4,8 @@ _LARGE_INTEGER tickFrequency, counterStart, counterEnd, dummyCounter;
 
 double GetTimeDeltaMs()
 {
-  QueryPerformanceFrequency(&tickFrequency);
-  return (((double)(counterEnd.QuadPart - counterStart.QuadPart)) * 1000) / tickFrequency.QuadPart;
+  //QueryPerformanceFrequency(&tickFrequency);
+  return (double)((counterEnd.QuadPart - counterStart.QuadPart) * 1000) / (double)tickFrequency.QuadPart;
 }
 
 void StartPerformanceTimer()
@@ -22,7 +22,7 @@ double GetPerformanceTimerOverheadMs()
 {
   QueryPerformanceCounter(&counterStart);
   QueryPerformanceCounter(&dummyCounter);
+  //QueryPerformanceFrequency(&tickFrequency);
   QueryPerformanceCounter(&counterEnd);
-  QueryPerformanceFrequency(&tickFrequency);
-  return (((double)(counterEnd.QuadPart - counterStart.QuadPart)) * 1000) / tickFrequency.QuadPart;
+  return (double)((counterEnd.QuadPart - counterStart.QuadPart) * 1000) / (double)tickFrequency.QuadPart;
 }

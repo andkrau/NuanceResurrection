@@ -7,7 +7,6 @@
 typedef bool (* GLWINDOW_CALLBACK)(WPARAM wparam, LPARAM lparam);
 typedef bool (* GLWINDOW_RESIZECALLBACK)(unsigned __int16 width, unsigned __int16 height);
 typedef bool (* GLWINDOW_KEYCALLBACK)(__int16 vkey, unsigned __int32 keydata);
-typedef void (* GLWINDOW_TIMERCALLBACK)(unsigned __int32 idEvent);
 
 #define WM_TOGGLEFULLSCREEN (WM_USER+1)
 
@@ -35,21 +34,17 @@ public:
   bool bTerminate;
   bool bUseSeparateThread;
   const char *title;
-  unsigned int timerInterval;
-  unsigned int timerID;
 
   GLWindow();
   ~GLWindow();
   bool Create();
   void Close();
-  bool MessagePump();
+  void MessagePump();
   void ToggleFullscreen();
   void UpdateRestoreValues();
-  bool KillTimer();
-  bool SetTimer();
+
   GLWINDOW_KEYCALLBACK keyDownHandler;
   GLWINDOW_KEYCALLBACK keyUpHandler;
-  GLWINDOW_TIMERCALLBACK timerHandler;
   GLWINDOW_RESIZECALLBACK resizeHandler;
   GLWINDOW_CALLBACK idleHandler;
   GLWINDOW_CALLBACK createHandler;

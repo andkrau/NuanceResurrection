@@ -116,16 +116,8 @@ breakpoint address to 0.  The text file may contain multiple lines, but only
 the first line is parsed.  The first line should contain a 32-bit hexidecimal
 address, e.g. "20301ABC" followed by a carriage return.
 
-The refresh rate of the video renderer may be modified through the configuration
-file.  The refresh rate will be clamped to the range of 1 to 240 fields per second.
 There are two interlaced fields per frame.  A real NTSC Nuon-based player displays
-at 60 fields per second.  If the emulator cannot match the speed of a real player,
-it may be advantageous to play around with the display rate setting to acheive
-better performance.  Simpler programs that do not use a lot of processor cycles
-will generally benefit by increasing the display rate.  More complex programs
-will perform better when the display rate is lowered below the nominal rate of
-60 fields per second so that video interrupts do not occur before the program is
-ready for them.
+at 60 fields per second.
 
 Joystick emulation via keyboard is active only in the video display window.
 The video display window may be resized to any desired size and the video
@@ -390,6 +382,7 @@ Fix wrong DMAs in Ballistic and Merlin Racing
 (Mostly) fix distorted sound
 Optimizations
 Always enable Pixel Shaders and fully support mode 2
+Remove fields per second setting in cfg
 
 5/30/2007, version 0.5.0:
   Fixed tons of compiler bugs.  Fixed TimeToSleep routine, allowing Snake to work again.  
