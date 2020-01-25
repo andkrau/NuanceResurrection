@@ -216,15 +216,6 @@ uint32 MPE::ReadControlRegister(const uint32 address, const InstructionCacheEntr
 
 void MPE::WriteControlRegister(const uint32 address, const uint32 data)
 {
-  static uint32 dmaflags;
-  static uint32 baseaddr;
-  static uint32 intaddr;
-  static uint32 xptr;
-  static uint32 yptr;
-  static uint32 done_cnt_wr;
-  static uint32 done_cnt_rd;
-  static uint32 *dmacmd;
-
   switch(address >> 4)
   {
     case 0x0:
@@ -500,10 +491,10 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       if(odmactl & 0x60UL)
       {
         //other bus DMA is enabled so do it!
-        dmacmd = (uint32 *)(&dtrom[odmacptr & MPE_VALID_MEMORY_MASK]);
-        dmaflags = *dmacmd;
-        baseaddr = *(dmacmd + 1);
-        intaddr = *(dmacmd + 2);
+        const uint32 * const dmacmd = (uint32 *)(&dtrom[odmacptr & MPE_VALID_MEMORY_MASK]);
+        uint32 dmaflags = *dmacmd;
+        uint32 baseaddr = *(dmacmd + 1);
+        uint32 intaddr = *(dmacmd + 2);
         SwapScalarBytes(&dmaflags);
         SwapScalarBytes(&baseaddr);
         SwapScalarBytes(&intaddr);
@@ -511,7 +502,8 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
         dmaflags &= ((1UL << 28) | (0xFFUL << 16) | (1UL << 13));
         if(((baseaddr >= 0x20700000) && (baseaddr < 0x30000000)) || ((intaddr >= 0x20700000) && (intaddr < 0x30000000)))
         {
-          dmacmd = 0;
+          //!! assert??
+          //dmacmd = 0;
           //return;
         }
 
@@ -519,11 +511,12 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       }
       return;
     case 0x60:
+    {
       //mdmactl;
       //clear pending and active bits since DMA transfers always execute immediately
 
-      done_cnt_wr = mdmactl >> 24;
-      done_cnt_rd = (mdmactl >> 16) & 0xFF;
+      uint32 done_cnt_wr = (mdmactl >> 24);
+      uint32 done_cnt_rd = (mdmactl >> 16) & 0xFF;
 
       //clear all existing mdmactl bits except for done_cnt_enable
       mdmactl &= (~(1UL << 9));
@@ -573,16 +566,18 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
 
       mdmactl |= ((done_cnt_wr << 24) | (done_cnt_rd << 16) | (data & 0x60));
       return;
+    }
     case 0x61:
+    {
       //mdmacptr: writing triggers Main BUS DMA
       mdmacptr = data & 0x207FFFF0UL;
       //Call GetPointerToMemory to warn if the address is invalid
       nuonEnv.GetPointerToMemory(*this,data & 0xFFFFFFF0);
-do_mdmacmd:
-      dmacmd = (uint32 *)(&dtrom[mdmacptr & MPE_VALID_MEMORY_MASK]);
-      dmaflags = *dmacmd;
-      baseaddr = *(dmacmd + 1);
-      intaddr = *(dmacmd + 2);
+do_mdmacmd: // for batch commands
+      const uint32* const dmacmd = (uint32 *)(&dtrom[mdmacptr & MPE_VALID_MEMORY_MASK]);
+      uint32 dmaflags = *dmacmd;
+      uint32 baseaddr = *(dmacmd + 1);
+      uint32 intaddr = *(dmacmd + 2);
       SwapScalarBytes(&dmaflags);
       SwapScalarBytes(&baseaddr);
       SwapScalarBytes(&intaddr);
@@ -601,7 +596,7 @@ do_mdmacmd:
               return;
           }
           DMALinear(*this,dmaflags,baseaddr,intaddr);
-          if(data & (1UL << 30))
+          if(dmaflags & (1UL << 30)) //!! was data before, but this should lead to potentially endless loops?
           {
             mdmacptr += 16;
             goto do_mdmacmd;
@@ -612,13 +607,13 @@ do_mdmacmd:
             {
               mdmactl &= (~(0xFFUL << 16));
               //increment done_rd_cnt in mdmactl
-              done_cnt_rd = (mdmactl >> 16) & 0xFF;
+              uint32 done_cnt_rd = (mdmactl >> 16) & 0xFF;
               done_cnt_rd++;
 
               if(done_cnt_rd > 0x1D)
               {
                 //overflow
-                done_cnt_wr = 0xFE;
+                done_cnt_rd = 0xFE; //!! was wr before but does not make sense
               }
 
               mdmactl |= ((done_cnt_rd & 0xFF) << 16);
@@ -627,7 +622,7 @@ do_mdmacmd:
             {
               mdmactl &= (~(0xFFUL << 24));
               //increment done_cnt_wr in mdmactl
-              done_cnt_wr = mdmactl >> 24;
+              uint32 done_cnt_wr = (mdmactl >> 24);
               done_cnt_wr++;
 
               if(done_cnt_wr > 0x1D)
@@ -641,9 +636,10 @@ do_mdmacmd:
           }
           return;
         case 3:
+        {
           //bilinear pixel DMA
-          xptr = intaddr;
-          yptr = *(dmacmd + 3);
+          const uint32 xptr = intaddr;
+          uint32 yptr = *(dmacmd + 3);
           intaddr = *(dmacmd + 4);
           SwapScalarBytes(&yptr);
           SwapScalarBytes(&intaddr);
@@ -659,13 +655,13 @@ do_mdmacmd:
             {
               mdmactl &= (~(0xFFUL << 16));
               //increament done_rd_cnt in mdmactl
-              done_cnt_rd = (mdmactl >> 16) & 0xFF;
+              uint32 done_cnt_rd = (mdmactl >> 16) & 0xFF;
               done_cnt_rd++;
 
               if(done_cnt_rd > 0x1D)
               {
                 //overflow
-                done_cnt_wr = 0xFE;
+                done_cnt_rd = 0xFE; //!! was wr before but does not make sense
               }
 
               mdmactl |= ((done_cnt_rd & 0xFF) << 16);
@@ -674,7 +670,7 @@ do_mdmacmd:
             {
               mdmactl &= (~(0xFFUL << 24));
               //increment done_cnt_wr in mdmactl
-              done_cnt_wr = mdmactl >> 24;
+              uint32 done_cnt_wr = (mdmactl >> 24);
               done_cnt_wr++;
 
               if(done_cnt_wr > 0x1D)
@@ -687,11 +683,13 @@ do_mdmacmd:
             }
           }
           return;
+        }
         default:
           return;
       }
 
       return;
+    }
     case 0x7E:
       //comminfo: only lower 8 bits are writable
       comminfo &= (~0xFFUL);
