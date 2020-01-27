@@ -391,8 +391,6 @@ void NuonEnvironment::Init()
   overlayChannelLowerLimit = 0;
   mainChannelUpperLimit = 0;
   overlayChannelUpperLimit = 0;
-  bMainBufferModified = true;
-  bOverlayBufferModified = true;
 
   //TIMER RELATED INITIALIZATION: chooses the timing method used in TimeElapsed
   //and initializes the boot timestamp
@@ -599,11 +597,6 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
         {
           tokenType = ReadConfigLine(configFile,line);
           compilerOptions.bT3KCompilerHack = !_stricmp(line,"Enabled");
-        }
-        else if(_strnicmp(&line[1],"AlwaysUpdateVideo]",sizeof("AlwaysUpdateVideo]")) == 0)
-        {
-          tokenType = ReadConfigLine(configFile,line);
-          videoOptions.bAlwaysUpdateVideo = !_stricmp(line,"Enabled");
         }
         else if(_strnicmp(&line[1],"CycleBasedTiming]",sizeof("CycleBasedTiming]")) == 0)
         {

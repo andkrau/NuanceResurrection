@@ -39,7 +39,7 @@ void main()
   vec4 mainColor;
   if(mainIs16bit != 0.)
   {
-    const vec2 mainColor88 = texture2D(mainChannelSampler, gl_TexCoord[0].st).yx;
+    vec2 mainColor88 = texture2D(mainChannelSampler, gl_TexCoord[0].st).yx;
     mainColor = vec4(texture2D(LUTSampler, mainColor88).xyz,1.0);
   }
   else
@@ -48,7 +48,7 @@ void main()
   vec4 overlayColor;
   if(structOverlayChannelAlpha >= 0.)
   {
-    const vec2 overlayColor88 = texture2D(overlayChannelSampler, gl_TexCoord[1].st).yx;
+    vec2 overlayColor88 = texture2D(overlayChannelSampler, gl_TexCoord[1].st).yx;
     overlayColor = vec4(texture2D(LUTSampler, overlayColor88).xyz,structOverlayChannelAlpha);
   }
   else

@@ -117,7 +117,7 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
     srcBStep = xsize << srcStrideShift;
   }
 
-  if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv.mainChannelUpperLimit) ||
+  /*if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv.mainChannelUpperLimit) ||
       (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv.mainChannelUpperLimit))
   {
     nuonEnv.bMainBufferModified = true;
@@ -126,7 +126,7 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
       (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv.overlayChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv.overlayChannelUpperLimit))
   {
     nuonEnv.bOverlayBufferModified = true;
-  }
+  }*/
 
   uint32 srcB = 0;
   uint32 destB = 0;

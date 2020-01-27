@@ -1,6 +1,7 @@
-//#define SUPPORT_VSYNC_WAITING
+#define SUPPORT_VSYNC_WAITING // necessary to frame limit some games that rely on vsync, and the implementation SHOULD not harm systems that are too slow/cannot match 60fps emulation, but requires more testing to be 100% sure
 
 #include "basetypes.h"
+#include <assert.h>
 #include <stdio.h>
 #include <windows.h>
 #include "external\glew-2.1.0\include\GL\glew.h"
@@ -17,11 +18,14 @@
 //---------------------------------------------------------------------------
 
 extern NuonEnvironment nuonEnv;
+extern _LARGE_INTEGER tickFrequency;
 
 #define TEXTURE_TARGET (GL_TEXTURE_2D)
 
 const GLint mainInternalTextureFormat32 = GL_RGBA8;
 const GLint mainInternalTextureFormat16 = GL_RG8;
+const GLint mainInternalTextureBPC32 = 4;
+const GLint mainInternalTextureBPC16 = 2;
 const GLint mainExternalTextureFormat32 = GL_BGRA;
 const GLint mainExternalTextureFormat16 = GL_RG;
 const GLint mainPixelType32 = GL_UNSIGNED_BYTE;
@@ -30,6 +34,8 @@ const GLint mainTextureUnit = GL_TEXTURE0;
 
 const GLint osdInternalTextureFormat32 = GL_RGBA8;
 const GLint osdInternalTextureFormat16 = GL_RG8;
+const GLint osdInternalTextureBPC32 = 4;
+const GLint osdInternalTextureBPC16 = 2;
 const GLint osdExternalTextureFormat32 = GL_BGRA;
 const GLint osdExternalTextureFormat16 = GL_RG;
 const GLint osdPixelType32 = GL_UNSIGNED_BYTE;
@@ -109,7 +115,7 @@ void InitializeColorSpaceTables(void)
     }
 }
 
-uint32 *AllocateTextureMemory32(uint32 size, const bool bOverlay)
+uint32 *AllocateTextureMemory32(const uint32 size, const bool bOverlay)
 {
   uint32 *ptr;
 
@@ -200,10 +206,10 @@ void UpdateTextureStates(void)
   if(bMainChannelActive)
   {
     GLfloat x0, xf, y0, yf;
-    x0 = (GLfloat)((-((double)structMainChannel.dest_xoff * (double)structMainChannel.src_width)/((double)structMainChannel.dest_width)) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
+    x0 = (GLfloat)((-((double)structMainChannel.dest_xoff * (double)structMainChannel.src_width)/(double)structMainChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
     xf = (GLfloat)(((double)(structMainDisplay.dispwidth - structMainChannel.dest_xoff) * (double)structMainChannel.src_width/(double)structMainChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
     y0 = (GLfloat)(((double)(structMainDisplay.dispheight - structMainChannel.dest_yoff) * (double)structMainChannel.src_height/(double)structMainChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
-    yf = (GLfloat)((-((double)structMainChannel.dest_yoff * (double)structMainChannel.src_height)/((double)structMainChannel.dest_height)) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
+    yf = (GLfloat)((-((double)structMainChannel.dest_yoff * (double)structMainChannel.src_height)/(double)structMainChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
 
     //uint8 *pBuffer = (uint8 *)mainChannelBuffer;
     //for(uint32 i = 0; i < (ALLOCATED_TEXTURE_WIDTH * ALLOCATED_TEXTURE_HEIGHT); i++)
@@ -246,10 +252,10 @@ void UpdateTextureStates(void)
   if(bOverlayChannelActive)
   {
     GLfloat x0, xf, y0, yf;
-    x0 = (GLfloat)((-((double)structOverlayChannel.dest_xoff * (double)structOverlayChannel.src_width)/((double)structOverlayChannel.dest_width)) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
-    xf = (GLfloat)((((double)(structMainDisplay.dispwidth - structOverlayChannel.dest_xoff) * (double)structOverlayChannel.src_width/(double)structOverlayChannel.dest_width)) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
-    y0 = (GLfloat)((((double)(structMainDisplay.dispheight - structOverlayChannel.dest_yoff) * (double)structOverlayChannel.src_height)/((double)structOverlayChannel.dest_height)) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
-    yf = (GLfloat)((-((double)structOverlayChannel.dest_yoff * (double)structOverlayChannel.src_height)/((double)structOverlayChannel.dest_height)) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
+    x0 = (GLfloat)((-((double)structOverlayChannel.dest_xoff * (double)structOverlayChannel.src_width)/(double)structOverlayChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
+    xf = (GLfloat)(((double)(structMainDisplay.dispwidth - structOverlayChannel.dest_xoff) * (double)structOverlayChannel.src_width/(double)structOverlayChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
+    y0 = (GLfloat)(((double)(structMainDisplay.dispheight - structOverlayChannel.dest_yoff) * (double)structOverlayChannel.src_height/(double)structOverlayChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
+    yf = (GLfloat)((-((double)structOverlayChannel.dest_yoff * (double)structOverlayChannel.src_height)/(double)structOverlayChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
 
     videoTexInfo.osdTexCoords[0] = x0;
     videoTexInfo.osdTexCoords[1] = y0;
@@ -376,7 +382,9 @@ void InitTextures(void)
   videoTexInfo.transColor[2] = (GLfloat)(transparencyTexture[2] / 255.0);
   videoTexInfo.transColor[3] = (GLfloat)(transparencyTexture[3] / 255.0);
   glGenTextures(1,&videoTexInfo.mainTexName);
+  glGenBuffers(1, &videoTexInfo.mainTexPBO);
   glGenTextures(1,&videoTexInfo.osdTexName);
+  glGenBuffers(1, &videoTexInfo.osdTexPBO);
   glGenTextures(1,&videoTexInfo.borderTexName);
   glGenTextures(1,&videoTexInfo.LUTTexName);
   glGenTextures(1,&videoTexInfo.transparencyTexName);
@@ -411,23 +419,7 @@ void IncrementVideoFieldCounter(void)
 
 void RenderVideo(const int winwidth, const int winheight)
 {
-  uint8 *ptrNuonFrameBuffer;
-  uint32 activeChannels;
-  uint32 pixWidthShift;
-  uint32 pixWidth;
-  uint32 rowWidth;
-  uint8 *pMainChannelBuffer;
-  uint8 *pOverlayChannelBuffer;
-
   if(!bCanDisplayVideo)
-    return;
-
-  if(nuonEnv.videoOptions.bAlwaysUpdateVideo)
-  {
-    nuonEnv.bMainBufferModified = true;
-    nuonEnv.bOverlayBufferModified = true;
-  }
-  else if(!nuonEnv.bMainBufferModified && !nuonEnv.bOverlayBufferModified)
     return;
    
   if(!bTexturesInitialized)
@@ -447,20 +439,27 @@ void RenderVideo(const int winwidth, const int winheight)
     bSetupViewport = true;
   }
 
+  const void* pMainChannelBuffer;
   if(bMainChannelActive)
   {
     const uint32 pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
-    const uint32 maxCol = structMainChannel.src_width;
-    const uint32 maxRow = structMainChannel.src_height;
     bool useCannedAlpha = false;
+    uint32 pixWidthShift;
+    uint32 pixWidth;
 
     switch(pixType)
     {
       case 0:
         //mpeg
+        //!! not supported
+        bMainChannelActive = false;
+        goto process_overlay_buffer;
         break;
       case 1:
         //4 bit
+        //!! not supported
+        bMainChannelActive = false;
+        goto process_overlay_buffer;
         break;
       case 2:
         //16 bit
@@ -470,8 +469,8 @@ void RenderVideo(const int winwidth, const int winheight)
         break;
       case 3:
         //8 bit
-        pixWidth = 1;
         pixWidthShift = 0;
+        pixWidth = 1;
         break;
       case 4:
         //32 bit
@@ -480,8 +479,8 @@ void RenderVideo(const int winwidth, const int winheight)
         break;
       case 5:
         //16 bit+16z
-        pixWidthShift = 1;
-        pixWidth = 2;
+        pixWidthShift = 2;
+        pixWidth = 4;
         useCannedAlpha = true;
         break;
       case 6:
@@ -495,18 +494,19 @@ void RenderVideo(const int winwidth, const int winheight)
         break;
     }
 
-    uint32* ptrMainDisplayBuffer = mainChannelBuffer;
-    ptrNuonFrameBuffer =
+    const uint8* ptrNuonFrameBuffer =
       (uint8 *)(nuonEnv.GetPointerToSystemMemory((uint32)structMainChannel.base + (((structMainChannel.src_yoff * structMainChannel.src_width) + structMainChannel.src_xoff) << pixWidthShift)));
+
     pMainChannelBuffer = ptrNuonFrameBuffer;
-
-    rowWidth = (structMainChannel.src_width << pixWidthShift);
-
-    if(!nuonEnv.bMainBufferModified
-        || pixType == 4 || pixType == 2) // pixel shader does the color conversion?
+    if (pixType == 4 || pixType == 2) // pixel shader does the color conversion?
     {
       goto process_overlay_buffer;
     }
+
+    const uint32 maxCol = structMainChannel.src_width;
+    const uint32 maxRow = structMainChannel.src_height;
+    //const uint32 rowWidth = (structMainChannel.src_width << pixWidthShift);
+    uint32* ptrMainDisplayBuffer = mainChannelBuffer;
 
     for(uint32 rowCount = 0; rowCount < maxRow; rowCount++)
     {
@@ -539,62 +539,68 @@ void RenderVideo(const int winwidth, const int winheight)
   }
 
 process_overlay_buffer:
+  const void* pOverlayChannelBuffer;
   if(bOverlayChannelActive)
   {
-    const uint32 maxCol = structOverlayChannel.src_width;
-          uint32 maxRow = structOverlayChannel.src_height;
-    uint32 *ptrMainDisplayBuffer = overlayChannelBuffer;
     const uint32 pixType = (structOverlayChannel.dmaflags >> 4) & 0x0F;
+    uint32 maxRow = structOverlayChannel.src_height;
+    uint32 pixWidthShift;
+    uint32 pixWidth;
+    //uint32 rowWidth;
 
     switch(pixType)
     {
       case 0:
         //mpeg
+        //!! not supported
+        bOverlayChannelActive = false;
+        goto render_main_buffer;
         break;
       case 1:
         //4 bit
         pixWidthShift = 1;
         pixWidth = 1;
-        rowWidth = (structOverlayChannel.src_width >> 1);
+        //rowWidth = (structOverlayChannel.src_width >> 1);
         maxRow >>= 1;
         break;
       case 2:
         //16 bit
         pixWidthShift = 1;
         pixWidth = 2;
-        rowWidth = (structOverlayChannel.src_width << pixWidthShift);
+        //rowWidth = (structOverlayChannel.src_width << pixWidthShift);
         break;
       case 3:
         //8 bit
         pixWidthShift = 0;
         pixWidth = 1;
-        rowWidth = structOverlayChannel.src_width;
+        //rowWidth = structOverlayChannel.src_width;
         break;
       case 4:
         //32 bit
         pixWidthShift = 2;
         pixWidth = 4;
-        rowWidth = (structOverlayChannel.src_width << pixWidthShift);
+        //rowWidth = (structOverlayChannel.src_width << pixWidthShift);
         break;
       case 5:
         //16 bit+16z
-        pixWidthShift = 1;
-        pixWidth = 2;
-        rowWidth = (structOverlayChannel.src_width << pixWidthShift);
+        pixWidthShift = 2;
+        pixWidth = 4;
+        //rowWidth = (structOverlayChannel.src_width << pixWidthShift);
         break;
       case 6:
         //32 bit+32z
         pixWidthShift = 3;
         pixWidth = 8;
-        rowWidth = (structOverlayChannel.src_width << pixWidthShift);
+        //rowWidth = (structOverlayChannel.src_width << pixWidthShift);
         break;
       default:
         pixWidthShift = 2;
         pixWidth = 4;
-        rowWidth = (structOverlayChannel.src_width << pixWidthShift);
+        //rowWidth = (structOverlayChannel.src_width << pixWidthShift);
         break;
     }
 
+    const uint8* ptrNuonFrameBuffer;
     if(pixType != 1)
     {
       ptrNuonFrameBuffer =
@@ -604,14 +610,16 @@ process_overlay_buffer:
     {
       ptrNuonFrameBuffer =
         (uint8 *)(nuonEnv.GetPointerToSystemMemory((uint32)structOverlayChannel.base + (((structOverlayChannel.src_yoff * structOverlayChannel.src_width) + structOverlayChannel.src_xoff) >> pixWidthShift)));
-    } 
-    pOverlayChannelBuffer = ptrNuonFrameBuffer;
+    }
 
-    if(!nuonEnv.bOverlayBufferModified
-        || pixType == 4 || pixType == 2) // pixel shader does the color conversion ?
+    pOverlayChannelBuffer = ptrNuonFrameBuffer;
+    if (pixType == 4 || pixType == 2) // pixel shader does the color conversion ?
     {
       goto render_main_buffer;
     }
+
+    const uint32 maxCol = structOverlayChannel.src_width;
+    uint32* ptrMainDisplayBuffer = overlayChannelBuffer;
 
     for(uint32 rowCount = 0; rowCount < maxRow; rowCount++)
     {
@@ -670,6 +678,7 @@ process_overlay_buffer:
             A  = 0; //Z buffered pixels are always opaque
             break;
           default:
+            assert(false);
             break;
         }
 
@@ -702,7 +711,7 @@ process_overlay_buffer:
   }
 
 render_main_buffer:
-  if(bMainChannelActive && nuonEnv.bMainBufferModified)
+  if(bMainChannelActive)
   {
     glActiveTexture(mainTextureUnit);
     glBindTexture(TEXTURE_TARGET,videoTexInfo.mainTexName);
@@ -710,19 +719,43 @@ render_main_buffer:
     const uint32 pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
     const GLint mainInternalTextureFormat = (pixType == 2) ? mainInternalTextureFormat16 : mainInternalTextureFormat32;
     const GLint mainExternalTextureFormat = (pixType == 2) ? mainExternalTextureFormat16 : mainExternalTextureFormat32;
+    const GLint mainInternalTextureBPC = (pixType == 2) ? mainInternalTextureBPC16 : mainInternalTextureBPC32;
     const GLint mainPixelType = (pixType == 2) ? mainPixelType16 : mainPixelType32;
     const void* const mainPixels = (pixType == 4 || pixType == 2) // pixel shader does color conversion?
-        ? (void*)pMainChannelBuffer : (void*)mainChannelBuffer;
+        ? pMainChannelBuffer : (void*)mainChannelBuffer;
     if(bMainTexturePixType != pixType) // format change or never created?
     {
       glTexImage2D(TEXTURE_TARGET,0,mainInternalTextureFormat, ALLOCATED_TEXTURE_WIDTH, ALLOCATED_TEXTURE_HEIGHT, 0,mainExternalTextureFormat,mainPixelType, mainPixels);
       bMainTexturePixType = pixType;
     }
     else
+    {
+#if 1
+      glBindBuffer(GL_PIXEL_UNPACK_BUFFER, videoTexInfo.mainTexPBO);
+
+      glPixelStorei(GL_PACK_ALIGNMENT, 1);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+      glBufferData(GL_PIXEL_UNPACK_BUFFER, structMainChannel.src_width * structMainChannel.src_height * mainInternalTextureBPC, nullptr, GL_STREAM_DRAW);
+      GLubyte* const ptr = (GLubyte*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, structMainChannel.src_width * structMainChannel.src_height * mainInternalTextureBPC, GL_MAP_WRITE_BIT);
+      if (ptr)
+      {
+        memcpy(ptr, mainPixels, structMainChannel.src_width * structMainChannel.src_height * mainInternalTextureBPC);
+        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+      }
+      else
+        MessageBox(NULL,"Failed to map main buffer","glMapBufferRange",MB_OK);
+
+      glTexSubImage2D(TEXTURE_TARGET,0,0,0,structMainChannel.src_width,structMainChannel.src_height,mainExternalTextureFormat,mainPixelType, nullptr);
+
+      glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+#else
       glTexSubImage2D(TEXTURE_TARGET,0,0,0,structMainChannel.src_width,structMainChannel.src_height,mainExternalTextureFormat,mainPixelType, mainPixels);
+#endif
+    }
   }
 
-  if(bOverlayChannelActive && nuonEnv.bOverlayBufferModified)
+  if(bOverlayChannelActive)
   {
     glActiveTexture(osdTextureUnit);
     glBindTexture(TEXTURE_TARGET,videoTexInfo.osdTexName);
@@ -730,16 +763,40 @@ render_main_buffer:
     const uint32 pixType = (structOverlayChannel.dmaflags >> 4) & 0x0F;
     const GLint osdInternalTextureFormat = (pixType == 2) ? osdInternalTextureFormat16 : osdInternalTextureFormat32;
     const GLint osdExternalTextureFormat = (pixType == 2) ? osdExternalTextureFormat16 : osdExternalTextureFormat32;
+    const GLint osdInternalTextureBPC = (pixType == 2) ? osdInternalTextureBPC16 : osdInternalTextureBPC32;
     const GLint osdPixelType = (pixType == 2) ? osdPixelType16 : osdPixelType32;
     const void* const osdPixels = (pixType == 4 || pixType == 2) // pixel shader does color conversion?
-        ? (void*)pOverlayChannelBuffer : (void*)overlayChannelBuffer;
+        ? pOverlayChannelBuffer : (void*)overlayChannelBuffer;
     if(bOverlayTexturePixType != pixType) // format change or never created?
     {
       glTexImage2D(TEXTURE_TARGET,0,osdInternalTextureFormat, ALLOCATED_TEXTURE_WIDTH, ALLOCATED_TEXTURE_HEIGHT, 0,osdExternalTextureFormat, osdPixelType, osdPixels);
       bOverlayTexturePixType = pixType;
     }
     else
-      glTexSubImage2D(TEXTURE_TARGET,0,0,0,structOverlayChannel.src_width,structOverlayChannel.src_height,osdExternalTextureFormat, osdPixelType, osdPixels);
+    {
+#if 1
+      glBindBuffer(GL_PIXEL_UNPACK_BUFFER, videoTexInfo.osdTexPBO);
+
+      glPixelStorei(GL_PACK_ALIGNMENT, 1);
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+      glBufferData(GL_PIXEL_UNPACK_BUFFER, structOverlayChannel.src_width * structOverlayChannel.src_height * osdInternalTextureBPC, nullptr, GL_STREAM_DRAW);
+      GLubyte* const ptr = (GLubyte*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, structOverlayChannel.src_width * structOverlayChannel.src_height * osdInternalTextureBPC, GL_MAP_WRITE_BIT);
+      if (ptr)
+      {
+        memcpy(ptr, osdPixels, structOverlayChannel.src_width * structOverlayChannel.src_height * osdInternalTextureBPC);
+        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+      }
+      else
+        MessageBox(NULL,"Failed to map osd buffer","glMapBufferRange",MB_OK);
+
+      glTexSubImage2D(TEXTURE_TARGET,0,0,0,structOverlayChannel.src_width,structOverlayChannel.src_height,osdExternalTextureFormat,osdPixelType, nullptr);
+
+      glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+#else
+      glTexSubImage2D(TEXTURE_TARGET,0,0,0,structOverlayChannel.src_width,structOverlayChannel.src_height,osdExternalTextureFormat,osdPixelType, osdPixels);
+#endif
+    }
   }
 
   if(videoTexInfo.bUpdateDisplayList)
@@ -748,14 +805,11 @@ render_main_buffer:
     videoTexInfo.bUpdateDisplayList = false;
   }
 
-  activeChannels = (bOverlayChannelActive ? CHANNELSTATE_OVERLAY_ACTIVE: 0);
+  uint32 activeChannels = (bOverlayChannelActive ? CHANNELSTATE_OVERLAY_ACTIVE: 0);
   activeChannels |= (bMainChannelActive ? CHANNELSTATE_MAIN_ACTIVE : 0);
  
   glCallList(videoTexInfo.displayListName[activeChannels]);
   glFlush();
-
-  nuonEnv.bMainBufferModified = false;
-  nuonEnv.bOverlayBufferModified = false;
 }
 
 void UpdateBufferLengths(void)
@@ -875,7 +929,7 @@ void VidConfig(MPE &mpe)
     }
   }
 
-  if(display)
+  //if(display)
   {
     memcpy(&structMainDisplayPrev,&structMainDisplay,sizeof(VidDisplay));
     memcpy(&structMainDisplay,&maindisplay,sizeof(VidDisplay));
@@ -1076,8 +1130,6 @@ void VidConfig(MPE &mpe)
   }
 
   bCanDisplayVideo = true;
-  nuonEnv.bMainBufferModified = true;
-  nuonEnv.bOverlayBufferModified = true;
   UpdateBufferLengths();
 
   if(bUpdateOpenGLData || (channelState != channelStatePrev))
@@ -1202,26 +1254,22 @@ void VidSetup(MPE &mpe)
 
   mpe.regs[0] = 1;
   bCanDisplayVideo = true;
-
-  nuonEnv.bMainBufferModified = true;
-  nuonEnv.bOverlayBufferModified = true;
-  
   UpdateBufferLengths();
 
-    bUpdateOpenGLData |= (channelState != channelStatePrev);
-    bUpdateOpenGLData |= (structMainChannel.alpha != structMainChannelPrev.alpha);
-    bUpdateOpenGLData |= (structMainChannel.clut_select != structMainChannelPrev.clut_select);
-    bUpdateOpenGLData |= (structMainChannel.dest_height != structMainChannelPrev.dest_height);
-    bUpdateOpenGLData |= (structMainChannel.dest_width != structMainChannelPrev.dest_width);
-    bUpdateOpenGLData |= (structMainChannel.dest_xoff != structMainChannelPrev.dest_xoff);
-    bUpdateOpenGLData |= (structMainChannel.dest_yoff != structMainChannelPrev.dest_yoff);
-    bUpdateOpenGLData |= (structMainChannel.dmaflags != structMainChannelPrev.dmaflags);
-    bUpdateOpenGLData |= (structMainChannel.hfilter != structMainChannelPrev.hfilter);
-    bUpdateOpenGLData |= (structMainChannel.src_width != structMainChannelPrev.src_width);
-    bUpdateOpenGLData |= (structMainChannel.src_height != structMainChannelPrev.src_height);
-    bUpdateOpenGLData |= (structMainChannel.src_xoff != structMainChannelPrev.src_xoff);
-    bUpdateOpenGLData |= (structMainChannel.src_yoff != structMainChannelPrev.src_yoff);
-    bUpdateOpenGLData |= (structMainChannel.vfilter != structMainChannelPrev.vfilter);
+  bUpdateOpenGLData |= (channelState != channelStatePrev);
+  bUpdateOpenGLData |= (structMainChannel.alpha != structMainChannelPrev.alpha);
+  bUpdateOpenGLData |= (structMainChannel.clut_select != structMainChannelPrev.clut_select);
+  bUpdateOpenGLData |= (structMainChannel.dest_height != structMainChannelPrev.dest_height);
+  bUpdateOpenGLData |= (structMainChannel.dest_width != structMainChannelPrev.dest_width);
+  bUpdateOpenGLData |= (structMainChannel.dest_xoff != structMainChannelPrev.dest_xoff);
+  bUpdateOpenGLData |= (structMainChannel.dest_yoff != structMainChannelPrev.dest_yoff);
+  bUpdateOpenGLData |= (structMainChannel.dmaflags != structMainChannelPrev.dmaflags);
+  bUpdateOpenGLData |= (structMainChannel.hfilter != structMainChannelPrev.hfilter);
+  bUpdateOpenGLData |= (structMainChannel.src_width != structMainChannelPrev.src_width);
+  bUpdateOpenGLData |= (structMainChannel.src_height != structMainChannelPrev.src_height);
+  bUpdateOpenGLData |= (structMainChannel.src_xoff != structMainChannelPrev.src_xoff);
+  bUpdateOpenGLData |= (structMainChannel.src_yoff != structMainChannelPrev.src_yoff);
+  bUpdateOpenGLData |= (structMainChannel.vfilter != structMainChannelPrev.vfilter);
 
   if(bUpdateOpenGLData || (channelState != channelStatePrev))
   {
@@ -1251,7 +1299,22 @@ void SetVideoMode(void)
 void VidSync(MPE& mpe) // should wait (as seen by the app) for mpe.regs[0] fields (= mpe.regs[0] * 1/60 or 1/50 second), if 0 or -1 just return internal field counter, -2 is internal only
 {
 #ifdef SUPPORT_VSYNC_WAITING
-  // for now wait til the timer increases the real world field counter by the requested amount, this is less then ideal and costs cycles for 'nothing' :/
+  // only wait for the amount of requested fields if emulation is running faster than time that should have passed from each vsync to vsync? (i.e. if we can match ~60 fps or better currently)
+  // otherwise subtract time that we are behind from the fields that should be waited for
+  static long long counter = -1;
+  _LARGE_INTEGER curr_counter;
+  const bool update_counter = ((int)mpe.regs[0] > 0);
+  if (update_counter)
+  {
+    QueryPerformanceCounter(&curr_counter);
+    if (counter != -1) // we were already here before and have a valid counter?
+    {
+      const uint32 delta = (uint32)((double)((curr_counter.QuadPart - counter) * 1000) / (double)(tickFrequency.QuadPart * 16)); // 16 ~= matching the target 60Hz
+      mpe.regs[0] -= delta; // steal the already waited (through too slow emulation) fields from the requested fields to be able to catch up
+    }
+  }
+
+  // for now wait til the timer increases the real world field counter by the requested amount, this is less than ideal and costs cycles for 'nothing' :/
   if((int)mpe.regs[0] > 0)
   {
     volatile uint32 &fieldCounter = *((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
@@ -1265,7 +1328,12 @@ void VidSync(MPE& mpe) // should wait (as seen by the app) for mpe.regs[0] field
       SwapScalarBytes(&curFieldCounter);
       if (curFieldCounter >= newFieldCounter) break;
     }
+
+    QueryPerformanceCounter(&curr_counter); // measure from 'end of vsync'
   }
+
+  if (update_counter)
+    counter = curr_counter.QuadPart; // update counter to measure time when we end up here next time again
 #endif
 
   uint32 fieldCounter = *((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
@@ -1332,7 +1400,6 @@ void VidChangeBase(MPE &mpe)
         }
         UpdateTextureStates();
         //UpdateBufferLengths();
-        nuonEnv.bMainBufferModified = true;
         break;
       case VID_CHANNEL_OSD:
         //valid channel, set dmaflags and base then return 1
@@ -1367,7 +1434,6 @@ void VidChangeBase(MPE &mpe)
         }
         UpdateTextureStates();
         //UpdateBufferLengths();
-        nuonEnv.bOverlayBufferModified = true;
         break;
       default:
         //Invalid channel, return 0
@@ -1406,14 +1472,12 @@ void VidChangeScroll(MPE &mpe)
         //valid channel, set offsets and return 1
         structMainChannel.src_xoff = xoff;
         structMainChannel.src_yoff = yoff;
-        nuonEnv.bMainBufferModified = true;
         videoTexInfo.bUpdateDisplayList = true;
         break;
       case VID_CHANNEL_OSD:
         //valid channel, set offsets and return 1
         structOverlayChannel.src_xoff = xoff;
         structOverlayChannel.src_yoff = yoff;
-        nuonEnv.bOverlayBufferModified = true;
         videoTexInfo.bUpdateDisplayList = true;
         break;
       default:
@@ -1438,8 +1502,6 @@ void SetDefaultColor(MPE &mpe)
   structMainDisplay.bordcolor = mpe.regs[0];
   videoTexInfo.bUpdateDisplayList = true;
   UpdateTextureStates();
-  nuonEnv.bMainBufferModified = true;
-  nuonEnv.bOverlayBufferModified = true;
 }
 
 void VidSetCLUTRange(MPE &mpe)
@@ -1465,8 +1527,6 @@ void VidSetCLUTRange(MPE &mpe)
   //shows that VidSetCLUTRange returns 1 if all entries were copied and 0 otherwise (e.g. the starting index was out
   //of bounds or there were not enough entries in the video clut to accept all of the colors)
   mpe.regs[0] = (count == numColors) ? 1 : 0;
-
-  nuonEnv.bOverlayBufferModified = true;
 }
 
 void VideoCleanup(void)
