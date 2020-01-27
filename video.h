@@ -8,22 +8,13 @@
 #define ALLOCATED_TEXTURE_WIDTH VIDEO_WIDTH
 #define ALLOCATED_TEXTURE_HEIGHT (480)
 
-class VideoOptions
-{
-public:
-  VideoOptions()
-  {
-    bAlwaysUpdateVideo = false;
-  }
-  
-  bool bAlwaysUpdateVideo;
-};
-
 struct vidTexInfo
 {
   GLuint displayListName[4];
   GLuint mainTexName;
+  GLuint mainTexPBO;
   GLuint osdTexName;
+  GLuint osdTexPBO;
   GLuint borderTexName;
   GLuint LUTTexName;
   GLuint transparencyTexName;

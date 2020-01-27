@@ -88,19 +88,16 @@ public:
 
   bool bInterlaced;
   bool bProcessorStartStopChange;
-  bool bMainBufferModified;
-  bool bOverlayBufferModified;
-  bool bUseCycleBasedTiming;
+  bool bUseCycleBasedTiming; //!! unfinished
   bool whichAudioInterrupt;
 
-  bool trigger_render_video;
+  volatile bool trigger_render_video;
 
   uint32 cyclesPerAudioInterrupt;
   uint32 audioInterruptCycleCount;
-  uint32 videoDisplayCycleCount;
+  uint64 videoDisplayCycleCount;
   uint32 GetBufferSize(uint32 channelMode);
   CompilerOptions compilerOptions;
-  VideoOptions videoOptions;
 
 private:
   ConfigTokenType ReadConfigLine(FILE *file, char *buf);

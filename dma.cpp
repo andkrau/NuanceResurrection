@@ -1541,7 +1541,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
 
   if(wordsize == 2)
   {
-    if(!bRead)
+    /*if(!bRead)
     {
       if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv.mainChannelUpperLimit) ||
          (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),2) <= nuonEnv.mainChannelUpperLimit))
@@ -1553,7 +1553,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       {
         nuonEnv.bOverlayBufferModified = true;
       }
-    }
+    }*/
 
     const uint32* const pSrc32 = ((uint32*)pSrc) + srcOffset;
     uint32* const pDest32 = ((uint32*)pDest) + destOffset;
@@ -1619,7 +1619,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
   }
   else
   {
-    if(!bRead)
+    /*if(!bRead)
     {
       if((GetPixBaseAddr(sdramBase,destOffset,1) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,1) <= nuonEnv.mainChannelUpperLimit) ||
          (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),1) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,(destOffset+((xsize - 1)*ylen)+xlen),1) <= nuonEnv.mainChannelUpperLimit))
@@ -1631,7 +1631,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       {
         nuonEnv.bOverlayBufferModified = true;
       }
-    }
+    }*/
 
     const uint16* const pSrc16 = ((uint16*)pSrc) + srcOffset;
     uint16* const pDest16 = ((uint16*)pDest) + destOffset;

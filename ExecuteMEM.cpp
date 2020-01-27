@@ -1105,8 +1105,7 @@ void Execute_LoadPixelLinear(MPE &mpe, const InstructionCacheEntry &entry, const
 
 void Execute_LoadPixelBilinearUV(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width,*entry.pUvctl); //!! overwritten?!
-  pixwidth = pixel_type_width[(*entry.pUvctl >> 20) & 0x0FUL];
+  const int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width,*entry.pUvctl);
   uint32 address;
   CalculateBilinearAddress(mpe,&address,*entry.pUvctl,entry.pIndexRegs[REG_U],entry.pIndexRegs[REG_V]);
   if(pixwidth >= 0)
@@ -1128,8 +1127,7 @@ void Execute_LoadPixelBilinearUV(MPE &mpe, const InstructionCacheEntry &entry, c
 
 void Execute_LoadPixelBilinearXY(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width,*entry.pXyctl); //!! overwritten?!
-  pixwidth = pixel_type_width[(*entry.pXyctl >> 20) & 0x0FUL];
+  const int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width,*entry.pXyctl);
   uint32 address;
   CalculateBilinearAddress(mpe,&address,*entry.pXyctl,entry.pIndexRegs[REG_X],entry.pIndexRegs[REG_Y]);
   if(pixwidth >= 0)

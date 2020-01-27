@@ -18,17 +18,18 @@
 #include "NuanceRes.h"
 #include "joystick.h"
 #include "video.h"
-#include "PerformanceTimer.h"
 
 NuonEnvironment nuonEnv;
 CriticalSection *csVideoDisplay = NULL;
 CriticalSection *csDebugDisplay = NULL;
 char **pArgs = 0;
-GLWindow *display;
+GLWindow display;
+
 extern ControllerData *controller;
 extern uint32 *mainChannelBuffer;
 extern uint32 *overlayChannelBuffer;
 extern char *dvdBase;
+
 bool bQuit = false;
 bool bRun = false;
 
@@ -517,15 +518,13 @@ BOOL CALLBACK SplashScreenDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM 
 bool OnDisplayPaint(WPARAM wparam, LPARAM lparam)
 {
   if(bRun)
-  {
-    nuonEnv.bMainBufferModified = true;
-    nuonEnv.bOverlayBufferModified = true;
-    RenderVideo(display->clientWidth,display->clientHeight);
-  }
+    RenderVideo(display.clientWidth,display.clientHeight);
   else
   {
     glClear(GL_COLOR_BUFFER_BIT);
+    glFlush();
   }
+
   return true;
 }
 
@@ -728,8 +727,8 @@ inline void ProcessCycleBasedEvents(void)
   //nuonEnv.videoDisplayCycleCount--;
   //if(nuonEnv.videoDisplayCycleCount == 0 && nuonEnv.bUseCycleBasedTiming)
   //{
- //   InvalidateRect(display->hWnd,NULL,FALSE);
- //   //UpdateWindow(display->hWnd);
+ //   InvalidateRect(display.hWnd,NULL,FALSE);
+ //   //UpdateWindow(display.hWnd);
  //   nuonEnv.videoDisplayCycleCount = nuonEnv.cyclesPerVideoDisplay;
  // }
 }
@@ -758,15 +757,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   nuonEnv.Init();
 
-  display = new GLWindow();
-  display->title = displayWindowTitle;
-  display->resizeHandler = OnDisplayResize;
-  display->keyDownHandler = OnDisplayKeyDown;
-  display->keyUpHandler = OnDisplayKeyUp;
-  display->paintHandler = OnDisplayPaint;
+  display.title = displayWindowTitle;
+  display.resizeHandler = OnDisplayResize;
+  display.keyDownHandler = OnDisplayKeyDown;
+  display.keyUpHandler = OnDisplayKeyUp;
+  display.paintHandler = OnDisplayPaint;
 
-  display->Create();
-  while (!display->bVisible) {}
+  display.Create();
+  while (!display.bVisible) {}
 
   const GLenum err = glewInit();
   if(err != GLEW_OK)
@@ -816,7 +814,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   SendMessage(hDlg,WM_SETICON,ICON_SMALL,LPARAM(iconApp));
   SendMessage(hStatusDlg,WM_SETICON,ICON_SMALL,LPARAM(iconApp));
-  SendMessage(display->hWnd,WM_SETICON,ICON_SMALL,LPARAM(iconApp));
+  SendMessage(display.hWnd,WM_SETICON,ICON_SMALL,LPARAM(iconApp));
 
   UpdateControlPanelDisplay();
 
@@ -831,38 +829,33 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     while(PeekMessage(&msg,hStatusDlg,0,0,PM_REMOVE))
       IsDialogMessage(hStatusDlg,&msg);
 
-    display->MessagePump();
+    display.MessagePump();
 
-    StartPerformanceTimer();
-    while(bRun)
+    while(bRun && !nuonEnv.trigger_render_video)
     {
-      int nCycles = 5000;
-      while(nCycles--)
-      {
-        nuonEnv.mpe[3].ExecuteSingleCycle();
-        nuonEnv.mpe[2].ExecuteSingleCycle();
-        nuonEnv.mpe[1].ExecuteSingleCycle();
-        nuonEnv.mpe[0].ExecuteSingleCycle();
-        if(nuonEnv.pendingCommRequests)
-          DoCommBusController();
-        //nuonEnv.videoDisplayCycleCount += nuonEnv.mpe[3]->cycleCounter;
-        //ProcessCycleBasedEvents();
-      }
-      StopPerformanceTimer();
-      const double overallMs = GetTimeDeltaMs();
-      if (overallMs > 8.)
-        break;
+      nuonEnv.mpe[3].ExecuteSingleCycle();
+      nuonEnv.mpe[2].ExecuteSingleCycle();
+      nuonEnv.mpe[1].ExecuteSingleCycle();
+      nuonEnv.mpe[0].ExecuteSingleCycle();
+      if(nuonEnv.pendingCommRequests)
+        DoCommBusController();
+
+      //nuonEnv.videoDisplayCycleCount += nuonEnv.mpe[3].cycleCounter;
+      //ProcessCycleBasedEvents();
 
       //if(nuonEnv.videoDisplayCycleCount >= (54000000/60))
       //{
+
       //  IncrementVideoFieldCounter(); //!! for now all done in timer.cpp, also would need to do nuonEnv.TriggerVideoInterrupt(); here then??
       //  nuonEnv.videoDisplayCycleCount -= (54000000/60);
+      //  nuonEnv.videoDisplayCycleCount = 0;
       //}
     }
+
     if(nuonEnv.trigger_render_video) // set by the ~60Hz timer.cpp routine
     {
-      InvalidateRect(display->hWnd, NULL, FALSE);
-      //UpdateWindow(display->hWnd);
+      InvalidateRect(display.hWnd, NULL, FALSE);
+      //UpdateWindow(display.hWnd);
       nuonEnv.trigger_render_video = false;
     }
   }
@@ -879,9 +872,7 @@ CLEANUP AND APPLICATION SHUTDOWN CODE
   FreeTextureMemory(mainChannelBuffer,false);
   FreeTextureMemory(overlayChannelBuffer,true);
 
-  display->Close();
-
-  delete display;
+  display.Close();
 
   return 0;
 }
