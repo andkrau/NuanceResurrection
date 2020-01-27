@@ -40,19 +40,19 @@ extern NuonEnvironment nuonEnv;
 
 inline void SaturateColorComponents(uint32 &Y, uint32 &Cr, uint32 &Cb, const bool bChnorm)
 {
-  static uint32 YLookup[] = {0x00UL,0xFFUL,0x00UL,0x00UL};
+  uint32 YLookup[] = {0x00UL,0xFFUL,0x00UL,0x00UL};
 
-  YLookup[0] = (Y >> (13 - 7)) & 0xFFUL;
-  Y = YLookup[Y >> 14];
+  YLookup[0] = (Y >> (16 + 13 - 7)) & 0xFFUL;
+  Y = YLookup[Y >> (16 + 14)];
 
-  switch(Cr >> 14)
+  switch(Cr >> (16+14))
   {
     case 0:
       //If chnorm bit is set, clamp to 0x7F
-      if(bChnorm && (Cr > 0x1FFF))
+      if(bChnorm && ((Cr>>16) > 0x1FFFu))
         Cr = 0x7F;
       else
-        Cr = (Cr >> (13 - 7)) & 0xFFUL;
+        Cr = (Cr >> (16 + 13 - 7)) & 0xFFUL;
       break;
     case 1:
       //clamp to 0x7F or 0xFF
@@ -64,26 +64,26 @@ inline void SaturateColorComponents(uint32 &Y, uint32 &Cr, uint32 &Cb, const boo
       break;
     case 3:
       //Clamp to 0x80 or 0x00
-      if(bChnorm && (Cr < 0xE000))
+      if(bChnorm && ((Cr>>16) < 0xE000u))
         Cr = 0x80;
       else
       {
         if(bChnorm)
-          Cr = (Cr >> (13 - 7)) & 0xFFUL;
+          Cr = (Cr >> (16 + 13 - 7)) & 0xFFUL;
         else
           Cr = 0x00;
       }
       break;
   }
 
-  switch(Cb >> 14)
+  switch(Cb >> (16+14))
   {
     case 0:
       //If chnorm bit is set, clamp to 0x7F
-      if(bChnorm && (Cb > 0x1FFF))
+      if(bChnorm && ((Cb>>16) > 0x1FFFu))
         Cb = 0x7F;
       else
-        Cb = (Cb >> (13 - 7)) & 0xFFUL;
+        Cb = (Cb >> (16 + 13 - 7)) & 0xFFUL;
       break;
     case 1:
       //clamp to 0x7F or 0xFF
@@ -95,12 +95,12 @@ inline void SaturateColorComponents(uint32 &Y, uint32 &Cr, uint32 &Cb, const boo
       break;
     case 3:
       //Clamp to 0x80 or 0x00
-      if(bChnorm && (Cb < 0xE000))
+      if(bChnorm && ((Cb>>16) < 0xE000u))
         Cb = 0x80;
       else
       {
         if(bChnorm)
-          Cb = (Cb >> (13 - 7)) & 0xFFUL;
+          Cb = (Cb >> (16 + 13 - 7)) & 0xFFUL;
         else
           Cb = 0x00;
       }
@@ -515,7 +515,7 @@ void Execute_LoadVectorControlRegisterAbsolute(MPE &mpe, const InstructionCacheE
 void LoadPixelAbsolute(void)
 {
   const uint32 control = bilinearAddressInfo.control;
-  void* const memPtr = bilinearAddressInfo.pPixelData;
+  const void* const memPtr = bilinearAddressInfo.pPixelData;
   uint32* const regs = bilinearAddressInfo.pRegs;
   const uint32 pixType = BilinearInfo_XYType(control);
   const bool bChnorm = BilinearInfo_XYChnorm(control);
@@ -674,7 +674,7 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const InstructionCacheEntry &entry, con
 void LoadPixelZAbsolute(void)
 {
   const uint32 control = bilinearAddressInfo.control;
-  void* const memPtr = bilinearAddressInfo.pPixelData;
+  const void* const memPtr = bilinearAddressInfo.pPixelData;
   uint32* const regs = bilinearAddressInfo.pRegs;
   const uint32 pixType = BilinearInfo_XYType(control);
   const bool bChnorm = BilinearInfo_XYChnorm(control);
@@ -730,7 +730,6 @@ void LoadPixelZAbsolute(void)
       //32 bit
       uint32 pixelData32 = *((uint32 *)memPtr);
       SwapScalarBytes(&pixelData32);
-
       regs[0] = (pixelData32 >> 2) & (0xFFUL << 22);
       regs[1] = (pixelData32 << 6) & (0xFFUL << 22);
       regs[2] = (pixelData32 << 14) & (0xFFUL << 22);
@@ -760,6 +759,7 @@ void LoadPixelZAbsolute(void)
         regs[1] = (regs[1] - 0x20000000UL) & 0xFFC00000UL;
         regs[2] = (regs[2] - 0x20000000UL) & 0xFFC00000UL;
       }
+
       return;
     }
   }
@@ -1299,10 +1299,9 @@ void StorePixelAbsolute(void)
     case 0x5:
     {
       //16 bit
-      uint32 y32  = regs[0] >> 16;
-      uint32 cr32 = regs[1] >> 16;
-      uint32 cb32 = regs[2] >> 16;
-
+      uint32 y32  = regs[0];
+      uint32 cr32 = regs[1];
+      uint32 cb32 = regs[2];
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
       uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
@@ -1317,15 +1316,13 @@ void StorePixelAbsolute(void)
     case 0x6:
     {
       //32 bit
-      uint32 pixelData32 = *((uint32 *)memPtr);
-      SwapScalarBytes(&pixelData32);
-
-      uint32 y32  = regs[0] >> 16;
-      uint32 cr32 = regs[1] >> 16;
-      uint32 cb32 = regs[2] >> 16;
-
+      uint32 y32  = regs[0];
+      uint32 cr32 = regs[1];
+      uint32 cb32 = regs[2];
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
+      uint32 pixelData32 = *((uint32*)memPtr);
+      SwapScalarBytes(&pixelData32);
       pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (pixelData32 & 0xFF);
       SwapScalarBytes(&pixelData32);
       *((uint32 *)memPtr) = pixelData32;
@@ -1369,10 +1366,9 @@ void Execute_StorePixelAbsolute(MPE &mpe, const InstructionCacheEntry &entry, co
     case 0x5:
     {
       //16 bit
-      uint32 y32  = entry.pScalarRegs[src  ] >> 16;
-      uint32 cr32 = entry.pScalarRegs[src+1] >> 16;
-      uint32 cb32 = entry.pScalarRegs[src+2] >> 16;
-
+      uint32 y32  = entry.pScalarRegs[src  ];
+      uint32 cr32 = entry.pScalarRegs[src+1];
+      uint32 cb32 = entry.pScalarRegs[src+2];
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
       uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
@@ -1387,16 +1383,13 @@ void Execute_StorePixelAbsolute(MPE &mpe, const InstructionCacheEntry &entry, co
     case 0x6:
     {
       //32 bit
-
-      uint32 pixelData32 = *((uint32 *)memPtr);
-      SwapScalarBytes(&pixelData32);
-
-      uint32 y32  = entry.pScalarRegs[src  ] >> 16;
-      uint32 cr32 = entry.pScalarRegs[src+1] >> 16;
-      uint32 cb32 = entry.pScalarRegs[src+2] >> 16;
-
+      uint32 y32  = entry.pScalarRegs[src  ];
+      uint32 cr32 = entry.pScalarRegs[src+1];
+      uint32 cb32 = entry.pScalarRegs[src+2];
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
+      uint32 pixelData32 = *((uint32*)memPtr);
+      SwapScalarBytes(&pixelData32);
       pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (pixelData32 & 0xFF);
       SwapScalarBytes(&pixelData32);
       *((uint32 *)memPtr) = pixelData32;
@@ -1425,10 +1418,9 @@ void StorePixelZAbsolute(void)
     case 0x2:
     {
       //16 bit
-      uint32 y32  = regs[0] >> 16;
-      uint32 cr32 = regs[1] >> 16;
-      uint32 cb32 = regs[2] >> 16;
-
+      uint32 y32  = regs[0];
+      uint32 cr32 = regs[1];
+      uint32 cb32 = regs[2];
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
       uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
@@ -1439,14 +1431,14 @@ void StorePixelZAbsolute(void)
     case 0x5:
     {
       //16 bit
-      uint32 y32  = regs[0] >> 16;
-      uint32 cr32 = regs[1] >> 16;
-      uint32 cb32 = regs[2] >> 16;
-      uint16 z16  = regs[3] >> 16;
+      uint32 y32  = regs[0];
+      uint32 cr32 = regs[1];
+      uint32 cb32 = regs[2];
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
       uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
       SwapWordBytes(&pixelData16);
+      uint16 z16 = regs[3] >> 16;
       SwapWordBytes(&z16);
       *((uint16 *)memPtr) = pixelData16;
       *((uint16 *)memPtr + 1) = z16;
@@ -1458,13 +1450,9 @@ void StorePixelZAbsolute(void)
     case 0x4:
     {
       //32 bit
-      //uint32 pixelData32 = *((uint32 *)memPtr);
-      //SwapScalarBytes(&pixelData32);
-
-      uint32 y32  = regs[0] >> 16;
-      uint32 cr32 = regs[1] >> 16;
-      uint32 cb32 = regs[2] >> 16;
-
+      uint32 y32  = regs[0];
+      uint32 cr32 = regs[1];
+      uint32 cb32 = regs[2];
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
       uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (regs[3] >> 24);
@@ -1475,14 +1463,10 @@ void StorePixelZAbsolute(void)
     case 0x6:
     {
       //32+32Z
-      //uint32 pixelData32 = *((uint32 *)memPtr);
-      //SwapScalarBytes(&pixelData32);
-
-      uint32 y32  = regs[0] >> 16;
-      uint32 cr32 = regs[1] >> 16;
-      uint32 cb32 = regs[2] >> 16;
+      uint32 y32  = regs[0];
+      uint32 cr32 = regs[1];
+      uint32 cb32 = regs[2];
       //uint32 z32 = entry.pScalarRegs[src+3];
-
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
       uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8);
@@ -1533,9 +1517,9 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const InstructionCacheEntry &entry, c
     case 0x2:
     {
       //16 bit
-      uint32 y32  = entry.pScalarRegs[src  ] >> 16;
-      uint32 cr32 = entry.pScalarRegs[src+1] >> 16;
-      uint32 cb32 = entry.pScalarRegs[src+2] >> 16;
+      uint32 y32  = entry.pScalarRegs[src  ];
+      uint32 cr32 = entry.pScalarRegs[src+1];
+      uint32 cb32 = entry.pScalarRegs[src+2];
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
       uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
@@ -1546,14 +1530,14 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const InstructionCacheEntry &entry, c
     case 0x5:
     {
       //16 bit
-      uint32 y32  = entry.pScalarRegs[src  ] >> 16;
-      uint32 cr32 = entry.pScalarRegs[src+1] >> 16;
-      uint32 cb32 = entry.pScalarRegs[src+2] >> 16;
-      uint16 z16  = entry.pScalarRegs[src+3] >> 16;
+      uint32 y32  = entry.pScalarRegs[src  ];
+      uint32 cr32 = entry.pScalarRegs[src+1];
+      uint32 cb32 = entry.pScalarRegs[src+2];
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
       uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
       SwapWordBytes(&pixelData16);
+      uint16 z16 = entry.pScalarRegs[src+3] >> 16;
       SwapWordBytes(&z16);
       *((uint16 *)memPtr) = pixelData16;
       *((uint16 *)memPtr + 1) = z16;
@@ -1565,13 +1549,9 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const InstructionCacheEntry &entry, c
     case 0x4:
     {
       //32 bit
-      //uint32 pixelData32 = *((uint32 *)memPtr);
-      //SwapScalarBytes(&pixelData32);
-
-      uint32 y32  = entry.pScalarRegs[src  ] >> 16;
-      uint32 cr32 = entry.pScalarRegs[src+1] >> 16;
-      uint32 cb32 = entry.pScalarRegs[src+2] >> 16;
-
+      uint32 y32  = entry.pScalarRegs[src  ];
+      uint32 cr32 = entry.pScalarRegs[src+1];
+      uint32 cb32 = entry.pScalarRegs[src+2];
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
       uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (entry.pScalarRegs[src+3] >> 24);
@@ -1582,14 +1562,10 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const InstructionCacheEntry &entry, c
     case 0x6:
     {
       //32+32Z
-      //uint32 pixelData32 = *((uint32 *)memPtr);
-      //SwapScalarBytes(&pixelData32);
-
-      uint32 y32  = entry.pScalarRegs[src  ] >> 16;
-      uint32 cr32 = entry.pScalarRegs[src+1] >> 16;
-      uint32 cb32 = entry.pScalarRegs[src+2] >> 16;
+      uint32 y32  = entry.pScalarRegs[src  ];
+      uint32 cr32 = entry.pScalarRegs[src+1];
+      uint32 cb32 = entry.pScalarRegs[src+2];
       //uint32 z32 = entry.pScalarRegs[src+3];
-
       SaturateColorComponents(y32, cr32, cb32, bChnorm);
 
       uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8);
