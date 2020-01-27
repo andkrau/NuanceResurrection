@@ -2,13 +2,13 @@
 #include <assert.h>
 #include <time.h>
 #include <windows.h>
-#include <timeapi.h>
+#include <mmsystem.h>
 #include "byteswap.h"
 #include "NuonEnvironment.h"
 #include "timer.h"
 #include "mpe.h"
 
-//#define USE_QUEUE_TIMERS //!! test which variant is better in practice
+#define USE_QUEUE_TIMERS // re-test which variant is better in practice, this is at least the newer/recommended way it seems
 
 extern NuonEnvironment nuonEnv;
 
