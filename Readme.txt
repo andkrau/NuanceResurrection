@@ -1,11 +1,13 @@
 Nuance 0.5.0
 Copyright 2002 - 2007 Mike Perry
+Continued with the released source by Carsten Wächter in 2020
 NUON is a trademark of Genesis Microchip, Inc.
 
 License Agreement
 =================
-The latest official distribution of Nuance may always be obtained from 
-the nuon-emu.com FTP site.  The emulator may not be redistributed for profit
+The latest official distribution of Nuance was always to be obtained from 
+the nuon-emu.com FTP site.  Nowadays it's on https://sourceforge.net/projects/nuance-nuon-emulator/
+The emulator may not be redistributed for profit
 by itself or as part of any other package.   Redistribution of the official
 distribution package is allowed via HTTP or FTP under the restriction that the
 official distribution package is not modified in any way.  In particular, no
@@ -14,7 +16,6 @@ distribution package under any circumstances.
 
 Disclaimer
 ==========
-
 This emulator was developed in a clean room setting, using only the Nuon SDK
 architecture documentation, the llama assembler, vmdisasm disassembler, and
 lots of hand crafted automation tools to help generate assembly files and
@@ -24,21 +25,16 @@ you lose unsaved data while playing with it, don't say that I didn't warn you.
 
 Requirements
 ============
-This emulator requires Pentium Pro instruction support, at least 128 Megabytes 
-of RAM, and an OpenGL 1.2 implementation supporting the ARB_imaging subset or
-an OpenGl 1.5 implementation with support for GLSL.  Hardware OpenGL acceleration
-is recommended due to the use screen stretching and multitexturing, but a software
-implementation of OpenGL is sufficient.
+This emulator requires SSE2 instruction support, at least 128 Megabytes 
+of RAM, and an OpenGL 1.5 implementation with support for GLSL.
 
-The emulator is completely and utterly CPU bound.  An Athlon XP2600+ is
-recommended as a bare minimum.  Even with a 2.0 ghz processor, frame rates 
-in the commercial games will count in the low single digits... in binary.  Machines 
+The emulator is completely and utterly CPU bound.  Machines 
 that do not meet the minimum requirements may even suffer reduced performance when 
 running the less demanding SDK demos.
 
 Installation
 ============
-Extract the distribution files into a new directory, cick on Nuance.exe and you're
+Extract the distribution files into a new directory, click on Nuance.exe and you're
 good to go.  The bios.cof, minibios.cof and minibiosX.cof files contain Aries assembly
 implementations of some BIOS routines and a complete miniBIOS.  These files must be
 kept in the same directory as the main executable.  Nuance also makes use of the
@@ -126,7 +122,6 @@ emulation and then click the close button of the Control Panel window.
 
 Loading commercial games
 ========================
-
 I know that many users are only going to care about playing the games.  This
 set of steps should serve as a foolproof method for successfully runnning a 
 commercial game.  Then again, I'm sure theres a fool waiting to prove me wrong.
@@ -382,7 +377,8 @@ Fix wrong DMAs in Ballistic and Merlin Racing
 (Mostly) fix distorted sound
 Optimizations
 Always enable Pixel Shaders and fully support mode 2
-Remove fields per second setting in cfg
+Remove fields per second and always update video setting in cfg
+Support Nuons VSyncing if machine is emulating 'too fast'
 
 5/30/2007, version 0.5.0:
   Fixed tons of compiler bugs.  Fixed TimeToSleep routine, allowing Snake to work again.  
