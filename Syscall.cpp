@@ -45,8 +45,8 @@ void Syscall_WaitForInterruptCommon(const uint32 mpeIndex, const uint32 interrup
 void Syscall_WaitForCommPacket(MPE &mpe)
 {
   const uint32 mpeIndex = mpe.mpeIndex;
-  uint32 queue_head;
-  uint32 queue_tail;
+  //uint32 queue_head;
+  //uint32 queue_tail;
   uint32 *memPtr;
   if(media_mpe_allocated && (mpeIndex == media_mpe))
   {

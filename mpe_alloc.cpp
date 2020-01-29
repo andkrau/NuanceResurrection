@@ -305,9 +305,6 @@ void MPEReadRegister(MPE &mpe)
   const uint32 which = mpe.regs[0];
   const uint32 mpeaddr = mpe.regs[1];
 
-  InstructionCacheEntry entry;
-  entry.pRegs = mpe.reg_union;
-
   if((which < 4) && (mpeaddr >= MPE_CTRL_BASE) && (mpeaddr < MPE1_ADDR_BASE))
   {
     //Make sure that the temporary scalar and index registers are in sync
@@ -317,9 +314,12 @@ void MPEReadRegister(MPE &mpe)
     //on the target processor (this will always be the case when a single
     //thread handles emulation of all four processors)
 
+    InstructionCacheEntry entry;
+    entry.pRegs = mpe.reg_union;
+
     nuonEnv.mpe[which].SaveRegisters();
 
-    mpe.regs[0] = nuonEnv.mpe[which].ReadControlRegister(mpeaddr - MPE_CTRL_BASE, &entry);
+    mpe.regs[0] = nuonEnv.mpe[which].ReadControlRegister(mpeaddr - MPE_CTRL_BASE, entry);
   }
 }
 

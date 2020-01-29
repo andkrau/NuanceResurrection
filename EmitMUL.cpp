@@ -1227,7 +1227,7 @@ void Emit_MUL_SVRuShiftImmediate(EmitterVariables *vars, Nuance &nuance)
 
   int32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
 
- //scalar = (int32)(entry.pIndexRegs[2] >> (2 + BilinearInfo_XYMipmap(*entry.pUvctl))) & 0x3FFFUL;
+ //scalar = (int32)(entry.pIndexRegs[REG_U] >> (2 + BilinearInfo_XYMipmap(*entry.pUvctl))) & 0x3FFFUL;
 
   //ebp = ((int32)ru) >> (2 + ((uvctl >> 24) & 0x07UL)) & 0x3FFFUL)
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebp, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruDisp);
@@ -1687,7 +1687,7 @@ void Emit_MUL_PRuShiftImmediate(EmitterVariables *vars, Nuance &nuance)
 
   int32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
 
- //scalar = (int32)(entry.pIndexRegs[2] >> (2 + BilinearInfo_XYMipmap(*entry.pUvctl))) & 0x3FFFUL;
+ //scalar = (int32)(entry.pIndexRegs[REG_U] >> (2 + BilinearInfo_XYMipmap(*entry.pUvctl))) & 0x3FFFUL;
 
   //ebp = ((int32)ru >> (2 + ((uvctl >> 24) & 0x07UL))) & 0x3FFFUL
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebp, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruDisp);

@@ -626,7 +626,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
     {
       if(bRead)
       {
-        directValue = nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].ReadControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,&mpe.ICacheEntry_SaveFlags);
+        directValue = nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].ReadControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.ICacheEntry_SaveFlags);
         SwapScalarBytes(&directValue);
 
         if(bRemote)
@@ -661,7 +661,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         {
           if((intaddr & 0xF0700000) == MPE_CTRL_BASE)
           {
-            directValue = nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,&mpe.ICacheEntry_SaveFlags);
+            directValue = nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.ICacheEntry_SaveFlags);
           }
           else
           {
@@ -676,7 +676,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         {          
           if((intaddr & MPE_CTRL_BASE) == MPE_CTRL_BASE)
           {
-            directValue = mpe.ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,&mpe.ICacheEntry_SaveFlags);
+            directValue = mpe.ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.ICacheEntry_SaveFlags);
           }
           else
           {
@@ -819,14 +819,12 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         //to flush the cache on data writes.
 
         /*
-
         Critical TO DO: Many games such as T3K switch between overlays on a very frequent basis because they cannot fit all of the needed
         code into a single overlay.  For example, T3K switches overlays several times per frame with each overlay rendering a different
         set of playfield objects.  Not only does this cause an unyielding barage of requests to invalidate the interpreter cache and
         native code cache but it also means that the native code cache will fill up with multiple copies of overlay code that is compiled
         and then forgotten when an invalidation occurs.  This causes additional code cache flushes.  In T3K, the code cache is being
         flushed almost non-stop.  This is a serious, serious bottleneck. T3K flushes the cache at an unnerving pace.
-
         */
 
         //LARGE_INTEGER timeStart, timeEnd, timeFreq, timeOverhead;

@@ -427,7 +427,7 @@ void Execute_PushScalarRzi2(MPE &mpe, const InstructionCacheEntry &entry, const 
 
 void Execute_LoadScalarControlRegisterAbsolute(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.regs[nuance.fields[FIELD_MEM_TO]] = mpe.ReadControlRegister(nuance.fields[FIELD_MEM_FROM] - MPE_CTRL_BASE, &entry);
+  mpe.regs[nuance.fields[FIELD_MEM_TO]] = mpe.ReadControlRegister(nuance.fields[FIELD_MEM_FROM] - MPE_CTRL_BASE, entry);
 }
 
 void Execute_LoadByteAbsolute(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
@@ -478,7 +478,7 @@ void Execute_LoadScalarLinear(MPE &mpe, const InstructionCacheEntry &entry, cons
   }
   else
   {
-    mpe.regs[dest] = mpe.ReadControlRegister(address - MPE_CTRL_BASE, &entry);
+    mpe.regs[dest] = mpe.ReadControlRegister(address - MPE_CTRL_BASE, entry);
   }
 }
 
@@ -501,10 +501,10 @@ void Execute_LoadVectorControlRegisterAbsolute(MPE &mpe, const InstructionCacheE
   const uint32 dest = nuance.fields[FIELD_MEM_TO];
   const uint32 address = nuance.fields[FIELD_MEM_FROM];
 
-  mpe.regs[dest    ] = mpe.ReadControlRegister(address      - MPE_CTRL_BASE, &entry);
-  mpe.regs[dest + 1] = mpe.ReadControlRegister(address + 4  - MPE_CTRL_BASE, &entry);
-  mpe.regs[dest + 2] = mpe.ReadControlRegister(address + 8  - MPE_CTRL_BASE, &entry);
-  mpe.regs[dest + 3] = mpe.ReadControlRegister(address + 12 - MPE_CTRL_BASE, &entry);
+  mpe.regs[dest    ] = mpe.ReadControlRegister(address      - MPE_CTRL_BASE, entry);
+  mpe.regs[dest + 1] = mpe.ReadControlRegister(address + 4  - MPE_CTRL_BASE, entry);
+  mpe.regs[dest + 2] = mpe.ReadControlRegister(address + 8  - MPE_CTRL_BASE, entry);
+  mpe.regs[dest + 3] = mpe.ReadControlRegister(address + 12 - MPE_CTRL_BASE, entry);
 }
 
 void LoadPixelAbsolute(void)
@@ -1053,10 +1053,10 @@ void Execute_LoadVectorLinear(MPE &mpe, const InstructionCacheEntry &entry, cons
   }
   else
   {
-    destPtr[0] = mpe.ReadControlRegister(address      - MPE_CTRL_BASE, &entry);
-    destPtr[1] = mpe.ReadControlRegister(address + 4  - MPE_CTRL_BASE, &entry);
-    destPtr[2] = mpe.ReadControlRegister(address + 8  - MPE_CTRL_BASE, &entry);
-    destPtr[3] = mpe.ReadControlRegister(address + 12 - MPE_CTRL_BASE, &entry);
+    destPtr[0] = mpe.ReadControlRegister(address      - MPE_CTRL_BASE, entry);
+    destPtr[1] = mpe.ReadControlRegister(address + 4  - MPE_CTRL_BASE, entry);
+    destPtr[2] = mpe.ReadControlRegister(address + 8  - MPE_CTRL_BASE, entry);
+    destPtr[3] = mpe.ReadControlRegister(address + 12 - MPE_CTRL_BASE, entry);
   }
 }
 
