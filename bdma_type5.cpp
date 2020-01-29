@@ -1,4 +1,5 @@
 #include "basetypes.h"
+#include <assert.h>
 #include "byteswap.h"
 #include "dma.h"
 #include "NuonEnvironment.h"
@@ -62,6 +63,7 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
   if(bRemote)
   {
     //internal address is system address (but still in MPE memory)
+    assert(((mpeBase >> 23) & 0x1FUL) < 4);
     intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
   }
   else
@@ -71,6 +73,7 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
   }
 
   //base address is always a system address (absolute)
+  assert(((sdramBase >> 23) & 0x1FUL) < 4);
   void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
   //const uint32 srcOffset = 0;
@@ -287,6 +290,7 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
   if(bRemote)
   {
     //internal address is system address (but still in MPE memory)
+    assert(((mpeBase >> 23) & 0x1FUL) < 4);
     intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
   }
   else
@@ -296,7 +300,7 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
   }
 
   //base address is always a system address (absolute)
-
+  assert(((sdramBase >> 23) & 0x1FUL) < 4);
   void * const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
   const void* const pSrc = (void *)baseMemory;
