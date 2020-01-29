@@ -126,16 +126,7 @@ public:
   uint32 packetInfo;
   uint32 pcexec;
   uint32 frequencyCount;
-  uint32 *pScalarRegs;
-  uint32 *pIndexRegs;
-  uint32 *pCounterRegs;
-  uint32 *pRzRegs;
-  uint32 *pAcshift;
-  uint32 *pSvshift;
-  uint32 *pXyctl;
-  uint32 *pUvctl;
-  uint32 *pXyrange;
-  uint32 *pUvrange;
+  uint32 *pRegs;
   uint32 pcroute;
   uint32 pcfetchnext;
   uint32 ecuConditionCode;

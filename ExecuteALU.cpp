@@ -6,7 +6,7 @@
 void Execute_ABS(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.cc &= ~(CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_ZERO | CC_ALU_CARRY);
-  const int32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const int32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   if(src1 < 0)
   {  
     mpe.cc |= CC_ALU_CARRY;
@@ -34,7 +34,7 @@ void Execute_BITSScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuan
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE);
   const uint32 result = nuance.fields[FIELD_ALU_SRC1] & 
-    (entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]] >> (entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] & 0x1F));
+    (entry.pRegs[nuance.fields[FIELD_ALU_DEST]] >> (entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] & 0x1F));
   
   mpe.regs[nuance.fields[FIELD_ALU_DEST]] = result;
   
@@ -54,7 +54,7 @@ void Execute_BITSImmediate(MPE &mpe, const InstructionCacheEntry &entry, const N
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE);
   const uint32 result = nuance.fields[FIELD_ALU_SRC1] & 
-    (entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]] >> nuance.fields[FIELD_ALU_SRC2]);
+    (entry.pRegs[nuance.fields[FIELD_ALU_DEST]] >> nuance.fields[FIELD_ALU_SRC2]);
   
   mpe.regs[nuance.fields[FIELD_ALU_DEST]] = result;
   
@@ -73,7 +73,7 @@ void Execute_BITSImmediate(MPE &mpe, const InstructionCacheEntry &entry, const N
 void Execute_BTST(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
-  if(!(nuance.fields[FIELD_ALU_SRC1] & entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]]))
+  if(!(nuance.fields[FIELD_ALU_SRC1] & entry.pRegs[nuance.fields[FIELD_ALU_SRC2]]))
   {
     mpe.cc |= CC_ALU_ZERO;
   }
@@ -81,8 +81,8 @@ void Execute_BTST(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nu
 
 void Execute_BUTT(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
   const uint32 dest = nuance.fields[FIELD_ALU_DEST];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
@@ -119,7 +119,7 @@ void Execute_COPY(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nu
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
   mpe.regs[nuance.fields[FIELD_ALU_DEST]] = src;
 
   if(!src)
@@ -183,7 +183,7 @@ void Execute_MSB(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nua
 void Execute_SAT(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   int32 mask = (0x01UL << nuance.fields[FIELD_ALU_SRC2]) - 1;
-  const int32 n = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const int32 n = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint32 dest = nuance.fields[FIELD_ALU_DEST];
 
   //initial mask is largest negative number using 'bits' bits, minus one to get
@@ -227,8 +227,8 @@ void Execute_SAT(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nua
 
 void Execute_AS(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-        uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] & 0x3FUL;
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+        uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]] & 0x3FUL;
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_OVERFLOW | CC_ALU_NEGATIVE | CC_ALU_CARRY);
 
   if(src1 & 0x20)
@@ -283,7 +283,7 @@ void Execute_ASL(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nua
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_OVERFLOW | CC_ALU_NEGATIVE | CC_ALU_CARRY);
 
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
   
   // carry = bit 31 of source
   mpe.cc |= ((src2 >> 30) & CC_ALU_CARRY);
@@ -313,7 +313,7 @@ void Execute_ASL(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nua
 void Execute_ASR(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_OVERFLOW | CC_ALU_NEGATIVE | CC_ALU_CARRY);
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   const uint32 result = ((int32)src2) >> nuance.fields[FIELD_ALU_SRC1];
   // carry = bit 0 of source
@@ -335,8 +335,8 @@ void Execute_ASR(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nua
 
 void Execute_LS(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-        uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] & 0x3FUL;
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+        uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]] & 0x3FUL;
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_OVERFLOW | CC_ALU_NEGATIVE | CC_ALU_CARRY);
 
   if(src1 & 0x20)
@@ -389,7 +389,7 @@ void Execute_LS(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuan
 
 void Execute_LSR(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_OVERFLOW | CC_ALU_NEGATIVE | CC_ALU_CARRY);
   const uint32 result = src2 >> nuance.fields[FIELD_ALU_SRC1];
   mpe.regs[nuance.fields[FIELD_ALU_DEST]] = result;
@@ -410,8 +410,8 @@ void Execute_LSR(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nua
 
 void Execute_ROT(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-        uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] & 0x3FUL;
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+        uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]] & 0x3FUL;
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_OVERFLOW | CC_ALU_NEGATIVE);
 
@@ -455,7 +455,7 @@ void Execute_ROT(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nua
 
 void Execute_ROL(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_OVERFLOW | CC_ALU_NEGATIVE);
 
   const uint32 result = _lrotl(src2, nuance.fields[FIELD_ALU_SRC1]);
@@ -476,7 +476,7 @@ void Execute_ROL(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nua
 
 void Execute_ROR(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_OVERFLOW | CC_ALU_NEGATIVE);
 
   const uint32 result = _lrotr(src2, nuance.fields[FIELD_ALU_SRC1]);
@@ -502,16 +502,16 @@ void Execute_ADD_P(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &n
   const uint32 dest = nuance.fields[FIELD_ALU_DEST];
 
   mpe.regs[dest + 0] =
-    (entry.pScalarRegs[src2 + 0] & 0xFFFF0000) +
-    (entry.pScalarRegs[src1 + 0] & 0xFFFF0000);
+    (entry.pRegs[src2 + 0] & 0xFFFF0000) +
+    (entry.pRegs[src1 + 0] & 0xFFFF0000);
 
   mpe.regs[dest + 1] =
-    (entry.pScalarRegs[src2 + 1] & 0xFFFF0000) +
-    (entry.pScalarRegs[src1 + 1] & 0xFFFF0000);
+    (entry.pRegs[src2 + 1] & 0xFFFF0000) +
+    (entry.pRegs[src1 + 1] & 0xFFFF0000);
 
   mpe.regs[dest + 2] =
-    (entry.pScalarRegs[src2 + 2] & 0xFFFF0000) +
-    (entry.pScalarRegs[src1 + 2] & 0xFFFF0000);
+    (entry.pRegs[src2 + 2] & 0xFFFF0000) +
+    (entry.pRegs[src1 + 2] & 0xFFFF0000);
 }
 
 void Execute_SUB_P(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
@@ -521,16 +521,16 @@ void Execute_SUB_P(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &n
   const uint32 dest = nuance.fields[FIELD_ALU_DEST];
 
   mpe.regs[dest + 0] =
-    (entry.pScalarRegs[src2 + 0] & 0xFFFF0000) -
-    (entry.pScalarRegs[src1 + 0] & 0xFFFF0000);
+    (entry.pRegs[src2 + 0] & 0xFFFF0000) -
+    (entry.pRegs[src1 + 0] & 0xFFFF0000);
 
   mpe.regs[dest + 1] =
-    (entry.pScalarRegs[src2 + 1] & 0xFFFF0000) -
-    (entry.pScalarRegs[src1 + 1] & 0xFFFF0000);
+    (entry.pRegs[src2 + 1] & 0xFFFF0000) -
+    (entry.pRegs[src1 + 1] & 0xFFFF0000);
 
   mpe.regs[dest + 2] =
-    (entry.pScalarRegs[src2 + 2] & 0xFFFF0000) -
-    (entry.pScalarRegs[src1 + 2] & 0xFFFF0000);
+    (entry.pRegs[src2 + 2] & 0xFFFF0000) -
+    (entry.pRegs[src1 + 2] & 0xFFFF0000);
 }
 
 void Execute_ADD_SV(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
@@ -540,20 +540,20 @@ void Execute_ADD_SV(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &
   const uint32 dest = nuance.fields[FIELD_ALU_DEST];
 
   mpe.regs[dest + 0] =
-    (entry.pScalarRegs[src2 + 0] & 0xFFFF0000) +
-    (entry.pScalarRegs[src1 + 0] & 0xFFFF0000);
+    (entry.pRegs[src2 + 0] & 0xFFFF0000) +
+    (entry.pRegs[src1 + 0] & 0xFFFF0000);
 
   mpe.regs[dest + 1] =
-    (entry.pScalarRegs[src2 + 1] & 0xFFFF0000) +
-    (entry.pScalarRegs[src1 + 1] & 0xFFFF0000);
+    (entry.pRegs[src2 + 1] & 0xFFFF0000) +
+    (entry.pRegs[src1 + 1] & 0xFFFF0000);
 
   mpe.regs[dest + 2] =
-    (entry.pScalarRegs[src2 + 2] & 0xFFFF0000) +
-    (entry.pScalarRegs[src1 + 2] & 0xFFFF0000);
+    (entry.pRegs[src2 + 2] & 0xFFFF0000) +
+    (entry.pRegs[src1 + 2] & 0xFFFF0000);
 
   mpe.regs[dest + 3] =
-    (entry.pScalarRegs[src2 + 3] & 0xFFFF0000) +
-    (entry.pScalarRegs[src1 + 3] & 0xFFFF0000);
+    (entry.pRegs[src2 + 3] & 0xFFFF0000) +
+    (entry.pRegs[src1 + 3] & 0xFFFF0000);
 }
 
 void Execute_SUB_SV(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
@@ -563,26 +563,26 @@ void Execute_SUB_SV(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &
   const uint32 dest = nuance.fields[FIELD_ALU_DEST];
 
   mpe.regs[dest + 0] =
-    (entry.pScalarRegs[src2 + 0] & 0xFFFF0000) -
-    (entry.pScalarRegs[src1 + 0] & 0xFFFF0000);
+    (entry.pRegs[src2 + 0] & 0xFFFF0000) -
+    (entry.pRegs[src1 + 0] & 0xFFFF0000);
 
   mpe.regs[dest + 1] =
-    (entry.pScalarRegs[src2 + 1] & 0xFFFF0000) -
-    (entry.pScalarRegs[src1 + 1] & 0xFFFF0000);
+    (entry.pRegs[src2 + 1] & 0xFFFF0000) -
+    (entry.pRegs[src1 + 1] & 0xFFFF0000);
 
   mpe.regs[dest + 2] =
-    (entry.pScalarRegs[src2 + 2] & 0xFFFF0000) -
-    (entry.pScalarRegs[src1 + 2] & 0xFFFF0000);
+    (entry.pRegs[src2 + 2] & 0xFFFF0000) -
+    (entry.pRegs[src1 + 2] & 0xFFFF0000);
 
   mpe.regs[dest + 3] =
-    (entry.pScalarRegs[src2 + 3] & 0xFFFF0000) -
-    (entry.pScalarRegs[src1 + 3] & 0xFFFF0000);
+    (entry.pRegs[src2 + 3] & 0xFFFF0000) -
+    (entry.pRegs[src1 + 3] & 0xFFFF0000);
 }
 
 void Execute_ADDImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   const uint64 src1 = (uint64)nuance.fields[FIELD_ALU_SRC1];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -615,8 +615,8 @@ void Execute_ADDImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nu
 
 void Execute_ADDScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -649,9 +649,9 @@ void Execute_ADDScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuanc
 
 void Execute_ADDScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (((int32)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
+  const uint64 src1 = (((int32)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
     nuance.fields[FIELD_ALU_SRC2]);
-  const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src2 = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -684,8 +684,8 @@ void Execute_ADDScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry 
 
 void Execute_ADDScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
-  const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
+  const uint64 src2 = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -718,7 +718,7 @@ void Execute_ADDScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &
 void Execute_SUBImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   const uint64 src1 = (uint64)nuance.fields[FIELD_ALU_SRC1];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -750,7 +750,7 @@ void Execute_SUBImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nu
 
 void Execute_SUBImmediateReverse(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint64 src2 = (uint64)nuance.fields[FIELD_ALU_SRC2];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
@@ -783,8 +783,8 @@ void Execute_SUBImmediateReverse(MPE &mpe, const InstructionCacheEntry &entry, c
 
 void Execute_SUBScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -816,9 +816,9 @@ void Execute_SUBScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuanc
 
 void Execute_SUBScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)(((int32)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
+  const uint64 src1 = (uint64)(((int32)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
     nuance.fields[FIELD_ALU_SRC2]);
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -851,8 +851,8 @@ void Execute_SUBScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry 
 
 void Execute_SUBScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
-  const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
+  const uint64 src2 = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -885,7 +885,7 @@ void Execute_SUBScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &
 void Execute_CMPImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   const uint64 src1 = (uint64)nuance.fields[FIELD_ALU_SRC1];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -916,7 +916,7 @@ void Execute_CMPImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nu
 
 void Execute_CMPImmediateReverse(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint64 src2 = (uint64)nuance.fields[FIELD_ALU_SRC2];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
@@ -948,8 +948,8 @@ void Execute_CMPImmediateReverse(MPE &mpe, const InstructionCacheEntry &entry, c
 
 void Execute_CMPScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -980,9 +980,9 @@ void Execute_CMPScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuanc
 
 void Execute_CMPScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)(((int32)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
+  const uint64 src1 = (uint64)(((int32)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
     nuance.fields[FIELD_ALU_SRC2]);
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -1013,8 +1013,8 @@ void Execute_CMPScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry 
 
 void Execute_CMPScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
-  const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
+  const uint64 src2 = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -1047,7 +1047,7 @@ void Execute_ANDImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nu
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
   const uint32 src1 = nuance.fields[FIELD_ALU_SRC1];
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   const uint32 result = src1 & src2;
 
@@ -1066,8 +1066,8 @@ void Execute_ANDImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nu
 void Execute_ANDScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   const uint32 result = src1 & src2;
 
@@ -1088,8 +1088,8 @@ void Execute_ANDImmediateShiftScalar(MPE &mpe, const InstructionCacheEntry &entr
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
   const uint32 src1 = nuance.fields[FIELD_ALU_SRC1];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1116,9 +1116,9 @@ void Execute_ANDScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry 
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint32 src2 = nuance.fields[FIELD_ALU_SRC2];
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   dest &= (src1 >> src2);
 
@@ -1138,9 +1138,9 @@ void Execute_ANDScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint32 src2 = nuance.fields[FIELD_ALU_SRC2];
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   dest &= (src1 << src2);
 
@@ -1160,9 +1160,9 @@ void Execute_ANDScalarShiftScalar(MPE &mpe, const InstructionCacheEntry &entry, 
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1189,9 +1189,9 @@ void Execute_ANDScalarRotateScalar(MPE &mpe, const InstructionCacheEntry &entry,
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1218,7 +1218,7 @@ void Execute_FTSTImmediate(MPE &mpe, const InstructionCacheEntry &entry, const N
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
   const uint32 src1 = nuance.fields[FIELD_ALU_SRC1];
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   const uint32 result = src1 & src2;
 
@@ -1235,8 +1235,8 @@ void Execute_FTSTImmediate(MPE &mpe, const InstructionCacheEntry &entry, const N
 void Execute_FTSTScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   const uint32 result = src1 & src2;
 
@@ -1255,8 +1255,8 @@ void Execute_FTSTImmediateShiftScalar(MPE &mpe, const InstructionCacheEntry &ent
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
   const uint32 src1 = nuance.fields[FIELD_ALU_SRC1];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1281,9 +1281,9 @@ void Execute_FTSTScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint32 src2 = nuance.fields[FIELD_ALU_SRC2];
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   dest &= (src1 >> src2);
 
@@ -1301,9 +1301,9 @@ void Execute_FTSTScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry 
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint32 src2 = nuance.fields[FIELD_ALU_SRC2];
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   dest &= (src1 << src2);
 
@@ -1321,9 +1321,9 @@ void Execute_FTSTScalarShiftScalar(MPE &mpe, const InstructionCacheEntry &entry,
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1348,9 +1348,9 @@ void Execute_FTSTScalarRotateScalar(MPE &mpe, const InstructionCacheEntry &entry
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1375,7 +1375,7 @@ void Execute_ORImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nua
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
   const uint32 src1 = nuance.fields[FIELD_ALU_SRC1];
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   const uint32 result = src1 | src2;
 
@@ -1394,8 +1394,8 @@ void Execute_ORImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nua
 void Execute_ORScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   const uint32 result = src1 | src2;
 
@@ -1416,8 +1416,8 @@ void Execute_ORImmediateShiftScalar(MPE &mpe, const InstructionCacheEntry &entry
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
   const uint32 src1 = nuance.fields[FIELD_ALU_SRC1];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1444,9 +1444,9 @@ void Execute_ORScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry &
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint32 src2 = nuance.fields[FIELD_ALU_SRC2];
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   dest |= (src1 >> src2);
 
@@ -1466,9 +1466,9 @@ void Execute_ORScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &e
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint32 src2 = nuance.fields[FIELD_ALU_SRC2];
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   dest |= (src1 << src2);
 
@@ -1488,9 +1488,9 @@ void Execute_ORScalarShiftScalar(MPE &mpe, const InstructionCacheEntry &entry, c
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1517,9 +1517,9 @@ void Execute_ORScalarRotateScalar(MPE &mpe, const InstructionCacheEntry &entry, 
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1546,7 +1546,7 @@ void Execute_EORImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nu
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
   const uint32 src1 = nuance.fields[FIELD_ALU_SRC1];
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   const uint32 result = src1 ^ src2;
 
@@ -1565,8 +1565,8 @@ void Execute_EORImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nu
 void Execute_EORScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   const uint32 result = src1 ^ src2;
 
@@ -1587,8 +1587,8 @@ void Execute_EORImmediateShiftScalar(MPE &mpe, const InstructionCacheEntry &entr
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
   const uint32 src1 = nuance.fields[FIELD_ALU_SRC1];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1615,9 +1615,9 @@ void Execute_EORScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry 
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint32 src2 = nuance.fields[FIELD_ALU_SRC2];
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   dest ^= (src1 >> src2);
 
@@ -1637,9 +1637,9 @@ void Execute_EORScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint32 src2 = nuance.fields[FIELD_ALU_SRC2];
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   dest ^= (src1 << src2);
 
@@ -1659,9 +1659,9 @@ void Execute_EORScalarShiftScalar(MPE &mpe, const InstructionCacheEntry &entry, 
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1688,9 +1688,9 @@ void Execute_EORScalarRotateScalar(MPE &mpe, const InstructionCacheEntry &entry,
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
 
-  const uint32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint32 src2 = (((int32)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
-        uint32 dest = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint32 src1 = entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint32 src2 = (((int32)(entry.pRegs[nuance.fields[FIELD_ALU_SRC2]] << 26)) >> 26) & 0x3FUL;
+        uint32 dest = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   if(src2 & 0x20)
   {
@@ -1716,7 +1716,7 @@ void Execute_EORScalarRotateScalar(MPE &mpe, const InstructionCacheEntry &entry,
 void Execute_ADDWCImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   const uint64 src1 = (uint64)nuance.fields[FIELD_ALU_SRC1];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -1748,8 +1748,8 @@ void Execute_ADDWCImmediate(MPE &mpe, const InstructionCacheEntry &entry, const 
 
 void Execute_ADDWCScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -1781,9 +1781,9 @@ void Execute_ADDWCScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nua
 
 void Execute_ADDWCScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)(((int32)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
+  const uint64 src1 = (uint64)(((int32)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
     nuance.fields[FIELD_ALU_SRC2]);
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -1815,8 +1815,8 @@ void Execute_ADDWCScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntr
 
 void Execute_ADDWCScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
-  const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
+  const uint64 src2 = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -1849,7 +1849,7 @@ void Execute_ADDWCScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry
 void Execute_SUBWCImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   const uint64 src1 = (uint64)nuance.fields[FIELD_ALU_SRC1];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -1881,7 +1881,7 @@ void Execute_SUBWCImmediate(MPE &mpe, const InstructionCacheEntry &entry, const 
 
 void Execute_SUBWCImmediateReverse(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint64 src2 = (uint64)nuance.fields[FIELD_ALU_SRC2];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
@@ -1914,8 +1914,8 @@ void Execute_SUBWCImmediateReverse(MPE &mpe, const InstructionCacheEntry &entry,
 
 void Execute_SUBWCScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -1947,9 +1947,9 @@ void Execute_SUBWCScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nua
 
 void Execute_SUBWCScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)(((int32)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
+  const uint64 src1 = (uint64)(((int32)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
     nuance.fields[FIELD_ALU_SRC2]);
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -1981,8 +1981,8 @@ void Execute_SUBWCScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntr
 
 void Execute_SUBWCScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
-  const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
+  const uint64 src2 = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -2015,7 +2015,7 @@ void Execute_SUBWCScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry
 void Execute_CMPWCImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
   const uint64 src1 = (uint64)nuance.fields[FIELD_ALU_SRC1];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -2046,7 +2046,7 @@ void Execute_CMPWCImmediate(MPE &mpe, const InstructionCacheEntry &entry, const 
 
 void Execute_CMPWCImmediateReverse(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
   const uint64 src2 = (uint64)nuance.fields[FIELD_ALU_SRC2];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
@@ -2078,8 +2078,8 @@ void Execute_CMPWCImmediateReverse(MPE &mpe, const InstructionCacheEntry &entry,
 
 void Execute_CMPWCScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC2]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -2110,9 +2110,9 @@ void Execute_CMPWCScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nua
 
 void Execute_CMPWCScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)(((int32)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
+  const uint64 src1 = (uint64)(((int32)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]]) >>
     nuance.fields[FIELD_ALU_SRC2]);
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src2 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -2143,8 +2143,8 @@ void Execute_CMPWCScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntr
 
 void Execute_CMPWCScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
-  const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src1 = (uint64)entry.pRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
+  const uint64 src2 = entry.pRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 

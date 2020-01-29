@@ -72,7 +72,7 @@ void Execute_JMPAlwaysIndirect(MPE &mpe, const InstructionCacheEntry &entry, con
 {
   if(!mpe.ecuSkipCounter)
   {
-    mpe.pcfetchnext = (entry.pScalarRegs)[nuance.fields[FIELD_ECU_ADDRESS]];
+    mpe.pcfetchnext = entry.pRegs[nuance.fields[FIELD_ECU_ADDRESS]];
     mpe.ecuSkipCounter = 3;
   }
 }
@@ -81,7 +81,7 @@ void Execute_JMPAlwaysIndirect_NOP(MPE &mpe, const InstructionCacheEntry &entry,
 {
   if(!mpe.ecuSkipCounter)
   {
-    mpe.pcfetchnext = (entry.pScalarRegs)[nuance.fields[FIELD_ECU_ADDRESS]];
+    mpe.pcfetchnext = entry.pRegs[nuance.fields[FIELD_ECU_ADDRESS]];
     mpe.ecuSkipCounter = 1;
   }
 }
@@ -92,7 +92,7 @@ void Execute_JMPConditionalIndirect(MPE &mpe, const InstructionCacheEntry &entry
   {
     if(mpe.TestConditionCode(nuance.fields[FIELD_ECU_CONDITION]))
     {
-      mpe.pcfetchnext = (entry.pScalarRegs)[nuance.fields[FIELD_ECU_ADDRESS]];
+      mpe.pcfetchnext = entry.pRegs[nuance.fields[FIELD_ECU_ADDRESS]];
       mpe.ecuSkipCounter = 3;
     }
   }
@@ -104,7 +104,7 @@ void Execute_JMPConditionalIndirect_NOP(MPE &mpe, const InstructionCacheEntry &e
   {
     if(mpe.TestConditionCode(nuance.fields[FIELD_ECU_CONDITION]))
     {
-      mpe.pcfetchnext = (entry.pScalarRegs)[nuance.fields[FIELD_ECU_ADDRESS]];
+      mpe.pcfetchnext = entry.pRegs[nuance.fields[FIELD_ECU_ADDRESS]];
       mpe.ecuSkipCounter = 1;
     }
   }
@@ -161,7 +161,7 @@ void Execute_JSRAlwaysIndirect(MPE &mpe, const InstructionCacheEntry &entry, con
   if(!mpe.ecuSkipCounter)
   {
     mpe.rz = nuance.fields[FIELD_ECU_PCFETCHNEXT];
-    mpe.pcfetchnext = (entry.pScalarRegs)[nuance.fields[FIELD_ECU_ADDRESS]];
+    mpe.pcfetchnext = entry.pRegs[nuance.fields[FIELD_ECU_ADDRESS]];
     mpe.ecuSkipCounter = 3;
   }
 }
@@ -171,7 +171,7 @@ void Execute_JSRAlwaysIndirect_NOP(MPE &mpe, const InstructionCacheEntry &entry,
   if(!mpe.ecuSkipCounter)
   {
     mpe.rz = nuance.fields[FIELD_ECU_PCROUTE];
-    mpe.pcfetchnext = (entry.pScalarRegs)[nuance.fields[FIELD_ECU_ADDRESS]];
+    mpe.pcfetchnext = entry.pRegs[nuance.fields[FIELD_ECU_ADDRESS]];
     mpe.ecuSkipCounter = 1;
   }
 }
@@ -183,7 +183,7 @@ void Execute_JSRConditionalIndirect(MPE &mpe, const InstructionCacheEntry &entry
     if(mpe.TestConditionCode(nuance.fields[FIELD_ECU_CONDITION]))
     {
       mpe.rz = nuance.fields[FIELD_ECU_PCFETCHNEXT];
-      mpe.pcfetchnext = (entry.pScalarRegs)[nuance.fields[FIELD_ECU_ADDRESS]];
+      mpe.pcfetchnext = entry.pRegs[nuance.fields[FIELD_ECU_ADDRESS]];
       mpe.ecuSkipCounter = 3;
     }
   }
@@ -196,7 +196,7 @@ void Execute_JSRConditionalIndirect_NOP(MPE &mpe, const InstructionCacheEntry &e
     if(mpe.TestConditionCode(nuance.fields[FIELD_ECU_CONDITION]))
     {
       mpe.rz = nuance.fields[FIELD_ECU_PCROUTE];
-      mpe.pcfetchnext = (entry.pScalarRegs)[nuance.fields[FIELD_ECU_ADDRESS]];
+      mpe.pcfetchnext = entry.pRegs[nuance.fields[FIELD_ECU_ADDRESS]];
       mpe.ecuSkipCounter = 1;
     }
   }
@@ -206,7 +206,7 @@ void Execute_RTSAlways(MPE &mpe, const InstructionCacheEntry &entry, const Nuanc
 {
   if(!mpe.ecuSkipCounter)
   {
-    mpe.pcfetchnext = entry.pRzRegs[0];
+    mpe.pcfetchnext = entry.pRegs[RZ_REG+0];
     mpe.ecuSkipCounter = 3;
   }
 }
@@ -215,7 +215,7 @@ void Execute_RTSAlways_NOP(MPE &mpe, const InstructionCacheEntry &entry, const N
 {
   if(!mpe.ecuSkipCounter)
   {
-    mpe.pcfetchnext = entry.pRzRegs[0];
+    mpe.pcfetchnext = entry.pRegs[RZ_REG+0];
     mpe.ecuSkipCounter = 1;
   }
 }
@@ -226,7 +226,7 @@ void Execute_RTSConditional(MPE &mpe, const InstructionCacheEntry &entry, const 
   {
     if(mpe.TestConditionCode(nuance.fields[FIELD_ECU_CONDITION]))
     {
-      mpe.pcfetchnext = entry.pRzRegs[0];
+      mpe.pcfetchnext = entry.pRegs[RZ_REG+0];
       mpe.ecuSkipCounter = 3;
     }
   }
@@ -238,7 +238,7 @@ void Execute_RTSConditional_NOP(MPE &mpe, const InstructionCacheEntry &entry, co
   {
     if(mpe.TestConditionCode(nuance.fields[FIELD_ECU_CONDITION]))
     {
-      mpe.pcfetchnext = entry.pRzRegs[0];
+      mpe.pcfetchnext = entry.pRegs[RZ_REG+0];
       mpe.ecuSkipCounter = 1;
     }
   }
@@ -251,7 +251,7 @@ void Execute_RTI1Conditional(MPE &mpe, const InstructionCacheEntry &entry, const
     if(mpe.TestConditionCode(nuance.fields[FIELD_ECU_CONDITION]))
     {
       mpe.intctl &= ~(1UL << 1);
-      mpe.pcfetchnext = entry.pRzRegs[1];
+      mpe.pcfetchnext = entry.pRegs[RZ_REG+1];
       mpe.ecuSkipCounter = 3;
     }
   }
@@ -264,7 +264,7 @@ void Execute_RTI1Conditional_NOP(MPE &mpe, const InstructionCacheEntry &entry, c
     if(mpe.TestConditionCode(nuance.fields[FIELD_ECU_CONDITION]))
     {
       mpe.intctl &= ~(1UL << 1);
-      mpe.pcfetchnext = entry.pRzRegs[1];
+      mpe.pcfetchnext = entry.pRegs[RZ_REG+1];
       mpe.ecuSkipCounter = 1;
     }
   }
@@ -277,7 +277,7 @@ void Execute_RTI2Conditional(MPE &mpe, const InstructionCacheEntry &entry, const
     if(mpe.TestConditionCode(nuance.fields[FIELD_ECU_CONDITION]))
     {
       mpe.intctl &= ~(1UL << 5);
-      mpe.pcfetchnext = entry.pRzRegs[2];
+      mpe.pcfetchnext = entry.pRegs[RZ_REG+2];
       mpe.ecuSkipCounter = 3;
     }
   }
@@ -290,7 +290,7 @@ void Execute_RTI2Conditional_NOP(MPE &mpe, const InstructionCacheEntry &entry, c
     if(mpe.TestConditionCode(nuance.fields[FIELD_ECU_CONDITION]))
     {
       mpe.intctl &= ~(1UL << 5);
-      mpe.pcfetchnext = entry.pRzRegs[2];
+      mpe.pcfetchnext = entry.pRegs[RZ_REG+2];
       mpe.ecuSkipCounter = 1;
     }
   }

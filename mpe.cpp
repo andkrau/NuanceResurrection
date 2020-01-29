@@ -1695,30 +1695,10 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
   {
     pICacheEntry->packetInfo |= PACKETINFO_DEPENDENCY_PRESENT;
 
-    pICacheEntry->pScalarRegs = tempScalarRegs;
-    pICacheEntry->pIndexRegs = &tempRx;
-    pICacheEntry->pRzRegs = &tempRz;
-    pICacheEntry->pCounterRegs = &tempRc0;
-    pICacheEntry->pAcshift = &tempAcshift;
-    pICacheEntry->pSvshift = &tempSvshift;
-    pICacheEntry->pXyctl = &tempXyctl;
-    pICacheEntry->pUvctl = &tempUvctl;
-    pICacheEntry->pXyrange = &tempXyrange;
-    pICacheEntry->pUvrange = &tempUvrange;
+    pICacheEntry->pRegs = tempreg_union;
   }
   else
-  {
-    pICacheEntry->pScalarRegs = regs;
-    pICacheEntry->pIndexRegs = &rx;
-    pICacheEntry->pRzRegs = &rz;
-    pICacheEntry->pCounterRegs = &rc0;
-    pICacheEntry->pAcshift = &acshift;
-    pICacheEntry->pSvshift = &svshift;
-    pICacheEntry->pXyctl = &xyctl;
-    pICacheEntry->pUvctl = &uvctl;
-    pICacheEntry->pXyrange = &xyrange;
-    pICacheEntry->pUvrange = &uvrange;
-  }
+    pICacheEntry->pRegs = reg_union;
 
   pICacheEntry->handlers[0] = pICacheEntry->nuances[0];
   pICacheEntry->handlers[1] = pICacheEntry->nuances[5];
@@ -2323,27 +2303,9 @@ check_for_halt:
 
 void MPE::InitStaticICacheEntries()
 {
-  ICacheEntry_SaveRegs.pScalarRegs = tempScalarRegs;
-  ICacheEntry_SaveRegs.pIndexRegs = &tempRx;
-  ICacheEntry_SaveRegs.pRzRegs = &tempRz;
-  ICacheEntry_SaveRegs.pCounterRegs = &tempRc0;
-  ICacheEntry_SaveRegs.pAcshift = &tempAcshift;
-  ICacheEntry_SaveRegs.pSvshift = &tempSvshift;
-  ICacheEntry_SaveRegs.pXyctl = &tempXyctl;
-  ICacheEntry_SaveRegs.pUvctl = &tempUvctl;
-  ICacheEntry_SaveRegs.pXyrange = &tempXyrange;
-  ICacheEntry_SaveRegs.pUvrange = &tempUvrange;
+  ICacheEntry_SaveRegs.pRegs = tempreg_union;
   
-  ICacheEntry_SaveFlags.pScalarRegs = regs;
-  ICacheEntry_SaveFlags.pIndexRegs = &rx;
-  ICacheEntry_SaveFlags.pRzRegs = &rz;
-  ICacheEntry_SaveFlags.pCounterRegs = &rc0;
-  ICacheEntry_SaveFlags.pAcshift = &acshift;
-  ICacheEntry_SaveFlags.pSvshift = &svshift;
-  ICacheEntry_SaveFlags.pXyctl = &xyctl;
-  ICacheEntry_SaveFlags.pUvctl = &uvctl;
-  ICacheEntry_SaveFlags.pXyrange = &xyrange;
-  ICacheEntry_SaveFlags.pUvrange = &uvrange;
+  ICacheEntry_SaveFlags.pRegs = reg_union;
 }
 
 uint8 MPE::DecodeSingleInstruction(const uint8 *const iPtr, InstructionCacheEntry *const entry, uint32 * const immExt, bool &bTerminating)
