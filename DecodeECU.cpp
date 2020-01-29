@@ -461,7 +461,6 @@ void MPE::DecodeInstruction_ECU32(const uint8 * const iPtr, InstructionCacheEntr
 
         if(field_3E00000 == ECU_CONDITION_T)
         {
-          entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_HANDLER)] = Handler_JMPAlwaysIndirect;
           if(bImplicitNOP)
           {
             //JMP T, (Si), NOP
@@ -479,7 +478,6 @@ void MPE::DecodeInstruction_ECU32(const uint8 * const iPtr, InstructionCacheEntr
         }
         else
         {
-          entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_HANDLER)] = Handler_JMPConditionalIndirect;
           if(bImplicitNOP)
           {
             //JMP CC, (Si), NOP

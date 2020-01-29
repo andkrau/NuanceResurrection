@@ -144,7 +144,7 @@ void MemoryManager::Free(uint32 startAddress)
   }
 }
 
-void *MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
+uint32 MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
 {
   FreeMemoryBlock fmb2;
   uint32 index, adjustedAddress;
@@ -164,7 +164,7 @@ void *MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
   //stricter alignments must be powers of two
   if(TestForInvalidPowerOfTwo(requestedAlignment))
   {
-    return NULL;
+    return 0;
   }
 
   //pad requested byte count to the nearest vector
@@ -174,7 +174,7 @@ void *MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
 
   if(vectorSize == 0)
   {
-    return NULL;
+    return 0;
   }
 
   for(index = 0; index < vectorSize; index++)
@@ -235,7 +235,7 @@ void *MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
             }
           }
 
-          return (void *)adjustedAddress;
+          return adjustedAddress;
         }
         //Not enough bytes in block after aligning the starting address
       }
@@ -245,7 +245,7 @@ void *MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
     //to meet the request under any circumstance
   }
   //No block was able to meet the requirements
-  return NULL;
+  return 0;
 }
 
 inline uint32 MemoryManager::AlignAddress(uint32 address, uint32 alignment)

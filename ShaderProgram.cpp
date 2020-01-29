@@ -77,20 +77,17 @@ void ShaderProgram::PrintInfoLog(GLhandleARB obj, const char *msg)
 
 bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLenum type)
 {
-  FILE *inFile;
-  GLint length;
-  GLchar *buffer;
-  const GLchar **pBuffer = (const GLchar **)(&buffer);
   bool bStatus = false;
 
-  inFile = fopen(filename,"rb");
+  FILE *inFile = fopen(filename,"rb");
 
   if(inFile)
   {
     fseek(inFile,0,SEEK_END);
-    length = ftell(inFile);
+    GLint length = ftell(inFile);
 
-    buffer = new GLchar[length+1];
+    GLchar *buffer = new GLchar[length+1];
+    const GLchar **pBuffer = (const GLchar **)(&buffer);
     buffer[length] = '\0';
     fseek(inFile,0,SEEK_SET);
     fread(buffer,sizeof(char),length,inFile);
@@ -115,6 +112,7 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
     }
 
     delete [] buffer;
+    fclose(inFile);
   }
   
   return bStatus;

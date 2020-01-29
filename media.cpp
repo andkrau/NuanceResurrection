@@ -141,28 +141,18 @@ bool bNvramFileOpen;
 
 int FindFirstFreeHandle()
 {
-  int i = 0;
-
-  for(i = FIRST_DVD_FD; i <= LAST_DVD_FD; i++)
-  {
+  for(int i = FIRST_DVD_FD; i <= LAST_DVD_FD; i++)
     if(!fileNameArray[i])
-    {
       return i;
-    }
-  }
 
   return 0;
 }
 
 void MediaOpen(MPE &mpe)
 {
-  uint32 device = mpe.regs[0];
-  char *name = (char *)nuonEnv.GetPointerToMemory(mpe,mpe.regs[1]);
-  uint32 mode = mpe.regs[2];
-  uint32 *pBlockSize = (uint32 *)nuonEnv.GetPointerToMemory(mpe,mpe.regs[3]);
+  const uint32 device = mpe.regs[0];
+  const uint32 mode = mpe.regs[2];
   int32 handle = 0;
-  uint32 bufLength;
-  char *baseString;
 
   if((device == MEDIA_BOOT_DEVICE) || (device == MEDIA_DVD))
   {
@@ -170,15 +160,17 @@ void MediaOpen(MPE &mpe)
 
     if(handle)
     {    
+      uint32 * const pBlockSize = (uint32 *)nuonEnv.GetPointerToMemory(mpe,mpe.regs[3]);
       if(pBlockSize)
       {
         *pBlockSize = BLOCK_SIZE_DVD; 
         SwapScalarBytes(pBlockSize);
       }
 
-      baseString = nuonEnv.GetDVDBase();
+      char * const baseString = nuonEnv.GetDVDBase();
 
       //Treat iso9660 device reads as DVD device reads
+      const char * name = (char *)nuonEnv.GetPointerToMemory(mpe, mpe.regs[1]);
       if(!strncmp("/iso9660/",name,9))
       {
         name = &name[9];
@@ -188,7 +180,7 @@ void MediaOpen(MPE &mpe)
         name = &name[5];
       }
 
-      bufLength = strlen(name)+strlen(baseString)+1;
+      const size_t bufLength = strlen(name)+strlen(baseString)+1;
       fileNameArray[handle] = new char[bufLength];
       strcpy(fileNameArray[handle],baseString);
       strcat(fileNameArray[handle],name);
@@ -220,49 +212,47 @@ void MediaGetDevicesAvailable(MPE &mpe)
 
 void MediaGetInfo(MPE &mpe)
 {
-  int32 handle = mpe.regs[0];
-  void *pDevInfo = (void *)mpe.regs[1];
+  const int32 handle = mpe.regs[0];
+  const uint32 devInfo = mpe.regs[1];
   int32 result = -1;
-  uint32 sectorsize, datarate, id;
 
-  if(pDevInfo)
+  if(devInfo)
   {
     if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD))
     {
-      pDevInfo = nuonEnv.GetPointerToMemory(mpe,(uint32)pDevInfo);
+      MediaDevInfo * const pDevInfo = (MediaDevInfo*)nuonEnv.GetPointerToMemory(mpe,devInfo);
 
-      id = handle;
-      datarate = DATA_RATE_DVD;
-      sectorsize = BLOCK_SIZE_DVD;
+      uint32 id = handle;
+      uint32 datarate = DATA_RATE_DVD;
+      uint32 sectorsize = BLOCK_SIZE_DVD;
 
       SwapScalarBytes(&sectorsize);
       SwapScalarBytes(&datarate);
       SwapScalarBytes(&id);          
 
-      ((MediaDevInfo *)pDevInfo)->sectorsize = BLOCK_SIZE_DVD;
-      ((MediaDevInfo *)pDevInfo)->datarate = DATA_RATE_DVD;
-      ((MediaDevInfo *)pDevInfo)->id = handle;
-      ((MediaDevInfo *)pDevInfo)->type = 0;
-      ((MediaDevInfo *)pDevInfo)->bus = 0;
-      ((MediaDevInfo *)pDevInfo)->state = 0;
+      pDevInfo->sectorsize = BLOCK_SIZE_DVD;
+      pDevInfo->datarate = DATA_RATE_DVD;
+      pDevInfo->id = handle;
+      pDevInfo->type = 0;
+      pDevInfo->bus = 0;
+      pDevInfo->state = 0;
       result = 0;
     }
   }
+
+  mpe.regs[0] = result;
 }
 
 bool bCallingMediaCallback = false;
 
 void MediaRead(MPE &mpe)
 {
-  FILE *inFile;
-  int32 handle = mpe.regs[0];
-  int32 mode = mpe.regs[1];
-  uint32 startblock = mpe.regs[2];
-  uint32 blockcount = mpe.regs[3];
-  uint32 buffer = mpe.regs[4];
-  uint32 callback = mpe.regs[5];
-  uint32 readCount;
-  void *pBuf;
+  const int32 handle = mpe.regs[0];
+  const int32 mode = mpe.regs[1];
+  const uint32 startblock = mpe.regs[2];
+  const uint32 blockcount = mpe.regs[3];
+  const uint32 buffer = mpe.regs[4];
+  const uint32 callback = mpe.regs[5];
 
   mpe.regs[0] = -1;
 
@@ -270,15 +260,14 @@ void MediaRead(MPE &mpe)
   {
     if(fileNameArray[handle] && buffer && (fileModeArray[handle] != MEDIA_WRITE))
     {
-      inFile = fopen(fileNameArray[handle],"rb");
+      FILE* inFile = fopen(fileNameArray[handle],"rb");
       if(inFile)
       {
-        pBuf = nuonEnv.GetPointerToMemory(mpe,buffer);
+        void* pBuf = nuonEnv.GetPointerToMemory(mpe,buffer);
         fseek(inFile,startblock*BLOCK_SIZE_DVD,SEEK_SET);
-        readCount = fread(pBuf,BLOCK_SIZE_DVD,blockcount,inFile);
+        const uint32 readCount = (uint32)fread(pBuf,BLOCK_SIZE_DVD,blockcount,inFile);
         if(readCount >= (blockcount - 1))
         {
-          fclose(inFile);
           mpe.regs[0] = mode;
           mpe.regs[1] = blockcount;
           if(callback)
@@ -287,6 +276,7 @@ void MediaRead(MPE &mpe)
             bCallingMediaCallback = true;
           }
         }
+        fclose(inFile);
       }
     }
   }
@@ -294,15 +284,12 @@ void MediaRead(MPE &mpe)
 
 void MediaWrite(MPE &mpe)
 {
-  FILE *outFile;
-  int32 handle = mpe.regs[0];
-  int32 mode = mpe.regs[1];
-  uint32 startblock = mpe.regs[2];
-  uint32 blockcount = mpe.regs[3];
-  uint32 buffer = mpe.regs[4];
-  uint32 callback = mpe.regs[5];
-  uint32 writeCount;
-  void *pBuf;
+  const int32 handle = mpe.regs[0];
+  const int32 mode = mpe.regs[1];
+  const uint32 startblock = mpe.regs[2];
+  const uint32 blockcount = mpe.regs[3];
+  const uint32 buffer = mpe.regs[4];
+  const uint32 callback = mpe.regs[5];
 
   mpe.regs[0] = -1;
 
@@ -311,7 +298,7 @@ void MediaWrite(MPE &mpe)
     if(fileNameArray[handle] && buffer && (fileModeArray[handle] != MEDIA_READ))
     {
       //try to open the existing file for read/write without erasing the contents
-      outFile = fopen(fileNameArray[handle],"r+b");
+      FILE* outFile = fopen(fileNameArray[handle],"r+b");
       
       if(!outFile)
       {
@@ -321,12 +308,11 @@ void MediaWrite(MPE &mpe)
 
       if(outFile)
       {
-        pBuf = nuonEnv.GetPointerToMemory(mpe,buffer);
+        void* pBuf = nuonEnv.GetPointerToMemory(mpe,buffer);
         fseek(outFile,startblock*BLOCK_SIZE_DVD,SEEK_SET);
-        writeCount = fwrite(pBuf,BLOCK_SIZE_DVD,blockcount,outFile);
+        const uint32 writeCount = (uint32)fwrite(pBuf,BLOCK_SIZE_DVD,blockcount,outFile);
         if(writeCount >= (blockcount - 1))
         {
-          fclose(outFile);
           mpe.regs[0] = mode;
           mpe.regs[1] = blockcount;
           if(callback)
@@ -335,6 +321,7 @@ void MediaWrite(MPE &mpe)
             bCallingMediaCallback = true;
           }
         }
+        fclose(outFile);
       }
     }
   }
@@ -342,10 +329,9 @@ void MediaWrite(MPE &mpe)
 
 void MediaIoctl(MPE &mpe)
 {
-  int32 handle = mpe.regs[0];
-  int32 ctl = mpe.regs[1];
-  uint32 value = mpe.regs[2];
-  uint32 *ptr;
+  const int32 handle = mpe.regs[0];
+  const int32 ctl = mpe.regs[1];
+  const uint32 value = mpe.regs[2];
   char ctlStr[2];
 
   mpe.regs[0] = -1;
@@ -385,7 +371,7 @@ void MediaIoctl(MPE &mpe)
         case MEDIA_IOCTL_GET_PHYSICAL:
           if(value)
           {
-            ptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,value);
+            uint32* const ptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,value);
             //For now, return physical sector zero, but in the future there needs to be some sort
             //of TOC to allow for loading from image files in which case the base file sector will
             //be non-zero

@@ -7,10 +7,10 @@ void Execute_ABS(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nua
 {
   mpe.cc &= ~(CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_ZERO | CC_ALU_CARRY);
   const int32 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]];
-  if((src1) < 0)
+  if(src1 < 0)
   {  
     mpe.cc |= CC_ALU_CARRY;
-    if(src1 == 0x80000000UL)
+    if(src1 == (int32)0x80000000)
     {
       //source was negative, result is negative (non-zero)
       mpe.cc |= (CC_ALU_NEGATIVE | CC_ALU_OVERFLOW);
@@ -353,7 +353,7 @@ void Execute_LS(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuan
     //monitored for this special case, and when it happens, the destination
     //register should be forced to zero.
 
-    if(!result || (src1 == 32))
+    if((result == 0) || (src1 == 32))
     {
       mpe.regs[nuance.fields[FIELD_ALU_DEST]] = 0;
       mpe.cc |= CC_ALU_ZERO;
@@ -374,7 +374,7 @@ void Execute_LS(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuan
     mpe.regs[nuance.fields[FIELD_ALU_DEST]] = result;
     // carry = bit 0 of source
     mpe.cc |= ((src2 << 1) & CC_ALU_CARRY);    
-    if(!result)
+    if(result == 0)
     {
       mpe.cc |= CC_ALU_ZERO;
       return;
@@ -684,9 +684,8 @@ void Execute_ADDScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry 
 
 void Execute_ADDScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = (uint64)(entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << //!! cast before shift?
-    nuance.fields[FIELD_ALU_SRC2]);
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
+  const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -852,7 +851,7 @@ void Execute_SUBScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry 
 
 void Execute_SUBScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2]; //!! cast before shift?
+  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
   const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
@@ -1014,8 +1013,8 @@ void Execute_CMPScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry 
 
 void Execute_CMPScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2]; //!! cast before shift?
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
+  const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 
@@ -1816,7 +1815,7 @@ void Execute_ADDWCScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntr
 
 void Execute_ADDWCScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2]; //!! cast before shift?
+  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
   const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
@@ -1982,7 +1981,7 @@ void Execute_SUBWCScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntr
 
 void Execute_SUBWCScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2]; //!! cast before shift?
+  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
   const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
@@ -2144,8 +2143,8 @@ void Execute_CMPWCScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntr
 
 void Execute_CMPWCScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const uint64 src1 = entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2]; //!! cast before shift?
-  const uint64 src2 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
+  const uint64 src1 = (uint64)entry.pScalarRegs[nuance.fields[FIELD_ALU_SRC1]] << nuance.fields[FIELD_ALU_SRC2];
+  const uint64 src2 = entry.pScalarRegs[nuance.fields[FIELD_ALU_DEST]];
 
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_CARRY);
 

@@ -53,8 +53,8 @@ public:
   {
     if(boundary)
     {
-      const uint32 poweroftwominusone = (1UL << boundary) - 1UL;
-      pEmitLoc = (uint8 *)(((uint32)(pEmitLoc + poweroftwominusone)) & ~(poweroftwominusone));
+      const size_t poweroftwominusone = (1UL << boundary) - 1UL;
+      pEmitLoc = (uint8 *)(((size_t)(pEmitLoc + poweroftwominusone)) & ~(poweroftwominusone));
     }
   }
 

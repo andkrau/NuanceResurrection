@@ -158,7 +158,7 @@ const char *BiosRoutineNames[512] = {
 "DiskChange",
 "DiskGetTotalSlots",
 "pf_add_driver",
-"SetDefaultColor",
+"VidSetBorderColor",
 "DisplayBootImage",
 "serial_write_cmd",
 "GetMemDevice",
@@ -298,8 +298,6 @@ void IntSetVector(MPE &mpe)
 {
   const uint32 which = mpe.regs[0];
   const uint32 newvec = mpe.regs[1];
-  uint32 *recvHandlers;
-  uint32 numHandlers;
 
   mpe.regs[0] = 0;
 
@@ -312,7 +310,8 @@ void IntSetVector(MPE &mpe)
         return;
       }
 
-      recvHandlers = ((uint32 *)nuonEnv.GetPointerToMemory(mpe,COMMRECV_HANDLER_LIST_ADDRESS));
+      uint32 * const recvHandlers = ((uint32 *)nuonEnv.GetPointerToMemory(mpe,COMMRECV_HANDLER_LIST_ADDRESS));
+      uint32 numHandlers;
       if(InstallCommHandler(mpe, newvec, recvHandlers, &numHandlers))
       {
         mpe.regs[0] = newvec;
@@ -519,7 +518,7 @@ NullBiosHandler, //_BiosIRMask (124)
 NullBiosHandler, //_DiskChange (125)
 NullBiosHandler, //_DiskGetTotalSlots (126)
 NullBiosHandler, //_pf_add_driver (127)
-SetDefaultColor, //_SetDefaultColor (_VidChangeBorderColor) (128)
+VidSetBorderColor, //_VidSetBorderColor (128)
 NullBiosHandler, //_DisplayBootImage (129)
 WillNotImplement, //serial_write_cmd (130)
 NullBiosHandler, //_GetMemDevice (131)
@@ -623,7 +622,7 @@ void InitBios(MPE &mpe)
   InitDVDJumpTable();
 
   //DEFAULT VIDCHANNEL INITIALIZATION
-  structMainChannel.base = (void*)0x40000000;
+  structMainChannel.base = 0x40000000;
   structMainChannel.src_width = VIDEO_WIDTH;
   structMainChannel.src_height = 480;
   structMainChannel.dest_width = VIDEO_WIDTH;
@@ -637,7 +636,7 @@ void InitBios(MPE &mpe)
   {
     structMainChannel.reserved[i] = 0;
   }
-  structOverlayChannel.base = (void*)0x40000000;
+  structOverlayChannel.base = 0x40000000;
   structOverlayChannel.src_width = VIDEO_WIDTH;
   structOverlayChannel.src_height = 480;
   structOverlayChannel.dest_width = VIDEO_WIDTH;

@@ -120,9 +120,10 @@ load_coff_file:
       goto failure;
     }
   }
-  else
-  {
+
 failure:
-    return false;
-  }
+  if (handle >= 0)
+    _close(handle);
+
+  return false;
 }

@@ -438,8 +438,8 @@ NativeCodeCacheEntryPoint SuperBlock::CompileBlock(MPE * const mpe, const uint32
   bAllowBlockCompile = (compileType != SUPERBLOCKCOMPILETYPE_IL_SINGLE);
 
   //Step 1, fetch the block (or superblock)
-  int32 fetchSuperBlockResult;
-  if((fetchSuperBlockResult = FetchSuperBlock(*mpe,address,bContainsBranch)) <= 0)
+  //int32 fetchSuperBlockResult; //!! never used
+  if((/*fetchSuperBlockResult =*/ FetchSuperBlock(*mpe,address,bContainsBranch)) <= 0)
   {
     //For whatever reason, no entries were added to the instruction list.  This is most likely due to the first instruction candidate being
     //a delayed branch followed by an instruction that cannot be compiled in a delay slot such as a control register memory operation or
@@ -517,13 +517,12 @@ void SuperBlock::PerformConstantPropagation()
 
 void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size)
 {
-  InstructionEntry *pCurrentInstruction = instructions;
-  uint32 handler;
-  
   if(!blockFile)
   {
     return;
   }
+
+  InstructionEntry *pCurrentInstruction = instructions;
 
   //fprintf(blockFile,"***\n");
   fprintf(blockFile,"****************************************\n");
@@ -561,7 +560,7 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
   {
     for(uint32 j = numInstructions; j > 0; j--)
     {
-      handler = pCurrentInstruction->instruction.fields[0];
+      uint32 handler = pCurrentInstruction->instruction.fields[0];
       if((handler == Handler_PacketEnd) && (pCurrentInstruction->packet->flags & SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER))
       {
         handler = Handler_CheckECUSkipCounter;
@@ -1016,7 +1015,7 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
               packetCounter = 0;
 
               exitAddress = packetDelaySlot2.pcroute;           
-force_il_block:
+//force_il_block:
               if(bForceILBlock)
               {
                 bCanEmitNativeCode = false;

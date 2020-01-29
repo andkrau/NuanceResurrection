@@ -252,7 +252,6 @@ void FlashEEPROM::EraseChip()
 void FlashEEPROM::EraseSector(uint32 address)
 {
   uint32 sectorSize;
-  uint8 *pEEPROM;
 
   if(address < 0x10000)
   {
@@ -267,7 +266,7 @@ void FlashEEPROM::EraseSector(uint32 address)
 
   if(!IsSectorLocked(address))
   {
-    pEEPROM = &eeprom[address];
+    uint8 *pEEPROM = &eeprom[address];
     for(uint32 i = 0; i < sectorSize; i++)
     {
       //Erase turns 0's to 1's

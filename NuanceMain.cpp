@@ -296,10 +296,8 @@ void ExecuteSingleStep()
   }
 }
 
-BOOL CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
+INT_PTR CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
-  FILE *outFile;
-
   switch(msg)
   {
     case WM_CLOSE:
@@ -329,7 +327,7 @@ BOOL CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM 
           }
           else if((HWND)lParam == cbDumpMPEs)
           {
-            outFile = fopen("mpe0.bin","wb");
+            FILE *outFile = fopen("mpe0.bin","wb");
             if(outFile)
             {
               fwrite(nuonEnv.mpe[0].dtrom,sizeof(uint8),MPE_LOCAL_MEMORY_SIZE,outFile);
@@ -363,7 +361,7 @@ BOOL CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM 
   }
 }
 
-BOOL CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
+INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
   switch(msg)
   {
@@ -504,7 +502,7 @@ Run:
   }
 }
 
-BOOL CALLBACK SplashScreenDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
+INT_PTR CALLBACK SplashScreenDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
   switch(msg)
   {
@@ -770,8 +768,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   if(err != GLEW_OK)
     MessageBox(NULL,(char *)glewGetErrorString(err),"Error",MB_ICONWARNING);
 
-  mainChannelBuffer = AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,false);
-  overlayChannelBuffer = AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,true);
+  AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,false);
+  AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,true);
 
   const HMODULE hRichEditLibrary = LoadLibrary("Riched20.dll"); // needs to be loaded, otherwise program hangs
   hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_CONTROL_PANEL),NULL,ControlPanelDialogProc);
