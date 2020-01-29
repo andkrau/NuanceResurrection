@@ -59,15 +59,15 @@ void InstructionCache::InvalidateRegion(const uint32 start, const uint32 end)
   }
 }
 
-void InstructionCacheEntry::CopyInstructionData(const uint32 toSlot, const InstructionCacheEntry * const src, const uint32 fromSlot)
+void InstructionCacheEntry::CopyInstructionData(const uint32 toSlot, const InstructionCacheEntry &src, const uint32 fromSlot)
 {
-  nuances[FIXED_FIELD(toSlot,0)] = src->nuances[FIXED_FIELD(fromSlot,0)];
-  nuances[FIXED_FIELD(toSlot,1)] = src->nuances[FIXED_FIELD(fromSlot,1)];
-  nuances[FIXED_FIELD(toSlot,2)] = src->nuances[FIXED_FIELD(fromSlot,2)];
-  nuances[FIXED_FIELD(toSlot,3)] = src->nuances[FIXED_FIELD(fromSlot,3)];
-  nuances[FIXED_FIELD(toSlot,4)] = src->nuances[FIXED_FIELD(fromSlot,4)];
-  scalarInputDependencies[toSlot] = src->scalarInputDependencies[fromSlot];
-  miscInputDependencies[toSlot] = src->miscInputDependencies[fromSlot];
-  scalarOutputDependencies[toSlot] = src->scalarOutputDependencies[fromSlot];
-  miscOutputDependencies[toSlot] = src->miscOutputDependencies[fromSlot];
+  nuances[FIXED_FIELD(toSlot,0)] = src.nuances[FIXED_FIELD(fromSlot,0)];
+  nuances[FIXED_FIELD(toSlot,1)] = src.nuances[FIXED_FIELD(fromSlot,1)];
+  nuances[FIXED_FIELD(toSlot,2)] = src.nuances[FIXED_FIELD(fromSlot,2)];
+  nuances[FIXED_FIELD(toSlot,3)] = src.nuances[FIXED_FIELD(fromSlot,3)];
+  nuances[FIXED_FIELD(toSlot,4)] = src.nuances[FIXED_FIELD(fromSlot,4)];
+  scalarInputDependencies[toSlot] = src.scalarInputDependencies[fromSlot];
+  miscInputDependencies[toSlot] = src.miscInputDependencies[fromSlot];
+  scalarOutputDependencies[toSlot] = src.scalarOutputDependencies[fromSlot];
+  miscOutputDependencies[toSlot] = src.miscOutputDependencies[fromSlot];
 }

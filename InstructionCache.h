@@ -126,7 +126,7 @@ public:
   uint32 packetInfo;
   uint32 pcexec;
   uint32 frequencyCount;
-  uint32 *pRegs;
+  uint32 *pRegs; // points to either a MPE reg set or the temp reg set
   uint32 pcroute;
   uint32 pcfetchnext;
   uint32 ecuConditionCode;
@@ -136,7 +136,7 @@ public:
   uint32 scalarOutputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 miscOutputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
 
-  void CopyInstructionData(const uint32 toSlot, const InstructionCacheEntry* const src, const uint32 fromSlot);
+  void CopyInstructionData(const uint32 toSlot, const InstructionCacheEntry &src, const uint32 fromSlot);
 };
 
 class InstructionCache

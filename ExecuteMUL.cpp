@@ -70,8 +70,8 @@ void Execute_MULScalarShiftAcshift(MPE &mpe, const InstructionCacheEntry &entry,
 
 void Execute_MULScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const int64 mulop1 = (entry.pRegs)[nuance.fields[FIELD_MUL_SRC1]];
-  const int64 mulop2 = (entry.pRegs)[nuance.fields[FIELD_MUL_SRC2]];
+  const int64 mulop1 = entry.pRegs[nuance.fields[FIELD_MUL_SRC1]];
+  const int64 mulop2 = entry.pRegs[nuance.fields[FIELD_MUL_SRC2]];
   const int64 result = (((mulop1 << 32) >> 32) * ((mulop2 << 32) >> 32)) >> nuance.fields[FIELD_MUL_INFO];
 
   mpe.cc &= (~CC_MUL_OVERFLOW);
@@ -95,8 +95,8 @@ void Execute_MULScalarShiftRightImmediate(MPE &mpe, const InstructionCacheEntry 
 
 void Execute_MULScalarShiftLeftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const int64 mulop1 = (entry.pRegs)[nuance.fields[FIELD_MUL_SRC1]];
-  const int64 mulop2 = (entry.pRegs)[nuance.fields[FIELD_MUL_SRC2]];
+  const int64 mulop1 = entry.pRegs[nuance.fields[FIELD_MUL_SRC1]];
+  const int64 mulop2 = entry.pRegs[nuance.fields[FIELD_MUL_SRC2]];
   const int64 result = (((mulop1 << 32) >> 32) * ((mulop2 << 32) >> 32)) << nuance.fields[FIELD_MUL_INFO];
 
   mpe.cc &= (~CC_MUL_OVERFLOW);
@@ -480,7 +480,7 @@ void Execute_MUL_PImmediateShiftImmediate(MPE &mpe, const InstructionCacheEntry 
 
 void Execute_MUL_PScalarShiftImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const int32 scalar = ((int32)((entry.pRegs)[nuance.fields[FIELD_MUL_SRC1]])) >> 16;
+  const int32 scalar = ((int32)(entry.pRegs[nuance.fields[FIELD_MUL_SRC1]])) >> 16;
   const int32 src2 = nuance.fields[FIELD_MUL_SRC2];
   const int32 dest = nuance.fields[FIELD_MUL_DEST];
   const int32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
@@ -497,7 +497,7 @@ void Execute_MUL_PScalarShiftImmediate(MPE &mpe, const InstructionCacheEntry &en
 
 void Execute_MUL_PScalarShiftSvshift(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const int32 scalar = ((int32)((entry.pRegs)[nuance.fields[FIELD_MUL_SRC1]])) >> 16;
+  const int32 scalar = ((int32)(entry.pRegs[nuance.fields[FIELD_MUL_SRC1]])) >> 16;
   const int32 src2 = nuance.fields[FIELD_MUL_SRC2];
   const int32 dest = nuance.fields[FIELD_MUL_DEST];
   const int32 shift = shiftTable[entry.pRegs[SVS_REG]];

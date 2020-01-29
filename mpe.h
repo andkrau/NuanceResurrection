@@ -454,11 +454,13 @@ public:
   uint8 DecodeSingleInstruction(const uint8 * const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt, bool &bTerminating);
   uint32 GetPacketDelta(const uint8 *iPtr, uint32 numLevels);
   void DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const pICacheEntry, const uint32 options = 0);
-  bool ChooseInstructionPairOrdering(const InstructionCacheEntry * const entry, const uint32 slot1, const uint32 slot2);
-  uint32 ScoreInstructionTriplet(const InstructionCacheEntry * const srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
-  void GetInstructionTripletDependencies(uint32& comboScalarDep, uint32& comboMiscDep, const InstructionCacheEntry * const srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
-  void ScheduleInstructionTriplet(InstructionCacheEntry * const destEntry, const uint32 baseSlot, const InstructionCacheEntry * const srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
-  void ScheduleInstructionQuartet(InstructionCacheEntry * const destEntry, const uint32 baseSlot, const InstructionCacheEntry * const srcEntry);
+  bool ChooseInstructionPairOrdering(const InstructionCacheEntry &entry, const uint32 slot1, const uint32 slot2);
+#if 0
+  uint32 ScoreInstructionTriplet(const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
+#endif
+  void GetInstructionTripletDependencies(uint32& comboScalarDep, uint32& comboMiscDep, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
+  void ScheduleInstructionTriplet(InstructionCacheEntry * const destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
+  void ScheduleInstructionQuartet(InstructionCacheEntry * const destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry);
   NativeCodeCacheEntryPoint CompileNativeCodeBlock(const uint32 pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket = false);
   bool FetchDecodeExecute();
   void ExecuteSingleStep();
@@ -494,7 +496,7 @@ public:
   }
   uint32 GetControlRegisterInputDependencies(const uint32 address, bool &bException);
   uint32 GetControlRegisterOutputDependencies(const uint32 address, bool &bException);
-  void DecodeInstruction_RCU16(const uint8 * const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt);
+  void DecodeInstruction_RCU16(const uint8* const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt);
   void DecodeInstruction_ECU16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void DecodeInstruction_ECU32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void DecodeInstruction_ALU16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
@@ -539,7 +541,7 @@ public:
     instructionCache->InvalidateRegion(start, end);
   }
 
-  void WriteControlRegister(uint32 address, uint32 data);
+  void WriteControlRegister(const uint32 address, const uint32 data);
   void SaveRegisters()
   {
     const uint32 tmp = tempCC;
@@ -547,7 +549,7 @@ public:
     tempCC = tmp; //!! this was what happened with the old code, but was this intended??
   }
   void InitStaticICacheEntries();
-  uint32 ReadControlRegister(const uint32 address, const InstructionCacheEntry * const entry);
+  uint32 ReadControlRegister(const uint32 address, const InstructionCacheEntry &entry);
 
   inline void Halt(void)
   {
@@ -565,7 +567,7 @@ public:
     Syscall_InterruptTriggered(*this);
   }
 
-  inline void *GetPointerToMemory(void) const
+  inline void *GetPointerToMemory() const
   {
     return dtrom;
   }
@@ -583,6 +585,7 @@ public:
   void Reset();
   bool LoadCoffFile(const char * const filename, bool bSetEntryPoint = true, int handle = -1);
   bool LoadNuonRomFile(const char * const filename);
+
   //void LoadByte(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
   //void LoadWord(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
   //void LoadScalar(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, PacketStruct *pStruct);
