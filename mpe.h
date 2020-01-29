@@ -11,6 +11,22 @@ class SuperBlock;
 enum SuperBlockCompileType;
 class EmitterVariables;
 
+#define INDEX_REG 35
+
+#define REG_X (0)
+#define REG_Y (1)
+#define REG_U (2)
+#define REG_V (3)
+
+#define COUNTER_REG 33
+#define RZ_REG 39
+#define ACS_REG 46
+#define SVS_REG 47
+#define XYC_REG 42
+#define UVC_REG 43
+#define XYR_REG 44
+#define UVR_REG 45
+
 #define DECOMPRESS_OPTIONS_INHIBIT_ECU (0x00000004UL)
 #define DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST (0x00000002UL)
 #define DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST (0x00000001UL)

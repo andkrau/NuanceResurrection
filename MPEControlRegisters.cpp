@@ -36,7 +36,7 @@ uint32 MPE::ReadControlRegister(const uint32 address, const InstructionCacheEntr
     case 0x7:
       return pcexec;
     case 0x8:
-      return *(entry->pRzRegs);
+      return entry->pRegs[RZ_REG];
     case 0x9:
       return rzi1;
     case 0xA:
@@ -65,41 +65,41 @@ uint32 MPE::ReadControlRegister(const uint32 address, const InstructionCacheEntr
       //inten2sel
       return (inten2sel & 0x1F);
     case 0x1E:
-      return (entry->pCounterRegs)[0] & 0xFFFF;
+      return entry->pRegs[COUNTER_REG+0] & 0xFFFF;
     case 0x1F:
-      return (entry->pCounterRegs)[1] & 0xFFFF;
+      return entry->pRegs[COUNTER_REG+1] & 0xFFFF;
     case 0x20:
       //rx
-      return (entry->pIndexRegs)[0];
+      return entry->pRegs[INDEX_REG+REG_X];
     case 0x21:
       //ry
-      return (entry->pIndexRegs)[1];
+      return entry->pRegs[INDEX_REG+REG_Y];
     case 0x22:
-      return *(entry->pXyrange) & ((0x3FFUL << 16) | 0x3FFUL);
+      return entry->pRegs[XYR_REG] & ((0x3FFUL << 16) | 0x3FFUL);
     case 0x23:
       return xybase & 0xFFFFFFFC;
     case 0x24:
-      return *(entry->pXyctl) & ~((1UL << 11) | (1UL << 27) | (1UL << 31));
+      return entry->pRegs[XYC_REG] & ~((1UL << 11) | (1UL << 27) | (1UL << 31));
     case 0x25:
       //ru
-      return (entry->pIndexRegs)[2];
+      return entry->pRegs[INDEX_REG+REG_U];
     case 0x26:
       //rv
-      return (entry->pIndexRegs)[3];
+      return entry->pRegs[INDEX_REG+REG_V];
     case 0x27:
-      return *(entry->pUvrange) & ((0x3FFUL << 16) | 0x3FFUL);
+      return entry->pRegs[UVR_REG] & ((0x3FFUL << 16) | 0x3FFUL);
     case 0x28:
       return uvbase & 0xFFFFFFFC;
     case 0x29:
-      return *(entry->pUvctl) & ~((1UL << 11) | (1UL << 27) | (1UL << 31));
+      return entry->pRegs[UVC_REG] & ~((1UL << 11) | (1UL << 27) | (1UL << 31));
     case 0x2A:
       return linpixctl & ((1UL << 28) | (15UL << 20));
     case 0x2B:
       return clutbase & 0xFFFFFFC0;
     case 0x2C:
-      return *(entry->pSvshift) & 0x03UL;
+      return entry->pRegs[SVS_REG] & 0x03UL;
     case 0x2D:
-      return (((int32)(*(entry->pAcshift) << 25)) >> 25);
+      return (((int32)(entry->pRegs[ACS_REG] << 25)) >> 25);
     case 0x2E:
       return sp & 0xFFFFFFF0;
     case 0x2F:
@@ -136,7 +136,7 @@ uint32 MPE::ReadControlRegister(const uint32 address, const InstructionCacheEntr
     case 0x4D:
     case 0x4E:
     case 0x4F:
-      return (entry->pScalarRegs)[(address >> 4) - 0x30];
+      return entry->pRegs[(address >> 4) - 0x30];
     case 0x50:
       return odmactl & 0x60;
     case 0x51:

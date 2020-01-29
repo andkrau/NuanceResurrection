@@ -306,16 +306,7 @@ void MPEReadRegister(MPE &mpe)
   const uint32 mpeaddr = mpe.regs[1];
 
   InstructionCacheEntry entry;
-  entry.pScalarRegs = mpe.regs;
-  entry.pIndexRegs = &mpe.rx;
-  entry.pCounterRegs = &mpe.rc0;
-  entry.pRzRegs = &mpe.rz;
-  entry.pXyctl = &mpe.xyctl;
-  entry.pUvctl = &mpe.uvctl;
-  entry.pXyrange = &mpe.xyrange;
-  entry.pUvrange = &mpe.uvrange;
-  entry.pAcshift = &mpe.acshift;
-  entry.pSvshift = &mpe.svshift;
+  entry.pRegs = mpe.reg_union;
 
   if((which < 4) && (mpeaddr >= MPE_CTRL_BASE) && (mpeaddr < MPE1_ADDR_BASE))
   {

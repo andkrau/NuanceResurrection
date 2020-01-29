@@ -58,12 +58,12 @@ void Execute_DECBoth(MPE &mpe, const InstructionCacheEntry &entry, const Nuance 
 
 void Execute_ADDRImmediateOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pIndexRegs[nuance.fields[FIELD_RCU_DEST]] + nuance.fields[FIELD_RCU_SRC];
+  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + nuance.fields[FIELD_RCU_SRC];
 }
 
 void Execute_ADDRImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pIndexRegs[nuance.fields[FIELD_RCU_DEST]] + nuance.fields[FIELD_RCU_SRC];
+  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + nuance.fields[FIELD_RCU_SRC];
 
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
   {
@@ -96,12 +96,12 @@ void Execute_ADDRImmediate(MPE &mpe, const InstructionCacheEntry &entry, const N
 
 void Execute_ADDRScalarOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pIndexRegs[nuance.fields[FIELD_RCU_DEST]] + entry.pScalarRegs[nuance.fields[FIELD_RCU_SRC]];
+  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
 }
 
 void Execute_ADDRScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pIndexRegs[nuance.fields[FIELD_RCU_DEST]] + entry.pScalarRegs[nuance.fields[FIELD_RCU_SRC]];
+  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
   {
     mpe.cc |= CC_COUNTER0_ZERO;
@@ -170,12 +170,12 @@ void Execute_MVRImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nu
 
 void Execute_MVRScalarOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pScalarRegs[nuance.fields[FIELD_RCU_SRC]];
+  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
 }
 
 void Execute_MVRScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pScalarRegs[nuance.fields[FIELD_RCU_SRC]];
+  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
   {
     mpe.cc |= CC_COUNTER0_ZERO;
@@ -213,19 +213,19 @@ void Execute_RangeOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuanc
   {
     case 0:
       //Use x range as integer portion.  Limit to 10 bits.
-      rcu_range = *entry.pXyrange & 0x03FF0000UL;
+      rcu_range = entry.pRegs[XYR_REG] & 0x03FF0000UL;
       break;
     case 1:
       //Use y range as integer portion.  Limit to 10 bits.
-      rcu_range = (*entry.pXyrange << 16) & 0x003FF0000UL;
+      rcu_range = (entry.pRegs[XYR_REG] << 16) & 0x03FF0000UL;
       break;
     case 2:
       //Use u range.  Limit to 10 bits.
-      rcu_range = *entry.pUvrange & 0x03FF0000UL;
+      rcu_range = entry.pRegs[UVR_REG] & 0x03FF0000UL;
       break;
     case 3:
       //Use v range.  Limit to 10 bits
-      rcu_range = (*entry.pUvrange << 16) & 0x03FF0000UL;
+      rcu_range = (entry.pRegs[UVR_REG] << 16) & 0x03FF0000UL;
       break;
     default:
       assert(false);
@@ -233,7 +233,7 @@ void Execute_RangeOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuanc
       break;
   }
 
-  rcu_src = entry.pIndexRegs[rcu_src];
+  rcu_src = entry.pRegs[INDEX_REG+rcu_src];
 
   //clear modge and modmi conditions
   mpe.cc &= ~(CC_MODGE | CC_MODMI);
@@ -261,19 +261,19 @@ void Execute_Range(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &n
   {
     case 0:
       //Use x range as integer portion.  Limit to 10 bits.
-      rcu_range = *entry.pXyrange & 0x03FF0000UL;
+      rcu_range = entry.pRegs[XYR_REG] & 0x03FF0000UL;
       break;
     case 1:
       //Use y range as integer portion.  Limit to 10 bits.
-      rcu_range = (*entry.pXyrange << 16) & 0x03FF0000UL;
+      rcu_range = (entry.pRegs[XYR_REG] << 16) & 0x03FF0000UL;
       break;
     case 2:
       //Use u range.  Limit to 10 bits.
-      rcu_range = *entry.pUvrange & 0x03FF0000UL;
+      rcu_range = entry.pRegs[UVR_REG] & 0x03FF0000UL;
       break;
     case 3:
       //Use v range.  Limit to 10 bits
-      rcu_range = (*entry.pUvrange << 16) & 0x03FF0000UL;
+      rcu_range = (entry.pRegs[UVR_REG] << 16) & 0x03FF0000UL;
       break;
     default:
       assert(false);
@@ -281,7 +281,7 @@ void Execute_Range(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &n
       break;
   }
 
-  rcu_src = entry.pIndexRegs[rcu_src];
+  rcu_src = entry.pRegs[INDEX_REG+rcu_src];
 
   //clear modge and modmi conditions
   mpe.cc &= ~(CC_MODGE | CC_MODMI);
@@ -337,19 +337,19 @@ void Execute_ModuloOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuan
   {
     case 0:
       //Use x range as integer portion.  Limit to 10 bits.
-      rcu_range = *entry.pXyrange & 0x03FF0000UL;
+      rcu_range = entry.pRegs[XYR_REG] & 0x03FF0000UL;
       break;
     case 1:
       //Use y range as integer portion.  Limit to 10 bits.
-      rcu_range = (*entry.pXyrange << 16) & 0x003FF0000UL;
+      rcu_range = (entry.pRegs[XYR_REG] << 16) & 0x03FF0000UL;
       break;
     case 2:
       //Use u range.  Limit to 10 bits.
-      rcu_range = *entry.pUvrange & 0x03FF0000UL;
+      rcu_range = entry.pRegs[UVR_REG] & 0x03FF0000UL;
       break;
     case 3:
       //Use v range.  Limit to 10 bits
-      rcu_range = (*entry.pUvrange << 16) & 0x03FF0000UL;
+      rcu_range = (entry.pRegs[UVR_REG] << 16) & 0x03FF0000UL;
       break;
     default:
       assert(false);
@@ -357,7 +357,7 @@ void Execute_ModuloOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuan
       break;
   }
 
-  rcu_src = entry.pIndexRegs[rcu_src];
+  rcu_src = entry.pRegs[INDEX_REG+rcu_src];
 
   //clear modge and modmi conditions
   mpe.cc &= ~(CC_MODGE | CC_MODMI);
@@ -377,7 +377,7 @@ void Execute_ModuloOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuan
   }
 
   mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] =
-    (entry.pIndexRegs[nuance.fields[FIELD_RCU_DEST]] & 0x0000FFFFUL) |
+    (entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] & 0x0000FFFFUL) |
     (moduloResult & 0xFFFF0000UL);
 }
 
@@ -389,19 +389,19 @@ void Execute_Modulo(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &
   {
     case 0:
       //Use x range as integer portion.  Limit to 10 bits.
-      rcu_range = *entry.pXyrange & 0x03FF0000UL;
+      rcu_range = entry.pRegs[XYR_REG] & 0x03FF0000UL;
       break;
     case 1:
       //Use y range as integer portion.  Limit to 10 bits.
-      rcu_range = (*entry.pXyrange << 16) & 0x003FF0000UL;
+      rcu_range = (entry.pRegs[XYR_REG] << 16) & 0x03FF0000UL;
       break;
     case 2:
       //Use u range.  Limit to 10 bits.
-      rcu_range = *entry.pUvrange & 0x03FF0000UL;
+      rcu_range = entry.pRegs[UVR_REG] & 0x03FF0000UL;
       break;
     case 3:
       //Use v range.  Limit to 10 bits
-      rcu_range = (*entry.pUvrange << 16) & 0x03FF0000UL;
+      rcu_range = (entry.pRegs[UVR_REG] << 16) & 0x03FF0000UL;
       break;
     default:
       assert(false);
@@ -409,7 +409,7 @@ void Execute_Modulo(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &
       break;
   }
 
-  rcu_src = entry.pIndexRegs[rcu_src];
+  rcu_src = entry.pRegs[INDEX_REG+rcu_src];
 
   //clear modge and modmi conditions
   mpe.cc &= ~(CC_MODGE | CC_MODMI);
@@ -429,7 +429,7 @@ void Execute_Modulo(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &
   }
 
   mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] =
-    (entry.pIndexRegs[nuance.fields[FIELD_RCU_DEST]] & 0x0000FFFFUL) |
+    (entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] & 0x0000FFFFUL) |
     (moduloResult & 0xFFFF0000UL);
 
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
