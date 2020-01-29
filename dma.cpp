@@ -637,6 +637,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
           }
           else
           {
+            assert(((intaddr >> 23) & 0x1FUL) < 4);
             intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
             *((uint32 *)intMemory) = directValue;
           }
@@ -664,6 +665,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
           }
           else
           {
+            assert(((intaddr >> 23) & 0x1FUL) < 4);
             intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
             directValue = *((uint32 *)intMemory);
           }
@@ -690,6 +692,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
     }
     else
     {
+      assert(((baseaddr >> 23) & 0x1FUL) < 4);
       baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL], (baseaddr & 0xFFFFFFFC));
     }
   }
@@ -700,6 +703,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
       if(bRemote)
       {
         //internal address is system address (but still in MPE memory)
+        assert(((intaddr >> 23) & 0x1FUL) < 4);
         intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
       }
       else
@@ -716,6 +720,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
       if(bRemote)
       {
         //internal address is system address (but still in MPE memory)
+        assert(((intaddr >> 23) & 0x1FUL) < 4);
         intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
       }
       else
@@ -805,6 +810,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
     if(bRemote)
     {
       //internal address is system address (but still in MPE memory)
+      assert(((intaddr >> 23) & 0x1FUL) < 4);
       pDest = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
       if(bFlushCache)
       {
@@ -887,6 +893,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         if(bRemote)
         {
           //internal address is system address (but still in MPE memory)
+          assert(((intaddr >> 23) & 0x1FUL) < 4);
           directValue = *((uint32 *)nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC)));
         }
         else
@@ -913,6 +920,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
       if(bRemote)
       {
         //internal address is system address (but still in MPE memory)
+        assert(((intaddr >> 23) & 0x1FUL) < 4);
         intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
       }
       else
@@ -1297,6 +1305,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
   if(bRemote)
   {
     //internal address is system address (but still in MPE memory)
+    assert(((mpeBase >> 23) & 0x1FUL) < 4);
     intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
   }
   else
@@ -1317,6 +1326,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
   //{
   //}
 
+  assert(((sdramBase >> 23) & 0x1FUL) < 4);
   void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
   uint32 srcAStart, srcBStart, destAStart, destBStart, aCountInit, bCount, srcOffset, destOffset;
