@@ -17,12 +17,9 @@ extern uint32 vdgCLUT[];
 void DoCommBusController(void)
 {
   static uint32 currentTransmitID = 0;
-  static uint32 target;
-  static bool bLocked;
-  static bool bPending;
 
-  bLocked = false;
-  bPending = false;
+  bool bLocked = false;
+  bool bPending = false;
 
   currentTransmitID &= 0x03UL;
 
@@ -47,7 +44,7 @@ void DoCommBusController(void)
   if(!bPending)
     return;
 
-  target = nuonEnv.mpe[currentTransmitID].commctl & COMM_TARGET_ID_BITS;
+  const uint32 target = nuonEnv.mpe[currentTransmitID].commctl & COMM_TARGET_ID_BITS;
 
   if(target < 4)
   {
