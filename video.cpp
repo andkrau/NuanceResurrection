@@ -60,7 +60,6 @@ uint32 overlay_fetch_pixel_type;
 uint32 overlay_write_pixel_type;
 uint32 overlay_pixel_type_width;
 
-uint32 *mainDisplayBuffer = 0;
 uint32 *mainChannelBuffer = 0;
 uint32 *overlayChannelBuffer = 0;
 uint8 *clutPtr = (uint8 *)vdgCLUT;
@@ -93,11 +92,10 @@ float overlayChannelScaleY = 1.0;
 
 uint32 LUT16[256][256];
 
-ShaderProgram *shaderProgram;
+ShaderProgram shaderProgram;
 
 static const GLubyte transparencyTexture[] = {0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF};
 static GLubyte borderTexture[] = {0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00};
-static const uint32 pixTypeToPixWidth[] = { 16,2,2,2,4,4,8 };
 
 void InitializeColorSpaceTables(void)
 {
@@ -117,30 +115,22 @@ void InitializeColorSpaceTables(void)
 
 uint32 *AllocateTextureMemory32(const uint32 size, const bool bOverlay)
 {
-  uint32 *ptr;
-
   if(bOverlay)
   {
-    ptr = overlayChannelBuffer;
-
     if(!overlayChannelBuffer)
     {
-      ptr = new uint32[size];
-      overlayChannelBuffer = ptr;
+      overlayChannelBuffer = new uint32[size];
     }
+    return overlayChannelBuffer;
   }
   else
   {
-    ptr = mainChannelBuffer;
-
     if(!mainChannelBuffer)
     {
-      ptr = new uint32[size];
-      mainChannelBuffer = ptr;
+      mainChannelBuffer = new uint32[size];
     }
+    return mainChannelBuffer;
   }
-
-  return ptr;
 }
 
 void FreeTextureMemory(uint32 *ptr, const bool bOverlay)
@@ -170,35 +160,35 @@ void UpdateTextureStates(void)
 
   if(!bShadersInstalled)
   {
-    shaderProgram = new ShaderProgram;
-
-    shaderProgram->Initialize();
-    shaderProgram->InstallShaderSourceFromFile("video_generic.vs",GL_VERTEX_SHADER);
-    shaderProgram->InstallShaderSourceFromFile("video_m32_o32.fs",GL_FRAGMENT_SHADER);
-    shaderProgram->AttachShader(GL_VERTEX_SHADER);
-    shaderProgram->AttachShader(GL_FRAGMENT_SHADER);
-    bool status = shaderProgram->CompileAndLinkShaders();
-    bShadersInstalled = status;
+    shaderProgram.Initialize();
+    shaderProgram.InstallShaderSourceFromFile("video_generic.vs",GL_VERTEX_SHADER);
+    shaderProgram.InstallShaderSourceFromFile("video_m32_o32.fs",GL_FRAGMENT_SHADER);
+    shaderProgram.AttachShader(GL_VERTEX_SHADER);
+    shaderProgram.AttachShader(GL_FRAGMENT_SHADER);
+    bool status = shaderProgram.CompileAndLinkShaders();
     if(status)
     {
-      status = shaderProgram->StartShaderProgram();
+      status = shaderProgram.StartShaderProgram();
       if(status)
       {
-        uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(),"mainChannelSampler");
+        uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(),"mainChannelSampler");
         glUniform1i(uniformLoc, mainTextureUnit-GL_TEXTURE0);
-        uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(),"overlayChannelSampler");
+        uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(),"overlayChannelSampler");
         glUniform1i(uniformLoc, osdTextureUnit-GL_TEXTURE0);
-        uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(),"LUTSampler");
+        uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(),"LUTSampler");
         glUniform1i(uniformLoc, lutTextureUnit-GL_TEXTURE0);
+        bShadersInstalled = true;
       }
     }
+    if(!bShadersInstalled)
+      shaderProgram.Uninitalize();
   }
 
   uint32 pixType = (structOverlayChannel.dmaflags >> 4) & 0x0F;
-  uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(), "structOverlayChannelAlpha");
+  uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "structOverlayChannelAlpha");
   glUniform1f(uniformLoc, (pixType == 2) ? structOverlayChannel.alpha : -1.0f);
   pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
-  uniformLoc = glGetUniformLocation(shaderProgram->GetProgramObject(), "mainIs16bit");
+  uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "mainIs16bit");
   glUniform1f(uniformLoc, (pixType == 2) ? 1.0f : 0.0f);
 
   glActiveTexture(mainTextureUnit);
@@ -805,8 +795,7 @@ render_main_buffer:
     videoTexInfo.bUpdateDisplayList = false;
   }
 
-  uint32 activeChannels = (bOverlayChannelActive ? CHANNELSTATE_OVERLAY_ACTIVE: 0);
-  activeChannels |= (bMainChannelActive ? CHANNELSTATE_MAIN_ACTIVE : 0);
+  const uint32 activeChannels = (bOverlayChannelActive ? CHANNELSTATE_OVERLAY_ACTIVE: 0) | (bMainChannelActive ? CHANNELSTATE_MAIN_ACTIVE : 0);
  
   glCallList(videoTexInfo.displayListName[activeChannels]);
   glFlush();
@@ -814,9 +803,12 @@ render_main_buffer:
 
 void UpdateBufferLengths(void)
 {
+  static const uint32 pixTypeToPixWidth[] = { 16,2,2,2,4,4,8 };
+
   if(bMainChannelActive)
   {
-    nuonEnv.mainChannelLowerLimit = (uint32)structMainChannel.base;
+    nuonEnv.mainChannelLowerLimit = structMainChannel.base;
+    assert(((structMainChannel.dmaflags >> 4) & 0x7) < 7);
     nuonEnv.mainChannelUpperLimit = nuonEnv.mainChannelLowerLimit + (structMainChannel.src_width * structMainChannel.src_height * pixTypeToPixWidth[(structMainChannel.dmaflags >> 4) & 0x7]) - 1;
   }
   else
@@ -827,7 +819,8 @@ void UpdateBufferLengths(void)
 
   if(bOverlayChannelActive)
   {
-    nuonEnv.overlayChannelLowerLimit = (uint32)structOverlayChannel.base;
+    nuonEnv.overlayChannelLowerLimit = structOverlayChannel.base;
+    assert(((structOverlayChannel.dmaflags >> 4) & 0x7) < 7);
     nuonEnv.overlayChannelUpperLimit = nuonEnv.overlayChannelLowerLimit + (structOverlayChannel.src_width * structOverlayChannel.src_height * pixTypeToPixWidth[(structOverlayChannel.dmaflags >> 4) & 0x7]) - 1;
   }
   else
@@ -874,11 +867,8 @@ void VidConfig(MPE &mpe)
   const uint32 display = mpe.regs[0];
   const uint32 main = mpe.regs[1];
   const uint32 osd = mpe.regs[2];
-  const uint32 reserved = mpe.regs[3];
+  //const uint32 reserved = mpe.regs[3];
   VidDisplay maindisplay;
-  VidChannel mainchannel, osdchannel;
-
-  bool bUpdateOpenGLData = false;
 
   channelStatePrev = channelState;
   channelState = 0;
@@ -895,8 +885,12 @@ void VidConfig(MPE &mpe)
     maindisplay.progressive = -1;
   }
   else
+  {
+    mpe.regs[0] = 1; // NTSC
     return; // leave unchanged from last call
+  }
 
+  VidChannel mainchannel;
   if(main)
   {
     VidChannel * const pMainChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, main);
@@ -907,12 +901,13 @@ void VidConfig(MPE &mpe)
     SwapScalarBytes((uint32 *)&mainchannel.src_height);
     if(mainchannel.base == 0)
     {
-      //mpe.regs[0] = 0;
+      //mpe.regs[0] = 1; // NTSC
       //return;
       mainchannel.base = structMainChannel.base;
     }
   }
 
+  VidChannel osdchannel;
   if(osd)
   {
     VidChannel * const pOSDChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, osd);
@@ -923,11 +918,13 @@ void VidConfig(MPE &mpe)
     SwapScalarBytes((uint32 *)&osdchannel.src_height);
     if(osdchannel.base == 0)
     {
-      //mpe.regs[0] = 0;
+      //mpe.regs[0] = 1; // NTSC
       //return;
       osdchannel.base = structOverlayChannel.base;
     }
   }
+
+  bool bUpdateOpenGLData = false;
 
   //if(display)
   {
@@ -946,10 +943,6 @@ void VidConfig(MPE &mpe)
     bUpdateOpenGLData |= (structMainDisplay.bordcolor != structMainDisplayPrev.bordcolor);
   }
 
-  if(!mainDisplayBuffer)
-  {
-    mainDisplayBuffer = new uint32[structMainDisplay.dispwidth * structMainDisplay.dispheight];
-  }
   bMainChannelActive = false;
   bOverlayChannelActive = false;
 
@@ -982,7 +975,7 @@ void VidConfig(MPE &mpe)
       //The specified base address always points to the start of the first color buffer/map.  The pixel type
       //determines which map is to be displayed.  The proper byte offset from the start of the first map can be
       //computed using (map * src_width * src_height * bytes_per_pixel) where bytes_per_pixel is always two.
-      structMainChannel.base = ((uint8 *)structMainChannel.base) + (map * structMainChannel.src_width * structMainChannel.src_height * 2);
+      structMainChannel.base = structMainChannel.base + (map * structMainChannel.src_width * structMainChannel.src_height * 2);
       //change the pixel type to 16-bit, no-Z
       structMainChannel.dmaflags = (structMainChannel.dmaflags & 0xFFFFFF0FUL) | (0x02 << 4);
 
@@ -1017,7 +1010,7 @@ void VidConfig(MPE &mpe)
       structMainChannel.dest_yoff = (structMainDisplay.dispheight - structMainChannel.dest_height) >> 1;
     }
 
-    //mainChannelBuffer = AllocateTextureMemory32(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)),false);
+    //AllocateTextureMemory32(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)),false);
     mainChannelScaleX = (float)((double)structMainChannel.dest_width/(double)structMainChannel.src_width);
     mainChannelScaleY = (float)((double)structMainChannel.dest_height/(double)structMainChannel.src_height);
     bMainChannelActive = true;
@@ -1066,7 +1059,7 @@ void VidConfig(MPE &mpe)
       //The specified base address always points to the start of the first color buffer/map.  The pixel type
       //determines which map is to be displayed.  The proper byte offset from the start of the first map can be
       //computed using (map * src_width * src_height * bytes_per_pixel) where bytes_per_pixel is always two.
-      structOverlayChannel.base = ((uint8 *)structOverlayChannel.base) + (map * structOverlayChannel.src_width * structOverlayChannel.src_height * 2);
+      structOverlayChannel.base = structOverlayChannel.base + (map * structOverlayChannel.src_width * structOverlayChannel.src_height * 2);
       //change the pixel type to 16-bit, no-Z
       structOverlayChannel.dmaflags = (structOverlayChannel.dmaflags & 0xFFFFFF0FUL) | (0x02 << 4);
 
@@ -1101,7 +1094,7 @@ void VidConfig(MPE &mpe)
       structOverlayChannel.dest_yoff = (structMainDisplay.dispheight - structOverlayChannel.dest_height) >> 1;
     }
 
-    //overlayChannelBuffer = AllocateTextureMemory32(((structOverlayChannel.src_width & 0xFFFF) * (structOverlayChannel.src_height & 0xFFFF)),true);
+    //AllocateTextureMemory32(((structOverlayChannel.src_width & 0xFFFF) * (structOverlayChannel.src_height & 0xFFFF)),true);
     overlayChannelScaleX = (float)((double)structOverlayChannel.dest_width/(double)structOverlayChannel.src_width);
     overlayChannelScaleY = (float)((double)structOverlayChannel.dest_height/(double)structOverlayChannel.src_height);
     bOverlayChannelActive = true;
@@ -1138,18 +1131,16 @@ void VidConfig(MPE &mpe)
     UpdateTextureStates();
   }
 
-  mpe.regs[0] = 1;
+  mpe.regs[0] = 1; // NTSC
 }
 
 void VidSetup(MPE &mpe)
 {
-  uint32 mainChannelBase = mpe.regs[0];
-  uint32 dmaFlags = mpe.regs[1];
-  uint32 sourceWidth = mpe.regs[2];
-  uint32 sourceHeight = mpe.regs[3];
-  uint32 filterType = mpe.regs[4];
-  uint32 map;
-  bool bUpdateOpenGLData = false;
+  const uint32 mainChannelBase = mpe.regs[0];
+  const uint32 dmaFlags = mpe.regs[1];
+  const uint32 sourceWidth = mpe.regs[2];
+  const uint32 sourceHeight = mpe.regs[3];
+  const uint32 filterType = mpe.regs[4];
 
   structMainDisplay.bordcolor = 0x10808000; //Black
   structMainDisplay.dispwidth = VIDEO_WIDTH;
@@ -1163,7 +1154,7 @@ void VidSetup(MPE &mpe)
   if(mainChannelBase)
   {
     structMainChannelPrev.base = structMainChannel.base;
-    structMainChannel.base = (void *)mainChannelBase;
+    structMainChannel.base = mainChannelBase;
     channelState |= CHANNELSTATE_MAIN_ACTIVE;
 
     structMainChannelPrev.dmaflags = structMainChannel.dmaflags;
@@ -1182,11 +1173,6 @@ void VidSetup(MPE &mpe)
   if(overlayChannelBuffer)
   {
     //FreeTextureMemory(overlayChannelBuffer,true);
-  }
-
-  if(!mainDisplayBuffer)
-  {
-    mainDisplayBuffer = new uint32[structMainDisplay.dispwidth * structMainDisplay.dispheight];
   }
 
   structMainChannel.dmaflags = dmaFlags;
@@ -1208,7 +1194,7 @@ void VidSetup(MPE &mpe)
   //B,V,A and Z are ignored for video DMA transfers
 
   //Get pixel type
-  map = (dmaFlags >> 4) & 0x0FUL;
+  uint32 map = (dmaFlags >> 4) & 0x0FUL;
 
   //For pixel types 0 through 8, map 0 contains color data and map 1 contains Z data.  Because Z data is ignored
   //by the video DMA controller, transfers will always occur from map 0 so the main channel base address does not
@@ -1235,7 +1221,7 @@ void VidSetup(MPE &mpe)
     //The specified base address always points to the start of the first color buffer/map.  The pixel type
     //determines which map is to be displayed.  The proper byte offset from the start of the first map can be
     //computed using (map * src_width * src_height * bytes_per_pixel) where bytes_per_pixel is always two.
-    structMainChannel.base = ((uint8 *)structMainChannel.base) + (map * structMainChannel.src_width * structMainChannel.src_height * 2);
+    structMainChannel.base = structMainChannel.base + (map * structMainChannel.src_width * structMainChannel.src_height * 2);
     //change the pixel type to 16-bit, no-Z
     structMainChannel.dmaflags = (structMainChannel.dmaflags & 0xFFFFFF0FUL) | (0x02UL << 4);
      //It is safe to specify a pixel type of 12 or 15 but this will display Z-data and look really funky.
@@ -1246,7 +1232,7 @@ void VidSetup(MPE &mpe)
   //Center along Y
   structMainChannel.dest_yoff = (structMainDisplay.dispheight - structMainChannel.dest_height) >> 1;
 
-  //mainChannelBuffer = AllocateTextureMemory32(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)),false);
+  //AllocateTextureMemory32(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)),false);
   mainChannelScaleX = (float)structMainChannel.dest_width/(float)structMainChannel.src_width;
   mainChannelScaleY = (float)structMainChannel.dest_height/(float)structMainChannel.src_height;
   bMainChannelActive = true;
@@ -1256,6 +1242,7 @@ void VidSetup(MPE &mpe)
   bCanDisplayVideo = true;
   UpdateBufferLengths();
 
+  bool bUpdateOpenGLData = false;
   bUpdateOpenGLData |= (channelState != channelStatePrev);
   bUpdateOpenGLData |= (structMainChannel.alpha != structMainChannelPrev.alpha);
   bUpdateOpenGLData |= (structMainChannel.clut_select != structMainChannelPrev.clut_select);
@@ -1285,15 +1272,7 @@ void VidSetup(MPE &mpe)
   }
 
   bCanDisplayVideo = true;
-}
 
-void SetVideoMode(void)
-{
-  //always output in RGBA format
-  if(!mainDisplayBuffer)
-  {
-    mainDisplayBuffer = new uint32[VIDEO_WIDTH * 480]; //NUON framebuffer size
-  }
 }
 
 void VidSync(MPE& mpe) // should wait (as seen by the app) for mpe.regs[0] fields (= mpe.regs[0] * 1/60 or 1/50 second), if 0 or -1 just return internal field counter, -2 is internal only
@@ -1370,7 +1349,7 @@ void VidChangeBase(MPE &mpe)
       case VID_CHANNEL_MAIN:
         //valid channel, set dmaflags and base then return 1
         structMainChannel.dmaflags = dmaflags;
-        structMainChannel.base = (void *)base;
+        structMainChannel.base = base;
         //Handle 16_16Z double and triple buffer frame buffers
         if((map >= 9) || map == 5)
         {
@@ -1392,7 +1371,7 @@ void VidChangeBase(MPE &mpe)
           //The specified base address always points to the start of the first color buffer/map.  The pixel type
           //determines which map is to be displayed.  The proper byte offset from the start of the first map can be
           //computed using (map * src_width * src_height * bytes_per_pixel) where bytes_per_pixel is always two.
-          structMainChannel.base = ((uint8 *)structMainChannel.base) + (map * structMainChannel.src_width * structMainChannel.src_height * 2);
+          structMainChannel.base = structMainChannel.base + (map * structMainChannel.src_width * structMainChannel.src_height * 2);
           //change the pixel type to 16-bit, no-Z
           structMainChannel.dmaflags = (structMainChannel.dmaflags & 0xFFFFFF0FUL) | (0x02UL << 4);
 
@@ -1404,7 +1383,7 @@ void VidChangeBase(MPE &mpe)
       case VID_CHANNEL_OSD:
         //valid channel, set dmaflags and base then return 1
         structOverlayChannel.dmaflags = dmaflags;
-        structOverlayChannel.base = (void *)base;
+        structOverlayChannel.base = base;
         //Handle 16_16Z double and triple buffer frame buffers
         if((map >= 9) || (map == 5))
         {
@@ -1426,7 +1405,7 @@ void VidChangeBase(MPE &mpe)
           //The specified base address always points to the start of the first color buffer/map.  The pixel type
           //determines which map is to be displayed.  The proper byte offset from the start of the first map can be
           //computed using (map * src_width * src_height * bytes_per_pixel) where bytes_per_pixel is always two.
-          structOverlayChannel.base = ((uint8 *)structOverlayChannel.base) + (map * structOverlayChannel.src_width * structOverlayChannel.src_height * 2);
+          structOverlayChannel.base = structOverlayChannel.base + (map * structOverlayChannel.src_width * structOverlayChannel.src_height * 2);
           //change the pixel type to 16-bit, no-Z
           structOverlayChannel.dmaflags = (structOverlayChannel.dmaflags & 0xFFFFFF0FUL) | (0x02UL << 4);
 
@@ -1458,8 +1437,8 @@ void VidChangeScroll(MPE &mpe)
 
   mpe.regs[0] = 1;
 
-  if(((which == VID_CHANNEL_MAIN) && !mainChannelBuffer) ||
-    ((which == VID_CHANNEL_OSD) && !overlayChannelBuffer))
+  if(((which == VID_CHANNEL_MAIN) && (!mainChannelBuffer || !bMainChannelActive)) ||
+     ((which == VID_CHANNEL_OSD) && (!overlayChannelBuffer || !bOverlayChannelActive)))
   {
     //Channel is not active, return 0
     mpe.regs[0] = 0;
@@ -1497,7 +1476,7 @@ void VidChangeScroll(MPE &mpe)
   }
 }
 
-void SetDefaultColor(MPE &mpe)
+void VidSetBorderColor(MPE &mpe)
 {
   structMainDisplay.bordcolor = mpe.regs[0];
   videoTexInfo.bUpdateDisplayList = true;

@@ -77,8 +77,6 @@ NativeCodeCache::~NativeCodeCache()
 bool NativeCodeCache::ReleaseBuffer(NativeCodeCacheEntryPoint entryPoint, uint32 virtualAddress, uint32 nextVirtualAddress, uint32 newUsedBytes, uint32 packetCount, uint32 instructionCount, SuperBlockCompileType compileType, uint32 nextDelayCount, uint32 alignment)
 {
   NativeCodeCacheEntry newEntry;
-  uint32 address;
-
   newEntry.entryPoint = entryPoint;
   newEntry.virtualAddress = virtualAddress;
   newEntry.nextVirtualAddress = nextVirtualAddress;
@@ -94,7 +92,7 @@ bool NativeCodeCache::ReleaseBuffer(NativeCodeCacheEntryPoint entryPoint, uint32
 
   if(alignment)
   {
-    address = (uint32)pEmitLoc;
+    size_t address = (size_t)pEmitLoc;
     address = ((address + ((1 << alignment) - 1)) & ~((1 << alignment) - 1));
     pEmitLoc = (uint8 *)address;
   }
@@ -1070,8 +1068,8 @@ void NativeCodeCache::X86Emit_EMMS()
 
 void NativeCodeCache::X86Emit_JCC(uint8 *pTarget, int8 conditionCode)
 {
-  int32 pOffset = pTarget - (pEmitLoc + 2);
-  int32 pOffsetNear = pTarget - (pEmitLoc + 6);
+  int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
+  int32 pOffsetNear = (int32)(pTarget - (pEmitLoc + 6));
   
   if((pOffset >= -128) && (pOffset <= 127))
   {
@@ -1382,8 +1380,8 @@ void NativeCodeCache::X86Emit_CALLI(uint32 offset, uint16 seg)
 
 void NativeCodeCache::X86Emit_JMPI(uint8 *target, uint16 seg)
 {
-  int32 offset = target - (pEmitLoc + 2);
-  int32 offsetNear = target - (pEmitLoc + 5);
+  int32 offset = (int32)(target - (pEmitLoc + 2));
+  int32 offsetNear = (int32)(target - (pEmitLoc + 5));
 
   if(seg == 0)
   {
@@ -1926,7 +1924,7 @@ void NativeCodeCache::X86Emit_ESC7()
 
 void NativeCodeCache::X86Emit_LOOPNE(uint8 *pTarget)
 {
-  int32 pOffset = pTarget - (pEmitLoc + 2);
+  int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE0;
   *pEmitLoc++ = (int8)pOffset;
@@ -1948,7 +1946,7 @@ void NativeCodeCache::X86Emit_LOOPNE_Label(PatchManager *patchMgr, uint32 labelI
 
 void NativeCodeCache::X86Emit_LOOPE(uint8 *pTarget)
 {
-  int32 pOffset = pTarget - (pEmitLoc + 2);
+  int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE0;
   *pEmitLoc++ = (int8)pOffset;
@@ -1970,7 +1968,7 @@ void NativeCodeCache::X86Emit_LOOPE_Label(PatchManager *patchMgr, uint32 labelIn
 
 void NativeCodeCache::X86Emit_LOOP(uint8 *pTarget)
 {
-  int32 pOffset = pTarget - (pEmitLoc + 2);
+  int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE2;
   *pEmitLoc++ = (int8)pOffset;
@@ -1992,7 +1990,7 @@ void NativeCodeCache::X86Emit_LOOP_Label(PatchManager *patchMgr, uint32 labelInd
 
 void NativeCodeCache::X86Emit_JCXZ(uint8 *pTarget)
 {
-  int32 pOffset = pTarget - (pEmitLoc + 3);
+  int32 pOffset = (int32)(pTarget - (pEmitLoc + 3));
   
   //ADDRESS Prefix
   *pEmitLoc++ = 0x67;
@@ -2017,7 +2015,7 @@ void NativeCodeCache::X86Emit_JCXZ_Label(PatchManager *patchMgr, uint32 labelInd
 
 void NativeCodeCache::X86Emit_JECXZ(uint8 *pTarget)
 {
-  int32 pOffset = pTarget - (pEmitLoc + 2);
+  int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE3;
   *pEmitLoc++ = (int8)pOffset;

@@ -73,6 +73,7 @@ void DeviceDetect(MPE &mpe)
     controller[slot].d4.yAxis2 = 0;
     controller[slot].d5.quadjoyX = 0;
     controller[slot].d6.quadjoyY = 0;
+
     mpe.regs[0] = 0; //No controller, for now
   }
 }

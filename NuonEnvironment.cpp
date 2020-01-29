@@ -472,7 +472,6 @@ NuonEnvironment::~NuonEnvironment()
   delete [] dvdBase;
 }
 
-char line[1024];
 const char CONFIG_COMMENT_CHAR = ';';
 const char CONFIG_VARIABLE_START_CHAR = '[';
 const char CONFIG_VARIABLE_FINISH_CHAR = ']';
@@ -495,7 +494,7 @@ void ReplaceNewline(char *line, char replaceChar, uint32 maxIndex)
 void NuonEnvironment::SetDVDBaseFromFileName(const char * const filename)
 {
   delete [] dvdBase;
-  int i = strlen(filename);
+  int i = (int)strlen(filename);
   dvdBase = new char[i+1];
   strncpy(dvdBase,filename,i+1);
   while(i >= 0)

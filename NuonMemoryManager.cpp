@@ -19,12 +19,12 @@ NuonMemoryManager::~NuonMemoryManager()
 uint32 NuonMemoryManager::Alloc(uint32 requestedBytes, uint32 requestedAlignment, uint32 flags)
 {
   char msg[128];
-  void *address = 0;
+  uint32 address = 0;
 
   if(flags & kMemSDRAM)
   {
     address = mainBusMemoryManager->Allocate(requestedBytes,requestedAlignment);
-    if((address != 0) && (((uint32)address < MAIN_BUS_BASE) || ((uint32)address >= MAIN_BUS_BASE + MAIN_BUS_SIZE)))
+    if((address != 0) && ((address < MAIN_BUS_BASE) || (address >= MAIN_BUS_BASE + MAIN_BUS_SIZE)))
     {
       sprintf(msg,"Illegal Main Bus memory address allocation: %8.8lX",address);
       //QMessageBox::warning(0,"MemAlloc Error",QString(msg));
@@ -34,7 +34,7 @@ uint32 NuonMemoryManager::Alloc(uint32 requestedBytes, uint32 requestedAlignment
   if((address == 0) && (flags & kMemSysRam))
   {
     address = otherBusMemoryManager->Allocate(requestedBytes,requestedAlignment);
-    if((address != 0) && (((uint32)address < SYSTEM_BUS_BASE) || ((uint32)address >= BIOS_FUNCTIONS_BASE)))
+    if((address != 0) && ((address < SYSTEM_BUS_BASE) || (address >= BIOS_FUNCTIONS_BASE)))
     {
       sprintf(msg,"Illegal Other Bus memory address allocation: %8.8lX",address);
       //QMessageBox::warning(0,"MemAlloc Error",QString(msg));
@@ -42,7 +42,7 @@ uint32 NuonMemoryManager::Alloc(uint32 requestedBytes, uint32 requestedAlignment
   }
 
 
-  return (uint32)address;
+  return address;
 }
 
 void NuonMemoryManager::Free(uint32 address)

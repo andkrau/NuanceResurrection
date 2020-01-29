@@ -18,8 +18,6 @@ void DoCommBusController(void)
 {
   static uint32 currentTransmitID = 0;
   static uint32 target;
-  uint32 cmdValue;
-  static uint32 i;
   static bool bLocked;
   static bool bPending;
 
@@ -30,7 +28,7 @@ void DoCommBusController(void)
 
   if(!(nuonEnv.mpe[currentTransmitID].commctl & COMM_LOCKED_BIT))
   {
-    for(i = 0; i < 4; i++)
+    for(uint32 i = 0; i < 4; i++)
     {
       if(nuonEnv.mpe[(currentTransmitID + i) & 0x03UL].commctl & COMM_XMIT_BUFFER_FULL_BIT)
       {
@@ -117,7 +115,7 @@ void DoCommBusController(void)
     if(target == COMM_ID_AUDIO)
     {
       //audio target
-      cmdValue = nuonEnv.mpe[currentTransmitID].commxmit0;
+      uint32 cmdValue = nuonEnv.mpe[currentTransmitID].commxmit0;
       switch(cmdValue >> 31)
       {
         case 0:
@@ -137,7 +135,7 @@ void DoCommBusController(void)
     else if(target == COMM_ID_VDG)
     {
       //vdg target
-      cmdValue = nuonEnv.mpe[currentTransmitID].commxmit0;
+      uint32 cmdValue = nuonEnv.mpe[currentTransmitID].commxmit0;
       switch(cmdValue >> 31)
       {
         case 0:

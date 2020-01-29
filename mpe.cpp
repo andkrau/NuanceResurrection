@@ -2024,7 +2024,7 @@ bool MPE::FetchDecodeExecute()
           numNativeCodeCacheFlushes++;
           nativeCodeCache->FlushRegion(invalidateRegionStart | overlayMask, invalidateRegionEnd | overlayMask);
         }
-ResetInvalidateRegion:
+//ResetInvalidateRegion:
         //Reset the IRAM invalidation indicators
         invalidateRegionStart = 0xFFFFFFFFUL;
         invalidateRegionEnd = 0x00000000UL;
@@ -2053,7 +2053,7 @@ ResetInvalidateRegion:
 
     if(!(ecuSkipCounter | interpretNextPacket))
     {
-find_code_cache_entry:
+//find_code_cache_entry:
       pNativeCodeCacheEntry = nativeCodeCache->GetPageMap()->FindEntry(pcexecLookupValue);
 
       if(pNativeCodeCacheEntry && pNativeCodeCacheEntry->virtualAddress == pcexecLookupValue)
@@ -2075,7 +2075,7 @@ find_code_cache_entry:
       pInstructionCacheEntry = instructionCache->FindInstructionCacheEntry(pcexec,bCacheEntryValid);
       if(bCacheEntryValid && (pcexec == pInstructionCacheEntry->pcexec))
       {
-check_compile_threshhold:
+//check_compile_threshhold:
         if(!(pInstructionCacheEntry->packetInfo & (PACKETINFO_COMPILED | PACKETINFO_NEVERCOMPILE)) && (pInstructionCacheEntry->frequencyCount >= COMPILE_THRESHOLD))
         {
           if(nativeCodeCache->IsBeyondThreshold())
@@ -2109,7 +2109,7 @@ check_compile_threshhold:
           }
           else
           {
-            if(((int32)nativeCodeCacheEntryPoint) == -1)
+            if(nativeCodeCacheEntryPoint == (NativeCodeCacheEntryPoint)-1)
             {
               pInstructionCacheEntry->packetInfo |= PACKETINFO_NEVERCOMPILE;
               numNonCompilablePackets++;
@@ -2140,7 +2140,7 @@ check_compile_threshhold:
     }
     else
     {
-find_icache_entry:
+//find_icache_entry:
       bool bCacheEntryValid;
       pInstructionCacheEntry = instructionCache->FindInstructionCacheEntry(pcexec,bCacheEntryValid);
       if(bCacheEntryValid && (pcexec == pInstructionCacheEntry->pcexec))
@@ -2181,6 +2181,8 @@ execute_block:
 
       if(nativeCodeCacheEntryPoint)
       {
+        assert(pNativeCodeCacheEntry);
+
         pNativeCodeCacheEntry->accessCount += 1;
         cycleCounter += pNativeCodeCacheEntry->numPackets;
 

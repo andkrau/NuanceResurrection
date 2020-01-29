@@ -266,12 +266,12 @@ void MPELoad(MPE &mpe)
   const uint32 mpeaddr = mpe.regs[1];
   const uint32 linkaddr = mpe.regs[2];
   const uint32 size = mpe.regs[3];
-  uint8 *mpeMemPtr, *systemMemPtr;
 
   if(which < 4)
   {
     if((size + (mpeaddr & MPE_VALID_MEMORY_MASK) - 1) <= MPE_VALID_MEMORY_MASK)
     {
+      uint8 *systemMemPtr;
       if(linkaddr < SYSTEM_BUS_BASE)
       {
         systemMemPtr = &(nuonEnv.mainBusDRAM[linkaddr & MAIN_BUS_VALID_MEMORY_MASK]);
@@ -281,7 +281,7 @@ void MPELoad(MPE &mpe)
         systemMemPtr = &(nuonEnv.systemBusDRAM[linkaddr & SYSTEM_BUS_VALID_MEMORY_MASK]);
       }
 
-      mpeMemPtr = &(((uint8 *)(nuonEnv.mpe[which].GetPointerToMemory()))[mpeaddr & MPE_VALID_MEMORY_MASK]);
+      uint8 *mpeMemPtr = &(((uint8 *)(nuonEnv.mpe[which].GetPointerToMemory()))[mpeaddr & MPE_VALID_MEMORY_MASK]);
 
       for(uint32 count = 0; count < size; count++)
       {

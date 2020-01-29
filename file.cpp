@@ -129,11 +129,9 @@ uint32 ConvertIFMT(uint32 hostIFMT)
 
 bool IsValidFileDescriptor(int fd)
 {
-  uint32 i;
-
   if(fd < 3)
   {
-    for(i = fd - 3; i < 16; i++)
+    for(uint32 i = fd - 3; i < 16; i++)
     {
       if(fileDescriptors[i] == fd)
       {
@@ -311,10 +309,10 @@ void FileWrite(MPE &mpe)
 
 void FileIoctl(MPE &mpe)
 {
-  uint32 fd = mpe.regs[0];
-  uint32 request = mpe.regs[1];
-  uint32 argp = mpe.regs[2];
-  uint32 errnum = mpe.regs[3];
+  //uint32 fd = mpe.regs[0];
+  //uint32 request = mpe.regs[1];
+  //uint32 argp = mpe.regs[2];
+  //uint32 errnum = mpe.regs[3];
 
   MessageBox(NULL,"This handler does nothing","Unimplemented File Call: FileIoctl",MB_OK);
 }
@@ -414,11 +412,11 @@ void FileFstat(MPE &mpe)
 
 void FileStat(MPE &mpe)
 {
-  uint32 path = mpe.regs[0];
-  uint32 buf = mpe.regs[1];
-  uint32 errnum = mpe.regs[2];
+  const uint32 path = mpe.regs[0];
+  //uint32 buf = mpe.regs[1];
+  //uint32 errnum = mpe.regs[2];
 
-  char *pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
+  const char * const pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
 
   MessageBox(NULL,pPath,"Unimplemented File Call: FileStat",MB_OK);
 
@@ -427,10 +425,10 @@ void FileStat(MPE &mpe)
 
 void FileIsatty(MPE &mpe)
 {
-  uint32 path = mpe.regs[0];
-  uint32 errnum = mpe.regs[1];
+  const uint32 path = mpe.regs[0];
+  //uint32 errnum = mpe.regs[1];
 
-  char *pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
+  const char * const pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
 
   MessageBox(NULL,pPath,"Unimplemented File Call: FileIsatty",MB_OK);
 }
@@ -465,30 +463,30 @@ Error:
 
 void FileLink(MPE &mpe)
 {
-  uint32 oldpath = mpe.regs[0];
-  uint32 newpath = mpe.regs[1];
-  uint32 errnum = mpe.regs[2];
+  //uint32 oldpath = mpe.regs[0];
+  //uint32 newpath = mpe.regs[1];
+  //uint32 errnum = mpe.regs[2];
 
   MessageBox(NULL,"This handler does nothing","Unimplemented File Call: FileLink",MB_OK);
 }
 
 void FileLstat(MPE &mpe)
 {
-  uint32 file_name = mpe.regs[0];
-  uint32 buf = mpe.regs[1];
-  uint32 errnum = mpe.regs[2];
+  const uint32 file_name = mpe.regs[0];
+  //uint32 buf = mpe.regs[1];
+  //uint32 errnum = mpe.regs[2];
 
-  char *pFilename = (char *)nuonEnv.GetPointerToMemory(mpe,file_name);
+  const char * const pFilename = (char *)nuonEnv.GetPointerToMemory(mpe,file_name);
 
   MessageBox(NULL,pFilename,"Unimplemented File Call: FileLstat",MB_OK);
 }
 
 void FileUnlink(MPE &mpe)
 {
-  uint32 pathname = mpe.regs[0];
-  uint32 errnum = mpe.regs[1];
+  const uint32 pathname = mpe.regs[0];
+  //uint32 errnum = mpe.regs[1];
 
-  char *pPathname = (char *)nuonEnv.GetPointerToMemory(mpe,pathname);
+  const char * const pPathname = (char *)nuonEnv.GetPointerToMemory(mpe,pathname);
 
   MessageBox(NULL,pPathname,"Unimplemented File Call: FileUnlink",MB_OK);
 }

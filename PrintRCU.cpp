@@ -21,8 +21,6 @@ const char *GetIndexRegister(uint32 which)
 
 uint32 Print_DEC(char *buffer, Nuance &nuance, bool bNewline)
 {
-  char decstr0[] = "dec rc0\n";
-  char decstr1[] = "dec rc0\ndec rc1";
   uint32 bufinc = 0;
 
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
@@ -30,11 +28,13 @@ uint32 Print_DEC(char *buffer, Nuance &nuance, bool bNewline)
     if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC1)
     {
       sprintf(buffer,"dec rc0\ndec rc1%s",bNewline ? "\n" : "");
+      const char decstr1[] = "dec rc0\ndec rc1";
       bufinc += (strlen(decstr1) + (bNewline ? 1 : 0));
     }
     else
     {
       sprintf(buffer,"dec rc0%s",bNewline ? "\n" : "");
+      const char decstr0[] = "dec rc0\n";
       bufinc += (strlen(decstr0) + (bNewline ? 1 : 0));
     }
   }
@@ -43,7 +43,8 @@ uint32 Print_DEC(char *buffer, Nuance &nuance, bool bNewline)
     if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC1)
     {
       sprintf(buffer,"dec rc1%s",bNewline ? "\n" : "");
-      bufinc += (strlen(decstr0) + (bNewline ? 1 : 0));
+      const char decstr1[] = "dec rc1\n";
+      bufinc += (strlen(decstr1) + (bNewline ? 1 : 0));
     }
     else
     {

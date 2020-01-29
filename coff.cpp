@@ -39,7 +39,6 @@ struct SCNHDR
 bool MPE::LoadCoffFile(const char * const filename, bool bSetEntryPoint, int handle)
 {
   uint32 entryPoint;
-  int nextPos;
   FILHDR coffhdr;
   SCNHDR sectionhdr;
   int start_offset;
@@ -100,7 +99,7 @@ bool MPE::LoadCoffFile(const char * const filename, bool bSetEntryPoint, int han
       }
 
       //save position so we can go to the section data
-      nextPos = _tell(handle);
+      long nextPos = _tell(handle);
       //start_offset may not be 0 if loading a COFF image stored inside of
       //a NUONROM-DISK image
       _lseek(handle,start_offset,SEEK_SET);

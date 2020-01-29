@@ -24,7 +24,7 @@ public:
   MemoryManager(uint32 maxBytes, uint32 defaultAlignment = 16);
   void AddAllocatedBlock(uint32 base, uint32 numBytes);
   void Add(uint32 startAddress, uint32 endAddress, uint32 index = 0);
-  void *Allocate(uint32 requestedBytes, uint32 requestedAlignment);
+  uint32 Allocate(uint32 requestedBytes, uint32 requestedAlignment);
   void Free(uint32 address);
 
   inline void Reset()

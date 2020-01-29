@@ -72,8 +72,6 @@ void GLWindow::OnResize(int width, int height)
   GetWindowRect(hWnd, &windowRect);
   x = windowRect.left;
   y = windowRect.top;
-  width = windowRect.right - windowRect.left;
-  height = windowRect.bottom - windowRect.top;
   GetClientRect(hWnd, &windowRect);
   clientWidth = windowRect.right - windowRect.left;
   clientHeight = windowRect.bottom - windowRect.top;
@@ -455,7 +453,7 @@ void GLWindow::CleanUp()
 
 LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  GLWindow *window = (GLWindow *)(GetWindowLong(hWnd, GWL_USERDATA));
+  GLWindow *window = (GLWindow *)(GetWindowLongPtr(hWnd, GWLP_USERDATA));
   RECT windowRect;
   PAINTSTRUCT ps;
 
@@ -475,7 +473,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		{
 			CREATESTRUCT *creation = (CREATESTRUCT *)(lParam);
 			window = (GLWindow *)(creation->lpCreateParams);
-			SetWindowLong(hWnd, GWL_USERDATA, (LONG)(window));
+			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)(window));
 
       if(window->createHandler)
       {
@@ -722,10 +720,10 @@ DWORD WINAPI GLWindow::GLWindowMain(void *param)
   {
     glWindow->OnResize(glWindow->clientWidth,glWindow->clientHeight);
     
-    bool bMessagePumpActive = true;
     glWindow->bCreated = true;
     if(glWindow->bUseSeparateThread)
     {
+      bool bMessagePumpActive = true;
       while(bMessagePumpActive)
       {
         // Success Creating Window.  Check For Window Messages

@@ -60,7 +60,7 @@ struct VidDisplay
 struct VidChannel
 {
   int32 dmaflags;       /* DMA flags for writing to or reading from a channel */
-  void *base;           /* base address for the channel */
+  int32 base;           /* base address for the channel */
   int32 dest_xoff;      /* x offset for screen image (integer; -1 == center automatically) */
   int32 dest_yoff;      /* y offset for screen image (integer; -1 == center automatically) */
   int32 dest_width;     /* width of the output on screen  (integer) */
@@ -103,9 +103,8 @@ void VidSync(MPE& mpe);
 void VidSetup(MPE &mpe);
 void VidChangeScroll(MPE &mpe);
 void VidChangeBase(MPE &mpe);
-void SetDefaultColor(MPE &mpe);
+void VidSetBorderColor(MPE &mpe);
 void VidSetCLUTRange(MPE &mpe);
-void SetVideoMode(void);
 void InitializeColorSpaceTables(void);
 void RenderVideo(int width, int height);
 void VideoCleanup(void);
