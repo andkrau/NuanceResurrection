@@ -659,7 +659,7 @@ void InitBios(MPE &mpe)
   //MINIBIOS INITIALIZATION
 
   //Start up the minibios on MPE0
-  MediaInitMPE((uint32)0);
+  MediaInitMPE(0);
 
   //TIMER INITIALIZATION
   TimerInit(2,16000); // triggers video int at ~1000/16=~60Hz

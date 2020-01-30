@@ -414,16 +414,16 @@ void PropagateConstants_LoadScalarLinear(SuperBlockConstants &constants)
     {
       constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_LoadScalarAbsolute;
       constants.nuance->fields[FIELD_MEM_FROM] = address;
-      constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(*constants.mpe,address));
+      constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe,address);
       constants.ClearScalarInputDependency(srcIndex);
-      PropagateConstants_LoadScalarAbsolute(constants);    
+      PropagateConstants_LoadScalarAbsolute(constants);
     }
     else
     {
       constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_LoadScalarControlRegisterAbsolute;
       constants.nuance->fields[FIELD_MEM_FROM] = address;
       constants.ClearScalarInputDependency(srcIndex);
-      PropagateConstants_LoadScalarControlRegisterAbsolute(constants);    
+      PropagateConstants_LoadScalarControlRegisterAbsolute(constants);
     }
   }
   else
@@ -473,10 +473,10 @@ void PropagateConstants_LoadByteLinear(SuperBlockConstants &constants)
 
     constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_LoadByteAbsolute;
     constants.nuance->fields[FIELD_MEM_FROM] = address;
-    constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(*constants.mpe,address));
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe,address);
     constants.ClearScalarInputDependency(srcIndex);
     constants.bConstantPropagated = true;
-    PropagateConstants_LoadByteAbsolute(constants);    
+    PropagateConstants_LoadByteAbsolute(constants);
   }
   else
   {
@@ -510,10 +510,10 @@ void PropagateConstants_LoadWordLinear(SuperBlockConstants &constants)
 
     constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_LoadWordAbsolute;
     constants.nuance->fields[FIELD_MEM_FROM] = address;
-    constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(*constants.mpe,address));
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe,address);
     constants.ClearScalarInputDependency(srcIndex);
     constants.bConstantPropagated = true;
-    PropagateConstants_LoadWordAbsolute(constants);    
+    PropagateConstants_LoadWordAbsolute(constants);
   }
   else
   {
@@ -568,10 +568,10 @@ void PropagateConstants_LoadShortVectorLinear(SuperBlockConstants &constants)
 
     constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_LoadShortVectorAbsolute;
     constants.nuance->fields[FIELD_MEM_FROM] = address;
-    constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(*constants.mpe,address));
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe,address);
     constants.ClearScalarInputDependency(srcIndex);
     constants.bConstantPropagated = true;
-    PropagateConstants_LoadShortVectorAbsolute(constants);    
+    PropagateConstants_LoadShortVectorAbsolute(constants);
   }
   else
   {
@@ -608,9 +608,9 @@ void PropagateConstants_LoadVectorLinear(SuperBlockConstants &constants)
     {
       constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_LoadVectorAbsolute;
       constants.nuance->fields[FIELD_MEM_FROM] = address;
-      constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(*constants.mpe,address & 0xFFFFFFF0));
+      constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe,address & 0xFFFFFFF0); //!! why the & 0xFFFFFFF0
       constants.ClearScalarInputDependency(srcIndex);
-      PropagateConstants_LoadVectorAbsolute(constants);    
+      PropagateConstants_LoadVectorAbsolute(constants);
     }
     else
     {
@@ -652,10 +652,10 @@ void PropagateConstants_LoadPixelLinear(SuperBlockConstants &constants)
     constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_LoadPixelAbsolute;
     constants.nuance->fields[FIELD_MEM_INFO] = MEM_INFO_LINEAR_INDIRECT;
     constants.nuance->fields[FIELD_MEM_FROM] = address;
-    constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(*constants.mpe,address));
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe,address);
     constants.ClearScalarInputDependency(srcIndex);
     constants.bConstantPropagated = true;
-    PropagateConstants_LoadPixelAbsolute(constants);    
+    PropagateConstants_LoadPixelAbsolute(constants);
   }
   else
   {
@@ -689,7 +689,7 @@ void PropagateConstants_LoadPixelZLinear(SuperBlockConstants &constants)
     constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_LoadPixelZAbsolute;
     constants.nuance->fields[FIELD_MEM_INFO] = MEM_INFO_LINEAR_INDIRECT;
     constants.nuance->fields[FIELD_MEM_FROM] = address;
-    constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)(nuonEnv.GetPointerToMemory(*constants.mpe,address));
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe,address);
     constants.bConstantPropagated = true;
     PropagateConstants_LoadPixelZAbsolute(constants);
   }
@@ -1002,7 +1002,7 @@ void PropagateConstants_StoreScalarLinear(SuperBlockConstants &constants)
   if(constants.IsScalarRegisterConstant(destIndex) && ALLOW_MEM_PROPAGATION)
   {
     constants.nuance->fields[FIELD_MEM_TO] = constants.GetScalarRegisterConstant(destIndex);
-    constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)nuonEnv.GetPointerToMemory(*constants.mpe, constants.GetScalarRegisterConstant(destIndex));
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe, constants.GetScalarRegisterConstant(destIndex));
     constants.ClearScalarInputDependency(destIndex);
     constants.SetScalarInputDependency(constants.nuance->fields[FIELD_MEM_FROM]);
     constants.bConstantPropagated = true;
@@ -1062,7 +1062,7 @@ void PropagateConstants_StoreShortVectorLinear(SuperBlockConstants &constants)
   {
     constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_StoreShortVectorAbsolute;
     constants.nuance->fields[FIELD_MEM_TO] = constants.GetScalarRegisterConstant(destIndex);
-    constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)nuonEnv.GetPointerToMemory(*constants.mpe, constants.GetScalarRegisterConstant(destIndex));
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe, constants.GetScalarRegisterConstant(destIndex));
     constants.bConstantPropagated = true;
     PropagateConstants_StoreShortVectorAbsolute(constants);
   }
@@ -1095,7 +1095,7 @@ void PropagateConstants_StoreVectorLinear(SuperBlockConstants &constants)
   {
     constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_StoreVectorAbsolute;
     constants.nuance->fields[FIELD_MEM_TO] = constants.GetScalarRegisterConstant(destIndex);
-    constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)nuonEnv.GetPointerToMemory(*constants.mpe, constants.GetScalarRegisterConstant(destIndex));
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe, constants.GetScalarRegisterConstant(destIndex));
     constants.bConstantPropagated = true;
     PropagateConstants_StoreVectorAbsolute(constants);
   }
@@ -1125,7 +1125,7 @@ void PropagateConstants_StorePixelLinear(SuperBlockConstants &constants)
     constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_StorePixelAbsolute;
     constants.nuance->fields[FIELD_MEM_INFO] = MEM_INFO_LINEAR_INDIRECT;
     constants.nuance->fields[FIELD_MEM_TO] = constants.GetScalarRegisterConstant(destIndex);
-    constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)nuonEnv.GetPointerToMemory(*constants.mpe, constants.GetScalarRegisterConstant(destIndex));
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe, constants.GetScalarRegisterConstant(destIndex));
     constants.bConstantPropagated = true;
     PropagateConstants_StorePixelAbsolute(constants);
   }
@@ -1154,7 +1154,7 @@ void PropagateConstants_StorePixelZLinear(SuperBlockConstants &constants)
     constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_StorePixelZAbsolute;
     constants.nuance->fields[FIELD_MEM_INFO] = MEM_INFO_LINEAR_INDIRECT;
     constants.nuance->fields[FIELD_MEM_TO] = constants.GetScalarRegisterConstant(destIndex);
-    constants.nuance->fields[FIELD_MEM_POINTER] = (uint32)nuonEnv.GetPointerToMemory(*constants.mpe, constants.GetScalarRegisterConstant(destIndex));
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(*constants.mpe, constants.GetScalarRegisterConstant(destIndex));
     constants.bConstantPropagated = true;
     PropagateConstants_StorePixelZAbsolute(constants);
   }

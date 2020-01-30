@@ -300,11 +300,11 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
       {
         case 0:
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTROM_BASE;
-          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
           return;
         case 1:
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTRAM_BASE;
-          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
           return;
       }
       break;
@@ -322,11 +322,11 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
       {
         case 0:
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTROM_BASE;
-          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
           return;
         case 1:
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTRAM_BASE;
-          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
           return;
       }
       break;
@@ -344,13 +344,13 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           entry->packetInfo |= loadScalarAbsoluteFlags;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadScalarAbsolute;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTROM_BASE;
-          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
           return;
         case 1:
           entry->packetInfo |= loadScalarAbsoluteFlags;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadScalarAbsolute;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTRAM_BASE;
-          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
           return;
         case 2:
           entry->packetInfo |= loadScalarControlRegisterFlags;
@@ -385,11 +385,11 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           {
             case 0:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTROM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
               return;
             case 1:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTRAM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
               return;
           }
           break;
@@ -406,13 +406,13 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
               entry->packetInfo |= loadVectorAbsoluteFlags;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadVectorAbsolute;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTROM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
               return;
             case 1:
               entry->packetInfo |= loadVectorAbsoluteFlags;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadVectorAbsolute;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTRAM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
               return;
             case 2:
               entry->packetInfo |= loadVectorControlRegisterFlags;
@@ -436,11 +436,11 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           {
             case 0:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTROM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
               return;
             case 1:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTRAM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
               return;
           }
           break;
@@ -458,11 +458,11 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           {
             case 0:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTROM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
               return;
             case 1:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] += MPE_DTRAM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] & MPE_VALID_MEMORY_MASK];
               return;
           }
           break;
@@ -689,13 +689,13 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           entry->packetInfo |= storeScalarAbsoluteFlags;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StoreScalarAbsolute;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTROM_BASE;
-          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
           return;
         case 1:
           entry->packetInfo |= storeScalarAbsoluteFlags;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StoreScalarAbsolute;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTRAM_BASE;
-          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+          entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
           return;
         case 2:
           entry->packetInfo |= PACKETINFO_MEMORY_IO;
@@ -729,11 +729,11 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           {
             case 0:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTROM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
               return;
             case 1:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTRAM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
               return;
           }
           break;
@@ -749,12 +749,12 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
             case 0:
               entry->packetInfo |= storeVectorAbsoluteFlags;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTROM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
               return;
             case 1:
               entry->packetInfo |= storeVectorAbsoluteFlags;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTRAM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
               return;
             case 2:
               entry->packetInfo |= PACKETINFO_MEMORY_IO;
@@ -762,7 +762,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StoreVectorControlRegisterAbsolute;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_CTRL_BASE;
               //the only vector control registers are commxmit and commrecv, both of which can cause exceptions
-              entry->packetInfo |= PACKETINFO_NEVERCOMPILE;            
+              entry->packetInfo |= PACKETINFO_NEVERCOMPILE;
               return;
           }
           break;
@@ -779,11 +779,11 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           {
             case 0:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTROM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
               return;
             case 1:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTRAM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
               return;
           }
           break;
@@ -802,11 +802,11 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           {
             case 0:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTROM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
               return;
             case 1:
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTRAM_BASE;
-              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+              entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
               return;
           }
           break;
@@ -988,13 +988,13 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
             entry->packetInfo |= storeControlRegisterFlags;
             entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StoreScalarImmediate;
             entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTROM_BASE;
-            entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+            entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
             return;
           case 1:
             entry->packetInfo |= storeControlRegisterFlags;
             entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StoreScalarImmediate;
             entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_DTRAM_BASE;
-            entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (uint32)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
+            entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_POINTER)] = (size_t)&dtrom[entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] & MPE_VALID_MEMORY_MASK];
             return;
           case 2:
             entry->packetInfo |= PACKETINFO_MEMORY_IO;

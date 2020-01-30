@@ -558,7 +558,6 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
       case CONFIG_COMMENT_CHAR:
         break;
       case CONFIG_VARIABLE_START:
-
         if(_strnicmp(&line[1],"DVDBase]",sizeof("DVDBase]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
@@ -602,6 +601,9 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
           tokenType = ReadConfigLine(configFile,line);
           bUseCycleBasedTiming = !_stricmp(line,"Enabled");
         }
+#ifdef _WIN64
+        compilerOptions.bAllowCompile = false; //!!
+#endif
         break;
       default:
         break;

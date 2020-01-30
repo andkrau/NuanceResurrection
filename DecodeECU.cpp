@@ -349,7 +349,7 @@ void MPE::DecodeInstruction_ECU32(const uint8 * const iPtr, InstructionCacheEntr
 
         //address is 0x1F00FF: if immExt == 0, base relative to bit 8: if bit 8 is clear, IROM, else IRAM
         //if immExt is non-zero, instruction is 64 bit and the address is absolute
-        entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_ADDRESS)] = (((*immExt & 0x7FFFE00) << 4) | (((uint32)(*(iPtr + 3) & 0xFF)) << 5) | ((uint32)(*(iPtr + 1) & 0x1F))) << 1;
+        entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_ADDRESS)] = (((*immExt & 0x7FFFE00) << 4) | (((size_t)(*(iPtr + 3) & 0xFF)) << 5) | ((size_t)(*(iPtr + 1) & 0x1F))) << 1;
 
         if(*immExt == 0)
         {
@@ -403,7 +403,7 @@ void MPE::DecodeInstruction_ECU32(const uint8 * const iPtr, InstructionCacheEntr
         //jsr cc, <label>
         //address is 0x1F00FF: if immExt == 0, base relative to bit 8: if bit 8 is clear, IROM, else IRAM
         //if immExt is non-zero, instruction is 64 bit and the address is absolute
-        entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_ADDRESS)] = (((*immExt & 0x7FFFE00) << 4) | (((uint32)(*(iPtr + 3) & 0xFF)) << 5) | ((uint32)(*(iPtr + 1) & 0x1F))) << 1;
+        entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_ADDRESS)] = (((*immExt & 0x7FFFE00) << 4) | (((size_t)(*(iPtr + 3) & 0xFF)) << 5) | ((size_t)(*(iPtr + 1) & 0x1F))) << 1;
         entry->miscOutputDependencies[SLOT_ECU] = DEPENDENCY_MASK_RZ;
 
         if(*immExt == 0)
