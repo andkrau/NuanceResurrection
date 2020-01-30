@@ -654,9 +654,9 @@ bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntr
   InstructionEntry *pCurrentInstruction = &instructions[index];
   bool bPacketAllowsNativeCode = true;
 
-  ((Nuance &)(pCurrentInstruction->instruction)).fields[0] = Handler_PacketStart;
-  ((Nuance &)(pCurrentInstruction->instruction)).fields[1] = pPacketEntry->pcexec;
-  ((Nuance &)(pCurrentInstruction->instruction)).fields[2] = (uint32)pPacketEntry;
+  pCurrentInstruction->instruction.fields[0] = Handler_PacketStart;
+  pCurrentInstruction->instruction.fields[1] = pPacketEntry->pcexec;
+  pCurrentInstruction->instruction.fields[2] = (size_t)pPacketEntry;
   pCurrentInstruction->packet = pPacketEntry;
   pCurrentInstruction->scalarInputDependencies = pPacketEntry->comboScalarInputDependencies;
   pCurrentInstruction->miscInputDependencies = pPacketEntry->comboMiscInputDependencies;
@@ -675,7 +675,7 @@ bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntr
   {
     for(uint32 j = 0; j < FIELDS_PER_NUANCE; j++)
     {
-      ((Nuance &)(pCurrentInstruction->instruction)).fields[j] = ((Nuance &)(packet.nuances[nuanceBase])).fields[j];
+      pCurrentInstruction->instruction.fields[j] = ((Nuance &)(packet.nuances[nuanceBase])).fields[j];
     }
 
     if(((Nuance &)(packet.nuances[nuanceBase])).fields[FIELD_MEM_HANDLER] == Handler_LoadScalarControlRegisterAbsolute)
@@ -685,8 +685,8 @@ bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntr
       //read in packet N, the result is always the address of packet N+1
       if(((Nuance &)(packet.nuances[nuanceBase])).fields[FIELD_MEM_FROM] == 0x20500070)
       {
-        ((Nuance &)(pCurrentInstruction->instruction)).fields[FIELD_MEM_HANDLER] = Handler_MV_SImmediate;
-        ((Nuance &)(pCurrentInstruction->instruction)).fields[FIELD_MEM_FROM] = pPacketEntry->pcroute;
+        pCurrentInstruction->instruction.fields[FIELD_MEM_HANDLER] = Handler_MV_SImmediate;
+        pCurrentInstruction->instruction.fields[FIELD_MEM_FROM] = pPacketEntry->pcroute;
       }
     }
 
@@ -701,9 +701,9 @@ bool SuperBlock::AddInstructionsToList(InstructionCacheEntry &packet, PacketEntr
     pCurrentInstruction++;
   }
   
-  ((Nuance &)(pCurrentInstruction->instruction)).fields[0] = Handler_PacketEnd;
-  ((Nuance &)(pCurrentInstruction->instruction)).fields[1] = pPacketEntry->pcroute;
-  ((Nuance &)(pCurrentInstruction->instruction)).fields[2] = (uint32)pPacketEntry;
+  pCurrentInstruction->instruction.fields[0] = Handler_PacketEnd;
+  pCurrentInstruction->instruction.fields[1] = pPacketEntry->pcroute;
+  pCurrentInstruction->instruction.fields[2] = (size_t)pPacketEntry;
   pCurrentInstruction->packet = pPacketEntry;
   pCurrentInstruction->scalarInputDependencies = 0;
   pCurrentInstruction->miscInputDependencies = 0;

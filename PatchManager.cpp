@@ -3,9 +3,7 @@
 
 void PatchManager::ApplyPatches()
 {
-  uint32 i;
-
-  for(i = 0; i < numPatches; i++)
+  for(uint32 i = 0; i < numPatches; i++)
   {
     switch(patchData[i].patchType)
     {
@@ -22,7 +20,7 @@ void PatchManager::ApplyPatches()
         //*((uint64 *)(patchData[i].patchPtr)) = (uint64)(labelPointers[patchData[i].destLabel] - patchData[i].basePtr);
         break;
       case PatchType_Abs32:
-        *((uint32 *)(patchData[i].patchPtr)) = (uint32)(labelPointers[patchData[i].destLabel]);
+        *((uint32 *)(patchData[i].patchPtr)) = (uint32)(labelPointers[patchData[i].destLabel]); //!! 64bit prob?
         break;
       case PatchType_Abs64:
         //*((uint64 *)(patchData[i].patchPtr)) = (uint32)(labelPointers[patchData[i].destLabel]);

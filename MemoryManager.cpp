@@ -101,14 +101,12 @@ void MemoryManager::Add(uint32 startAddress, uint32 endAddress, uint32 index)
 void MemoryManager::AddAllocatedBlock(uint32 startAddress, uint32 numBytes)
 {
   AllocatedMemoryBlock newAllocatedBlock;
-  uint32 vectorSize;
-  uint32 index;
-
   newAllocatedBlock.startAddress = startAddress;
   newAllocatedBlock.numBytes = numBytes;
 
-  vectorSize = (uint32)allocatedBlockVector.size();
+  const uint32 vectorSize = (uint32)allocatedBlockVector.size();
 
+  uint32 index;
   for(index = 0; index < vectorSize; index++)
   {
     if(allocatedBlockVector[index].startAddress > startAddress)
@@ -123,11 +121,9 @@ void MemoryManager::AddAllocatedBlock(uint32 startAddress, uint32 numBytes)
 void MemoryManager::Free(uint32 startAddress)
 {
   FreeMemoryBlock newFreeBlock;
-  uint32 vectorSize, index;
+  const uint32 vectorSize = (uint32)allocatedBlockVector.size();
 
-  vectorSize = (uint32)allocatedBlockVector.size();
-
-  for(index = 0; index < vectorSize; index++)
+  for(uint32 index = 0; index < vectorSize; index++)
   {
     if(allocatedBlockVector[index].startAddress == startAddress)
     {
@@ -147,8 +143,7 @@ void MemoryManager::Free(uint32 startAddress)
 uint32 MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
 {
   FreeMemoryBlock fmb2;
-  uint32 index, adjustedAddress;
-  uint32 vectorSize;
+  uint32 adjustedAddress;
 
   if(requestedBytes == 0)
   {
@@ -170,14 +165,14 @@ uint32 MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
   //pad requested byte count to the nearest vector
   requestedBytes = (requestedBytes + 15) & 0xFFFFFFF0UL;
 
-  vectorSize = (uint32)freeBlockVector.size();
+  const uint32 vectorSize = (uint32)freeBlockVector.size();
 
   if(vectorSize == 0)
   {
     return 0;
   }
 
-  for(index = 0; index < vectorSize; index++)
+  for(uint32 index = 0; index < vectorSize; index++)
   {
     if(freeBlockVector[index].numBytes >= requestedBytes)
     {

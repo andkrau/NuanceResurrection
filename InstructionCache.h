@@ -115,7 +115,7 @@
 class Nuance
 {
 public:
-  uint32 fields[FIELDS_PER_NUANCE];
+  size_t fields[FIELDS_PER_NUANCE]; //!! size_t due to some being real pointers, i.e. to support 64bit compiles
 };
 
 class InstructionCacheEntry
@@ -130,7 +130,7 @@ public:
   uint32 pcroute;
   uint32 pcfetchnext;
   uint32 ecuConditionCode;
-  uint32 nuances[MAX_INSTRUCTIONS_PER_PACKET * FIELDS_PER_NUANCE];
+  size_t nuances[MAX_INSTRUCTIONS_PER_PACKET * FIELDS_PER_NUANCE]; //!! size_t due to some being real pointers, i.e. to support 64bit compiles
   uint32 scalarInputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 miscInputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 scalarOutputDependencies[MAX_INSTRUCTIONS_PER_PACKET];

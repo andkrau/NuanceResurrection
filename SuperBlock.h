@@ -20,14 +20,18 @@ public:
     bT3KCompilerHack = true;
     bConstantPropagation = true;
     bDeadCodeElimination = false;
+#ifdef _WIN64
+    bAllowCompile = false; //!!
+#else
     bAllowCompile = true;
+#endif
     bDumpBlocks = false;
   }
 
   bool bT3KCompilerHack;
   bool bConstantPropagation;
   bool bDeadCodeElimination;
-  bool bAllowCompile;
+  bool bAllowCompile; //!! on 64bit this is always force disabled for now, as no x64 code can be emitted
   bool bDumpBlocks;
 };
 
