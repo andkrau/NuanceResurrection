@@ -253,16 +253,19 @@ void UpdateControlPanelDisplay()
   for(uint32 i = 0; i < 4; i++)
   {
     SendMessage(ledHandles[i],STM_SETIMAGE,IMAGE_BITMAP, GetMPERunStatus(i) ? LPARAM(bmpLEDOn) : LPARAM(bmpLEDOff));
-    char addressStr[10];
-    sprintf(addressStr,"$%8.8lX",nuonEnv.mpe[i].pcexec);
+    char addressStr[16];
+    sprintf(addressStr,"$%8.8lX", GetMPERunStatus(i) ? nuonEnv.mpe[i].pcexec : 0);
     SendMessage(pcexecHandles[i],WM_SETTEXT,0,LPARAM(addressStr));
   }
 
   char buf[1024];
-  sprintf(buf,"mpe%lu: $%8.8X\n{\n", disassemblyMPE, nuonEnv.mpe[disassemblyMPE].pcexec);
+  sprintf(buf,"mpe%lu: $%8.8X\n{\n", disassemblyMPE, GetMPERunStatus(disassemblyMPE) ? nuonEnv.mpe[disassemblyMPE].pcexec : 0);
   SendMessage(reTermDisplay,WM_SETTEXT,NULL,LPARAM(buf));
   SendMessage(reTermDisplay,EM_SETSEL,WPARAM(-1),LPARAM(-1));
-  nuonEnv.mpe[disassemblyMPE].PrintInstructionCachePacket(buf,nuonEnv.mpe[disassemblyMPE].pcexec);
+  if(GetMPERunStatus(disassemblyMPE))
+    nuonEnv.mpe[disassemblyMPE].PrintInstructionCachePacket(buf,nuonEnv.mpe[disassemblyMPE].pcexec);
+  else
+    buf[0] = 0;
   SendMessage(reTermDisplay,EM_REPLACESEL,NULL,LPARAM(buf));
   sprintf(buf,"}\n");
   SendMessage(reTermDisplay,EM_REPLACESEL,NULL,LPARAM(buf));
@@ -830,10 +833,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     while(bRun && !nuonEnv.trigger_render_video)
     {
-      nuonEnv.mpe[3].ExecuteSingleCycle();
-      nuonEnv.mpe[2].ExecuteSingleCycle();
-      nuonEnv.mpe[1].ExecuteSingleCycle();
-      nuonEnv.mpe[0].ExecuteSingleCycle();
+      nuonEnv.mpe[3].FetchDecodeExecute();
+      nuonEnv.mpe[2].FetchDecodeExecute();
+      nuonEnv.mpe[1].FetchDecodeExecute();
+      nuonEnv.mpe[0].FetchDecodeExecute();
       if(nuonEnv.pendingCommRequests)
         DoCommBusController();
 

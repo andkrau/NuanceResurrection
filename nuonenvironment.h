@@ -78,7 +78,7 @@ public:
   //Supported values are 1K/2K/4K/8K/16K/32K/64K
   uint32 nuonAudioBufferSize;
   //PC pointer to Nuon audio buffer in main bus or system bus DRAM
-  uint8 *pNuonAudioBuffer;
+  uint8 * volatile pNuonAudioBuffer;
   //Bitflag value passed back as return value in _AudioQuerySampleRates
   //The constructor initializes this variable.  Supported rates are
   //16000/22050/24000/32000/44100/48000/64000/88200/96000

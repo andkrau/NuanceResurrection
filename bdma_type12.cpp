@@ -11,7 +11,7 @@ extern NuonEnvironment nuonEnv;
 void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
   const bool bRemote = flags & (1UL << 28);
-        bool bDirect = flags & (1UL << 27);
+  const bool bDirect = flags & (1UL << 27);
   const bool bDup = flags & (3UL << 26); //bDup = dup | direct
   //const bool bTrigger = flags & (1UL << 25);
   //const bool bRead = flags & (1UL << 13);
@@ -82,10 +82,8 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
 
   int32 srcAStep, srcBStep;
   uint16 directColor;
-  if(bDirect && !bDup)
-  {
-    bDirect = true;
-  }
+  /*if(bDirect && !bDup)
+    bDirect = true;*/
   if(bDup)
   {
     if(bDirect)

@@ -42,11 +42,6 @@ class AudioCallbacks
 {
 public:
 
-  void *pBuf1WriteStart;
-  unsigned long pBuf1WriteBytes;
-  void *pBuf2WriteStart;
-  unsigned long pBuf2WriteBytes;
-
   static void ConvertNuonAudioData(const uint8 * const pNuonAudioBuffer, uint8 * const pPCAudioBuffer, const uint32 numBytes)
   {
     assert((numBytes % 4) == 0);
@@ -69,24 +64,26 @@ public:
     if(!buff)
       return FALSE;
 
-    assert(len == nuonEnv.nuonAudioBufferSize>>1);
+    assert(len == (nuonEnv.nuonAudioBufferSize>>1));
 
-    if (nuonEnv.pNuonAudioBuffer && (nuonEnv.nuonAudioBufferSize >= 1024))
+    const uint8* const pNuonAudioBuffer = nuonEnv.pNuonAudioBuffer;
+
+    if (pNuonAudioBuffer && (nuonEnv.nuonAudioBufferSize >= 1024))
     {
     if(!position)
     {
-      ConvertNuonAudioData(&nuonEnv.pNuonAudioBuffer[nuonEnv.nuonAudioBufferSize>>1], (uint8 *)buff, nuonEnv.nuonAudioBufferSize>>1); // kinda double buffering in here
+      ConvertNuonAudioData(&pNuonAudioBuffer[len], (uint8 *)buff, len); // kinda double buffering in here
       if((nuonEnv.nuonAudioChannelMode & ENABLE_WRAP_INT) && !nuonEnv.bUseCycleBasedTiming)
         nuonEnv.TriggerAudioInterrupt();
     }
     else
     {
-      ConvertNuonAudioData(nuonEnv.pNuonAudioBuffer, (uint8 *)buff, nuonEnv.nuonAudioBufferSize>>1); // kinda double buffering in here
+      ConvertNuonAudioData(pNuonAudioBuffer, (uint8 *)buff, len); // kinda double buffering in here
       if((nuonEnv.nuonAudioChannelMode & ENABLE_HALF_INT) && !nuonEnv.bUseCycleBasedTiming)
         nuonEnv.TriggerAudioInterrupt();
     }
     position = !position;
-    return TRUE;
+    return nuonEnv.pNuonAudioBuffer ? TRUE : FALSE; // was it killed off while processing in here?
     }
 
     return FALSE;
