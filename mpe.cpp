@@ -60,8 +60,6 @@ extern char *BiosRoutineNames[];
 extern bool bCallingMediaCallback;
 extern FILE *commLogFile;
 
-uint8 MPE::mirrorLookup[256];
-
 const NuanceHandler nuanceHandlers[] =
 {
   //ECU Executes
@@ -772,7 +770,6 @@ uint64 timer_start, timer_end;
 
 void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr)
 {
-  EmitterVariables emitvars;
   const uint32 numCacheEntries[] = {4096,2048,2048,262144};
   const uint32 numTLBEntries[] = {4096,2048,2048,98304};
   const uint32 overlayLengths[] = {8192,4096,4096,4096};
@@ -785,7 +782,6 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
   strictMemoryMiscInputDependencies = 0xFFFFFFFF;
   strictMemoryMiscOutputDependencies = 0xFFFFFFFF;
   AllocateMPELocalMemory();
-  GenerateMirrorLookupTable();
   nativeCodeCache = new NativeCodeCache(5UL*1024UL*1024UL, 0, numTLBEntries[mpeIndex & 0x03]);
   instructionCache = new InstructionCache(numCacheEntries[mpeIndex & 0x03]);
   overlayManager = new OverlayManager();
@@ -795,6 +791,7 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
   
   interpretNextPacket = 0;
 
+  EmitterVariables emitvars;
   emitvars.mpe = this;
   emitvars.codeCache = nativeCodeCache;
   emitvars.regBase = (uint32)&cc;
@@ -882,24 +879,6 @@ void MPE::FreeMPELocalMemory()
   delete [] dtrom;
 }
 
-void MPE::GenerateMirrorLookupTable()
-{
-  for(uint32 i = 0; i <= 0xFF; i++)
-  {
-    uint8 mirror = 0;
-    mirror |= ((i & 0x01) << 7) & 0x80;
-    mirror |= ((i & 0x02) << 5) & 0x40;
-    mirror |= ((i & 0x04) << 3) & 0x20;
-    mirror |= ((i & 0x08) << 1) & 0x10;
-    mirror |= ((i & 0x10) >> 1) & 0x08;
-    mirror |= ((i & 0x20) >> 3) & 0x04;
-    mirror |= ((i & 0x40) >> 5) & 0x02;
-    mirror |= ((i & 0x80) >> 7) & 0x01;
-
-    mirrorLookup[i] = mirror;
-  }
-}
-
 const uint32 COMPILE_THRESHOLD = 50UL;
 
 void MPE::Reset()
@@ -964,6 +943,7 @@ void MPE::Reset()
   configb = 0;
 }
 
+#if 0
 bool MPE::LoadBinaryFile(uchar *filename, bool bIRAM)
 {
   const int handle = _open((char *)filename,_O_RDONLY|_O_BINARY,0);
@@ -981,6 +961,7 @@ bool MPE::LoadBinaryFile(uchar *filename, bool bIRAM)
     return false;
   }
 }
+#endif
 
 inline uint32 MPE::GetPacketDelta(const uint8 *iPtr, uint32 numLevels)
 {

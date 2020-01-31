@@ -46,9 +46,9 @@ struct VidDisplay
   int32 bordcolor;       /* border color (24bpp) */
   int32 progressive;     /* flag for interlace (0) or progressive (1) */
   int32 fps;             /* fields per second (16.16 fixed point) */
-  int16 pixel_aspect_x;   /* pixel aspect ratio (read only) */
+  int16 pixel_aspect_x;  /* pixel aspect ratio (read only) */
   int16 pixel_aspect_y;
-  int16 screen_aspect_x;  /* screen aspect ratio (read only) */
+  int16 screen_aspect_x; /* screen aspect ratio (read only) */
   int16 screen_aspect_y;
   int32 reserved[3];     /* reserved for future expansion; set to 0 */
   /* WARNING: reserved[3] may have to remain reserved forever:
@@ -96,7 +96,7 @@ struct VidChannel
 #define VIDEO_MODE_PAL (2)
 
 uint32 *AllocateTextureMemory32(uint32 size, const bool bOverlay);
-void FreeTextureMemory(uint32 *pBuffer, const bool bOverlay);
+void FreeTextureMemory(const bool bOverlay);
 void VidConfig(MPE &mpe);
 void VidQueryConfig(MPE &mpe);
 void VidSync(MPE& mpe);

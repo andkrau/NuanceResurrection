@@ -18,17 +18,13 @@
 #include "NuanceRes.h"
 #include "joystick.h"
 #include "video.h"
+#include "ExecuteMEM.h"
 
 NuonEnvironment nuonEnv;
-CriticalSection *csVideoDisplay = NULL;
-CriticalSection *csDebugDisplay = NULL;
 char **pArgs = 0;
 GLWindow display;
 
 extern ControllerData *controller;
-extern uint32 *mainChannelBuffer;
-extern uint32 *overlayChannelBuffer;
-extern char *dvdBase;
 
 bool bQuit = false;
 bool bRun = false;
@@ -753,6 +749,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   ShowWindow(hDlg,FALSE);
   EndDialog(hDlg,IDOK);
 
+  GenerateMirrorLookupTable();
+  GenerateSaturateColorTables();
+
   nuonEnv.Init();
 
   display.title = displayWindowTitle;
@@ -867,8 +866,8 @@ CLEANUP AND APPLICATION SHUTDOWN CODE
   EndDialog(hDlg,IDOK);
   EndDialog(hStatusDlg,IDOK);
 
-  FreeTextureMemory(mainChannelBuffer,false);
-  FreeTextureMemory(overlayChannelBuffer,true);
+  FreeTextureMemory(false);
+  FreeTextureMemory(true);
 
   display.Close();
 

@@ -89,7 +89,6 @@ public:
   int32 FetchSuperBlock(MPE &mpe, uint32 address, bool &bContainsBranch);
 
   uint32 numInstructions;
-  uint32 numLiveInstructions;
   uint32 numPackets;
   uint32 packetsProcessed;
   uint32 maxPacketsPerSuperBlock;

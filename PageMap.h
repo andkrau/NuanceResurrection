@@ -66,7 +66,7 @@ public:
       return 0;
 
     const uint32 l2Index = address & 0x3FFUL;
-    return &(pL2Node[l2Index]);
+    return pL2Node+l2Index;
   }
 
 private:

@@ -20,6 +20,19 @@
 extern NuonEnvironment nuonEnv;
 extern _LARGE_INTEGER tickFrequency;
 
+vidTexInfo videoTexInfo;
+
+uint32 vdgCLUT[256];
+
+bool bMainChannelActive = false;
+bool bOverlayChannelActive = false;
+
+VidDisplay structMainDisplay;
+VidChannel structMainChannel;
+VidChannel structOverlayChannel;
+VidChannel structMainChannelPrev;
+VidChannel structOverlayChannelPrev;
+
 #define TEXTURE_TARGET (GL_TEXTURE_2D)
 
 const GLint mainInternalTextureFormat32 = GL_RGBA8;
@@ -50,49 +63,28 @@ static bool bTexturesInitialized = false;
 static bool bShadersInstalled = false;
 static bool bSetupViewport = false;
 
-vidTexInfo videoTexInfo;
+static uint32 *mainChannelBuffer = 0;
+static uint32 *overlayChannelBuffer = 0;
 
-uint32 main_fetch_pixel_type;
-uint32 main_write_pixel_type;
-uint32 vdgCLUT[256];
+static int bMainTexturePixType = -1;
+static int bOverlayTexturePixType = -1;
 
-uint32 overlay_fetch_pixel_type;
-uint32 overlay_write_pixel_type;
-uint32 overlay_pixel_type_width;
-
-uint32 *mainChannelBuffer = 0;
-uint32 *overlayChannelBuffer = 0;
-uint8 *clutPtr = (uint8 *)vdgCLUT;
-
-bool bMainChannelActive = false;
-bool bOverlayChannelActive = false;
-
-int bMainTexturePixType = -1;
-int bOverlayTexturePixType = -1;
-
-bool bCanDisplayVideo = false;
-
-VidDisplay structMainDisplay;
-VidChannel structMainChannel;
-VidChannel structOverlayChannel;
-VidDisplay structMainDisplayPrev;
-VidChannel structMainChannelPrev;
-VidChannel structOverlayChannelPrev;
+static bool bCanDisplayVideo = false;
 
 #define CHANNELSTATE_OVERLAY_ACTIVE (0x02)
 #define CHANNELSTATE_MAIN_ACTIVE (0x01)
 
-uint32 channelState = 0;
-uint32 channelStatePrev = 0;
+static uint32 channelState = 0;
+static uint32 channelStatePrev = 0;
 
-float mainChannelScaleX = 1.0;
-float mainChannelScaleY = 1.0;
-float overlayChannelScaleX = 1.0;
-float overlayChannelScaleY = 1.0;
+static float mainChannelScaleX = 1.0;
+static float mainChannelScaleY = 1.0;
+static float overlayChannelScaleX = 1.0;
+static float overlayChannelScaleY = 1.0;
 
-uint32 LUT16[256][256];
+static uint32 LUT16[256][256];
 
-ShaderProgram shaderProgram;
+static ShaderProgram shaderProgram;
 
 static const GLubyte transparencyTexture[] = {0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF};
 static GLubyte borderTexture[] = {0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00};
@@ -133,7 +125,7 @@ uint32 *AllocateTextureMemory32(const uint32 size, const bool bOverlay)
   }
 }
 
-void FreeTextureMemory(uint32 *ptr, const bool bOverlay)
+void FreeTextureMemory(const bool bOverlay)
 {
   if(bOverlay)
   {
@@ -411,7 +403,7 @@ void RenderVideo(const int winwidth, const int winheight)
 {
   if(!bCanDisplayVideo)
     return;
-   
+
   if(!bTexturesInitialized)
   {
     InitTextures();
@@ -619,8 +611,9 @@ process_overlay_buffer:
         switch(pixType)
         {
           case 1:
+          {
             //4-bit
-            clutPtr = (uint8 *)&vdgCLUT[ptrNuonFrameBuffer[0] >> 4];
+            const uint8* clutPtr = (uint8 *)&vdgCLUT[ptrNuonFrameBuffer[0] >> 4];
             Y  = clutPtr[0];
             CR = clutPtr[1];
             CB = clutPtr[2];
@@ -631,6 +624,7 @@ process_overlay_buffer:
             CB2 = clutPtr[2];
             A2  = clutPtr[3];
             break;
+          }
           case 2:
             //16-bit
             Y  = ptrNuonFrameBuffer[0] & 0xFC;
@@ -639,13 +633,15 @@ process_overlay_buffer:
             A  = structOverlayChannel.alpha;
             break;
           case 3:
+          {
             //8-bit
-            clutPtr = (uint8 *)&vdgCLUT[ptrNuonFrameBuffer[0]];
+            const uint8* clutPtr = (uint8 *)&vdgCLUT[ptrNuonFrameBuffer[0]];
             Y  = clutPtr[0];
             CR = clutPtr[1];
             CB = clutPtr[2];
             A  = clutPtr[3];
             break;
+          }
           case 4:
             //32-bit
             Y  = ptrNuonFrameBuffer[0];
@@ -858,7 +854,7 @@ void VidQueryConfig(MPE &mpe)
   SwapWordBytes((uint16 *)&displayStruct->screen_aspect_x);
   SwapWordBytes((uint16 *)&displayStruct->screen_aspect_y);
 
-  //Return 1 to specify NTSC
+  // Return 1 to specify NTSC
   mpe.regs[0] = 1;
 }
 
@@ -925,6 +921,7 @@ void VidConfig(MPE &mpe)
   }
 
   bool bUpdateOpenGLData = false;
+  VidDisplay structMainDisplayPrev;
 
   //if(display)
   {
@@ -1164,16 +1161,8 @@ void VidSetup(MPE &mpe)
     structMainChannelPrev.vfilter = structMainChannel.vfilter;
   }
 
-  if(mainChannelBuffer)
-  {
-    //FreeTextureMemory(mainChannelBuffer,false);
-  }
-
-  //No overlay channel
-  if(overlayChannelBuffer)
-  {
-    //FreeTextureMemory(overlayChannelBuffer,true);
-  }
+  //FreeTextureMemory(false);
+  //FreeTextureMemory(true);
 
   structMainChannel.dmaflags = dmaFlags;
   structMainChannel.dest_width = VIDEO_WIDTH;

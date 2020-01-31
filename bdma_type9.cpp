@@ -7,7 +7,6 @@
 
 extern NuonEnvironment nuonEnv;
 extern VidChannel structMainChannel;
-extern VidChannel structOverlayChannel;
 
 void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {

@@ -58,12 +58,12 @@ void Execute_DECBoth(MPE &mpe, const InstructionCacheEntry &entry, const Nuance 
 
 void Execute_ADDRImmediateOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + nuance.fields[FIELD_RCU_SRC];
+  mpe.reg_union[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + nuance.fields[FIELD_RCU_SRC];
 }
 
 void Execute_ADDRImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + nuance.fields[FIELD_RCU_SRC];
+  mpe.reg_union[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + nuance.fields[FIELD_RCU_SRC];
 
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
   {
@@ -96,12 +96,12 @@ void Execute_ADDRImmediate(MPE &mpe, const InstructionCacheEntry &entry, const N
 
 void Execute_ADDRScalarOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
+  mpe.reg_union[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
 }
 
 void Execute_ADDRScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
+  mpe.reg_union[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] + entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
   {
     mpe.cc |= CC_COUNTER0_ZERO;
@@ -133,12 +133,12 @@ void Execute_ADDRScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuan
 
 void Execute_MVRImmediateOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = nuance.fields[FIELD_RCU_SRC];
+  mpe.reg_union[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] = nuance.fields[FIELD_RCU_SRC];
 }
 
 void Execute_MVRImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = nuance.fields[FIELD_RCU_SRC];
+  mpe.reg_union[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] = nuance.fields[FIELD_RCU_SRC];
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
   {
     mpe.cc |= CC_COUNTER0_ZERO;
@@ -170,12 +170,12 @@ void Execute_MVRImmediate(MPE &mpe, const InstructionCacheEntry &entry, const Nu
 
 void Execute_MVRScalarOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
+  mpe.reg_union[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
 }
 
 void Execute_MVRScalar(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
+  mpe.reg_union[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] = entry.pRegs[nuance.fields[FIELD_RCU_SRC]];
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
   {
     mpe.cc |= CC_COUNTER0_ZERO;
@@ -376,7 +376,7 @@ void Execute_ModuloOnly(MPE &mpe, const InstructionCacheEntry &entry, const Nuan
     mpe.cc |= CC_MODMI;
   }
 
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] =
+  mpe.reg_union[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] =
     (entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] & 0x0000FFFFUL) |
     (moduloResult & 0xFFFF0000UL);
 }
@@ -428,7 +428,7 @@ void Execute_Modulo(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &
     mpe.cc |= CC_MODMI;
   }
 
-  mpe.reg_union[35+nuance.fields[FIELD_RCU_DEST]] =
+  mpe.reg_union[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] =
     (entry.pRegs[INDEX_REG+nuance.fields[FIELD_RCU_DEST]] & 0x0000FFFFUL) |
     (moduloResult & 0xFFFF0000UL);
 
