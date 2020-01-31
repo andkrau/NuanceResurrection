@@ -654,7 +654,7 @@ do_mdmacmd: // for batch commands
             if(dmaflags & (1UL << 13))
             {
               mdmactl &= (~(0xFFUL << 16));
-              //increament done_rd_cnt in mdmactl
+              //increment done_rd_cnt in mdmactl
               uint32 done_cnt_rd = (mdmactl >> 16) & 0xFF;
               done_cnt_rd++;
 
