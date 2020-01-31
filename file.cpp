@@ -12,8 +12,6 @@
 #include "NuonEnvironment.h"
 
 extern NuonEnvironment nuonEnv;
-extern HWND hWndStdErr;
-extern HWND hWndStdOut;
 
 /*
 int _FileOpen(const char *path, int access, int mode, int *errnum);

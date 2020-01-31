@@ -18,6 +18,9 @@ struct structBilinearAddressInfo
   uint32 offset_address;
 }; 
 
+void GenerateMirrorLookupTable();
+void GenerateSaturateColorTables();
+
 void LoadPixelAbsolute(void);
 void LoadPixelZAbsolute(void);
 void StorePixelAbsolute(void);

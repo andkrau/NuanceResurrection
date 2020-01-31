@@ -24,12 +24,11 @@ void Emit_ExitBlock(EmitterVariables *vars)
 
 void Emit_SaveRegs(EmitterVariables *vars, Nuance &nuance)
 {
-  int32 i, offset;
   uint32 testMask = 0xF;
 
-  offset = -128;
+  int32 offset = -128;
 
-  for(i = 8; i > 0; i--)
+  for(int32 i = 8; i > 0; i--)
   {
     if(testMask & nuance.fields[1])
     {

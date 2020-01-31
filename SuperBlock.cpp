@@ -1,4 +1,5 @@
 #include "basetypes.h"
+#include <assert.h>
 #include "Handlers.h"
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
@@ -251,30 +252,20 @@ extern NuancePrintHandler printHandlers[];
 
 bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, const bool bContainsBranch)
 {
-  uint32 numLiveInstructions;
-  InstructionEntry* pInstruction = instructions;
-
-  numLiveInstructions = 0;
-
   codeCache.GetEmitVars()->bSaveRegs = false;
   codeCache.GetEmitVars()->bCheckECUSkipCounter = false;
   codeCache.GetEmitVars()->bUsesMMX = false;
 
   if(!bAllowBlockCompile)
-  {
     compileType = SUPERBLOCKCOMPILETYPE_IL_SINGLE;
-  }
   else if(compileType != SUPERBLOCKCOMPILETYPE_IL_SINGLE)
   {
     if(!bCanEmitNativeCode)
-    {
       compileType = SUPERBLOCKCOMPILETYPE_IL_BLOCK;
-    }
-    else
-    {
-      compileType = compileType;
-    }
   }
+
+  uint32 numLiveInstructions = 0;
+  InstructionEntry* pInstruction = instructions;
 
   if((compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE) || (compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK))
   {
@@ -575,7 +566,7 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
       if(!(pCurrentInstruction->flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
       //if(0)
       {
-        fprintf(blockFile,"(ScalarInDep: $%8.8LX, MiscInDep: $%8.8LX, ScalarOutDep: $%8.8LX, MiscOutDep: $%8.8LX, ",
+        fprintf(blockFile,"(ScalarInDep: $%8.8X, MiscInDep: $%8.8X, ScalarOutDep: $%8.8X, MiscOutDep: $%8.8X, ",
           pCurrentInstruction->scalarInputDependencies,pCurrentInstruction->miscInputDependencies,
           pCurrentInstruction->scalarOutputDependencies,pCurrentInstruction->miscOutputDependencies);
         GetIFlagsString(tempStr,pCurrentInstruction->miscInputDependencies);
@@ -1087,7 +1078,6 @@ non_compilable_packet:
   }
 
   //Assume all instructions are live for now
-  numLiveInstructions = numInstructions;
   //Mark the last added instruction with SUPERBLOCKINFO_SYNC to ensure EliminateDeadCode works.
   if(numInstructions)
   {

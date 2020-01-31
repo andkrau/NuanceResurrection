@@ -183,67 +183,6 @@ bit ECU instructions and TestConditionCode.
 #define PACKETSTRUCT_MUL (3)
 #define PACKETSTRUCT_MEM (4)
 
-struct PacketStruct
-{
-  uint32 inputRegisterDependencies[5];
-  uint32 inputMiscDependencies[5];
-  uint32 outputRegisterDependencies[5];
-  uint32 outputMiscDependencies[5];
-
-  //ALU instruction data;
-  uint32 alu_src1;
-  uint32 alu_src2;
-  uint8 alu_control;
-  uint8 alu_dest;
-  uint8 alu_info;
-
-  //MUL instruction data;
-  uint8 mul_control;
-  uint32 mul_src1;
-  uint32 mul_src2;
-  uint8 mul_dest;
-  uint8 mul_shift;
-  
-  uint8 reservedByte;
-
-  //ECU instruction data;
-  uint8 ecu_control;
-  uint32 ecu_condition;
-  int32 ecu_address;
-
-  //Contains Breakpoint and NOP data plus individual resource NOP bits
-  //bits [7:0] are as follows:
-  //7: operand dependency flag (0 = no dependencies: use standard register set, 1 = dependencies: copy all registers, read from copied registers, write to standard registers)
-  //6: alu nop
-  //5: mul nop
-  //4: mem nop
-  //3: rcu nop
-  //2: ecu nop
-  //1: breakpoint
-  //0: all units nop
-
-  uint32 packetInfo;
-
-  //RCU instruction data;
-  uint32 rcu_src;
-  uint8 rcu_control;
-  uint8 rcu_dest;
-
-  uint8 next_packet_offset;
-
-  //MEM instruction data;
-  uint8 mem_control;
-  uint32 mem_from;
-  uint32 mem_to;
-  uint32 *mem_ptr;
- 
-  uint32 alu_handler;
-  uint32 mul_handler;
-  uint32 mem_handler;
-  uint32 ecu_handler;
-  uint32 rcu_handler;
-};
-
 #define BilinearInfo_XRev(data) ((data) & (1UL << 30))
 #define BilinearInfo_YRev(data) ((data) & (1UL << 29))
 #define BilinearInfo_XYChnorm(data) ((data) & (1UL << 28))
@@ -490,13 +429,13 @@ public:
    
       for(uint32 i = 0; i < entry.nuanceCount; i++)
       {
-        (nuanceHandlers[entry.handlers[i]])(*this,entry,*((Nuance *)(&entry.nuances[FIXED_FIELD(i,0)])));
+        (nuanceHandlers[entry.handlers[i]])(*this,entry,(Nuance &)(entry.nuances[FIXED_FIELD(i,0)]));
       }
     }
   }
   uint32 GetControlRegisterInputDependencies(const uint32 address, bool &bException);
   uint32 GetControlRegisterOutputDependencies(const uint32 address, bool &bException);
-  void DecodeInstruction_RCU16(const uint8* const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt);
+  void DecodeInstruction_RCU16(const uint8* const iPtr, InstructionCacheEntry* const entry,       uint32* const immExt);
   void DecodeInstruction_ECU16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void DecodeInstruction_ECU32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void DecodeInstruction_ALU16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
@@ -505,20 +444,16 @@ public:
   void DecodeInstruction_MEM32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void DecodeInstruction_MUL16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void DecodeInstruction_MUL32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
-  void GenerateMirrorLookupTable();
+
   bool TestConditionCode(uint32 whichCondition);
   
   MPE() {}
   void Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr);
   ~MPE();
 
+#if 0
   bool LoadBinaryFile(uchar *filename, bool bIRAM);
-
-#define ExecuteSingleCycle() FetchDecodeExecute()
-  //bool ExecuteSingleCycle()
-  //{
-  //  return FetchDecodeExecute();
-  //}
+#endif
 
   bool ExecuteUntilAddress(const uint32 address)
   {
@@ -542,12 +477,14 @@ public:
   }
 
   void WriteControlRegister(const uint32 address, const uint32 data);
+
   void SaveRegisters()
   {
     const uint32 tmp = tempCC;
     memcpy(tempreg_union,reg_union,sizeof(uint32)*48);
     tempCC = tmp; //!! this was what happened with the old code, but was this intended??
   }
+
   void InitStaticICacheEntries();
   uint32 ReadControlRegister(const uint32 address, const InstructionCacheEntry &entry);
 
@@ -583,24 +520,9 @@ public:
   void PrintInstructionCachePacket(char *buffer, const InstructionCacheEntry &entry);
 
   void Reset();
+
   bool LoadCoffFile(const char * const filename, bool bSetEntryPoint = true, int handle = -1);
   bool LoadNuonRomFile(const char * const filename);
-
-  //void LoadByte(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
-  //void LoadWord(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
-  //void LoadScalar(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, PacketStruct *pStruct);
-  //void LoadShortVector(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
-  //void LoadVector(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, PacketStruct *pStruct);
-  //void LoadPixel(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, unsigned __int32 pixType, unsigned __int32 subpixel, bool bChnorm);
-  //void LoadPixelZ(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, unsigned __int32 pixType, unsigned __int32 subpixel, bool bChnorm);
-  //void StoreByte(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
-  //void StoreWord(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
-  //void StoreScalar(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
-  //void StoreScalarImmediate(unsigned __int32 immediateData, unsigned __int32 address);
-  //void StoreShortVector(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
-  //void StoreVector(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address);
-  //void StorePixel(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, unsigned __int32 pixType, unsigned __int32 subpixel, bool bChnorm);
-  //void StorePixelZ(unsigned __int32 *regfile,unsigned __int8 reg, unsigned __int32 address, unsigned __int32 pixType, unsigned __int32 subpixel, bool bChnorm);
 };
 
 #endif

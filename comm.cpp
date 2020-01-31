@@ -7,12 +7,11 @@
 #include "NuonEnvironment.h"
 
 extern NuonEnvironment nuonEnv;
-char msgBuf[512];
+extern uint32 vdgCLUT[];
+
 FILE *commLogFile;
 
 //#define LOG_COMM
-
-extern uint32 vdgCLUT[];
 
 void DoCommBusController(void)
 {

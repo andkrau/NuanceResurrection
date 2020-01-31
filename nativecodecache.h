@@ -96,7 +96,7 @@ public:
     return &emitVars;
   }
 
-  void SetEmitVars(EmitterVariables &vars)
+  void SetEmitVars(const EmitterVariables &vars)
   {
     emitVars = vars;
   }

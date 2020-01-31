@@ -33,11 +33,53 @@ static const int32 pixel_type_width[16] = {
 
 extern NuonEnvironment nuonEnv;
 
-inline void SaturateColorComponents(uint32 &Y, uint32 &Cr, uint32 &Cb, const bool bChnorm)
-{
-  uint32 YLookup[] = {0x00UL,0xFFUL,0x00UL,0x00UL};
+static uint32 mipped_xoffset = 0;
+structBilinearAddressInfo bilinearAddressInfo;
 
-  YLookup[0] = (Y >> (16 + 13 - 7)) & 0xFFUL;
+static uint16 mirrorLookup[65536];
+
+static uint8 satColY[1024];
+static uint8 satColCrCb[1024];
+static uint8 satColCrCbChnorm[1024];
+
+void GenerateMirrorLookupTable()
+{
+    uint8 mirrorLookup8[256];
+    for (uint32 i = 0; i <= 0xFF; i++)
+    {
+        uint8 mirror = 0;
+        mirror |= ((i & 0x01) << 7) & 0x80;
+        mirror |= ((i & 0x02) << 5) & 0x40;
+        mirror |= ((i & 0x04) << 3) & 0x20;
+        mirror |= ((i & 0x08) << 1) & 0x10;
+        mirror |= ((i & 0x10) >> 1) & 0x08;
+        mirror |= ((i & 0x20) >> 3) & 0x04;
+        mirror |= ((i & 0x40) >> 5) & 0x02;
+        mirror |= ((i & 0x80) >> 7) & 0x01;
+
+        mirrorLookup8[i] = mirror;
+    }
+
+    for (uint32 i = 0; i <= 0xFFFF; i++)
+    {
+        union {
+            struct { uint8 u8[2]; };
+            uint16 u16;
+        } xtmp;
+#ifdef LITTLE_ENDIAN
+        xtmp.u8[1] = mirrorLookup8[i&0xFF];
+        xtmp.u8[0] = mirrorLookup8[(i>>8)&0xFF];
+#else
+        xtmp.u8[0] = mirrorLookup8[i&0xFF];
+        xtmp.u8[1] = mirrorLookup8[(i>>8)&0xFF];
+#endif
+        mirrorLookup[i] = xtmp.u16;
+    }
+}
+
+inline void SaturateColorComponentsOrg(uint32 &Y, uint32 &Cr, uint32 &Cb, const bool bChnorm)
+{
+  uint32 YLookup[] = {(Y >> (16 + 13 - 7)) & 0xFFUL,0xFFUL,0xFFUL,0xFFUL}; //!! was X,FF,0,0 before
   Y = YLookup[Y >> (16 + 14)];
 
   switch(Cr >> (16+14))
@@ -109,43 +151,55 @@ inline void SaturateColorComponents(uint32 &Y, uint32 &Cr, uint32 &Cb, const boo
   }
 }
 
-static uint32 mipped_xoffset = 0;
+inline void SaturateColorComponents(uint32& Y, uint32& Cr, uint32& Cb, const bool bChnorm)
+{
+  /*uint32 Y2 = Y;
+  uint32 Cr2 = Cr;
+  uint32 Cb2 = Cb;
+  SaturateColorComponentsOrg(Y2, Cr2, Cb2, bChnorm);*/
+
+  Y = satColY[Y >> 22];
+  if (bChnorm)
+  {
+    Cr = satColCrCbChnorm[Cr >> 22];
+    Cb = satColCrCbChnorm[Cb >> 22];
+  }
+  else
+  {
+    Cr = satColCrCb[Cr >> 22];
+    Cb = satColCrCb[Cb >> 22];
+  }
+
+  /*assert(Y2 == Y);
+  assert(Cr2 == Cr);
+  assert(Cb2 == Cb);*/
+}
+
+void GenerateSaturateColorTables()
+{
+  for (uint32 i = 0; i < 1024; ++i)
+  {
+    uint32 Y  = i << 22;
+    uint32 Cr = i << 22;
+    uint32 Cb = i << 22;
+    SaturateColorComponentsOrg(Y, Cr, Cb, true);
+    satColCrCbChnorm[i] = Cr;
+    Y  = i << 22;
+    Cr = i << 22;
+    Cb = i << 22;
+    SaturateColorComponentsOrg(Y, Cr, Cb, false);
+    satColY[i] = Y;
+    satColCrCb[i] = Cr;
+  }
+}
 
 inline void CalculateBilinearAddress(const MPE &mpe, uint32 * const pOffsetAddress, const uint32 control, uint32 x, uint32 y)
 {
   if(BilinearInfo_XRev(control))
-  {
-    union {
-        uint32 u32;
-        struct { uint8 u8[4]; };
-    } xtmp;
-    xtmp.u32 = x;
-#ifdef LITTLE_ENDIAN
-    xtmp.u8[1] = mpe.mirrorLookup[x&0xFF];
-    xtmp.u8[0] = mpe.mirrorLookup[(x>>8)&0xFF];
-#else
-    xtmp.u8[0] = mpe.mirrorLookup[x&0xFF];
-    xtmp.u8[1] = mpe.mirrorLookup[(x>>8) & 0xFF];
-#endif
-    x = xtmp.u32;
-  }
+    x = (x&0xFFFF0000u) | mirrorLookup[x&0xFFFFu];
 
   if(BilinearInfo_YRev(control))
-  {
-    union {
-        uint32 u32;
-        struct { uint8 u8[4]; };
-    } ytmp;
-    ytmp.u32 = x;
-#ifdef LITTLE_ENDIAN
-    ytmp.u8[1] = mpe.mirrorLookup[y&0xFF];
-    ytmp.u8[0] = mpe.mirrorLookup[(y>>8)&0xFF];
-#else
-    ytmp.u8[0] = mpe.mirrorLookup[y&0xFF];
-    ytmp.u8[1] = mpe.mirrorLookup[(y>>8) & 0xFF];
-#endif
-    y = ytmp.u32;
-  }
+    y = (y&0xFFFF0000u) | mirrorLookup[y&0xFFFFu];
 
   //*pOffsetAddress = (((MIP(y) & SIGNMIP(YTILEMASK)) >> 16) * MIP(bi->xy_width) + ((MIP(x) & SIGNMIP(XTILEMASK)) >> 16));
   //mipped_xoffset = ((MIP(x) & SIGNMIP(XTILEMASK)) >> 16);
@@ -154,52 +208,22 @@ inline void CalculateBilinearAddress(const MPE &mpe, uint32 * const pOffsetAddre
   *pOffsetAddress = (((MIP(y) & SIGNMIP(YTILEMASK)) >> 16) * MIP(BilinearInfo_XYWidth(control)) + mipped_xoffset);
 }
 
-structBilinearAddressInfo bilinearAddressInfo;
-
 void GetBilinearAddress()
 {
   const uint32 control = bilinearAddressInfo.control;
   const int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width,control);
 
   if(BilinearInfo_XRev(control))
-  {
-    union {
-        uint32 u32;
-        struct { uint8 u8[4]; };
-    } xtmp;
-    xtmp.u32 = bilinearAddressInfo.x;
-#ifdef LITTLE_ENDIAN
-    xtmp.u8[1] = MPE::mirrorLookup[bilinearAddressInfo.x&0xFF];
-    xtmp.u8[0] = MPE::mirrorLookup[(bilinearAddressInfo.x>>8)&0xFF];
-#else
-    xtmp.u8[0] = MPE::mirrorLookup[bilinearAddressInfo.x&0xFF];
-    xtmp.u8[1] = MPE::mirrorLookup[(bilinearAddressInfo.x>>8)&0xFF];
-#endif
-    bilinearAddressInfo.x = xtmp.u32;
-  }
+    bilinearAddressInfo.x = (bilinearAddressInfo.x&0xFFFF0000u) | mirrorLookup[bilinearAddressInfo.x&0xFFFFu];
 
   if(BilinearInfo_YRev(control))
-  {
-    union {
-        uint32 u32;
-        struct { uint8 u8[4]; };
-    } ytmp;
-    ytmp.u32 = bilinearAddressInfo.y;
-#ifdef LITTLE_ENDIAN
-    ytmp.u8[1] = MPE::mirrorLookup[bilinearAddressInfo.y&0xFF];
-    ytmp.u8[0] = MPE::mirrorLookup[(bilinearAddressInfo.y>>8)&0xFF];
-#else
-    ytmp.u8[0] = MPE::mirrorLookup[bilinearAddressInfo.y&0xFF];
-    ytmp.u8[1] = MPE::mirrorLookup[(bilinearAddressInfo.y>>8)&0xFF];
-#endif
-    bilinearAddressInfo.y = ytmp.u32;
-  }
+    bilinearAddressInfo.y = (bilinearAddressInfo.y&0xFFFF0000u) | mirrorLookup[bilinearAddressInfo.y&0xFFFFu];
 
   //*pOffsetAddress = (((MIP(y) & SIGNMIP(YTILEMASK)) >> 16) * MIP(bi->xy_width) + ((MIP(x) & SIGNMIP(XTILEMASK)) >> 16));
-  //mipped_xoffset = ((MIP(x) & SIGNMIP(XTILEMASK)) >> 16);
-  //*pOffsetAddress = (((MIP(y) & SIGNMIP(YTILEMASK)) >> 16) * MIP(BilinearInfo_XYWidth(control)) + mipped_xoffset);
-  mipped_xoffset = (MIP((bilinearAddressInfo.x)) & SIGNMIP(XTILEMASK)) >> 16;
-  uint32 address = (((MIP((bilinearAddressInfo.y)) & SIGNMIP(YTILEMASK)) >> 16) * MIP(BilinearInfo_XYWidth(control)) + mipped_xoffset);
+  //bilinearAddressInfo.mipped_xoffset = ((MIP(x) & SIGNMIP(XTILEMASK)) >> 16);
+  //*pOffsetAddress = (((MIP(y) & SIGNMIP(YTILEMASK)) >> 16) * MIP(BilinearInfo_XYWidth(control)) + bilinearAddressInfo.mipped_xoffset);
+  bilinearAddressInfo.mipped_xoffset = (MIP((bilinearAddressInfo.x)) & SIGNMIP(XTILEMASK)) >> 16;
+  uint32 address = (((MIP((bilinearAddressInfo.y)) & SIGNMIP(YTILEMASK)) >> 16) * MIP(BilinearInfo_XYWidth(control)) + bilinearAddressInfo.mipped_xoffset);
 
   if(pixwidth >= 0)
   {
@@ -213,7 +237,6 @@ void GetBilinearAddress()
   }
 
   bilinearAddressInfo.offset_address = (bilinearAddressInfo.base & 0xFFFFFFFCu) + address;
-  bilinearAddressInfo.mipped_xoffset = mipped_xoffset;
 }
 
 void Execute_Mirror(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
@@ -1100,9 +1123,9 @@ void Execute_LoadPixelLinear(MPE &mpe, const InstructionCacheEntry &entry, const
 
 void Execute_LoadPixelBilinearUV(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width,entry.pRegs[UVC_REG]);
   uint32 address;
   CalculateBilinearAddress(mpe,&address,entry.pRegs[UVC_REG],entry.pRegs[INDEX_REG+REG_U],entry.pRegs[INDEX_REG+REG_V]);
+  const int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width, entry.pRegs[UVC_REG]);
   if(pixwidth >= 0)
   {
     address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixwidth);
@@ -1122,9 +1145,9 @@ void Execute_LoadPixelBilinearUV(MPE &mpe, const InstructionCacheEntry &entry, c
 
 void Execute_LoadPixelBilinearXY(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
 {
-  const int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width,entry.pRegs[XYC_REG]);
   uint32 address;
   CalculateBilinearAddress(mpe,&address,entry.pRegs[XYC_REG],entry.pRegs[INDEX_REG+REG_X],entry.pRegs[INDEX_REG+REG_Y]);
+  const int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width, entry.pRegs[XYC_REG]);
   if(pixwidth >= 0)
   {
     address = (mpe.xybase & 0xFFFFFFFC) + (address << pixwidth);

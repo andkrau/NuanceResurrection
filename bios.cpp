@@ -632,7 +632,7 @@ void InitBios(MPE &mpe)
   structMainChannel.dest_xoff = 0;
   structMainChannel.dest_yoff = 0;
   structMainChannel.dmaflags = (4 << 4);
-  for(uint32 i = 0; i < 4; i++)
+  for(uint32 i = 0; i < 5; i++)
   {
     structMainChannel.reserved[i] = 0;
   }
@@ -647,7 +647,7 @@ void InitBios(MPE &mpe)
   structOverlayChannel.dest_yoff = 0;
   structOverlayChannel.dmaflags = (4 << 4);
   structOverlayChannel.alpha = 0xFF;
-  for(uint32 i = 0; i < 4; i++)
+  for(uint32 i = 0; i < 5; i++)
   {
     structOverlayChannel.reserved[i] = 0;
   }

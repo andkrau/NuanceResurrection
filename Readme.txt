@@ -379,6 +379,7 @@ Optimizations
 Always enable Pixel Shaders and fully support mode 2
 Remove fields per second and always update video setting in cfg
 Support Nuons VSyncing if machine is emulating 'too fast'
+Rudimentary support for x64/64bit compiles, needs to disable dynamic compiler though
 
 5/30/2007, version 0.5.0:
   Fixed tons of compiler bugs.  Fixed TimeToSleep routine, allowing Snake to work again.  
