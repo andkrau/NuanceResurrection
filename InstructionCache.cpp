@@ -11,7 +11,9 @@ InstructionCache::InstructionCache(const uint32 desiredEntries)
   }
 
   validBitmap = new uint32[(numEntries/32) + 1];
+  //!! init_array((uint8*)validBitmap, ((numEntries / 32) + 1)*sizeof(uint32));
   cacheEntries = new InstructionCacheEntry[numEntries];
+  //!! init_array((uint8*)cacheEntries, numEntries*sizeof(InstructionCacheEntry));
 
   Invalidate();
 }
@@ -31,8 +33,7 @@ InstructionCache::~InstructionCache()
 
 void InstructionCache::Invalidate()
 {
-  for(uint32 i = 0; i < (numEntries/32 + 1); i++)
-    validBitmap[i] = 0;
+  memset(validBitmap, 0, (numEntries/32 + 1)*sizeof(uint32));
 }
 
 void InstructionCache::InvalidateRegion(const uint32 start, const uint32 end)

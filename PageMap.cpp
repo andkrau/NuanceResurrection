@@ -62,6 +62,7 @@ NativeCodeCacheEntry *PageMap::AllocatePage(const uint32 address)
   if(!pL2Node)
   {
     pL2Node = new NativeCodeCacheEntry[NUM_LEVEL2_PAGENODE_ENTRIES];
+    //!! init_array((uint8*)pL2Node, NUM_LEVEL2_PAGENODE_ENTRIES * sizeof(NativeCodeCacheEntry));
     for(uint32 i = 0; i < NUM_LEVEL2_PAGENODE_ENTRIES; i++)
     {
       pL2Node[i].virtualAddress = 1;  

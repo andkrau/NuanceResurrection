@@ -121,6 +121,7 @@ public:
 class InstructionCacheEntry
 {
 public:
+  InstructionCacheEntry() { pcexec = 0; }
   uint32 handlers[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 nuanceCount;
   uint32 packetInfo;
@@ -131,10 +132,16 @@ public:
   uint32 pcfetchnext;
   uint32 ecuConditionCode;
   size_t nuances[MAX_INSTRUCTIONS_PER_PACKET * FIELDS_PER_NUANCE]; //!! size_t due to some being real pointers, i.e. to support 64bit compiles
+
   uint32 scalarInputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 miscInputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 scalarOutputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 miscOutputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
+
+  void ClearDependencies()
+  {
+    memset(scalarInputDependencies, 0, MAX_INSTRUCTIONS_PER_PACKET*4*sizeof(uint32)); // clear all 4 arrays above
+  }
 
   void CopyInstructionData(const uint32 toSlot, const InstructionCacheEntry &src, const uint32 fromSlot);
 };

@@ -765,8 +765,6 @@ NativeEmitHandler emitHandlers[] =
 };
 
 FILE *logfile = NULL;
-double timeDelta;
-uint64 timer_start, timer_end;
 
 void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr)
 {
@@ -854,24 +852,23 @@ MPE::~MPE()
   delete instructionCache;
   delete overlayManager;
   delete superBlock;
+
   if(mpeIndex == LOG_MPE_INDEX)
   {
     if(logfile)
-    {
       fclose(logfile);
-    }
 
     if(commLogFile)
-    {
       fclose(commLogFile);
-    }
   }
+
   FreeMPELocalMemory();
 }
 
 void MPE::AllocateMPELocalMemory()
 {
   dtrom = new uint8[MPE_LOCAL_MEMORY_SIZE];
+  init_nuon_mem(dtrom, MPE_LOCAL_MEMORY_SIZE);
 }
 
 void MPE::FreeMPELocalMemory()
@@ -1041,19 +1038,10 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
   pICacheEntry->nuanceCount = 0;
   pStruct.packetInfo = 0;
 
-  for(uint32 i = 0; i < MAX_INSTRUCTIONS_PER_PACKET; i++)
-  {
-    pStruct.scalarInputDependencies[i] = 0;
-    pStruct.miscInputDependencies[i] = 0;
-    pStruct.scalarOutputDependencies[i] = 0;
-    pStruct.miscOutputDependencies[i] = 0;
-    pICacheEntry->scalarInputDependencies[i] = 0;
-    pICacheEntry->miscInputDependencies[i] = 0;
-    pICacheEntry->scalarOutputDependencies[i] = 0;
-    pICacheEntry->miscOutputDependencies[i] = 0;
-  }
+  pStruct.ClearDependencies();
+  pICacheEntry->ClearDependencies();
 
-  uint32 immExt = 0;
+  uint32 immExt = 0; // do not pull this into the loop!
   uint32 packetByteCount = 0;
   bool bTerminating = false;
 
@@ -1656,10 +1644,10 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
 
   uint32 comboScalarInDep = 0;
   uint32 comboMiscInDep = 0;
-  uint32 comboScalarOutDep = pICacheEntry->scalarOutputDependencies[0];
-  uint32 comboMiscOutDep = pICacheEntry->miscOutputDependencies[0];
+  uint32 comboScalarOutDep = pICacheEntry->nuanceCount > 0 ? pICacheEntry->scalarOutputDependencies[0] : 0;
+  uint32 comboMiscOutDep = pICacheEntry->nuanceCount > 0 ? pICacheEntry->miscOutputDependencies[0] : 0;
 
-  for(uint32 i = 1; i < MAX_INSTRUCTIONS_PER_PACKET; i++)
+  for(uint32 i = 1; i < pICacheEntry->nuanceCount; i++)
   {
     comboScalarInDep |= (pICacheEntry->scalarInputDependencies[i] & comboScalarOutDep);
     comboMiscInDep |= (pICacheEntry->miscInputDependencies[i] & comboMiscOutDep);
@@ -1684,11 +1672,8 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
   else
     pICacheEntry->pRegs = reg_union;
 
-  pICacheEntry->handlers[0] = pICacheEntry->nuances[0];
-  pICacheEntry->handlers[1] = pICacheEntry->nuances[5];
-  pICacheEntry->handlers[2] = pICacheEntry->nuances[10];
-  pICacheEntry->handlers[3] = pICacheEntry->nuances[15];
-  pICacheEntry->handlers[4] = pICacheEntry->nuances[20];
+  for(uint32 i = 0; i < pICacheEntry->nuanceCount; ++i)
+    pICacheEntry->handlers[i] = pICacheEntry->nuances[i*5];
 }
 
 inline bool MPE::ChooseInstructionPairOrdering(const InstructionCacheEntry &entry, const uint32 slot1, const uint32 slot2)
@@ -2136,7 +2121,7 @@ execute_block:
       interpretNextPacket = 0;
 
     //StopPerformanceTimer();
-    //timeDelta = GetTimeDeltaMs();
+    //double timeDelta = GetTimeDeltaMs();
 
 #ifdef LOG_STUFF
       if(LOG_MPE_INDEX == mpeIndex)
@@ -2168,7 +2153,7 @@ execute_block:
             (nuanceHandlers[pNuance->fields[0]])(*this,*pICacheEntry,*pNuance);
             pNuance++;
 
-            if(bInterpretedBranchTaken)
+            if(bInterpretedBranchTaken) // Execute_CheckECUSkipCounter can set this
             {
               pcexec = pcfetchnext;
               goto check_for_halt;
@@ -2274,7 +2259,6 @@ check_for_halt:
       {
         mpectl &= ~MPECTRL_MPEGO;
       }
-
     }
     
     //StopPerformanceTimer();
@@ -2396,17 +2380,14 @@ NativeCodeCacheEntryPoint MPE::CompileNativeCodeBlock(const uint32 pcexec, const
 
 void MPE::PrintInstructionCachePacket(char *buffer, const InstructionCacheEntry &entry)
 {
-  if(entry.nuanceCount != 0)
+  for(uint32 i = 0; i < entry.nuanceCount; i++)
   {
-    for(uint32 i = 0; i < entry.nuanceCount; i++)
-    {
-      buffer += (printHandlers[entry.handlers[i]])(buffer, *((Nuance *)(&entry.nuances[FIXED_FIELD(i,0)])), true);
-    }
+    buffer += (printHandlers[entry.handlers[i]])(buffer, *((Nuance *)(&entry.nuances[FIXED_FIELD(i,0)])), true);
   }
   
   if(entry.packetInfo & PACKETINFO_BREAKPOINT)
   {
-      sprintf(buffer,"breakpoint\n");
+    sprintf(buffer,"breakpoint\n");
   }
   else if(entry.packetInfo & PACKETINFO_NOP)
   {

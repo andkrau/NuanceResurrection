@@ -11,6 +11,8 @@
 extern NuonEnvironment nuonEnv;
 extern uint32 mpeFlags[];
 
+bool bCallingMediaCallback = false; // globally used
+
 uint32 media_mpe_allocated = 0;
 uint32 media_mpe = 0;
 
@@ -60,7 +62,7 @@ void MediaInitMPE(const uint32 i)
   }
   else
   {
-   loadStatus = nuonEnv.mpe[i].LoadCoffFile("minibiosX.cof",false);
+    loadStatus = nuonEnv.mpe[i].LoadCoffFile("minibiosX.cof",false);
 
     if(!loadStatus)
     {
@@ -98,7 +100,6 @@ void MediaInitMPE(const uint32 i)
 
 void MediaInitMPE(MPE &mpe)
 {
-  int32 which;
   //Check to see if the media code is already running on an MPE
   //in which case don't reallocate it and simply return the index
   //of the MPE that it is running on
@@ -109,7 +110,7 @@ void MediaInitMPE(MPE &mpe)
     return;
   }
 
-  which = -1;
+  int32 which = -1;
 
   for(uint32 i = 0; i < 4; i++)
   {
@@ -126,9 +127,6 @@ void MediaInitMPE(MPE &mpe)
 
 char *fileNameArray[] = {"stdin","stdout","stderr",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 uint32 fileModeArray[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-bool bCableFileOpen;
-bool bEmulatorFileOpen;
-bool bNvramFileOpen;
 
 #define FIRST_DVD_FD (3)
 #define LAST_DVD_FD (19)
@@ -242,8 +240,6 @@ void MediaGetInfo(MPE &mpe)
 
   mpe.regs[0] = result;
 }
-
-bool bCallingMediaCallback = false;
 
 void MediaRead(MPE &mpe)
 {
