@@ -129,7 +129,9 @@ SuperBlock::SuperBlock(MPE * const mpe, const uint32 maxPackets, const uint32 _m
   maxInstructionsPerPacket = _maxInstructionsPerPacket;
   //allocate enough instruction entries to account for packet start/end IL
   instructions = new InstructionEntry[(maxPackets + 2) * (maxInstructionsPerPacket + 2)];
+  //!! init_array((uint8*)instructions, ((maxPackets + 2) * (maxInstructionsPerPacket + 2)) * sizeof(InstructionEntry));
   packets = new PacketEntry[maxPackets + 2];
+  //!! init_array((uint8*)packets, (maxPackets + 2) * sizeof(PacketEntry));
   numInstructions = 0;
   numPackets = 0;
   constants = new SuperBlockConstants(pMPE,this);
@@ -622,8 +624,8 @@ void SuperBlock::AddPacketToList(InstructionCacheEntry &packet, const uint32 ind
 
   uint32 comboScalarInDep = 0;
   uint32 comboMiscInDep = 0;
-  uint32 comboScalarOutDep = packet.scalarOutputDependencies[0];
-  uint32 comboMiscOutDep = packet.miscOutputDependencies[0];
+  uint32 comboScalarOutDep = packet.nuanceCount > 0 ? packet.scalarOutputDependencies[0] : 0;
+  uint32 comboMiscOutDep = packet.nuanceCount > 0 ? packet.miscOutputDependencies[0] : 0;
 
   for(uint32 i = 1; i < packet.nuanceCount; i++)
   {

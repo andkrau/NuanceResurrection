@@ -1,6 +1,7 @@
 #ifndef FLASHEEPROM_H
 #define FLASHEEPROM_H
 
+#include "basetypes.h"
 #include <stdio.h>
 
 //16 Mbit = 2 MByte
@@ -36,7 +37,8 @@ public:
   FlashEEPROM()
   {
     eepromSize = DEFAULT_EEPROM_SIZE;
-    eeprom = new uint8[eepromSize];
+    eeprom = new uint8[DEFAULT_EEPROM_SIZE];
+    init_nuon_mem(eeprom, DEFAULT_EEPROM_SIZE);
     //Device ID: AT49BV162A/163A
     eepromDeviceID = 0xC0;
     //Manufacturer Code : Atmel

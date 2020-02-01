@@ -15,4 +15,14 @@ typedef unsigned __int64 uint64;
 typedef unsigned char uchar;
 typedef signed char schar;
 
+#if 1 // initialize all nuon memory to a defined value
+#include <memory.h>
+inline void init_nuon_mem(uint8* const p, const size_t length)
+{
+  memset(p,0xcd,length);
+}
+#else
+inline void init_nuon_mem(const uint8* const p, const size_t length) {}
+#endif
+
 #endif

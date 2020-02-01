@@ -356,7 +356,9 @@ void NuonEnvironment::WriteFile(MPE &MPE, uint32 fd, uint32 buf, uint32 len)
 void NuonEnvironment::Init()
 {
   mainBusDRAM = new uint8[MAIN_BUS_SIZE];
+  init_nuon_mem(mainBusDRAM, MAIN_BUS_SIZE);
   systemBusDRAM = new uint8[SYSTEM_BUS_SIZE];
+  init_nuon_mem(systemBusDRAM, SYSTEM_BUS_SIZE);
   flashEEPROM = new FlashEEPROM;
 
   dvdBase = new char[1];
