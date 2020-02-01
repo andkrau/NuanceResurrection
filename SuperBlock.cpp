@@ -127,12 +127,12 @@ SuperBlock::SuperBlock(MPE * const mpe, const uint32 maxPackets, const uint32 _m
   maxPacketsPerSuperBlock = maxPackets;
   pMPE = mpe;
   maxInstructionsPerPacket = _maxInstructionsPerPacket;
-  constants = new SuperBlockConstants(pMPE,this);
   //allocate enough instruction entries to account for packet start/end IL
   instructions = new InstructionEntry[(maxPackets + 2) * (maxInstructionsPerPacket + 2)];
   packets = new PacketEntry[maxPackets + 2];
   numInstructions = 0;
   numPackets = 0;
+  constants = new SuperBlockConstants(pMPE,this);
   char fileStr[128];
   sprintf(fileStr,"SuperBlocks%li.txt",mpe->mpeIndex);
   blockFile = fopen(fileStr,"w");
