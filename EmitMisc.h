@@ -18,9 +18,6 @@ public:
   NativeCodeCache *codeCache;
   PatchManager *patchMgr;
   InstructionEntry *pInstructionEntry;
-  bool bCheckECUSkipCounter;
-  bool bSaveRegs;
-  bool bUsesMMX;
   int32 regBase;
   int32 tempRegBase;
   uint32 scalarRegDep;
@@ -28,19 +25,17 @@ public:
   uint32 scalarRegOutDep;
   uint32 miscRegOutDep;
   uint8 **ppEmitLoc;
+
+  bool bCheckECUSkipCounter;
+  bool bSaveRegs;
+  bool bUsesMMX;
+
   uint8 *GetEmitLoc() { return *ppEmitLoc; }
 };
 
 inline x86BaseReg GetScalarRegReadBaseReg(const EmitterVariables* const vars, const uint32 regIndex)
 {
-  if(vars->scalarRegDep & SCALAR_REG_DEPENDENCY_MASK(regIndex))
-  {
-    return x86BaseReg_edi;
-  }
-  else
-  {
-    return x86BaseReg_esi;
-  }
+  return (vars->scalarRegDep & SCALAR_REG_DEPENDENCY_MASK(regIndex)) ? x86BaseReg_edi : x86BaseReg_esi;
 }
 
 inline x86BaseReg GetScalarRegWriteBaseReg(const EmitterVariables* const vars, const uint32 regIndex)
@@ -50,26 +45,11 @@ inline x86BaseReg GetScalarRegWriteBaseReg(const EmitterVariables* const vars, c
 
 inline x86BaseReg GetMiscRegReadBaseReg(const EmitterVariables * const vars, const uint32 regIndex)
 {
-  uint32 mask;
+  const uint32 mask = !regIndex ? DEPENDENCY_FLAG_ALLFLAGS : MISC_REG_DEPENDENCY_MASK(regIndex - 1);
 
-  if(!regIndex)
-  {
-    mask = DEPENDENCY_FLAG_ALLFLAGS;
-  }
-  else
-  {
-    mask = MISC_REG_DEPENDENCY_MASK(regIndex - 1);
-  }
-
-  if(vars->miscRegDep & mask)
-  {
-    return x86BaseReg_edi;
-  }
-  else
-  {
-    return x86BaseReg_esi;
-  }
+  return (vars->miscRegDep & mask) ? x86BaseReg_edi : x86BaseReg_esi;
 }
+
 inline x86BaseReg GetMiscRegWriteBaseReg(const EmitterVariables * const vars, const uint32 regIndex)
 {
   return x86BaseReg_esi;
@@ -90,4 +70,5 @@ void Emit_NOP(EmitterVariables *vars, Nuance &nuance);
 void Emit_SaveRegs(EmitterVariables *vars, Nuance &nuance);
 void Emit_StoreMiscRegisterConstant(EmitterVariables *vars, Nuance &nuance);
 void Emit_StoreScalarRegisterConstant(EmitterVariables *vars, Nuance &nuance);
+
 #endif

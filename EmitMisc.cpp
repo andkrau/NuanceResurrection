@@ -75,13 +75,13 @@ void Emit_SaveRegs(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreScalarRegisterConstant(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_CONSTANT_ADDRESS];
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
-  uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];
-  uint32 flagValues = (nuance.fields[FIELD_CONSTANT_FLAGVALUES] & flagMask);
+  const uint32 destRegIndex = nuance.fields[FIELD_CONSTANT_ADDRESS];
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+  const uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];
+  const uint32 flagValues = (nuance.fields[FIELD_CONSTANT_FLAGVALUES] & flagMask);
 
   vars->codeCache->X86Emit_MOVIM(nuance.fields[FIELD_CONSTANT_VALUE], x86MemPtr_dword, destRegWriteBaseReg,x86IndexReg_none, x86Scale_1, destRegDisp);
   if(flagMask)
@@ -102,13 +102,13 @@ void Emit_StoreScalarRegisterConstant(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreMiscRegisterConstant(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_CONSTANT_ADDRESS];
-  x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  int32 destRegDisp = GetMiscRegEmitDisp(vars,destRegIndex+1);
-  int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
-  uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];
-  uint32 flagValues = (nuance.fields[FIELD_CONSTANT_FLAGVALUES] & flagMask);
+  const uint32 destRegIndex = nuance.fields[FIELD_CONSTANT_ADDRESS];
+  const x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,destRegIndex);
+  const x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
+  const int32 destRegDisp = GetMiscRegEmitDisp(vars,destRegIndex+1);
+  const int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+  const uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];
+  const uint32 flagValues = (nuance.fields[FIELD_CONSTANT_FLAGVALUES] & flagMask);
 
   if(destRegIndex != CONSTANT_REG_DISCARD)
   {
@@ -131,6 +131,7 @@ void Emit_StoreMiscRegisterConstant(EmitterVariables *vars, Nuance &nuance)
       case CONSTANT_REG_ACSHIFT:
       case CONSTANT_REG_SVSHIFT:
         vars->codeCache->X86Emit_MOVIM(nuance.fields[FIELD_CONSTANT_VALUE], x86MemPtr_dword, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
+        break;
     }
   }
   

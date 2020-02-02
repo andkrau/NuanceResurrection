@@ -18,12 +18,12 @@ void EmitControlRegisterStoreImmediate(EmitterVariables *vars, uint32 address, u
 
 void Emit_Mirror(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   if(vars->scalarRegOutDep)
   {
@@ -64,10 +64,10 @@ void Emit_Mirror(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_MV_SImmediate(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 imm = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 imm = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   if(vars->scalarRegOutDep)
   {
@@ -77,12 +77,12 @@ void Emit_MV_SImmediate(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_MV_SScalar(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   if(vars->scalarRegOutDep)
   {
@@ -93,15 +93,15 @@ void Emit_MV_SScalar(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_MV_V(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 src1RegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg src1RegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,src1RegIndex);
-  x86BaseReg src1RegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,src1RegIndex+1);
-  x86BaseReg src1RegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,src1RegIndex+2);
-  x86BaseReg src1RegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,src1RegIndex+3);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 src1RegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg src1RegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,src1RegIndex);
+  const x86BaseReg src1RegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,src1RegIndex+1);
+  const x86BaseReg src1RegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,src1RegIndex+2);
+  const x86BaseReg src1RegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,src1RegIndex+3);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   if((src1RegReadBaseReg_0 == src1RegReadBaseReg_1) && (src1RegReadBaseReg_2 == src1RegReadBaseReg_3) && (src1RegReadBaseReg_0 == src1RegReadBaseReg_2))
   {
@@ -127,10 +127,10 @@ void Emit_MV_V(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadByteAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcAddress = nuance.fields[FIELD_MEM_POINTER];
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcAddress = nuance.fields[FIELD_MEM_POINTER];
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   if(vars->scalarRegOutDep)
   {
@@ -142,14 +142,14 @@ void Emit_LoadByteAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadByteLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 l_not_control_reg = 0;
+  const uint32 l_not_control_reg = 0;
 
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->patchMgr->Reset();
 
@@ -182,15 +182,15 @@ void Emit_LoadByteLinear(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadByteBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -221,15 +221,15 @@ void Emit_LoadByteBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadByteBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -260,10 +260,10 @@ void Emit_LoadByteBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadWordAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcAddress = nuance.fields[FIELD_MEM_POINTER];
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcAddress = nuance.fields[FIELD_MEM_POINTER];
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   if(vars->scalarRegOutDep)
   {
@@ -275,14 +275,14 @@ void Emit_LoadWordAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadWordLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 l_not_control_reg = 0;
+  const uint32 l_not_control_reg = 0;
 
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->patchMgr->Reset();
 
@@ -316,15 +316,15 @@ void Emit_LoadWordLinear(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadWordBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -356,15 +356,15 @@ void Emit_LoadWordBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadWordBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -396,10 +396,10 @@ void Emit_LoadWordBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadScalarAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcAddress = nuance.fields[FIELD_MEM_POINTER];
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcAddress = nuance.fields[FIELD_MEM_POINTER];
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   if(vars->scalarRegOutDep)
   {
@@ -411,11 +411,11 @@ void Emit_LoadScalarAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadScalarControlRegisterAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcAddress = nuance.fields[FIELD_MEM_FROM];
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcAddress = nuance.fields[FIELD_MEM_FROM];
 
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   if(vars->scalarRegOutDep)
   {
@@ -426,14 +426,14 @@ void Emit_LoadScalarControlRegisterAbsolute(EmitterVariables *vars, Nuance &nuan
 
 void Emit_LoadScalarLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 l_not_control_reg = 0;
+  const uint32 l_not_control_reg = 0;
 
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->patchMgr->Reset();
 
@@ -469,15 +469,15 @@ void Emit_LoadScalarLinear(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadScalarBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -512,15 +512,15 @@ void Emit_LoadScalarBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadScalarBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -555,10 +555,10 @@ void Emit_LoadScalarBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadShortVectorAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcAddress = nuance.fields[FIELD_MEM_POINTER];
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcAddress = nuance.fields[FIELD_MEM_POINTER];
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcAddress);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, srcAddress+2);
@@ -581,13 +581,12 @@ void Emit_LoadShortVectorAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadShortVectorLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
@@ -627,15 +626,15 @@ void Emit_LoadShortVectorLinear(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadShortVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -685,15 +684,15 @@ void Emit_LoadShortVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadShortVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -743,10 +742,10 @@ void Emit_LoadShortVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadVectorAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcAddress = nuance.fields[FIELD_MEM_POINTER];
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcAddress = nuance.fields[FIELD_MEM_POINTER];
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcAddress);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, srcAddress+4);
@@ -764,14 +763,14 @@ void Emit_LoadVectorAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadVectorLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 l_not_control_reg = 0;
+  const uint32 l_not_control_reg = 0;
 
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->patchMgr->Reset();
 
@@ -818,15 +817,15 @@ void Emit_LoadVectorLinear(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -871,15 +870,15 @@ void Emit_LoadVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -924,9 +923,9 @@ void Emit_LoadVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadPixelAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  //const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
   vars->codeCache->X86Emit_MOVMR(x86Reg_edx, (uint32)&vars->mpe->clutbase);
@@ -940,9 +939,9 @@ void Emit_LoadPixelAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadPixelZAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  //const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
   vars->codeCache->X86Emit_MOVMR(x86Reg_edx, (uint32)&vars->mpe->clutbase);
@@ -956,12 +955,12 @@ void Emit_LoadPixelZAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadPixelLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  //const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
@@ -993,12 +992,12 @@ void Emit_LoadPixelLinear(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadPixelZLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  //const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
@@ -1027,17 +1026,18 @@ void Emit_LoadPixelZLinear(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVRM(x86Reg_eax, (uint32)&bilinearAddressInfo.pPixelData);
   vars->codeCache->X86Emit_CALLI((uint32)LoadPixelZAbsolute,0);
 }
+
 void Emit_LoadPixelBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  //const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -1076,15 +1076,15 @@ void Emit_LoadPixelBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadPixelZBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  //const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -1123,15 +1123,15 @@ void Emit_LoadPixelZBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadPixelBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  //const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -1170,15 +1170,15 @@ void Emit_LoadPixelBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_LoadPixelZBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  //x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  //const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -1217,7 +1217,7 @@ void Emit_LoadPixelZBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreScalarImmediate(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destAddress = nuance.fields[FIELD_MEM_POINTER];
+  const uint32 destAddress = nuance.fields[FIELD_MEM_POINTER];
   uint32 imm = nuance.fields[FIELD_MEM_FROM];
 
   SwapScalarBytes(&imm);
@@ -1226,19 +1226,19 @@ void Emit_StoreScalarImmediate(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreScalarControlRegisterImmediate(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destAddress = nuance.fields[FIELD_MEM_TO];
-  uint32 imm = nuance.fields[FIELD_MEM_FROM];
+  const uint32 destAddress = nuance.fields[FIELD_MEM_TO];
+  const uint32 imm = nuance.fields[FIELD_MEM_FROM];
 
   EmitControlRegisterStoreImmediate(vars, destAddress, imm);
 }
 
 void Emit_StoreScalarControlRegisterAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destAddress = nuance.fields[FIELD_MEM_TO];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const uint32 destAddress = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
 
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
   EmitControlRegisterStore(vars, destAddress, x86Reg_eax);
@@ -1246,10 +1246,10 @@ void Emit_StoreScalarControlRegisterAbsolute(EmitterVariables *vars, Nuance &nua
 
 void Emit_StoreScalarAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destAddress = nuance.fields[FIELD_MEM_POINTER];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const uint32 destAddress = nuance.fields[FIELD_MEM_POINTER];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
   vars->codeCache->X86Emit_BSWAP(x86Reg_eax);
@@ -1258,14 +1258,14 @@ void Emit_StoreScalarAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreScalarLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 l_not_control_reg = 0;
+  const uint32 l_not_control_reg = 0;
 
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->patchMgr->Reset();
 
@@ -1302,15 +1302,15 @@ void Emit_StoreScalarLinear(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreScalarBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -1346,15 +1346,15 @@ void Emit_StoreScalarBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreScalarBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -1390,13 +1390,13 @@ void Emit_StoreScalarBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreShortVectorAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  uint32 destAddress = nuance.fields[FIELD_MEM_POINTER];
-  x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
-  x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
-  x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const uint32 destAddress = nuance.fields[FIELD_MEM_POINTER];
+  const x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
+  const x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
+  const x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg_0, x86IndexReg_none, x86Scale_1, srcRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, srcRegReadBaseReg_1, x86IndexReg_none, x86Scale_1, srcRegDisp+4);
@@ -1414,15 +1414,15 @@ void Emit_StoreShortVectorAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreShortVectorLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
-  x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
-  x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
-  x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
+  const x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
+  const x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
+  const x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
@@ -1458,18 +1458,18 @@ void Emit_StoreShortVectorLinear(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreShortVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
-  x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
-  x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  const x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
+  const x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
+  const x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -1481,6 +1481,7 @@ void Emit_StoreShortVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebp, (uint32)&bilinearAddressInfo.base);
   vars->codeCache->X86Emit_CALLI((uint32)GetBilinearAddress,0);
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, (uint32)&bilinearAddressInfo.offset_address);
+
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
   //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
   //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
@@ -1513,18 +1514,18 @@ void Emit_StoreShortVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreShortVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
-  x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
-  x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  const x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
+  const x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
+  const x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -1569,13 +1570,13 @@ void Emit_StoreShortVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreVectorAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destAddress = nuance.fields[FIELD_MEM_POINTER];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
-  x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
-  x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const uint32 destAddress = nuance.fields[FIELD_MEM_POINTER];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
+  const x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
+  const x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg_0, x86IndexReg_none, x86Scale_1, srcRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, srcRegReadBaseReg_1, x86IndexReg_none, x86Scale_1, srcRegDisp+4);
@@ -1593,17 +1594,17 @@ void Emit_StoreVectorAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreVectorLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 l_not_control_reg = 0;
+  const uint32 l_not_control_reg = 0;
 
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
-  x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
-  x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
-  x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
+  const x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
+  const x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
+  const x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->patchMgr->Reset();
 
@@ -1648,12 +1649,12 @@ void Emit_StoreVectorLinear(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StorePixelAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  //uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  //x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  //x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  //int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  //const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  //const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  //const x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
+  //const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
   vars->codeCache->X86Emit_MOVIM(nuance.fields[FIELD_MEM_POINTER], x86MemPtr_dword, (uint32)&bilinearAddressInfo.pPixelData);
@@ -1665,18 +1666,18 @@ void Emit_StorePixelAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
-  x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
-  x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  const x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
+  const x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
+  const x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -1722,18 +1723,18 @@ void Emit_StoreVectorBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StoreVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
-  x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
-  x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  const x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
+  const x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
+  const x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -1778,12 +1779,12 @@ void Emit_StoreVectorBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StorePixelZAbsolute(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  //uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  //x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  //x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  //int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  //int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  //const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  //const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  //const x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
+  //const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
   vars->codeCache->X86Emit_MOVIM(nuance.fields[FIELD_MEM_POINTER], x86MemPtr_dword, (uint32)&bilinearAddressInfo.pPixelData);
@@ -1795,18 +1796,18 @@ void Emit_StorePixelZAbsolute(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StorePixelLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  //x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  //int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  //const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
+  //const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
   vars->codeCache->X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr_dword, (uint32)&bilinearAddressInfo.pRegs);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ecx, (uint32)&bilinearAddressInfo.control);
-	vars->codeCache->X86Emit_MOVRR(x86Reg_ebx, x86Reg_eax);
+  vars->codeCache->X86Emit_MOVRR(x86Reg_ebx, x86Reg_eax);
 
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
   //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
@@ -1830,12 +1831,12 @@ void Emit_StorePixelLinear(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StorePixelZLinear(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  //x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
-  //int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  //const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg destRegReadBaseReg = GetScalarRegReadBaseReg(vars,destRegIndex);
+  //const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
@@ -1862,15 +1863,15 @@ void Emit_StorePixelZLinear(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StorePixelBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  //x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  //int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  //const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  //const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -1906,15 +1907,15 @@ void Emit_StorePixelBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StorePixelZBilinearUV(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
-  x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
-  x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
-  //x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  //int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
-  int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
-  int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg ruRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RU);
+  const x86BaseReg rvRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RV);
+  const x86BaseReg uvctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
+  //const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  //const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 ruRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RU);
+  const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
+  const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, ruRegReadBaseReg, x86IndexReg_none, x86Scale_1, ruRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, rvRegReadBaseReg, x86IndexReg_none, x86Scale_1, rvRegDisp);
@@ -1951,15 +1952,15 @@ void Emit_StorePixelZBilinearUV(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StorePixelBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  //x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  //int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  //const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  //const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -1996,15 +1997,15 @@ void Emit_StorePixelBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_StorePixelZBilinearXY(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
-  x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
-  x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
-  //x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  //int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
-  int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
-  int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg rxRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RX);
+  const x86BaseReg ryRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RY);
+  const x86BaseReg xyctlRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
+  //const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  //const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 rxRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RX);
+  const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
+  const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, rxRegReadBaseReg, x86IndexReg_none, x86Scale_1, rxRegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, ryRegReadBaseReg, x86IndexReg_none, x86Scale_1, ryRegDisp);
@@ -2040,13 +2041,13 @@ void Emit_StorePixelZBilinearXY(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_PushVector(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
-  x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
-  x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
+  const x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
+  const x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
 
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_edx, (uint32)&(vars->mpe->sp));
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg_0, x86IndexReg_none, x86Scale_1, srcRegDisp);
@@ -2069,15 +2070,15 @@ void Emit_PushVector(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_PushVectorRz(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
-  x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg srcRegReadBaseReg_1 = GetScalarRegReadBaseReg(vars,srcRegIndex+1);
+  const x86BaseReg srcRegReadBaseReg_2 = GetScalarRegReadBaseReg(vars,srcRegIndex+2);
 
-  x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
+  const x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
 
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_edx, (uint32)&(vars->mpe->sp));
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg_0, x86IndexReg_none, x86Scale_1, srcRegDisp);
@@ -2100,16 +2101,16 @@ void Emit_PushVectorRz(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_PushScalarRzi1(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
-  x86BaseReg rzi1RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI1);
-  x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  const x86BaseReg rzi1RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI1);
+  const x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
 
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 rzi1RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
-  int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
-  int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 rzi1RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
+  const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
+  const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_edx, (uint32)&(vars->mpe->sp));
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
@@ -2132,16 +2133,16 @@ void Emit_PushScalarRzi1(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_PushScalarRzi2(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
-  x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
-  x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
-  x86BaseReg rzi2RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI2);
-  x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
+  const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
+  const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
+  const x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  const x86BaseReg rzi2RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI2);
+  const x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
 
-  int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
-  int32 rzi2RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
-  int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
-  int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+  const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
+  const int32 rzi2RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
+  const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
+  const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_edx, (uint32)&(vars->mpe->sp));
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
@@ -2164,9 +2165,9 @@ void Emit_PushScalarRzi2(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_PopVector(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_edx, (uint32)&(vars->mpe->sp));
   vars->codeCache->X86Emit_MOVRR(x86Reg_ebp, x86Reg_edx);
@@ -2186,17 +2187,16 @@ void Emit_PopVector(EmitterVariables *vars, Nuance &nuance)
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+4);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ecx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+8);
   vars->codeCache->X86Emit_MOVRM(x86Reg_edx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+12);
-
 }
 
 void Emit_PopVectorRz(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
 
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_edx, (uint32)&(vars->mpe->sp));
   vars->codeCache->X86Emit_MOVRR(x86Reg_ebp, x86Reg_edx);
@@ -2220,16 +2220,16 @@ void Emit_PopVectorRz(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_PopScalarRzi1(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
-  x86BaseReg rzi1RegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZI1);
-  x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
+  const x86BaseReg rzi1RegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZI1);
+  const x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
 
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
-  int32 rzi1RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
-  int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
+  const int32 rzi1RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
+  const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_edx, (uint32)&(vars->mpe->sp));
   vars->codeCache->X86Emit_MOVRR(x86Reg_ebp, x86Reg_edx);
@@ -2253,16 +2253,16 @@ void Emit_PopScalarRzi1(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_PopScalarRzi2(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
-  x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
-  x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
-  x86BaseReg rzi2RegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZI2);
-  x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
+  const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
+  const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
+  const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
+  const x86BaseReg rzi2RegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZI2);
+  const x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
 
-  int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
-  int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
-  int32 rzi2RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
-  int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+  const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
+  const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
+  const int32 rzi2RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
+  const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_edx, (uint32)&(vars->mpe->sp));
   vars->codeCache->X86Emit_MOVRR(x86Reg_ebp, x86Reg_edx);
@@ -2341,6 +2341,7 @@ void EmitControlRegisterLoad(EmitterVariables *vars, uint32 address, x86Reg dest
     case (0xE0 >> 4):
       //intclr
       vars->codeCache->X86Emit_XORRR(destReg, destReg);
+      break;
     case (0xF0 >> 4):
       //intctl
     case (0x100 >> 4):
@@ -2411,6 +2412,7 @@ void EmitControlRegisterLoad(EmitterVariables *vars, uint32 address, x86Reg dest
     case (0x280 >> 4):
       //uvbase
       vars->codeCache->X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->uvbase)));
+      break;
     case (0x290 >> 4):
       //uvctl
       baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
@@ -2464,11 +2466,11 @@ void EmitControlRegisterLoad(EmitterVariables *vars, uint32 address, x86Reg dest
 
 void EmitControlRegisterStore(EmitterVariables *vars, uint32 address, x86Reg srcReg)
 {
+  const x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
+  const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+
   x86BaseReg baseReg;
   int32 disp;
-
-  x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   switch((address & 0x1FF0) >> 4)
   {
@@ -2679,11 +2681,11 @@ void EmitControlRegisterStore(EmitterVariables *vars, uint32 address, x86Reg src
 
 void EmitControlRegisterStoreImmediate(EmitterVariables *vars, uint32 address, uint32 imm)
 {
+  const x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
+  const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+
   x86BaseReg baseReg;
   int32 disp;
-
-  x86BaseReg ccRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   switch((address & 0x1FF0) >> 4)
   {

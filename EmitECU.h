@@ -27,4 +27,5 @@ NativeEmitHandlerProto Emit_RTI1Conditional;
 NativeEmitHandlerProto Emit_RTI1Conditional_NOP;
 NativeEmitHandlerProto Emit_RTI2Conditional;
 NativeEmitHandlerProto Emit_RTI2Conditional_NOP;
+
 #endif
