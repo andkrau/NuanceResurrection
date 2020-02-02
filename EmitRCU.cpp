@@ -8,12 +8,12 @@
 
 void Emit_DECRc0(EmitterVariables *vars, Nuance &nuance)
 {
-  x86BaseReg rc0ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC0);
-  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
-  x86BaseReg rc0WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC0);
-  x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  int32 rc0Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC0);
-  int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+  const x86BaseReg rc0ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC0);
+  //const x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  const x86BaseReg rc0WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC0);
+  const x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
+  const int32 rc0Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC0);
+  const int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   //eax = rc0WriteBack, ebx = rc0M1, ecx = flagSetMask, ebp = 0
 
@@ -50,12 +50,12 @@ void Emit_DECRc0(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_DECRc1(EmitterVariables *vars, Nuance &nuance)
 {
-  x86BaseReg rc1ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC1);
-  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
-  x86BaseReg rc1WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC1);
-  x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  int32 rc1Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC1);
-  int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+  const x86BaseReg rc1ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC1);
+  //const x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  const x86BaseReg rc1WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC1);
+  const x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
+  const int32 rc1Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC1);
+  const int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   if(vars->miscRegOutDep & DEPENDENCY_FLAG_C1Z)
   {
@@ -80,15 +80,15 @@ void Emit_DECRc1(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_DECBoth(EmitterVariables *vars, Nuance &nuance)
 {
-  //x86BaseReg rc0ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC0);
-  //x86BaseReg rc1ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC1);
-  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
-  //x86BaseReg rc0WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC0);
-  //x86BaseReg rc1WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC1);
-  //x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  //int32 rc0Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC0);
-  //int32 rc1Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC1);
-  //int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+  //const x86BaseReg rc0ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC0);
+  //const x86BaseReg rc1ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC1);
+  //const x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  //const x86BaseReg rc0WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC0);
+  //const x86BaseReg rc1WriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC1);
+  //const x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
+  //const int32 rc0Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC0);
+  //const int32 rc1Disp = GetMiscRegEmitDisp(vars,REGINDEX_RC1);
+  //const int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   Emit_DECRc0(vars,nuance);
   Emit_DECRc1(vars,nuance);
@@ -155,11 +155,11 @@ void Emit_DEC(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_ADDRImmediateOnly(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
+  const uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
 
-  x86BaseReg indexRegReadBaseReg = GetMiscRegReadBaseReg(vars,indexRegIndex);
-  x86BaseReg indexRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,indexRegIndex);
-  int32 indexRegDisp = GetMiscRegEmitDisp(vars,indexRegIndex);
+  const x86BaseReg indexRegReadBaseReg = GetMiscRegReadBaseReg(vars,indexRegIndex);
+  const x86BaseReg indexRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,indexRegIndex);
+  const int32 indexRegDisp = GetMiscRegEmitDisp(vars,indexRegIndex);
 
   if(vars->miscRegOutDep)
   {
@@ -177,14 +177,14 @@ void Emit_ADDRImmediate(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_ADDRScalarOnly(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
-  uint32 scalarRegIndex = nuance.fields[FIELD_RCU_SRC];
+  const uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
+  const uint32 scalarRegIndex = nuance.fields[FIELD_RCU_SRC];
 
-  x86BaseReg indexRegReadBaseReg = GetMiscRegReadBaseReg(vars,indexRegIndex);
-  x86BaseReg indexRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,indexRegIndex);
-  x86BaseReg scalarRegReadBaseReg = GetScalarRegReadBaseReg(vars,scalarRegIndex);
-  int32 indexRegDisp = GetMiscRegEmitDisp(vars,indexRegIndex);
-  int32 scalarRegDisp = GetScalarRegEmitDisp(vars,scalarRegIndex);
+  const x86BaseReg indexRegReadBaseReg = GetMiscRegReadBaseReg(vars,indexRegIndex);
+  const x86BaseReg indexRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,indexRegIndex);
+  const x86BaseReg scalarRegReadBaseReg = GetScalarRegReadBaseReg(vars,scalarRegIndex);
+  const int32 indexRegDisp = GetMiscRegEmitDisp(vars,indexRegIndex);
+  const int32 scalarRegDisp = GetScalarRegEmitDisp(vars,scalarRegIndex);
 
   if(vars->miscRegOutDep)
   {
@@ -203,9 +203,9 @@ void Emit_ADDRScalar(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_MVRImmediateOnly(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
-  x86BaseReg indexRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,indexRegIndex);
-  int32 indexRegDisp = GetMiscRegEmitDisp(vars,indexRegIndex);
+  const uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
+  const x86BaseReg indexRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,indexRegIndex);
+  const int32 indexRegDisp = GetMiscRegEmitDisp(vars,indexRegIndex);
 
   if(vars->miscRegOutDep)
   {
@@ -221,12 +221,12 @@ void Emit_MVRImmediate(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_MVRScalarOnly(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
-  uint32 scalarRegIndex = nuance.fields[FIELD_RCU_SRC];
-  x86BaseReg indexRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,indexRegIndex);
-  x86BaseReg scalarRegReadBaseReg = GetScalarRegReadBaseReg(vars,scalarRegIndex);
-  int32 indexRegDisp = GetMiscRegEmitDisp(vars,indexRegIndex);
-  int32 scalarRegDisp = GetScalarRegEmitDisp(vars,scalarRegIndex);
+  const uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
+  const uint32 scalarRegIndex = nuance.fields[FIELD_RCU_SRC];
+  const x86BaseReg indexRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,indexRegIndex);
+  const x86BaseReg scalarRegReadBaseReg = GetScalarRegReadBaseReg(vars,scalarRegIndex);
+  const int32 indexRegDisp = GetMiscRegEmitDisp(vars,indexRegIndex);
+  const int32 scalarRegDisp = GetScalarRegEmitDisp(vars,scalarRegIndex);
 
   if(vars->miscRegOutDep)
   {
@@ -245,23 +245,23 @@ void Emit_MVRScalar(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_RangeOnly(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 l_testmodmi = 0;
-  uint32 l_exit = 1;
+  const uint32 l_testmodmi = 0;
+  const uint32 l_exit = 1;
 
-  uint32 srcRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_SRC];
-  //uint32 destRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
-  //x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
-  x86BaseReg xyRangeReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYRANGE);
-  x86BaseReg uvRangeReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVRANGE);
-  x86BaseReg srcRegReadBaseReg = GetMiscRegReadBaseReg(vars,nuance.fields[FIELD_RCU_SRC]);
-  //x86BaseReg destRegReadBaseReg = GetMiscRegReadBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
-  x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  //x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
-  int32 xyRangeDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYRANGE);
-  int32 uvRangeDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVRANGE);
-  int32 srcRegDisp = GetMiscRegEmitDisp(vars,srcRegIndex);
-  //int32 destRegDisp = GetMiscRegEmitDisp(vars,destRegIndex);
-  int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
+  const uint32 srcRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_SRC];
+  //const uint32 destRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
+  //const x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
+  const x86BaseReg xyRangeReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYRANGE);
+  const x86BaseReg uvRangeReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVRANGE);
+  const x86BaseReg srcRegReadBaseReg = GetMiscRegReadBaseReg(vars,nuance.fields[FIELD_RCU_SRC]);
+  //const x86BaseReg destRegReadBaseReg = GetMiscRegReadBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
+  const x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
+  //const x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
+  const int32 xyRangeDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYRANGE);
+  const int32 uvRangeDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVRANGE);
+  const int32 srcRegDisp = GetMiscRegEmitDisp(vars,srcRegIndex);
+  //const int32 destRegDisp = GetMiscRegEmitDisp(vars,destRegIndex);
+  const int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->patchMgr->Reset();
 
@@ -335,9 +335,9 @@ void Emit_Range(EmitterVariables *vars, Nuance &nuance)
 
 void Emit_ModuloOnly(EmitterVariables *vars, Nuance &nuance)
 {
-  uint32 destRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
-  x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
-  int32 destRegDisp = GetMiscRegEmitDisp(vars,destRegIndex);
+  const uint32 destRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
+  const x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
+  const int32 destRegDisp = GetMiscRegEmitDisp(vars,destRegIndex);
 
   Emit_RangeOnly(vars,nuance);
   if(vars->miscRegOutDep & (~DEPENDENCY_FLAG_ALLFLAGS))
