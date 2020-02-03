@@ -395,10 +395,10 @@ void MediaIoctl(MPE &mpe)
 
 void SpinWait(MPE &mpe)
 {
-  uint32 result = 0;
   const uint32 status = mpe.regs[0];
   uint32 * const pMediaWaiting = (uint32 *)nuonEnv.GetPointerToMemory(mpe,MEDIAWAITING_ADDRESS,false);
 
+  uint32 result = 0;
   if((status >> 30) == 0x03)
     result = status;
 

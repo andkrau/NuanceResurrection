@@ -770,8 +770,6 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
       return;
     case 0x05:
       //or
-
-
       switch(*(iPtr + 3) >> 5)
       {
         case 0x00:
@@ -888,7 +886,6 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
       }
       return;
     case 0x06:
-
       //eor
       switch(*(iPtr + 3) >> 5)
       {

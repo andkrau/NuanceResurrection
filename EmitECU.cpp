@@ -208,7 +208,7 @@ void EmitConditionCheck(EmitterVariables *vars, uint32 condition, uint32 conditi
    }
 }
 
-void Emit_BRAAlways(EmitterVariables *vars, Nuance &nuance)
+void Emit_BRAAlways(EmitterVariables * const vars, const Nuance &nuance)
 {
 
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
@@ -231,7 +231,7 @@ void Emit_BRAAlways(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_BRAAlways_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_BRAAlways_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
   const uint32 l_skip_ecu = 0;
@@ -254,7 +254,7 @@ void Emit_BRAAlways_NOP(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_BRAConditional(EmitterVariables *vars, Nuance &nuance)
+void Emit_BRAConditional(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
   const uint32 l_skip_ecu = 0;
@@ -277,7 +277,7 @@ void Emit_BRAConditional(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_BRAConditional_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_BRAConditional_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
   const uint32 l_skip_ecu = 0;
@@ -301,7 +301,7 @@ void Emit_BRAConditional_NOP(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JMPAlwaysIndirect(EmitterVariables *vars, Nuance &nuance)
+void Emit_JMPAlwaysIndirect(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const uint32 l_skip_ecu = 0;
@@ -326,7 +326,7 @@ void Emit_JMPAlwaysIndirect(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JMPAlwaysIndirect_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_JMPAlwaysIndirect_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const uint32 l_skip_ecu = 0;
@@ -352,7 +352,7 @@ void Emit_JMPAlwaysIndirect_NOP(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JMPConditionalIndirect(EmitterVariables *vars, Nuance &nuance)
+void Emit_JMPConditionalIndirect(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const uint32 l_skip_ecu = 0;
@@ -380,7 +380,7 @@ void Emit_JMPConditionalIndirect(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JMPConditionalIndirect_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_JMPConditionalIndirect_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const uint32 l_skip_ecu = 0;
@@ -409,7 +409,7 @@ void Emit_JMPConditionalIndirect_NOP(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JSRAlways(EmitterVariables *vars, Nuance &nuance)
+void Emit_JSRAlways(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
@@ -433,7 +433,7 @@ void Emit_JSRAlways(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JSRAlways_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_JSRAlways_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
@@ -458,7 +458,7 @@ void Emit_JSRAlways_NOP(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JSRConditional(EmitterVariables *vars, Nuance &nuance)
+void Emit_JSRConditional(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
@@ -485,7 +485,7 @@ void Emit_JSRConditional(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JSRConditional_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_JSRConditional_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
@@ -513,7 +513,7 @@ void Emit_JSRConditional_NOP(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JSRAlwaysIndirect(EmitterVariables *vars, Nuance &nuance)
+void Emit_JSRAlwaysIndirect(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
@@ -541,7 +541,7 @@ void Emit_JSRAlwaysIndirect(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JSRAlwaysIndirect_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_JSRAlwaysIndirect_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
@@ -570,7 +570,7 @@ void Emit_JSRAlwaysIndirect_NOP(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JSRConditionalIndirect(EmitterVariables *vars, Nuance &nuance)
+void Emit_JSRConditionalIndirect(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
@@ -601,7 +601,7 @@ void Emit_JSRConditionalIndirect(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_JSRConditionalIndirect_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_JSRConditionalIndirect_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
@@ -633,7 +633,7 @@ void Emit_JSRConditionalIndirect_NOP(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_RTSAlways(EmitterVariables *vars, Nuance &nuance)
+void Emit_RTSAlways(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
@@ -657,7 +657,7 @@ void Emit_RTSAlways(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_RTSAlways_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_RTSAlways_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
@@ -682,7 +682,7 @@ void Emit_RTSAlways_NOP(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_RTSConditional(EmitterVariables *vars, Nuance &nuance)
+void Emit_RTSConditional(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
@@ -709,7 +709,7 @@ void Emit_RTSConditional(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_RTSConditional_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_RTSConditional_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
@@ -737,7 +737,7 @@ void Emit_RTSConditional_NOP(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_RTI1Conditional(EmitterVariables *vars, Nuance &nuance)
+void Emit_RTI1Conditional(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzi1RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI1);
   const int32 rzi1RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
@@ -767,7 +767,7 @@ void Emit_RTI1Conditional(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_RTI1Conditional_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_RTI1Conditional_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzi1RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI1);
   const int32 rzi1RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
@@ -799,7 +799,7 @@ void Emit_RTI1Conditional_NOP(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_RTI2Conditional(EmitterVariables *vars, Nuance &nuance)
+void Emit_RTI2Conditional(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzi2RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI2);
   const int32 rzi2RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
@@ -829,7 +829,7 @@ void Emit_RTI2Conditional(EmitterVariables *vars, Nuance &nuance)
   vars->patchMgr->ApplyPatches();
 }
 
-void Emit_RTI2Conditional_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_RTI2Conditional_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rzi2RegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI2);
   const int32 rzi2RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);

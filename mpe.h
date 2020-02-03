@@ -227,8 +227,8 @@ typedef void (* NuanceHandler)(MPE &, const InstructionCacheEntry &, const Nuanc
 typedef void NuanceHandlerProto(MPE &, const InstructionCacheEntry &, const Nuance &);
 typedef uint32 (* NuancePrintHandler)(char *, Nuance &, bool);
 typedef uint32 NuancePrintHandlerProto(char *, Nuance &, bool);
-typedef void (* NativeEmitHandler)(EmitterVariables *, Nuance &);
-typedef void NativeEmitHandlerProto(EmitterVariables *, Nuance &);
+typedef void (* NativeEmitHandler)(EmitterVariables * const, const Nuance &);
+typedef void NativeEmitHandlerProto(EmitterVariables * const, const Nuance &);
 typedef void (* NativeCodeBlockFunction)();
 
 extern const NuanceHandler nuanceHandlers[];
@@ -370,6 +370,7 @@ public:
   uint32 mpeStartAddress;
   uint32 mpeEndAddress;
   uint32 mpeIndex;
+
   InstructionCacheEntry * volatile pICacheEntry;
   InstructionCache *instructionCache;
   SuperBlock *superBlock;
@@ -377,7 +378,6 @@ public:
   OverlayManager *overlayManager;
 
   uint8 *bankPtrTable[16];
-  static uint8 mirrorLookup[256];
 
   sBilinearInfo sBIXY;
   sBilinearInfo sBIUV;

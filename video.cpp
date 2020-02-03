@@ -854,8 +854,7 @@ void VidQueryConfig(MPE &mpe)
   SwapWordBytes((uint16 *)&displayStruct->screen_aspect_x);
   SwapWordBytes((uint16 *)&displayStruct->screen_aspect_y);
 
-  // Return 1 to specify NTSC
-  mpe.regs[0] = 1;
+  mpe.regs[0] = VIDEO_MODE_NTSC;
 }
 
 void VidConfig(MPE &mpe)
@@ -882,7 +881,7 @@ void VidConfig(MPE &mpe)
   }
   else
   {
-    mpe.regs[0] = 1; // NTSC
+    mpe.regs[0] = VIDEO_MODE_NTSC;
     return; // leave unchanged from last call
   }
 
@@ -897,7 +896,7 @@ void VidConfig(MPE &mpe)
     SwapScalarBytes((uint32 *)&mainchannel.src_height);
     if(mainchannel.base == 0)
     {
-      //mpe.regs[0] = 1; // NTSC
+      //mpe.regs[0] = VIDEO_MODE_NTSC;
       //return;
       mainchannel.base = structMainChannel.base;
     }
@@ -914,7 +913,7 @@ void VidConfig(MPE &mpe)
     SwapScalarBytes((uint32 *)&osdchannel.src_height);
     if(osdchannel.base == 0)
     {
-      //mpe.regs[0] = 1; // NTSC
+      //mpe.regs[0] = VIDEO_MODE_NTSC;
       //return;
       osdchannel.base = structOverlayChannel.base;
     }
@@ -1128,7 +1127,7 @@ void VidConfig(MPE &mpe)
     UpdateTextureStates();
   }
 
-  mpe.regs[0] = 1; // NTSC
+  mpe.regs[0] = VIDEO_MODE_NTSC;
 }
 
 void VidSetup(MPE &mpe)

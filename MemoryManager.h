@@ -36,6 +36,7 @@ public:
 private:
   uint32 AlignAddress(uint32 address, uint32 alignment);
   bool TestForInvalidPowerOfTwo(uint32 requestedAlignment);
+
   uint32 maxBytes;
   uint32 defaultAlignment;
   vector<FreeMemoryBlock> freeBlockVector;

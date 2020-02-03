@@ -5,13 +5,13 @@
 #include "X86EmitTypes.h"
 #include "mpe.h"
 
-void Emit_NOP(EmitterVariables *vars, Nuance &nuance)
+void Emit_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   //Nothing to emit, so just return
   return;
 }
 
-void Emit_ExitBlock(EmitterVariables *vars)
+void Emit_ExitBlock(EmitterVariables * const vars)
 {
   if(vars->bSaveRegs)
   {
@@ -22,7 +22,7 @@ void Emit_ExitBlock(EmitterVariables *vars)
   vars->codeCache->X86Emit_RETN();
 }
 
-void Emit_SaveRegs(EmitterVariables *vars, Nuance &nuance)
+void Emit_SaveRegs(EmitterVariables * const vars, const Nuance &nuance)
 {
   uint32 testMask = 0xF;
 
@@ -73,7 +73,7 @@ void Emit_SaveRegs(EmitterVariables *vars, Nuance &nuance)
   }
 }
 
-void Emit_StoreScalarRegisterConstant(EmitterVariables *vars, Nuance &nuance)
+void Emit_StoreScalarRegisterConstant(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 destRegIndex = nuance.fields[FIELD_CONSTANT_ADDRESS];
   const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
@@ -100,7 +100,7 @@ void Emit_StoreScalarRegisterConstant(EmitterVariables *vars, Nuance &nuance)
   }
 }
 
-void Emit_StoreMiscRegisterConstant(EmitterVariables *vars, Nuance &nuance)
+void Emit_StoreMiscRegisterConstant(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 destRegIndex = nuance.fields[FIELD_CONSTANT_ADDRESS];
   const x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,destRegIndex);
@@ -115,7 +115,7 @@ void Emit_StoreMiscRegisterConstant(EmitterVariables *vars, Nuance &nuance)
     switch(destRegIndex)
     {
       case CONSTANT_REG_RC0:
-        if(nuance.fields[FIELD_CONSTANT_VALUE])
+        //if(nuance.fields[FIELD_CONSTANT_VALUE])
         {
         }
       case CONSTANT_REG_RX:

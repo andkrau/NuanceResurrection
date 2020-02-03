@@ -5,7 +5,7 @@
 
 void FlashEEPROM::WriteData(uint32 address, uint32 data1)
 {
-  uint32 commandAddress = (address >> 1) & 0x7FF;
+  const uint32 commandAddress = (address >> 1) & 0x7FF;
   data1 >>= 24;
 
   switch(mode)
@@ -70,6 +70,7 @@ void FlashEEPROM::WriteData(uint32 address, uint32 data1)
               default:
                 mode = errorMode;
                 state = errorState;
+                break;
             }
           }
           else
@@ -134,6 +135,7 @@ void FlashEEPROM::WriteData(uint32 address, uint32 data1)
             mode = errorMode;
             state = errorState;
           }
+          break;
         case EEPROM_STATE_BUS_CYCLE_6:
         {
           switch(data1)
@@ -185,10 +187,10 @@ void FlashEEPROM::ReadData(uint32 address, uint32 *buffer)
   {
     case FlashMode_Read:
       buffer[0] = 
-        (((uint32)(eeprom[address & (DEFAULT_EEPROM_SIZE - 1)])) << 24) |
+        (((uint32)(eeprom[ address      & (DEFAULT_EEPROM_SIZE - 1)])) << 24) |
         (((uint32)(eeprom[(address + 1) & (DEFAULT_EEPROM_SIZE - 1)])) << 16) |
         (((uint32)(eeprom[(address + 2) & (DEFAULT_EEPROM_SIZE - 1)])) << 8) |
-        (((uint32)(eeprom[(address + 3) & (DEFAULT_EEPROM_SIZE - 1)])) << 0);
+        (((uint32)(eeprom[(address + 3) & (DEFAULT_EEPROM_SIZE - 1)])));
       break;
     case FlashMode_ProductID:
       if(address & 0x02)
@@ -214,27 +216,18 @@ uint32 FlashEEPROM::ReadStatus()
 
 bool FlashEEPROM::IsSectorLocked(uint32 address)
 {
-  uint32 i;
-
-  if(address < 0x10000)
-  {
+  const uint32 i = (address < 0x10000) ?
     //Bottom boot sector (8Kbyte)
-    i = (address >> 13);
-  }
-  else
-  {
+    (address >> 13) :
     //normal sector (64Kbyte)
-    i = (address >> 16);
-  }
+    (address >> 16);
   
   return sectorLockStatus[i];
 }
 
 void FlashEEPROM::EraseChip()
 {
-  uint32 i;
-
-  for(i = 0; i < DEFAULT_NUM_SECTORS; i++)
+  for(uint32 i = 0; i < DEFAULT_NUM_SECTORS; i++)
   {
     if(i < 8)
     {
@@ -251,16 +244,7 @@ void FlashEEPROM::EraseChip()
 
 void FlashEEPROM::EraseSector(uint32 address)
 {
-  uint32 sectorSize;
-
-  if(address < 0x10000)
-  {
-    sectorSize = 8192;
-  }
-  else
-  {
-    sectorSize = 65536;
-  }
+  const uint32 sectorSize = (address < 0x10000) ? 8192 : 65536;
   
   address &= ~(sectorSize - 1);
 
@@ -277,18 +261,11 @@ void FlashEEPROM::EraseSector(uint32 address)
 
 void FlashEEPROM::LockSector(uint32 address)
 {
-  uint32 i;
-
-  if(address < 0x10000)
-  {
+  const uint32 i = (address < 0x10000) ?
     //Bottom boot sector (8Kbyte)
-    i = (address >> 13);
-  }
-  else
-  {
+    (address >> 13) :
     //normal sector (64Kbyte)
-    i = (address >> 16);
-  }
+    (address >> 16);
   
   sectorLockStatus[i] = true;
 }

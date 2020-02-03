@@ -6,7 +6,7 @@
 #include "mpe.h"
 #include "X86EmitTypes.h"
 
-void Emit_DECRc0(EmitterVariables *vars, Nuance &nuance)
+void Emit_DECRc0(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rc0ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC0);
   //const x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
@@ -48,7 +48,7 @@ void Emit_DECRc0(EmitterVariables *vars, Nuance &nuance)
   }
 }
 
-void Emit_DECRc1(EmitterVariables *vars, Nuance &nuance)
+void Emit_DECRc1(EmitterVariables * const vars, const Nuance &nuance)
 {
   const x86BaseReg rc1ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC1);
   //const x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
@@ -78,7 +78,7 @@ void Emit_DECRc1(EmitterVariables *vars, Nuance &nuance)
   }
 }
 
-void Emit_DECBoth(EmitterVariables *vars, Nuance &nuance)
+void Emit_DECBoth(EmitterVariables * const vars, const Nuance &nuance)
 {
   //const x86BaseReg rc0ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC0);
   //const x86BaseReg rc1ReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC1);
@@ -140,7 +140,7 @@ void Emit_DECBoth(EmitterVariables *vars, Nuance &nuance)
 */
 }
 
-void Emit_DEC(EmitterVariables *vars, Nuance &nuance)
+void Emit_DEC(EmitterVariables * const vars, const Nuance &nuance)
 {
   if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC0)
   {
@@ -153,7 +153,7 @@ void Emit_DEC(EmitterVariables *vars, Nuance &nuance)
   }
 }
 
-void Emit_ADDRImmediateOnly(EmitterVariables *vars, Nuance &nuance)
+void Emit_ADDRImmediateOnly(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
 
@@ -169,13 +169,13 @@ void Emit_ADDRImmediateOnly(EmitterVariables *vars, Nuance &nuance)
   }
 }
 
-void Emit_ADDRImmediate(EmitterVariables *vars, Nuance &nuance)
+void Emit_ADDRImmediate(EmitterVariables * const vars, const Nuance &nuance)
 {
   Emit_ADDRImmediateOnly(vars, nuance);
   Emit_DEC(vars, nuance);
 }
 
-void Emit_ADDRScalarOnly(EmitterVariables *vars, Nuance &nuance)
+void Emit_ADDRScalarOnly(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
   const uint32 scalarRegIndex = nuance.fields[FIELD_RCU_SRC];
@@ -195,13 +195,13 @@ void Emit_ADDRScalarOnly(EmitterVariables *vars, Nuance &nuance)
   }
 }
 
-void Emit_ADDRScalar(EmitterVariables *vars, Nuance &nuance)
+void Emit_ADDRScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
   Emit_ADDRScalarOnly(vars, nuance);
   Emit_DEC(vars, nuance);
 }
 
-void Emit_MVRImmediateOnly(EmitterVariables *vars, Nuance &nuance)
+void Emit_MVRImmediateOnly(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
   const x86BaseReg indexRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,indexRegIndex);
@@ -213,13 +213,13 @@ void Emit_MVRImmediateOnly(EmitterVariables *vars, Nuance &nuance)
   }
 }
 
-void Emit_MVRImmediate(EmitterVariables *vars, Nuance &nuance)
+void Emit_MVRImmediate(EmitterVariables * const vars, const Nuance &nuance)
 {
   Emit_MVRImmediateOnly(vars, nuance);
   Emit_DEC(vars, nuance);
 }
 
-void Emit_MVRScalarOnly(EmitterVariables *vars, Nuance &nuance)
+void Emit_MVRScalarOnly(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 indexRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
   const uint32 scalarRegIndex = nuance.fields[FIELD_RCU_SRC];
@@ -237,13 +237,13 @@ void Emit_MVRScalarOnly(EmitterVariables *vars, Nuance &nuance)
   }
 }
 
-void Emit_MVRScalar(EmitterVariables *vars, Nuance &nuance)
+void Emit_MVRScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
   Emit_MVRScalarOnly(vars,nuance);
   Emit_DEC(vars,nuance);
 }
 
-void Emit_RangeOnly(EmitterVariables *vars, Nuance &nuance)
+void Emit_RangeOnly(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 l_testmodmi = 0;
   const uint32 l_exit = 1;
@@ -327,13 +327,13 @@ void Emit_RangeOnly(EmitterVariables *vars, Nuance &nuance)
   //ebx = modulo_writeback
 }
 
-void Emit_Range(EmitterVariables *vars, Nuance &nuance)
+void Emit_Range(EmitterVariables * const vars, const Nuance &nuance)
 {
   Emit_RangeOnly(vars,nuance);
   Emit_DEC(vars,nuance);
 }
 
-void Emit_ModuloOnly(EmitterVariables *vars, Nuance &nuance)
+void Emit_ModuloOnly(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 destRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];
   const x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
@@ -346,7 +346,7 @@ void Emit_ModuloOnly(EmitterVariables *vars, Nuance &nuance)
   }
 }
 
-void Emit_Modulo(EmitterVariables *vars, Nuance &nuance)
+void Emit_Modulo(EmitterVariables * const vars, const Nuance &nuance)
 {
   Emit_ModuloOnly(vars,nuance);
   Emit_DEC(vars,nuance);
