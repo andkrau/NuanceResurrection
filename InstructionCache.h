@@ -122,7 +122,8 @@ class InstructionCacheEntry
 public:
   InstructionCacheEntry() { pcexec = 0; }
 
-  uint32* pRegs; // points to either a MPE reg set or the temp reg set
+  uint32* pRegs; // points to either a MPE reg set or its temp reg set (48 entries)
+
   uint32 handlers[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 nuanceCount;
   uint32 packetInfo;

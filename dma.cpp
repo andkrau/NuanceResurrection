@@ -626,7 +626,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
     {
       if(bRead)
       {
-        directValue = nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].ReadControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.ICacheEntry_SaveFlags);
+        directValue = nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].ReadControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.reg_union);
         SwapScalarBytes(&directValue);
 
         if(bRemote)
@@ -661,7 +661,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         {
           if((intaddr & 0xF0700000) == MPE_CTRL_BASE)
           {
-            directValue = nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.ICacheEntry_SaveFlags);
+            directValue = nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.reg_union);
           }
           else
           {
@@ -676,7 +676,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         {          
           if((intaddr & MPE_CTRL_BASE) == MPE_CTRL_BASE)
           {
-            directValue = mpe.ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.ICacheEntry_SaveFlags);
+            directValue = mpe.ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.reg_union);
           }
           else
           {

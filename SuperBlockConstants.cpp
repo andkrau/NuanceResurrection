@@ -9,10 +9,9 @@ void PropagateConstants_PacketEnd(SuperBlockConstants &constants)
   constants.CommitConstants();
 }
 
-SuperBlockConstants::SuperBlockConstants(MPE *pMPE, SuperBlock *sBlock)
+SuperBlockConstants::SuperBlockConstants(SuperBlock *sBlock)
 {
   pSuperBlock = sBlock;
-  mpe = pMPE;
   ClearConstants();
   FirstInstruction();
 }
