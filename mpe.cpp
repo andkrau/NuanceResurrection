@@ -1885,7 +1885,6 @@ bool MPE::FetchDecodeExecute()
   {
     //StartPerformanceTimer();
 
-    uint32 pcexecLookupValue;
     //uint32 blockExecuteCount = 100;
 
     bool bInvalidateOverlayRegion = false;
@@ -1934,7 +1933,7 @@ bool MPE::FetchDecodeExecute()
       }
     }
 
-    pcexecLookupValue = pcexec;
+    uint32 pcexecLookupValue = pcexec;
 
     /* Now check to see if the MPE is executing out of local MPE memory.  If it is, then check to see if the MPE is executing */
     /* code within a region that has been marked for invalidation.  If executing with an invalidated region, the overlay manager */

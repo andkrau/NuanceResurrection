@@ -8,7 +8,7 @@
 
 class MPE;
 struct InstructionEntry;
-class Nuance;
+struct Nuance;
 class NativeCodeCache;
 
 class EmitterVariables
@@ -65,10 +65,10 @@ inline int32 GetScalarRegEmitDisp(const EmitterVariables * const vars, const uin
   return -((32 - (int32)regIndex) * ((int32)sizeof(uint32)));
 }
 
-void Emit_ExitBlock(EmitterVariables *vars);
-void Emit_NOP(EmitterVariables *vars, Nuance &nuance);
-void Emit_SaveRegs(EmitterVariables *vars, Nuance &nuance);
-void Emit_StoreMiscRegisterConstant(EmitterVariables *vars, Nuance &nuance);
-void Emit_StoreScalarRegisterConstant(EmitterVariables *vars, Nuance &nuance);
+void Emit_ExitBlock(EmitterVariables * const vars);
+void Emit_NOP(EmitterVariables * const vars, const Nuance &nuance);
+void Emit_SaveRegs(EmitterVariables * const vars, const Nuance &nuance);
+void Emit_StoreMiscRegisterConstant(EmitterVariables * const vars, const Nuance &nuance);
+void Emit_StoreScalarRegisterConstant(EmitterVariables * const vars, const Nuance &nuance);
 
 #endif

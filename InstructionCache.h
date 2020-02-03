@@ -112,9 +112,8 @@
 #define PACKETINFO_NOP (0x00000001UL)
 #define GETPACKETEXECUTIONUNITS(x) ((x & (PACKETINFO_ALU|PACKETINFO_MUL|PACKETINFO_MEM|PACKETINFO_RCU|PACKETINFO_ECU)) >> 2)
 
-class Nuance
+struct Nuance
 {
-public:
   size_t fields[FIELDS_PER_NUANCE]; //!! size_t due to some being real pointers, i.e. to support 64bit compiles
 };
 
@@ -122,12 +121,13 @@ class InstructionCacheEntry
 {
 public:
   InstructionCacheEntry() { pcexec = 0; }
+
+  uint32* pRegs; // points to either a MPE reg set or the temp reg set
   uint32 handlers[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 nuanceCount;
   uint32 packetInfo;
   uint32 pcexec;
   uint32 frequencyCount;
-  uint32 *pRegs; // points to either a MPE reg set or the temp reg set
   uint32 pcroute;
   uint32 pcfetchnext;
   uint32 ecuConditionCode;
@@ -149,7 +149,7 @@ public:
 class InstructionCache
 {
 public:
-  InstructionCache(const uint32 numEntries = DEFAULT_NUM_CACHE_ENTRIES);
+  InstructionCache(const uint32 numEntries);
   ~InstructionCache();
 
   void Invalidate();

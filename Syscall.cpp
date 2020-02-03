@@ -47,9 +47,9 @@ void Syscall_WaitForCommPacket(MPE &mpe)
   const uint32 mpeIndex = mpe.mpeIndex;
   //uint32 queue_head;
   //uint32 queue_tail;
-  uint32 *memPtr;
   if(media_mpe_allocated && (mpeIndex == media_mpe))
   {
+    uint32 *memPtr;
     if(mpeIndex == 0)
     {
       memPtr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,MINIBIOS_QUEUE2_TAIL_ADDRESS,false);
@@ -68,7 +68,7 @@ void Syscall_WaitForCommPacket(MPE &mpe)
   else if(mpeIndex == 3)
   {
     //MPE3 is running the BIOS so check the BIOS commrecv packet storage address
-    memPtr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,COMMRECV_PACKET_AVAILABLE_ADDRESS,false);
+    uint32 * const memPtr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,COMMRECV_PACKET_AVAILABLE_ADDRESS,false);
     if(!*memPtr)
     {
       //No user comm packet is available so wait for interrupts
