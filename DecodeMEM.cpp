@@ -1014,7 +1014,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
   }
 }
 
-uint32 MPE::GetControlRegisterInputDependencies(const uint32 address, bool &bException)
+uint32 MPE::GetControlRegisterInputDependencies(const uint32 address, bool &bException) const
 {
   bException = false;
 
@@ -1139,7 +1139,7 @@ uint32 MPE::GetControlRegisterInputDependencies(const uint32 address, bool &bExc
   }
 }
 
-uint32 MPE::GetControlRegisterOutputDependencies(const uint32 address, bool &bException)
+uint32 MPE::GetControlRegisterOutputDependencies(const uint32 address, bool &bException) const
 {
   bException = false;
 

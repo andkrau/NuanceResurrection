@@ -121,20 +121,17 @@ bool IsBranchConditionCompilable(const uint32 startAddress, const uint32 mpeInde
   }
 }
 
-
-SuperBlock::SuperBlock(MPE * const mpe, const uint32 maxPackets, const uint32 _maxInstructionsPerPacket)
+SuperBlock::SuperBlock(MPE * const mpe)
 {
-  maxPacketsPerSuperBlock = maxPackets;
   pMPE = mpe;
-  maxInstructionsPerPacket = _maxInstructionsPerPacket;
   //allocate enough instruction entries to account for packet start/end IL
-  instructions = new InstructionEntry[(maxPackets + 2) * (maxInstructionsPerPacket + 2)];
-  //!! init_array((uint8*)instructions, ((maxPackets + 2) * (maxInstructionsPerPacket + 2)) * sizeof(InstructionEntry));
-  packets = new PacketEntry[maxPackets + 2];
-  //!! init_array((uint8*)packets, (maxPackets + 2) * sizeof(PacketEntry));
+  instructions = new InstructionEntry[(MAX_SUPERBLOCK_PACKETS + 2) * (MAX_SUPERBLOCK_INSTRUCTIONS_PER_PACKET + 2)];
+  //!! init_array((uint8*)instructions, ((MAX_SUPERBLOCK_PACKETS + 2) * (MAX_SUPERBLOCK_INSTRUCTIONS_PER_PACKET + 2)) * sizeof(InstructionEntry));
+  packets = new PacketEntry[MAX_SUPERBLOCK_PACKETS + 2];
+  //!! init_array((uint8*)packets, (MAX_SUPERBLOCK_PACKETS + 2) * sizeof(PacketEntry));
   numInstructions = 0;
   numPackets = 0;
-  constants = new SuperBlockConstants(pMPE,this);
+  constants = new SuperBlockConstants(this);
   char fileStr[128];
   sprintf(fileStr,"SuperBlocks%li.txt",mpe->mpeIndex);
   blockFile = fopen(fileStr,"w");
@@ -866,8 +863,7 @@ void SuperBlock::UpdateDependencyInfo()
 
 int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContainsBranch)
 {
-  InstructionCacheEntry packet, packetDelaySlot1, packetDelaySlot2;
-  int32 packetCounter;
+  InstructionCacheEntry packet;
   uint32 decodeOptions = (DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST | DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST);
   bCanEmitNativeCode = ALLOW_NATIVE_CODE_EMIT;
   bool bFirstNonNOPReached = false;
@@ -892,14 +888,7 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
 
   packetsProcessed = 0;
 
-  if(bSinglePacket)
-  {
-    packetCounter = 1;
-  }
-  else
-  {
-    packetCounter = maxPacketsPerSuperBlock;
-  }
+  int32 packetCounter = bSinglePacket ? 1 : MAX_SUPERBLOCK_PACKETS;
 
   //if(startAddress == 0x800265e0)
   {
@@ -910,7 +899,7 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
   {
     packet.pcexec = packetAddress;
 
-    mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),&packet, decodeOptions);
+    mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),packet, decodeOptions);
     packetAddress = packet.pcroute;
 
     packetsProcessed++;
@@ -944,12 +933,13 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
 
           if(!(packet.packetInfo & PACKETINFO_BRANCH_NOP))
           {
+            InstructionCacheEntry packetDelaySlot1, packetDelaySlot2;
             //Delayed branch with explicit delay slot instructions
             packetDelaySlot1.pcexec = packetAddress;
-            mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),&packetDelaySlot1, decodeOptions);
+            mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),packetDelaySlot1, decodeOptions);
             packetAddress = packetDelaySlot1.pcroute;
             packetDelaySlot2.pcexec = packetAddress;
-            mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),&packetDelaySlot2, decodeOptions);
+            mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),packetDelaySlot2, decodeOptions);
             packet.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
             packetDelaySlot1.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
             packetDelaySlot2.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;

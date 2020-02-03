@@ -798,9 +798,7 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
   emitvars.patchMgr = nativeCodeCache->patchMgr;
   nativeCodeCache->SetEmitVars(emitvars);
 
-  //SuperBlock(mpe,maxPackets, maxInstructionsPerPacket)
-  superBlock = new SuperBlock(this,120,5);
-  InitStaticICacheEntries();
+  superBlock = new SuperBlock(this);
 
   if(mpeIndex == LOG_MPE_INDEX)
   {      
@@ -1029,17 +1027,17 @@ inline uint32 MPE::GetPacketDelta(const uint8 *iPtr, uint32 numLevels)
   return deltaBytes;
 }
 
-void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const pICacheEntry, const uint32 options) //!! pICacheEntry is already class member, looks like this is intended here though
+void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry &pICacheEntry, const uint32 options) //!! pICacheEntry is already class member, looks like this is intended here though
 {
   InstructionCacheEntry pStruct;
 
-  pStruct.pcexec = pICacheEntry->pcexec;
-  pICacheEntry->pcroute = pICacheEntry->pcexec;
-  pICacheEntry->nuanceCount = 0;
+  pStruct.pcexec = pICacheEntry.pcexec;
+  pICacheEntry.pcroute = pICacheEntry.pcexec;
+  pICacheEntry.nuanceCount = 0;
   pStruct.packetInfo = 0;
 
   pStruct.ClearDependencies();
-  pICacheEntry->ClearDependencies();
+  pICacheEntry.ClearDependencies();
 
   uint32 immExt = 0; // do not pull this into the loop!
   uint32 packetByteCount = 0;
@@ -1049,11 +1047,11 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
   {
     const uint8 iLength = DecodeSingleInstruction(iBuffer,&pStruct,&immExt,bTerminating);
 
-    pICacheEntry->pcroute += iLength;
+    pICacheEntry.pcroute += iLength;
 
     if(packetByteCount >= 128)
     {
-      pICacheEntry->pcroute = pICacheEntry->pcexec + 128;
+      pICacheEntry.pcroute = pICacheEntry.pcexec + 128;
       break;
     }
 
@@ -1061,12 +1059,12 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
   }
   while(!bTerminating);
 
-  pStruct.nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_PCROUTE)] = pICacheEntry->pcroute;
+  pStruct.nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_PCROUTE)] = pICacheEntry.pcroute;
 
   if(pStruct.packetInfo & PACKETINFO_NEEDS_PCFETCHNEXT)
   {
-    pICacheEntry->pcfetchnext = pICacheEntry->pcroute + GetPacketDelta(iBuffer, 2);
-    pStruct.nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_PCFETCHNEXT)] = pICacheEntry->pcfetchnext;
+    pICacheEntry.pcfetchnext = pICacheEntry.pcroute + GetPacketDelta(iBuffer, 2);
+    pStruct.nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_PCFETCHNEXT)] = pICacheEntry.pcfetchnext;
   }
 
   if(options & DECOMPRESS_OPTIONS_INHIBIT_ECU)
@@ -1079,37 +1077,37 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
   switch(executionUnits)
   {
     case 0:
-      pICacheEntry->nuanceCount = 0;
+      pICacheEntry.nuanceCount = 0;
       break;
     case (PACKETINFO_ECU >> 2):
-      pICacheEntry->nuanceCount = 1;
-      pICacheEntry->CopyInstructionData(0,pStruct,SLOT_ECU);
+      pICacheEntry.nuanceCount = 1;
+      pICacheEntry.CopyInstructionData(0,pStruct,SLOT_ECU);
       break;
     case (PACKETINFO_RCU >> 2):
-      pICacheEntry->nuanceCount = 1;
-      pICacheEntry->CopyInstructionData(0,pStruct,SLOT_RCU);
+      pICacheEntry.nuanceCount = 1;
+      pICacheEntry.CopyInstructionData(0,pStruct,SLOT_RCU);
       break;
     case ((PACKETINFO_RCU | PACKETINFO_ECU) >> 2):
-      pICacheEntry->nuanceCount = 2;
+      pICacheEntry.nuanceCount = 2;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_RCU);
-        pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_RCU);
+        pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ECU);
       }
       else
       {
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_ECU);
-        pICacheEntry->CopyInstructionData(1,pStruct,SLOT_RCU);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(1,pStruct,SLOT_RCU);
       }    
       break;
     case (PACKETINFO_MEM >> 2):
-      pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-      pICacheEntry->nuanceCount = 1;
+      pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+      pICacheEntry.nuanceCount = 1;
       break;
     case ((PACKETINFO_MEM | PACKETINFO_ECU) >> 2):
     {
       uint32 ecuIndex, memIndex;
-      pICacheEntry->nuanceCount = 2;
+      pICacheEntry.nuanceCount = 2;
       if(ChooseInstructionPairOrdering(pStruct,SLOT_ECU,SLOT_MEM) || (options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST) || (options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST))
       {
         memIndex = 0;
@@ -1120,14 +1118,14 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
         memIndex = 1;
         ecuIndex = 0;
       }       
-      pICacheEntry->CopyInstructionData(ecuIndex,pStruct,SLOT_ECU);
-      pICacheEntry->CopyInstructionData(memIndex,pStruct,SLOT_MEM);
+      pICacheEntry.CopyInstructionData(ecuIndex,pStruct,SLOT_ECU);
+      pICacheEntry.CopyInstructionData(memIndex,pStruct,SLOT_MEM);
       break;
     }
     case ((PACKETINFO_MEM | PACKETINFO_RCU) >> 2):
     {
       uint32 rcuIndex, memIndex;
-      pICacheEntry->nuanceCount = 2;
+      pICacheEntry.nuanceCount = 2;
       if(ChooseInstructionPairOrdering(pStruct,SLOT_RCU,SLOT_MEM) || (options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST))
       {
         memIndex = 0;
@@ -1138,13 +1136,13 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
         memIndex = 1;
         rcuIndex = 0;
       }       
-      pICacheEntry->CopyInstructionData(rcuIndex,pStruct,SLOT_RCU);
-      pICacheEntry->CopyInstructionData(memIndex,pStruct,SLOT_MEM);
+      pICacheEntry.CopyInstructionData(rcuIndex,pStruct,SLOT_RCU);
+      pICacheEntry.CopyInstructionData(memIndex,pStruct,SLOT_MEM);
       break;
     }
     case ((PACKETINFO_MEM | PACKETINFO_ECU | PACKETINFO_RCU) >> 2):
     {
-      pICacheEntry->nuanceCount = 3;
+      pICacheEntry.nuanceCount = 3;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
         uint32 rcuIndex, memIndex;
@@ -1158,17 +1156,17 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
           memIndex = 1;
           rcuIndex = 0;
         }        
-        pICacheEntry->CopyInstructionData(rcuIndex,pStruct,SLOT_RCU);
-        pICacheEntry->CopyInstructionData(memIndex,pStruct,SLOT_MEM);
-        pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(rcuIndex,pStruct,SLOT_RCU);
+        pICacheEntry.CopyInstructionData(memIndex,pStruct,SLOT_MEM);
+        pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ECU);
       }
       else
       {
         if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-          pICacheEntry->CopyInstructionData(1,pStruct,SLOT_RCU);
-          pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+          pICacheEntry.CopyInstructionData(1,pStruct,SLOT_RCU);
+          pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ECU);
         }
         else
         {
@@ -1178,26 +1176,26 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
       break;
     }
     case (PACKETINFO_MUL >> 2):
-      pICacheEntry->nuanceCount = 1;
-      pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MUL);
+      pICacheEntry.nuanceCount = 1;
+      pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MUL);
       break;
     case ((PACKETINFO_MUL | PACKETINFO_ECU) >> 2):
-      pICacheEntry->nuanceCount = 2;
+      pICacheEntry.nuanceCount = 2;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MUL);
-        pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MUL);
+        pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ECU);
       }
       else
       {
-        pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ECU);
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MUL);
+        pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MUL);
       }
       break;
     case ((PACKETINFO_MUL | PACKETINFO_RCU) >> 2):
     {
       uint32 rcuIndex, mulIndex;
-      pICacheEntry->nuanceCount = 2;
+      pICacheEntry.nuanceCount = 2;
       if(ChooseInstructionPairOrdering(pStruct,SLOT_RCU,SLOT_MUL))
       {
         mulIndex = 0;
@@ -1208,14 +1206,14 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
         mulIndex = 1;
         rcuIndex = 0;
       }
-      pICacheEntry->CopyInstructionData(rcuIndex,pStruct,SLOT_RCU);
-      pICacheEntry->CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
+      pICacheEntry.CopyInstructionData(rcuIndex,pStruct,SLOT_RCU);
+      pICacheEntry.CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
       break;
     }
     case ((PACKETINFO_MUL | PACKETINFO_RCU | PACKETINFO_ECU) >> 2):
     {
       uint32 ecuIndex, baseIndex;
-      pICacheEntry->nuanceCount = 3;
+      pICacheEntry.nuanceCount = 3;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
         baseIndex = 0;
@@ -1239,15 +1237,15 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
         rcuIndex = baseIndex + 0;
       }
       
-      pICacheEntry->CopyInstructionData(ecuIndex,pStruct,SLOT_ECU);
-      pICacheEntry->CopyInstructionData(rcuIndex,pStruct,SLOT_RCU);
-      pICacheEntry->CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
+      pICacheEntry.CopyInstructionData(ecuIndex,pStruct,SLOT_ECU);
+      pICacheEntry.CopyInstructionData(rcuIndex,pStruct,SLOT_RCU);
+      pICacheEntry.CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
       break;
     }
     case ((PACKETINFO_MUL | PACKETINFO_MEM) >> 2):
     {
       uint32 mulIndex, memIndex;
-      pICacheEntry->nuanceCount = 2;
+      pICacheEntry.nuanceCount = 2;
       if(ChooseInstructionPairOrdering(pStruct,SLOT_MUL,SLOT_MEM) || (options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST))
       {
         memIndex = 0;
@@ -1258,13 +1256,13 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
         memIndex = 1;
         mulIndex = 0;
       }       
-      pICacheEntry->CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
-      pICacheEntry->CopyInstructionData(memIndex,pStruct,SLOT_MEM);
+      pICacheEntry.CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
+      pICacheEntry.CopyInstructionData(memIndex,pStruct,SLOT_MEM);
       break;
     }
     case ((PACKETINFO_MUL | PACKETINFO_MEM | PACKETINFO_ECU) >> 2):
     {
-      pICacheEntry->nuanceCount = 3;
+      pICacheEntry.nuanceCount = 3;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
         uint32 mulIndex, memIndex;
@@ -1279,17 +1277,17 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
           mulIndex = 0;
         }       
         
-        pICacheEntry->CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
-        pICacheEntry->CopyInstructionData(memIndex,pStruct,SLOT_MEM);
-        pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
+        pICacheEntry.CopyInstructionData(memIndex,pStruct,SLOT_MEM);
+        pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ECU);
       }
       else
       {
         if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-          pICacheEntry->CopyInstructionData(1,pStruct,SLOT_MUL);
-          pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+          pICacheEntry.CopyInstructionData(1,pStruct,SLOT_MUL);
+          pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ECU);
         }
         else
         {
@@ -1299,12 +1297,12 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
       break;
     }
     case ((PACKETINFO_MUL | PACKETINFO_MEM | PACKETINFO_RCU) >> 2): 
-      pICacheEntry->nuanceCount = 3;
+      pICacheEntry.nuanceCount = 3;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
       {
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-        pICacheEntry->CopyInstructionData(1,pStruct,SLOT_MUL);
-        pICacheEntry->CopyInstructionData(2,pStruct,SLOT_RCU);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+        pICacheEntry.CopyInstructionData(1,pStruct,SLOT_MUL);
+        pICacheEntry.CopyInstructionData(2,pStruct,SLOT_RCU);
       }
       else
       {
@@ -1312,79 +1310,79 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
       }
       break;
     case ((PACKETINFO_MUL | PACKETINFO_MEM | PACKETINFO_ECU | PACKETINFO_RCU) >> 2): 
-      pICacheEntry->nuanceCount = 4;
+      pICacheEntry.nuanceCount = 4;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
         if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-          pICacheEntry->CopyInstructionData(1,pStruct,SLOT_RCU);
-          pICacheEntry->CopyInstructionData(2,pStruct,SLOT_MUL);
-          pICacheEntry->CopyInstructionData(3,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+          pICacheEntry.CopyInstructionData(1,pStruct,SLOT_RCU);
+          pICacheEntry.CopyInstructionData(2,pStruct,SLOT_MUL);
+          pICacheEntry.CopyInstructionData(3,pStruct,SLOT_ECU);
         }
         else
         {
           ScheduleInstructionTriplet(pICacheEntry,0,pStruct,SLOT_MUL,SLOT_MEM,SLOT_RCU);
-          pICacheEntry->CopyInstructionData(3,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(3,pStruct,SLOT_ECU);
         }
       }
       else
       {
         if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-          pICacheEntry->CopyInstructionData(1,pStruct,SLOT_RCU);
-          pICacheEntry->CopyInstructionData(2,pStruct,SLOT_MUL);
-          pICacheEntry->CopyInstructionData(3,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+          pICacheEntry.CopyInstructionData(1,pStruct,SLOT_RCU);
+          pICacheEntry.CopyInstructionData(2,pStruct,SLOT_MUL);
+          pICacheEntry.CopyInstructionData(3,pStruct,SLOT_ECU);
         }
         else
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_ECU);
           ScheduleInstructionTriplet(pICacheEntry,1,pStruct,SLOT_MUL,SLOT_MEM,SLOT_RCU);
         }
       }
       break;
     case (PACKETINFO_ALU >> 2):
-      pICacheEntry->nuanceCount = 1;
-      pICacheEntry->CopyInstructionData(0,pStruct,SLOT_ALU);
+      pICacheEntry.nuanceCount = 1;
+      pICacheEntry.CopyInstructionData(0,pStruct,SLOT_ALU);
       break;
     case ((PACKETINFO_ALU | PACKETINFO_ECU) >> 2):
-      pICacheEntry->nuanceCount = 2;
+      pICacheEntry.nuanceCount = 2;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_ALU);
-        pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_ALU);
+        pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ECU);
       }
       else
       {
-        pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ECU);
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_ALU);
+        pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_ALU);
       }
       break;
     case ((PACKETINFO_ALU | PACKETINFO_RCU) >> 2):
-      pICacheEntry->nuanceCount = 2;
-      pICacheEntry->CopyInstructionData(0,pStruct,SLOT_RCU);
-      pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ALU);
+      pICacheEntry.nuanceCount = 2;
+      pICacheEntry.CopyInstructionData(0,pStruct,SLOT_RCU);
+      pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ALU);
       break;
     case ((PACKETINFO_ALU | PACKETINFO_RCU | PACKETINFO_ECU) >> 2):
-      pICacheEntry->nuanceCount = 3;
+      pICacheEntry.nuanceCount = 3;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_RCU);
-        pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ALU);
-        pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_RCU);
+        pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ALU);
+        pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ECU);
       }
       else
       {
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_ECU);
-        pICacheEntry->CopyInstructionData(1,pStruct,SLOT_RCU);
-        pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ALU);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(1,pStruct,SLOT_RCU);
+        pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ALU);
       }
       break;
     case ((PACKETINFO_ALU | PACKETINFO_MEM) >> 2):
     {
       uint32 aluIndex, memIndex;
-      pICacheEntry->nuanceCount = 2;
+      pICacheEntry.nuanceCount = 2;
       if(ChooseInstructionPairOrdering(pStruct,SLOT_ALU,SLOT_MEM) || (options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST))
       {
         memIndex = 0;
@@ -1395,13 +1393,13 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
         memIndex = 1;
         aluIndex = 0;
       }       
-      pICacheEntry->CopyInstructionData(memIndex,pStruct,SLOT_MEM);
-      pICacheEntry->CopyInstructionData(aluIndex,pStruct,SLOT_ALU);
+      pICacheEntry.CopyInstructionData(memIndex,pStruct,SLOT_MEM);
+      pICacheEntry.CopyInstructionData(aluIndex,pStruct,SLOT_ALU);
       break;
     }
     case ((PACKETINFO_ALU | PACKETINFO_MEM | PACKETINFO_ECU) >> 2): 
     {
-      pICacheEntry->nuanceCount = 3;
+      pICacheEntry.nuanceCount = 3;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
         uint32 aluIndex, memIndex;
@@ -1415,17 +1413,17 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
           memIndex = 1;
           aluIndex = 0;
         }       
-        pICacheEntry->CopyInstructionData(memIndex,pStruct,SLOT_MEM);
-        pICacheEntry->CopyInstructionData(aluIndex,pStruct,SLOT_ALU);
-        pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(memIndex,pStruct,SLOT_MEM);
+        pICacheEntry.CopyInstructionData(aluIndex,pStruct,SLOT_ALU);
+        pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ECU);
       }
       else
       {
         if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-          pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ALU);
-          pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+          pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ALU);
+          pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ECU);
         }
         else
         {
@@ -1435,12 +1433,12 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
       break;
     }
     case ((PACKETINFO_ALU | PACKETINFO_MEM | PACKETINFO_RCU) >> 2): 
-      pICacheEntry->nuanceCount = 3;
+      pICacheEntry.nuanceCount = 3;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
       {
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-        pICacheEntry->CopyInstructionData(1,pStruct,SLOT_RCU);
-        pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ALU);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+        pICacheEntry.CopyInstructionData(1,pStruct,SLOT_RCU);
+        pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ALU);
       }
       else
       {
@@ -1448,34 +1446,34 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
       }
       break;
     case ((PACKETINFO_ALU | PACKETINFO_MEM | PACKETINFO_ECU | PACKETINFO_RCU) >> 2): 
-      pICacheEntry->nuanceCount = 4;
+      pICacheEntry.nuanceCount = 4;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
         if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-          pICacheEntry->CopyInstructionData(1,pStruct,SLOT_RCU);
-          pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ALU);
-          pICacheEntry->CopyInstructionData(3,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+          pICacheEntry.CopyInstructionData(1,pStruct,SLOT_RCU);
+          pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ALU);
+          pICacheEntry.CopyInstructionData(3,pStruct,SLOT_ECU);
         }
         else
         {
           ScheduleInstructionTriplet(pICacheEntry,0,pStruct,SLOT_ALU,SLOT_MEM,SLOT_RCU);
-          pICacheEntry->CopyInstructionData(3,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(3,pStruct,SLOT_ECU);
         }
       }
       else
       {
         if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
         {    
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-          pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ECU);
-          pICacheEntry->CopyInstructionData(2,pStruct,SLOT_RCU);
-          pICacheEntry->CopyInstructionData(3,pStruct,SLOT_ALU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+          pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(2,pStruct,SLOT_RCU);
+          pICacheEntry.CopyInstructionData(3,pStruct,SLOT_ALU);
         }
         else
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_ECU);
           ScheduleInstructionTriplet(pICacheEntry,1,pStruct,SLOT_ALU,SLOT_MEM,SLOT_RCU);
         }
       }
@@ -1483,7 +1481,7 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
     case ((PACKETINFO_ALU | PACKETINFO_MUL) >> 2):
     {
       uint32 aluIndex, mulIndex;
-      pICacheEntry->nuanceCount = 2;
+      pICacheEntry.nuanceCount = 2;
       if(ChooseInstructionPairOrdering(pStruct,SLOT_ALU,SLOT_MUL))
       {
         mulIndex = 0;
@@ -1494,14 +1492,14 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
         mulIndex = 1;
         aluIndex = 0;
       }
-      pICacheEntry->CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
-      pICacheEntry->CopyInstructionData(aluIndex,pStruct,SLOT_ALU);
+      pICacheEntry.CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
+      pICacheEntry.CopyInstructionData(aluIndex,pStruct,SLOT_ALU);
       break;
     }
     case ((PACKETINFO_ALU | PACKETINFO_MUL | PACKETINFO_ECU) >> 2):
     {
       uint32 ecuIndex, baseIndex;
-      pICacheEntry->nuanceCount = 3;
+      pICacheEntry.nuanceCount = 3;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
         ecuIndex = 2;
@@ -1524,35 +1522,35 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
         mulIndex = baseIndex + 1;
         aluIndex = baseIndex + 0;
       }
-      pICacheEntry->CopyInstructionData(ecuIndex,pStruct,SLOT_ECU);
-      pICacheEntry->CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
-      pICacheEntry->CopyInstructionData(aluIndex,pStruct,SLOT_ALU);
+      pICacheEntry.CopyInstructionData(ecuIndex,pStruct,SLOT_ECU);
+      pICacheEntry.CopyInstructionData(mulIndex,pStruct,SLOT_MUL);
+      pICacheEntry.CopyInstructionData(aluIndex,pStruct,SLOT_ALU);
       break;
     }
     case ((PACKETINFO_ALU | PACKETINFO_MUL | PACKETINFO_RCU) >> 2):
-      pICacheEntry->nuanceCount = 3;
+      pICacheEntry.nuanceCount = 3;
       ScheduleInstructionTriplet(pICacheEntry,0,pStruct,SLOT_ALU,SLOT_MUL,SLOT_RCU);
       break;
     case ((PACKETINFO_ALU | PACKETINFO_MUL | PACKETINFO_RCU | PACKETINFO_ECU) >> 2):
-      pICacheEntry->nuanceCount = 4;
+      pICacheEntry.nuanceCount = 4;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
-        pICacheEntry->CopyInstructionData(3,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(3,pStruct,SLOT_ECU);
         ScheduleInstructionTriplet(pICacheEntry,0,pStruct,SLOT_ALU,SLOT_MUL,SLOT_RCU);
       }
       else
       {
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_ECU);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_ECU);
         ScheduleInstructionTriplet(pICacheEntry,1,pStruct,SLOT_ALU,SLOT_MUL,SLOT_RCU);
       }
       break;
     case ((PACKETINFO_ALU | PACKETINFO_MUL | PACKETINFO_MEM) >> 2):
-      pICacheEntry->nuanceCount = 3;
+      pICacheEntry.nuanceCount = 3;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
       {
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-        pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ALU);
-        pICacheEntry->CopyInstructionData(2,pStruct,SLOT_MUL);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+        pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ALU);
+        pICacheEntry.CopyInstructionData(2,pStruct,SLOT_MUL);
       }
       else
       {
@@ -1560,19 +1558,19 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
       }
       break;
     case ((PACKETINFO_ALU | PACKETINFO_MUL | PACKETINFO_MEM | PACKETINFO_ECU) >> 2): 
-      pICacheEntry->nuanceCount = 4;
+      pICacheEntry.nuanceCount = 4;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
         if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-          pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ALU);
-          pICacheEntry->CopyInstructionData(2,pStruct,SLOT_MUL);
-          pICacheEntry->CopyInstructionData(3,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+          pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ALU);
+          pICacheEntry.CopyInstructionData(2,pStruct,SLOT_MUL);
+          pICacheEntry.CopyInstructionData(3,pStruct,SLOT_ECU);
         }
         else
         {
-          pICacheEntry->CopyInstructionData(3,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(3,pStruct,SLOT_ECU);
           ScheduleInstructionTriplet(pICacheEntry,0,pStruct,SLOT_ALU,SLOT_MUL,SLOT_MEM);
         }
       }
@@ -1580,23 +1578,23 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
       {
         if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-          pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ECU);
-          pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ALU);
-          pICacheEntry->CopyInstructionData(3,pStruct,SLOT_MUL);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+          pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ALU);
+          pICacheEntry.CopyInstructionData(3,pStruct,SLOT_MUL);
         }
         else
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_ECU);
           ScheduleInstructionTriplet(pICacheEntry,1,pStruct,SLOT_ALU,SLOT_MUL,SLOT_MEM);
         }
       }
       break;
     case ((PACKETINFO_ALU | PACKETINFO_MUL | PACKETINFO_MEM | PACKETINFO_RCU) >> 2): 
-      pICacheEntry->nuanceCount = 4;
+      pICacheEntry.nuanceCount = 4;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
       {
-        pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
+        pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
         ScheduleInstructionTriplet(pICacheEntry,1,pStruct,SLOT_ALU,SLOT_MUL,SLOT_RCU);
       }
       else
@@ -1605,20 +1603,20 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
       }
       break;
     case ((PACKETINFO_ALU | PACKETINFO_MUL | PACKETINFO_MEM | PACKETINFO_ECU | PACKETINFO_RCU) >> 2): 
-      pICacheEntry->nuanceCount = 5;
+      pICacheEntry.nuanceCount = 5;
       if(options & DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST)
       {
         if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-          pICacheEntry->CopyInstructionData(1,pStruct,SLOT_RCU);
-          pICacheEntry->CopyInstructionData(2,pStruct,SLOT_ALU);
-          pICacheEntry->CopyInstructionData(3,pStruct,SLOT_MUL);
-          pICacheEntry->CopyInstructionData(4,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+          pICacheEntry.CopyInstructionData(1,pStruct,SLOT_RCU);
+          pICacheEntry.CopyInstructionData(2,pStruct,SLOT_ALU);
+          pICacheEntry.CopyInstructionData(3,pStruct,SLOT_MUL);
+          pICacheEntry.CopyInstructionData(4,pStruct,SLOT_ECU);
         }
         else
         {
-          pICacheEntry->CopyInstructionData(4,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(4,pStruct,SLOT_ECU);
           ScheduleInstructionQuartet(pICacheEntry,0,pStruct);
         }
       }
@@ -1626,13 +1624,13 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
       {
         if(options & DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST)
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_MEM);
-          pICacheEntry->CopyInstructionData(1,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_MEM);
+          pICacheEntry.CopyInstructionData(1,pStruct,SLOT_ECU);
           ScheduleInstructionTriplet(pICacheEntry,2,pStruct,SLOT_RCU,SLOT_ALU,SLOT_MUL);
         }
         else
         {
-          pICacheEntry->CopyInstructionData(0,pStruct,SLOT_ECU);
+          pICacheEntry.CopyInstructionData(0,pStruct,SLOT_ECU);
           ScheduleInstructionQuartet(pICacheEntry,1,pStruct);
         }
       }
@@ -1644,36 +1642,36 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const p
 
   uint32 comboScalarInDep = 0;
   uint32 comboMiscInDep = 0;
-  uint32 comboScalarOutDep = pICacheEntry->nuanceCount > 0 ? pICacheEntry->scalarOutputDependencies[0] : 0;
-  uint32 comboMiscOutDep = pICacheEntry->nuanceCount > 0 ? pICacheEntry->miscOutputDependencies[0] : 0;
+  uint32 comboScalarOutDep = pICacheEntry.nuanceCount > 0 ? pICacheEntry.scalarOutputDependencies[0] : 0;
+  uint32 comboMiscOutDep = pICacheEntry.nuanceCount > 0 ? pICacheEntry.miscOutputDependencies[0] : 0;
 
-  for(uint32 i = 1; i < pICacheEntry->nuanceCount; i++)
+  for(uint32 i = 1; i < pICacheEntry.nuanceCount; i++)
   {
-    comboScalarInDep |= (pICacheEntry->scalarInputDependencies[i] & comboScalarOutDep);
-    comboMiscInDep |= (pICacheEntry->miscInputDependencies[i] & comboMiscOutDep);
-    comboScalarOutDep |= pICacheEntry->scalarOutputDependencies[i];
-    comboMiscOutDep |= pICacheEntry->miscOutputDependencies[i];
+    comboScalarInDep |= (pICacheEntry.scalarInputDependencies[i] & comboScalarOutDep);
+    comboMiscInDep |= (pICacheEntry.miscInputDependencies[i] & comboMiscOutDep);
+    comboScalarOutDep |= pICacheEntry.scalarOutputDependencies[i];
+    comboMiscOutDep |= pICacheEntry.miscOutputDependencies[i];
   }
 
-  pICacheEntry->packetInfo = pStruct.packetInfo;
-  pICacheEntry->ecuConditionCode = pStruct.ecuConditionCode;
+  pICacheEntry.packetInfo = pStruct.packetInfo;
+  pICacheEntry.ecuConditionCode = pStruct.ecuConditionCode;
 
   if(!nuonEnv.compilerOptions.bAllowCompile)
   {
-    pICacheEntry->packetInfo |= PACKETINFO_NEVERCOMPILE;
+    pICacheEntry.packetInfo |= PACKETINFO_NEVERCOMPILE;
   }
 
   if(comboScalarInDep | comboMiscInDep)
   {
-    pICacheEntry->packetInfo |= PACKETINFO_DEPENDENCY_PRESENT;
+    pICacheEntry.packetInfo |= PACKETINFO_DEPENDENCY_PRESENT;
 
-    pICacheEntry->pRegs = tempreg_union;
+    pICacheEntry.pRegs = tempreg_union;
   }
   else
-    pICacheEntry->pRegs = reg_union;
+    pICacheEntry.pRegs = reg_union;
 
-  for(uint32 i = 0; i < pICacheEntry->nuanceCount; ++i)
-    pICacheEntry->handlers[i] = pICacheEntry->nuances[i*5];
+  for(uint32 i = 0; i < pICacheEntry.nuanceCount; ++i)
+    pICacheEntry.handlers[i] = pICacheEntry.nuances[i*5];
 }
 
 inline bool MPE::ChooseInstructionPairOrdering(const InstructionCacheEntry &entry, const uint32 slot1, const uint32 slot2)
@@ -1690,14 +1688,12 @@ inline bool MPE::ChooseInstructionPairOrdering(const InstructionCacheEntry &entr
        > (OnesCount(xScalarInDep & yScalarOutDep) + OnesCount(xMiscInDep & yMiscOutDep));
 }
 
-void MPE::ScheduleInstructionTriplet(InstructionCacheEntry * const destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3)
+void MPE::ScheduleInstructionTriplet(InstructionCacheEntry &destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3)
 {
   static const uint32 destSlot1[6] = {0,0,1,1,2,2};
   static const uint32 destSlot2[6] = {1,2,2,0,0,1};
   static const uint32 destSlot3[6] = {2,1,0,2,1,0};
 
-  uint32 scores[6];
-  
 /*
   After completion, scores will contain the dependency count for the following permuations:
   {[1,2,3],[1,3,2],[2,3,1],[2,1,3],[3,1,2],[3,2,1]}.  Choose the permutation with the lowest
@@ -1710,7 +1706,8 @@ void MPE::ScheduleInstructionTriplet(InstructionCacheEntry * const destEntry, co
   uint32 tempScalarInDep = srcEntry.scalarInputDependencies[slot3] & comboScalarOutDep12;
   uint32 tempMiscInDep = srcEntry.miscInputDependencies[slot3] & comboMiscOutDep12;
 
-  scores[0] = 
+  uint32 scores[6];
+  scores[0] =
     OnesCount((srcEntry.scalarInputDependencies[slot2] & srcEntry.scalarOutputDependencies[slot1]) |
               (tempScalarInDep)) +
     OnesCount((srcEntry.miscInputDependencies[slot2] & srcEntry.miscOutputDependencies[slot1]) |
@@ -1770,9 +1767,9 @@ void MPE::ScheduleInstructionTriplet(InstructionCacheEntry * const destEntry, co
     }
   }
 
-  destEntry->CopyInstructionData(baseSlot + destSlot1[minIndex], srcEntry, slot1);
-  destEntry->CopyInstructionData(baseSlot + destSlot2[minIndex], srcEntry, slot2);
-  destEntry->CopyInstructionData(baseSlot + destSlot3[minIndex], srcEntry, slot3);
+  destEntry.CopyInstructionData(baseSlot + destSlot1[minIndex], srcEntry, slot1);
+  destEntry.CopyInstructionData(baseSlot + destSlot2[minIndex], srcEntry, slot2);
+  destEntry.CopyInstructionData(baseSlot + destSlot3[minIndex], srcEntry, slot3);
 }
 
 #if 0
@@ -1799,14 +1796,12 @@ void MPE::GetInstructionTripletDependencies(uint32& comboScalarDep, uint32& comb
     (srcEntry.scalarInputDependencies[slot3] & comboScalarOutDep);
 }
 
-void MPE::ScheduleInstructionQuartet(InstructionCacheEntry * const destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry)
+void MPE::ScheduleInstructionQuartet(InstructionCacheEntry &destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry)
 {
   static const uint32 destSlotRCU[6] = {0,0,1,1,2,0};
   static const uint32 destSlotALU[6] = {1,2,2,3,3,3};
   static const uint32 destSlotMUL[6] = {2,1,0,2,1,2};
   static const uint32 destSlotMEM[6] = {3,3,3,0,0,1};
-
-  uint32 scores[6];
 
   uint32 tempScalarDep1 = srcEntry.scalarOutputDependencies[SLOT_RCU] | srcEntry.scalarOutputDependencies[SLOT_MUL];
   uint32 tempMiscDep1 = srcEntry.miscOutputDependencies[SLOT_RCU] | srcEntry.miscOutputDependencies[SLOT_MUL];
@@ -1821,6 +1816,7 @@ void MPE::ScheduleInstructionQuartet(InstructionCacheEntry * const destEntry, co
   uint32 tempMiscDep2 = srcEntry.miscInputDependencies[SLOT_MEM] & comboMiscOutDep1;
 
   GetInstructionTripletDependencies(tempScalarDep1,tempMiscDep1,srcEntry,SLOT_RCU,SLOT_ALU,SLOT_MUL);
+  uint32 scores[6];
   scores[0] = OnesCount(tempScalarDep1 | tempScalarDep2) + OnesCount(tempMiscDep1 | tempMiscDep2);
 
   GetInstructionTripletDependencies(tempScalarDep1,tempMiscDep1,srcEntry,SLOT_RCU,SLOT_MUL,SLOT_ALU);
@@ -1853,10 +1849,10 @@ void MPE::ScheduleInstructionQuartet(InstructionCacheEntry * const destEntry, co
     }
   }
 
-  destEntry->CopyInstructionData(baseSlot + destSlotRCU[minIndex], srcEntry, SLOT_RCU);
-  destEntry->CopyInstructionData(baseSlot + destSlotALU[minIndex], srcEntry, SLOT_ALU);
-  destEntry->CopyInstructionData(baseSlot + destSlotMUL[minIndex], srcEntry, SLOT_MUL);
-  destEntry->CopyInstructionData(baseSlot + destSlotMEM[minIndex], srcEntry, SLOT_MEM);
+  destEntry.CopyInstructionData(baseSlot + destSlotRCU[minIndex], srcEntry, SLOT_RCU);
+  destEntry.CopyInstructionData(baseSlot + destSlotALU[minIndex], srcEntry, SLOT_ALU);
+  destEntry.CopyInstructionData(baseSlot + destSlotMUL[minIndex], srcEntry, SLOT_MUL);
+  destEntry.CopyInstructionData(baseSlot + destSlotMEM[minIndex], srcEntry, SLOT_MEM);
 }
 
 void LogMemoryLocation(FILE *outFile, char *varname, uint32 address, MPE &mpe)
@@ -2103,7 +2099,7 @@ create_icache_entry:
       pInstructionCacheEntry->frequencyCount = 1;
       if(pcexec < ROM_BIOS_BASE)
       {
-        DecompressPacket(GetPointerToMemoryBank(pcexec),pInstructionCacheEntry,DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST);
+        DecompressPacket(GetPointerToMemoryBank(pcexec),*pInstructionCacheEntry,DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST);
         if(((pcexec >= BIOS_JUMPTABLE_START) && (pcexec <= BIOS_JUMPTABLE_END))  || (pInstructionCacheEntry->packetInfo & PACKETINFO_BREAKPOINT))
         {
           pInstructionCacheEntry->packetInfo |= PACKETINFO_NEVERCOMPILE;            
@@ -2149,7 +2145,7 @@ execute_block:
           prevPcexec = pcexec;
           for(uint32 i = 0; i < nInstructions; i++)
           {
-            (nuanceHandlers[pNuance->fields[0]])(*this,*pICacheEntry,*pNuance);
+            (nuanceHandlers[pNuance->fields[0]])(*this,pICacheEntryRegs,*pNuance);
             pNuance++;
 
             if(bInterpretedBranchTaken) // Execute_CheckECUSkipCounter can set this
@@ -2268,13 +2264,6 @@ check_for_halt:
   //StopPerformanceTimer();
   //timeDelta = GetTimeDeltaMs();
   return false;
-}
-
-void MPE::InitStaticICacheEntries()
-{
-  ICacheEntry_SaveRegs.pRegs = tempreg_union;
-  
-  ICacheEntry_SaveFlags.pRegs = reg_union;
 }
 
 uint8 MPE::DecodeSingleInstruction(const uint8 *const iPtr, InstructionCacheEntry *const entry, uint32 * const immExt, bool &bTerminating)
@@ -2406,8 +2395,7 @@ void MPE::PrintInstructionCachePacket(char *buffer, const uint32 address)
   {
     InstructionCacheEntry entry;
     entry.pcexec = address;
-    uint8* memPtr = GetPointerToMemoryBank(address);
-    DecompressPacket(memPtr,&entry);
+    DecompressPacket(GetPointerToMemoryBank(address),entry);
     PrintInstructionCachePacket(buffer,entry);    
   }
 }

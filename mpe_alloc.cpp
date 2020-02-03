@@ -314,12 +314,9 @@ void MPEReadRegister(MPE &mpe)
     //on the target processor (this will always be the case when a single
     //thread handles emulation of all four processors)
 
-    InstructionCacheEntry entry;
-    entry.pRegs = mpe.reg_union;
-
     nuonEnv.mpe[which].SaveRegisters();
 
-    mpe.regs[0] = nuonEnv.mpe[which].ReadControlRegister(mpeaddr - MPE_CTRL_BASE, entry);
+    mpe.regs[0] = nuonEnv.mpe[which].ReadControlRegister(mpeaddr - MPE_CTRL_BASE, mpe.reg_union);
   }
 }
 

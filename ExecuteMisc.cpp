@@ -3,7 +3,7 @@
 #include "mpe.h"
 #include "SuperBlockConstants.h"
 
-void Execute_CheckECUSkipCounter(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
+void Execute_CheckECUSkipCounter(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
   if(mpe.ecuSkipCounter)
   {
@@ -15,19 +15,19 @@ void Execute_CheckECUSkipCounter(MPE &mpe, const InstructionCacheEntry &entry, c
   }
 }
 
-void Execute_SaveFlags(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
+void Execute_SaveFlags(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
   mpe.tempCC = mpe.cc;
-  mpe.pICacheEntry = &(mpe.ICacheEntry_SaveFlags);
+  mpe.pICacheEntryRegs = mpe.reg_union;
 }
 
-void Execute_SaveRegs(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
+void Execute_SaveRegs(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
   memcpy(mpe.tempreg_union,mpe.reg_union,sizeof(uint32)*48);
-  mpe.pICacheEntry = &(mpe.ICacheEntry_SaveRegs);
+  mpe.pICacheEntryRegs = mpe.tempreg_union;
 }
 
-void Execute_StoreScalarRegisterConstant(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
+void Execute_StoreScalarRegisterConstant(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
   mpe.regs[nuance.fields[FIELD_CONSTANT_ADDRESS]] = nuance.fields[FIELD_CONSTANT_VALUE];
   const uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];
@@ -39,7 +39,7 @@ void Execute_StoreScalarRegisterConstant(MPE &mpe, const InstructionCacheEntry &
   }
 }
 
-void Execute_StoreMiscRegisterConstant(MPE &mpe, const InstructionCacheEntry &entry, const Nuance &nuance)
+void Execute_StoreMiscRegisterConstant(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
   const uint32 miscRegIndex = nuance.fields[FIELD_CONSTANT_ADDRESS];
   const uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];

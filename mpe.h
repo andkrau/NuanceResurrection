@@ -223,8 +223,8 @@ struct sBilinearInfo
 #define REGINDEX_ACSHIFT (14UL)
 #define REGINDEX_SVSHIFT (15UL)
 
-typedef void (* NuanceHandler)(MPE &, const InstructionCacheEntry &, const Nuance &);
-typedef void NuanceHandlerProto(MPE &, const InstructionCacheEntry &, const Nuance &);
+typedef void (* NuanceHandler)(MPE &, const uint32 pRegs[48], const Nuance &);
+typedef void NuanceHandlerProto(MPE &, const uint32 pRegs[48], const Nuance &);
 typedef uint32 (* NuancePrintHandler)(char *, Nuance &, bool);
 typedef uint32 NuancePrintHandlerProto(char *, Nuance &, bool);
 typedef void (* NativeEmitHandler)(EmitterVariables * const, const Nuance &);
@@ -371,7 +371,8 @@ public:
   uint32 mpeEndAddress;
   uint32 mpeIndex;
 
-  InstructionCacheEntry * volatile pICacheEntry;
+  uint32* pICacheEntryRegs; // pointer to 48 MPE Regs, always points to either reg_union or tempreg_union, which is then passed to the Nuances
+
   InstructionCache *instructionCache;
   SuperBlock *superBlock;
   NativeCodeCache *nativeCodeCache;
@@ -382,9 +383,6 @@ public:
   sBilinearInfo sBIXY;
   sBilinearInfo sBIUV;
 
-  InstructionCacheEntry ICacheEntry_SaveRegs;
-  InstructionCacheEntry ICacheEntry_SaveFlags;
-
   uint32 strictMemoryMiscInputDependencies;
   uint32 strictMemoryMiscOutputDependencies;
   
@@ -392,17 +390,18 @@ public:
   void FreeMPELocalMemory();
   uint8 DecodeSingleInstruction(const uint8 * const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt, bool &bTerminating);
   uint32 GetPacketDelta(const uint8 *iPtr, uint32 numLevels);
-  void DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry * const pICacheEntry, const uint32 options = 0);
+  void DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry &pICacheEntry, const uint32 options = 0);
   bool ChooseInstructionPairOrdering(const InstructionCacheEntry &entry, const uint32 slot1, const uint32 slot2);
 #if 0
   uint32 ScoreInstructionTriplet(const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
 #endif
   void GetInstructionTripletDependencies(uint32& comboScalarDep, uint32& comboMiscDep, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
-  void ScheduleInstructionTriplet(InstructionCacheEntry * const destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
-  void ScheduleInstructionQuartet(InstructionCacheEntry * const destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry);
+  void ScheduleInstructionTriplet(InstructionCacheEntry &destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
+  void ScheduleInstructionQuartet(InstructionCacheEntry &destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry);
   NativeCodeCacheEntryPoint CompileNativeCodeBlock(const uint32 pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket = false);
   bool FetchDecodeExecute();
   void ExecuteSingleStep();
+
   void ExecuteNuances(const InstructionCacheEntry& entry)
   {
     if(entry.packetInfo & PACKETINFO_BREAKPOINT)
@@ -429,12 +428,14 @@ public:
    
       for(uint32 i = 0; i < entry.nuanceCount; i++)
       {
-        (nuanceHandlers[entry.handlers[i]])(*this,entry,(Nuance &)(entry.nuances[FIXED_FIELD(i,0)]));
+        (nuanceHandlers[entry.handlers[i]])(*this,entry.pRegs,(Nuance &)(entry.nuances[FIXED_FIELD(i,0)]));
       }
     }
   }
-  uint32 GetControlRegisterInputDependencies(const uint32 address, bool &bException);
-  uint32 GetControlRegisterOutputDependencies(const uint32 address, bool &bException);
+
+  uint32 GetControlRegisterInputDependencies(const uint32 address, bool &bException) const;
+  uint32 GetControlRegisterOutputDependencies(const uint32 address, bool &bException) const;
+
   void DecodeInstruction_RCU16(const uint8* const iPtr, InstructionCacheEntry* const entry,       uint32* const immExt);
   void DecodeInstruction_ECU16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void DecodeInstruction_ECU32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
@@ -485,8 +486,7 @@ public:
     tempCC = tmp; //!! this was what happened with the old code, but was this intended??
   }
 
-  void InitStaticICacheEntries();
-  uint32 ReadControlRegister(const uint32 address, const InstructionCacheEntry &entry);
+  uint32 ReadControlRegister(const uint32 address, const uint32 entrypRegs[48]);
 
   inline void Halt(void)
   {

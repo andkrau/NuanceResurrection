@@ -7,6 +7,9 @@
 #include "mpe.h"
 #include "NativeCodeCache.h"
 
+#define MAX_SUPERBLOCK_PACKETS 120
+#define MAX_SUPERBLOCK_INSTRUCTIONS_PER_PACKET 5
+
 #ifndef SUPERBLOCK_STRUCTS
 #define SUPERBLOCK_STRUCTS
 
@@ -75,10 +78,10 @@ enum SuperBlockCompileType
 class SuperBlock
 {
 public:
-  SuperBlock(MPE * const mpe, const uint32 maxPackets, const uint32 _maxInstructionsPerPacket);
+  SuperBlock(MPE * const mpe);
   ~SuperBlock();
 
-  void PrintBlockToFile(SuperBlockCompileType blockType = SUPERBLOCKCOMPILETYPE_UNKNOWN, uint32 size = 0);
+  void PrintBlockToFile(SuperBlockCompileType blockType, uint32 size);
   void AddPacketToList(InstructionCacheEntry &packet, const uint32 index);
   bool AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry * const pPacketEntry, const uint32 index, const bool bExplicitNOP = false);
   NativeCodeCacheEntryPoint CompileBlock(MPE * const mpe, const uint32 address, NativeCodeCache &codeCache, const SuperBlockCompileType eCompileType, const bool bSinglePacket, bool &bError);
@@ -91,8 +94,6 @@ public:
   uint32 numInstructions;
   uint32 numPackets;
   uint32 packetsProcessed;
-  uint32 maxPacketsPerSuperBlock;
-  uint32 maxInstructionsPerPacket;
   bool bSinglePacket;
   bool bAllowBlockCompile;
   PacketEntry *packets;

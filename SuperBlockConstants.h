@@ -52,7 +52,7 @@ struct PropagateConstantsStatusStruct
 class SuperBlockConstants
 {
 public:
-  SuperBlockConstants(MPE *pMPE, SuperBlock *sBlock);
+  SuperBlockConstants(SuperBlock *sBlock);
   ~SuperBlockConstants();
 
   void PropagateConstants()
@@ -219,9 +219,9 @@ public:
 
   bool EvaluateBranchCondition(const uint32 whichCondition, bool * const branchResult);
 
-  MPE *mpe;
   Nuance *nuance;
   InstructionEntry *pCurrentInstructionEntry;
+  SuperBlock* pSuperBlock;
   PropagateConstantsStatusStruct status;
   bool bConstantPropagated;
 
@@ -235,7 +235,6 @@ protected:
   uint32 miscRegisterConstantsStatus;
   uint32 tempScalarRegisterConstantsStatus;
   uint32 tempMiscRegisterConstantsStatus;
-  SuperBlock *pSuperBlock;
 };
 
 #endif
