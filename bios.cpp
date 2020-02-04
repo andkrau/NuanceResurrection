@@ -301,6 +301,8 @@ void IntSetVector(MPE &mpe)
 
   mpe.regs[0] = 0;
 
+  // special handling of kIntrVideo (which==31) and kIntrAudio (which==27): handled via the trigger interrupts due to the vid timer and the audio stream callback!
+
   if(which < 32)
   {
     if(which == 4)

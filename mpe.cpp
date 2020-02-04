@@ -777,8 +777,6 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
   numNonCompilablePackets = 0;
   mpeIndex = index;
   bStrictMemoryDependencyPolicy = true;
-  strictMemoryMiscInputDependencies = 0xFFFFFFFF;
-  strictMemoryMiscOutputDependencies = 0xFFFFFFFF;
   AllocateMPELocalMemory();
   nativeCodeCache = new NativeCodeCache(5UL*1024UL*1024UL, 0, numTLBEntries[mpeIndex & 0x03]);
   instructionCache = new InstructionCache(numCacheEntries[mpeIndex & 0x03]);
@@ -786,7 +784,8 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
   overlayManager->SetOverlayLength(overlayLengths[mpeIndex]);
   bInvalidateInstructionCaches = false;
   bInvalidateInterpreterCache = false;
-  
+  overlayMask = 0;
+
   interpretNextPacket = 0;
 
   EmitterVariables emitvars;
@@ -890,8 +889,7 @@ void MPE::Reset()
 
   //overlayIndex = 0;
 
-  //Interpretation of Nuances require the use of the cc composite flags register 
-  bUsingCompositeFlags = true;
+  //Interpretation of Nuances require the use of the cc composite flags register
   ecuSkipCounter = 0;
   pcfetchnext = 0x20300000;
   pcfetch = 0x20300000;
@@ -1064,6 +1062,8 @@ void MPE::DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry &pICacheE
     pICacheEntry.pcfetchnext = pICacheEntry.pcroute + GetPacketDelta(iBuffer, 2);
     pStruct.nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_PCFETCHNEXT)] = pICacheEntry.pcfetchnext;
   }
+  else
+    pICacheEntry.pcfetchnext = 0; // just to avoid uninited mem
 
   if(options & DECOMPRESS_OPTIONS_INHIBIT_ECU)
   {
@@ -1881,11 +1881,6 @@ bool MPE::FetchDecodeExecute()
 
     //uint32 blockExecuteCount = 100;
 
-    bool bInvalidateOverlayRegion = false;
-    NativeCodeCacheEntryPoint nativeCodeCacheEntryPoint = 0;
-    NativeCodeCacheEntry* pNativeCodeCacheEntry = 0;
-    InstructionCacheEntry* pInstructionCacheEntry = 0;
-
     /* Force 16 bit alignment of pcexec */
     pcexec &= ~0x01UL;
 
@@ -1950,6 +1945,7 @@ bool MPE::FetchDecodeExecute()
       {
         //pcexec is within MPE IRAM region that has been modified since the last time it was hashed
 
+        bool bInvalidateOverlayRegion;
         /*overlayIndex =*/ overlayManager->FindOverlay((uint32 *)&dtrom[MPE_IRAM_OFFSET], bInvalidateOverlayRegion);
 
         //Get the new overlay mask
@@ -1986,21 +1982,24 @@ bool MPE::FetchDecodeExecute()
         bInvalidateInstructionCaches = false;
         instructionCache->Invalidate();
         numInterpreterCacheFlushes++;
-        numNativeCodeCacheFlushes++;
         if((mpeIndex == 0) || (mpeIndex == 3))
         {
+          numNativeCodeCacheFlushes++;
           nativeCodeCache->FlushRegion(MAIN_BUS_BASE, MAIN_BUS_BASE + MAIN_BUS_SIZE - 1);
           nativeCodeCache->FlushRegion(SYSTEM_BUS_BASE, SYSTEM_BUS_BASE + SYSTEM_BUS_SIZE - 1);
         }
       }
     }
 
+    NativeCodeCacheEntry* pNativeCodeCacheEntry = 0;
+    NativeCodeCacheEntryPoint nativeCodeCacheEntryPoint = 0;
+    InstructionCacheEntry* pInstructionCacheEntry = 0;
+
     if(!(ecuSkipCounter | interpretNextPacket))
     {
 //find_code_cache_entry:
       pNativeCodeCacheEntry = nativeCodeCache->GetPageMap()->FindEntry(pcexecLookupValue);
-
-      if(pNativeCodeCacheEntry && pNativeCodeCacheEntry->virtualAddress == pcexecLookupValue)
+      if(pNativeCodeCacheEntry && (pNativeCodeCacheEntry->virtualAddress == pcexecLookupValue))
       {
         nativeCodeCacheEntryPoint = pNativeCodeCacheEntry->entryPoint;
         goto execute_block;
@@ -2049,7 +2048,6 @@ bool MPE::FetchDecodeExecute()
             }
 
             pInstructionCacheEntry->packetInfo |= PACKETINFO_COMPILED;
-            goto execute_block;
           }
           else
           {
@@ -2066,21 +2064,17 @@ bool MPE::FetchDecodeExecute()
             }
 
             nativeCodeCacheEntryPoint = 0;
-            goto execute_block;
           }
         }
         else
         {
           pInstructionCacheEntry->frequencyCount++;
-          if(!pInstructionCacheEntry->frequencyCount)
-          {
-            pInstructionCacheEntry->frequencyCount--;
-          }
-          goto execute_block;
+          if(pInstructionCacheEntry->frequencyCount == 0) // overflow?
+            pInstructionCacheEntry->frequencyCount = ~0u;
         }
-      }
 
-      goto create_icache_entry;
+        goto execute_block;
+      }
     }
     else
     {
@@ -2091,124 +2085,123 @@ bool MPE::FetchDecodeExecute()
       {
         goto execute_block;
       }
+    }
 
-create_icache_entry:
-      pInstructionCacheEntry->pcexec = pcexec;
-      pInstructionCacheEntry->frequencyCount = 1;
-      if(pcexec < ROM_BIOS_BASE)
+    pInstructionCacheEntry->pcexec = pcexec;
+    pInstructionCacheEntry->frequencyCount = 1;
+    if(pcexec < ROM_BIOS_BASE)
+    {
+      DecompressPacket(GetPointerToMemoryBank(pcexec),*pInstructionCacheEntry,DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST);
+      if(((pcexec >= BIOS_JUMPTABLE_START) && (pcexec <= BIOS_JUMPTABLE_END)) || (pInstructionCacheEntry->packetInfo & PACKETINFO_BREAKPOINT))
       {
-        DecompressPacket(GetPointerToMemoryBank(pcexec),*pInstructionCacheEntry,DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST);
-        if(((pcexec >= BIOS_JUMPTABLE_START) && (pcexec <= BIOS_JUMPTABLE_END))  || (pInstructionCacheEntry->packetInfo & PACKETINFO_BREAKPOINT))
-        {
-          pInstructionCacheEntry->packetInfo |= PACKETINFO_NEVERCOMPILE;            
-        }
-      }
-      else
-      {
-        pInstructionCacheEntry->nuanceCount = 0;
-        pInstructionCacheEntry->pcroute = 0;
         pInstructionCacheEntry->packetInfo |= PACKETINFO_NEVERCOMPILE;
       }
-      instructionCache->SetEntryValid(pcexec);
+    }
+    else
+    {
+      pInstructionCacheEntry->nuanceCount = 0;
+      pInstructionCacheEntry->pcroute = 0;
+      pInstructionCacheEntry->packetInfo |= PACKETINFO_NEVERCOMPILE;
+    }
+    instructionCache->SetEntryValid(pcexec);
+
 execute_block:
-      interpretNextPacket = 0;
+    interpretNextPacket = 0;
 
     //StopPerformanceTimer();
     //double timeDelta = GetTimeDeltaMs();
 
 #ifdef LOG_STUFF
-      if(LOG_MPE_INDEX == mpeIndex)
-      {
-        fprintf(logfile,"pcexec: %8.8x\n",pcexec);
-      }
+    if(LOG_MPE_INDEX == mpeIndex)
+    {
+      fprintf(logfile,"pcexec: %8.8x\n",pcexec);
+    }
 #endif
 
-      if(nativeCodeCacheEntryPoint)
+    if(nativeCodeCacheEntryPoint)
+    {
+      assert(pNativeCodeCacheEntry);
+
+      cycleCounter += pNativeCodeCacheEntry->numPackets;
+
+      pNativeCodeCacheEntry->accessCount++;
+      if(pNativeCodeCacheEntry->accessCount == 0) // overflow?
+        pNativeCodeCacheEntry->accessCount = ~0;
+
+      if((pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK) || (pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE))
       {
-        assert(pNativeCodeCacheEntry);
-
-        pNativeCodeCacheEntry->accessCount += 1;
-        cycleCounter += pNativeCodeCacheEntry->numPackets;
-
-        if(!pNativeCodeCacheEntry->accessCount)
+        const uint32 nInstructions = pNativeCodeCacheEntry->numInstructions;
+        const Nuance* pNuance = (Nuance *)nativeCodeCacheEntryPoint;
+        bInterpretedBranchTaken = false;
+        prevPcexec = pcexec;
+        for(uint32 i = 0; i < nInstructions; i++)
         {
-          pNativeCodeCacheEntry->accessCount -= 1;          
-        }
+          (nuanceHandlers[pNuance->fields[0]])(*this,pICacheEntryRegs,*pNuance);
+          pNuance++;
 
-        if((pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK) || (pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE))
-        {
-          const uint32 nInstructions = pNativeCodeCacheEntry->numInstructions;
-          const Nuance* pNuance = (Nuance *)nativeCodeCacheEntryPoint;
-          bInterpretedBranchTaken = false;
-          prevPcexec = pcexec;
-          for(uint32 i = 0; i < nInstructions; i++)
+          if(bInterpretedBranchTaken) // Execute_CheckECUSkipCounter can set this
           {
-            (nuanceHandlers[pNuance->fields[0]])(*this,pICacheEntryRegs,*pNuance);
-            pNuance++;
-
-            if(bInterpretedBranchTaken) // Execute_CheckECUSkipCounter can set this
-            {
-              pcexec = pcfetchnext;
-              goto check_for_halt;
-            }
+            pcexec = pcfetchnext;
+            goto check_for_halt;
           }
-          pcexec = pNativeCodeCacheEntry->nextVirtualAddress;
-          goto check_for_halt;
         }
-        else
+        pcexec = pNativeCodeCacheEntry->nextVirtualAddress;
+        goto check_for_halt;
+      }
+      else
+      {
+        prevPcexec = pcexec;
+        //do
         {
-          prevPcexec = pcexec;
-          //do
-          {
-            nativeCodeCacheEntryPoint();
-            //blockExecuteCount--;
-          } 
-          //while((pcexec == prevPcexec) && (mpectl & MPECTRL_MPEGO) && !ecuSkipCounter && blockExecuteCount);       
+          nativeCodeCacheEntryPoint();
+          //blockExecuteCount--;
+        } 
+        //while((pcexec == prevPcexec) && (mpectl & MPECTRL_MPEGO) && !ecuSkipCounter && blockExecuteCount);       
+      }
+    }
+    else
+    {
+      if(pcexec < ROM_BIOS_BASE)
+      {
+        cycleCounter++;
+
+        prevPcexec = pcexec;
+        pcroute = pInstructionCacheEntry->pcroute;
+        pcexec = pcroute;
+        ExecuteNuances(*pInstructionCacheEntry);
+      }
+      else if(pcexec < 0xF0008000)
+      {
+        cycleCounter++;
+        //Execute BIOS function: force to one of 256 entries
+        BiosJumpTable[(pcexec >> 1) & 0xFF](*this);
+
+        if(!bCallingMediaCallback)
+        {
+          //Perform an implicit RTS, nop
+          pcexec = rz;
         }
       }
       else
       {
-        if(pcexec < ROM_BIOS_BASE)
+        //Execute PE function
+        cycleCounter++;
+        CallPEHandler(*this, pcexec);
+        if(!bCallingMediaCallback)
         {
-          cycleCounter++;
-
-          prevPcexec = pcexec;
-          pcroute = pInstructionCacheEntry->pcroute;
-          pcexec = pcroute;
-          ExecuteNuances(*pInstructionCacheEntry);
+          //Perform an implicit RTS, nop
+          pcexec = rz;
         }
-        else if(pcexec < 0xF0008000)
-        {
-          cycleCounter++;
-          //Execute BIOS function: force to one of 256 entries
-          BiosJumpTable[(pcexec >> 1) & 0xFF](*this);
-
-          if(!bCallingMediaCallback)
-          {
-            //Perform an implicit RTS, nop
-            pcexec = rz;
-          }
-        }
-        else
-        {
-          //Execute PE function
-          cycleCounter++;
-          CallPEHandler(*this, pcexec);
-          if(!bCallingMediaCallback)
-          {
-            //Perform an implicit RTS, nop
-            pcexec = rz;
-          }
-        }
-        
-        bCallingMediaCallback = false;
       }
+        
+      bCallingMediaCallback = false;
+    }
 
-      if(ecuSkipCounter)
+    if(ecuSkipCounter)
+    {
+      ecuSkipCounter--;
+      if(ecuSkipCounter == 0)
       {
-        ecuSkipCounter--;
-        if(!ecuSkipCounter)
-        {
 #ifdef LOG_BIOS_CALLS
           if(((pcfetchnext >= 0x80000000) && (pcfetchnext <= 0x8000FFFF)) && (mpeIndex == LOG_MPE_INDEX))
           {
@@ -2238,22 +2231,21 @@ execute_block:
             }
           }
 #endif
-          pcexec = pcfetchnext;
-        }
-      }
-      
-check_for_halt:
-
-      if(excephalten & excepsrc)
-      {
-        Halt();
-      }
-      else if(pcexec == breakpointAddress)
-      {
-        mpectl &= ~MPECTRL_MPEGO;
+        pcexec = pcfetchnext;
       }
     }
-    
+
+check_for_halt:
+
+    if(excephalten & excepsrc)
+    {
+      Halt();
+    }
+    else if(pcexec == breakpointAddress)
+    {
+      mpectl &= ~MPECTRL_MPEGO;
+    }
+
     //StopPerformanceTimer();
     //timeDelta = GetTimeDeltaMs();
     return true;

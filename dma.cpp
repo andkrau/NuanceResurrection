@@ -1683,9 +1683,6 @@ void DMABiLinear(MPE &mpe)
 
 void DMADo(MPE &mpe)
 {
-  uint32 dmaflags, intaddr, baseaddr;
-  uint32 *cmdptr;
-
   const uint32 ctrl = mpe.regs[0];
   const uint32 cmdBlock = mpe.regs[1] & 0x3FFFFFF0UL;
   //const uint32 waitFlag = mpe.regs[2];
@@ -1697,10 +1694,10 @@ void DMADo(MPE &mpe)
     if(mpe.odmactl & 0x60UL)
     {
       //other bus DMA is enabled so do it!
-      cmdptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,cmdBlock);
-      dmaflags = *cmdptr;
-      baseaddr = *(cmdptr + 1);
-      intaddr = *(cmdptr + 2);
+      const uint32* const cmdptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,cmdBlock);
+      uint32 dmaflags = *cmdptr;
+      uint32 baseaddr = *(cmdptr + 1);
+      uint32 intaddr = *(cmdptr + 2);
       SwapScalarBytes(&dmaflags);
       SwapScalarBytes(&baseaddr);
       SwapScalarBytes(&intaddr);
@@ -1715,10 +1712,10 @@ void DMADo(MPE &mpe)
     mpe.mdmacptr = cmdBlock;
 
 do_mdmacmd:
-    cmdptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,cmdBlock,false);
-    dmaflags = *cmdptr;
-    baseaddr = *(cmdptr + 1);
-    intaddr = *(cmdptr + 2);
+    const uint32* const cmdptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,cmdBlock,false);
+    uint32 dmaflags = *cmdptr;
+    uint32 baseaddr = *(cmdptr + 1);
+    uint32 intaddr = *(cmdptr + 2);
     SwapScalarBytes(&dmaflags);
     SwapScalarBytes(&baseaddr);
     SwapScalarBytes(&intaddr);
@@ -1728,7 +1725,7 @@ do_mdmacmd:
       case 0:
         //linear DMA
         DMALinear(mpe,dmaflags,baseaddr,intaddr);
-        if(dmaflags & (1UL << 30))
+        if(dmaflags & (1UL << 30)) // batch? -> repeat
         {
           mpe.mdmacptr += 16;
           goto do_mdmacmd;
@@ -1743,7 +1740,7 @@ do_mdmacmd:
         SwapScalarBytes(&yptr);
         SwapScalarBytes(&intaddr);
         DMABiLinear(mpe,dmaflags,baseaddr,xptr,yptr,intaddr);
-        if(dmaflags & (1UL << 30))
+        if(dmaflags & (1UL << 30)) // batch? -> repeat
         {
           mpe.mdmacptr += 16;
           goto do_mdmacmd;

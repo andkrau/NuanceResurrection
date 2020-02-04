@@ -370,14 +370,14 @@ void NuonEnvironment::Init()
   for(uint32 i = 0; i < 4; i++)
     mpe[i].Init(i, mainBusDRAM, systemBusDRAM, flashEEPROM->GetBasePointer());
 
-  mpe[0].mpeStartAddress = 0x20000000;
-  mpe[0].mpeEndAddress = 0x207FFFFF;
-  mpe[1].mpeStartAddress = 0x20800000;
-  mpe[1].mpeEndAddress = 0x20FFFFFF;
-  mpe[2].mpeStartAddress = 0x21000000;
-  mpe[2].mpeEndAddress = 0x217FFFFF;
-  mpe[3].mpeStartAddress = 0x21800000;
-  mpe[3].mpeEndAddress = 0x21FFFFFF;
+  //mpe[0].mpeStartAddress = 0x20000000;
+  //mpe[0].mpeEndAddress = 0x207FFFFF;
+  //mpe[1].mpeStartAddress = 0x20800000;
+  //mpe[1].mpeEndAddress = 0x20FFFFFF;
+  //mpe[2].mpeStartAddress = 0x21000000;
+  //mpe[2].mpeEndAddress = 0x217FFFFF;
+  //mpe[3].mpeStartAddress = 0x21800000;
+  //mpe[3].mpeEndAddress = 0x21FFFFFF;
 
   bProcessorStartStopChange = false;
   pendingCommRequests = 0;

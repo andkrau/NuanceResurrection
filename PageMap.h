@@ -49,7 +49,16 @@ public:
   void UpdateEntry(const uint32 address,NativeCodeCacheEntry &entry);
   void Invalidate();
   void InvalidateEntry(const uint32 address);
-  void InvalidateRegion(const uint32 startAddress, const uint32 endAddress);
+  void InvalidateRegion(const uint32 startAddress, const uint32 endAddress)
+  {
+    uint32 address = startAddress;
+
+    while(address <= endAddress)
+    {
+      InvalidateEntry(address);
+      address++;
+    }
+  }
 
   NativeCodeCacheEntry* FindEntry(const uint32 address) const
   {

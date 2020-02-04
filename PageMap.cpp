@@ -113,14 +113,3 @@ void PageMap::Invalidate(void)
     }
   }
 }
-
-void PageMap::InvalidateRegion(const uint32 start, const uint32 end)
-{
-  uint32 address = start;
-
-  while(address <= end)
-  {
-    InvalidateEntry(address);
-    address++;
-  }
-}

@@ -859,16 +859,15 @@ void SuperBlock::UpdateDependencyInfo()
   }
 }
 
-#define ALLOW_NATIVE_CODE_EMIT true;
+#define ALLOW_NATIVE_CODE_EMIT true
 
 int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContainsBranch)
 {
-  InstructionCacheEntry packet;
   uint32 decodeOptions = (DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST | DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST);
   bCanEmitNativeCode = ALLOW_NATIVE_CODE_EMIT;
   bool bFirstNonNOPReached = false;
   bool bForceILBlock = false;
-  
+
   bContainsBranch = false;
 
   nextDelayCounter = 0;
@@ -876,15 +875,16 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
   numInstructions = 0;
 
   startAddress = packetAddress;
-  exitAddress = packetAddress;
 
   //If the starting address is in the imaginary overlay region (0x20308000,0x2FF07FFF), mask the ending address so that it is within
   //the real IRAM region of (20300000,20307FFF).  The starting address should not be modified as it is used as the lookup key.
 
   if((startAddress < MPE1_ADDR_BASE) && (startAddress >= (MPE_IRAM_BASE + OVERLAY_SIZE)))
   {
-    exitAddress = packetAddress = (packetAddress & (0xFFF00000 | (OVERLAY_SIZE - 1)));
+    packetAddress = (packetAddress & (0xFFF00000 | (OVERLAY_SIZE - 1)));
   }
+
+  exitAddress = packetAddress;
 
   packetsProcessed = 0;
 
@@ -897,6 +897,7 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
 
   while(packetCounter > 0)
   {
+    InstructionCacheEntry packet;
     packet.pcexec = packetAddress;
 
     mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),packet, decodeOptions);
