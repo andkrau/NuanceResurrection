@@ -881,7 +881,7 @@ void VidConfig(MPE &mpe)
   }
   else
   {
-    mpe.regs[0] = VIDEO_MODE_NTSC;
+    mpe.regs[0] = 1;
     return; // leave unchanged from last call
   }
 
@@ -895,11 +895,7 @@ void VidConfig(MPE &mpe)
     SwapScalarBytes((uint32 *)&mainchannel.src_width);
     SwapScalarBytes((uint32 *)&mainchannel.src_height);
     if(mainchannel.base == 0)
-    {
-      //mpe.regs[0] = VIDEO_MODE_NTSC;
-      //return;
       mainchannel.base = structMainChannel.base;
-    }
   }
 
   VidChannel osdchannel;
@@ -912,11 +908,7 @@ void VidConfig(MPE &mpe)
     SwapScalarBytes((uint32 *)&osdchannel.src_width);
     SwapScalarBytes((uint32 *)&osdchannel.src_height);
     if(osdchannel.base == 0)
-    {
-      //mpe.regs[0] = VIDEO_MODE_NTSC;
-      //return;
       osdchannel.base = structOverlayChannel.base;
-    }
   }
 
   bool bUpdateOpenGLData = false;
@@ -1127,7 +1119,7 @@ void VidConfig(MPE &mpe)
     UpdateTextureStates();
   }
 
-  mpe.regs[0] = VIDEO_MODE_NTSC;
+  mpe.regs[0] = 1;
 }
 
 void VidSetup(MPE &mpe)

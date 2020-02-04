@@ -270,7 +270,8 @@ void MPE::DecodeInstruction_ECU16(const uint8 * const iPtr, InstructionCacheEntr
     {
       //HALT
       entry->nuances[FIXED_FIELD(SLOT_ECU,FIELD_ECU_HANDLER)] = Handler_Halt;
-      entry->packetInfo |= (PACKETINFO_NEVERCOMPILE | PACKETINFO_EXCEPTION);    
+      entry->packetInfo |= (PACKETINFO_NEVERCOMPILE | PACKETINFO_EXCEPTION);
+      entry->nuances[FIXED_FIELD(SLOT_ECU, FIELD_ECU_CONDITION)] = 0; // to avoid uninited mem below
     }
   }
 

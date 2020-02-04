@@ -41,7 +41,7 @@ GLWindow::GLWindow()
     x = 0;
     y = 0;
   }
-  windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_THICKFRAME;
+  windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME;
   windowExtendedStyle = WS_EX_APPWINDOW;
   fullScreenWindowStyle = WS_POPUP;
   fullScreenWindowStyle = WS_EX_APPWINDOW | WS_EX_TOPMOST;

@@ -375,9 +375,7 @@ INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPAR
           {
 Run:
             uint32 bpAddr = 0;
-
-            FILE *inFile;
-            inFile = fopen("breakpoint.txt","r");
+            FILE *inFile = fopen("breakpoint.txt","r");
 
             if(inFile)
             {

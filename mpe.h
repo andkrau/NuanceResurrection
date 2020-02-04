@@ -193,19 +193,6 @@ bit ECU instructions and TestConditionCode.
 #define BilinearInfo_XYWidth(data) ((data) & 0x7FFUL)
 #define BilinearInfo_PixelWidth(table,data) ((table)[((data) >> 20) & 0x0FUL])
 
-struct sBilinearInfo
-{
-  uint32 xy_mipmap;
-  uint32 xy_type;
-  uint32 x_tile;
-  uint32 y_tile;
-  uint32 xy_width;
-  uint32 pixel_width;
-  bool x_rev;
-  bool y_rev;
-  bool xy_chnorm;
-};
-
 #define REGINDEX_CC (0UL)
 #define REGINDEX_RC0 (1UL)
 #define REGINDEX_RC1 (2UL)
@@ -345,9 +332,7 @@ public:
   uint32 breakpointAddress;
   uint32 ecuSkipCounter;
   uint64 cycleCounter;
-  uint64 cacheMissCounter;
 
-  uint8 bUsingCompositeFlags;
   uint32 strictMemoryPolicyMiscInputDependencies;
   uint32 strictMemoryPolicyMiscOutputDependencies;
 
@@ -367,8 +352,8 @@ public:
   uint32 numInterpreterCacheFlushes;
   uint32 numNativeCodeCacheFlushes;
   uint32 numNonCompilablePackets;
-  uint32 mpeStartAddress;
-  uint32 mpeEndAddress;
+  //uint32 mpeStartAddress;
+  //uint32 mpeEndAddress;
   uint32 mpeIndex;
 
   uint32* pICacheEntryRegs; // pointer to 48 MPE Regs, always points to either reg_union or tempreg_union, which is then passed to the Nuances
@@ -380,12 +365,6 @@ public:
 
   uint8 *bankPtrTable[16];
 
-  sBilinearInfo sBIXY;
-  sBilinearInfo sBIUV;
-
-  uint32 strictMemoryMiscInputDependencies;
-  uint32 strictMemoryMiscOutputDependencies;
-  
   void AllocateMPELocalMemory();
   void FreeMPELocalMemory();
   uint8 DecodeSingleInstruction(const uint8 * const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt, bool &bTerminating);
@@ -456,6 +435,7 @@ public:
   bool LoadBinaryFile(uchar *filename, bool bIRAM);
 #endif
 
+#if 0
   bool ExecuteUntilAddress(const uint32 address)
   {
     breakpointAddress = address;
@@ -464,6 +444,7 @@ public:
 
     return status;
   }
+#endif
 
   inline void InvalidateICache()
   {

@@ -192,8 +192,8 @@ void MPE::DecodeInstruction_MEM16(const uint8 * const iPtr, InstructionCacheEntr
         //dest is 0x380
         entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] = field_3E0 & 0x1CUL;
 
-        entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK((field_1F & 0x1CUL));
-        entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK((field_3E0 & 0x1CUL));
+        entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1CUL);
+        entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_3E0 & 0x1CUL);
       }
       else
       {
@@ -379,7 +379,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           entry->packetInfo |= loadShortVectorAbsoluteFlags;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadShortVectorAbsolute;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] <<= 3;
-          entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK((field_1F0000 & 0x1C));
+          entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
 
           switch(*(iPtr + 3) >> 6)
           {
@@ -398,7 +398,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
         {
           //ld_v <label>, Vk
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] <<= 4;
-          entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK((field_1F0000 & 0x1C));
+          entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
 
           switch(*(iPtr + 3) >> 6)
           {
@@ -429,7 +429,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadPixelAbsolute;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_INFO)] = MEM_INFO_LINEAR_ABSOLUTE;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] <<= 1;
-          entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK((field_1F0000 & 0x1C));
+          entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
           entry->packetInfo |= loadPixelAbsoluteFlags;
 
           switch(*(iPtr + 3) >> 6)
@@ -560,14 +560,14 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
               entry->packetInfo |= loadShortVectorBilinearFlags;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadShortVectorBilinearUV;
               entry->miscInputDependencies[SLOT_MEM] = DEPENDENCY_MASK_UVCTL | DEPENDENCY_MASK_RU | DEPENDENCY_MASK_RV;
-              entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK((field_1F0000 & 0x1C));
+              entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
               break;
             case 0x0F:
               //ld_sv (xy),Vk
               entry->packetInfo |= loadShortVectorBilinearFlags;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadShortVectorBilinearXY;
               entry->miscInputDependencies[SLOT_MEM] = DEPENDENCY_MASK_XYCTL | DEPENDENCY_MASK_RX | DEPENDENCY_MASK_RY;
-              entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK((field_1F0000 & 0x1C));
+              entry->scalarOutputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
               break;
           }
           break;
@@ -582,7 +582,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
               entry->packetInfo |= loadVectorLinearFlags;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadVectorLinear;
               entry->scalarInputDependencies[SLOT_MEM] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000);
-              entry->miscInputDependencies[SLOT_MEM] = strictMemoryMiscInputDependencies;
+              entry->miscInputDependencies[SLOT_MEM] = 0xFFFFFFFF;
               break;
             case 0x01:
             case 0x02:
@@ -602,7 +602,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
               entry->packetInfo |= loadPixelLinearFlags;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadPixelLinear;
               entry->scalarInputDependencies[SLOT_MEM] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000);
-              entry->miscInputDependencies[SLOT_MEM] = strictMemoryMiscInputDependencies;
+              entry->miscInputDependencies[SLOT_MEM] = 0xFFFFFFFF;
               break;
             case 0x05:
               break;
@@ -623,7 +623,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
               entry->packetInfo |= loadPixelZLinearFlags;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadPixelZLinear;
               entry->scalarInputDependencies[SLOT_MEM] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000);
-              entry->miscInputDependencies[SLOT_MEM] = strictMemoryMiscInputDependencies;
+              entry->miscInputDependencies[SLOT_MEM] = 0xFFFFFFFF;
               break;
             case 0x09:
               break;
@@ -724,7 +724,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           entry->packetInfo |= storeShortVectorAbsoluteFlags;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StoreShortVectorAbsolute;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] <<= 3;
-          entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK((field_1F0000 & 0x1C));
+          entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
           switch(*(iPtr + 3) >> 6)
           {
             case 0:
@@ -743,7 +743,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           //st_v Vj, <label>
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StoreVectorAbsolute;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] <<= 4;
-          entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK((field_1F0000 & 0x1C));
+          entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
           switch(*(iPtr + 3) >> 6)
           {
             case 0:
@@ -774,7 +774,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StorePixelAbsolute;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_INFO)] = MEM_INFO_LINEAR_ABSOLUTE;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] <<= 1;
-          entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK((field_1F0000 & 0x1C));
+          entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
           switch(*(iPtr + 3) >> 6)
           {
             case 0:
@@ -795,7 +795,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StorePixelZAbsolute;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_INFO)] = MEM_INFO_LINEAR_ABSOLUTE;
           entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] <<= 1;
-          entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK((field_1F0000 & 0x1C));
+          entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
           //entry->packetInfo |= PACKETINFO_NEVERCOMPILE;
 
           switch(*(iPtr + 3) >> 6)

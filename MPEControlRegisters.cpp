@@ -193,7 +193,7 @@ uint32 MPE::ReadControlRegister(const uint32 address, const uint32 entrypRegs[48
       switch(address & 0x0F)
       {
         case 0x00:
-        //configa
+          //configa
           return configa;
         case 0x04:
           //configb: reserved
@@ -581,6 +581,7 @@ do_mdmacmd: // for batch commands
       SwapScalarBytes(&dmaflags);
       SwapScalarBytes(&baseaddr);
       SwapScalarBytes(&intaddr);
+
       switch((dmaflags >> 14) & 0x03UL)
       {
         case 0:
@@ -596,7 +597,7 @@ do_mdmacmd: // for batch commands
               return;
           }
           DMALinear(*this,dmaflags,baseaddr,intaddr);
-          if(dmaflags & (1UL << 30)) //!! was data before, but this should lead to potentially endless loops?
+          if(dmaflags & (1UL << 30)) // batch? -> repeat //!! was data before, but this should lead to potentially endless loops?
           {
             mdmacptr += 16;
             goto do_mdmacmd;
@@ -644,7 +645,7 @@ do_mdmacmd: // for batch commands
           SwapScalarBytes(&yptr);
           SwapScalarBytes(&intaddr);
           DMABiLinear(*this,dmaflags,baseaddr,xptr,yptr,intaddr);
-          if(dmaflags & (1UL << 30))
+          if(dmaflags & (1UL << 30)) // batch? -> repeat
           {
             mdmacptr += 16;
             goto do_mdmacmd;
