@@ -243,11 +243,6 @@ uint32 MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
   return 0;
 }
 
-inline uint32 MemoryManager::AlignAddress(uint32 address, uint32 alignment)
-{
-  return (address + alignment - 1) & (~(alignment - 1));
-}
-
 /*
 void WriteFreeBlocks(FILE *f, TList *t)
 {

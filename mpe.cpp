@@ -792,8 +792,6 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
   EmitterVariables emitvars;
   emitvars.mpe = this;
   emitvars.codeCache = nativeCodeCache;
-  emitvars.regBase = (uint32)&cc;
-  emitvars.tempRegBase = (uint32)&tempCC;
   emitvars.ppEmitLoc = nativeCodeCache->GetEmitPointerAddress();
   emitvars.patchMgr = nativeCodeCache->patchMgr;
   nativeCodeCache->SetEmitVars(emitvars);

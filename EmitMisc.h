@@ -18,8 +18,6 @@ public:
   NativeCodeCache *codeCache;
   PatchManager *patchMgr;
   InstructionEntry *pInstructionEntry;
-  int32 regBase;
-  int32 tempRegBase;
   uint32 scalarRegDep;
   uint32 miscRegDep;
   uint32 scalarRegOutDep;
