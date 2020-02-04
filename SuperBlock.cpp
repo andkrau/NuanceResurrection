@@ -268,7 +268,7 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
 
   if((compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE) || (compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK))
   {
-    uint8 * const entryPoint = codeCache.LockBuffer(NULL,0);
+    uint8 * const entryPoint = codeCache.GetEmitPointer();
     Nuance* ptrEmitNuance = (Nuance *)entryPoint;
 
     for(uint32 i = numInstructions; i > 0; i--)
@@ -332,14 +332,14 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
   }
   else if(compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
   {
-    uint8 * const entryPoint = codeCache.LockBuffer(NULL,4);
+    uint8 * const entryPoint = codeCache.GetEmitPointer();
     codeCache.GetEmitVars()->pInstructionEntry = pInstruction;
     
     if(numInstructions > 0)
     {
       codeCache.X86Emit_PUSHAD();
-      codeCache.X86Emit_MOVIR(codeCache.GetEmitVars()->regBase, x86Reg_esi);
-      codeCache.X86Emit_MOVIR(codeCache.GetEmitVars()->tempRegBase, x86Reg_edi);
+      codeCache.X86Emit_MOVIR((uint32)&(codeCache.GetEmitVars()->mpe->cc), x86Reg_esi);
+      codeCache.X86Emit_MOVIR((uint32)&(codeCache.GetEmitVars()->mpe->tempCC), x86Reg_edi);
       if(bContainsBranch)
       {
         codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr_dword, (uint32)&(codeCache.GetEmitVars()->mpe->pcfetchnext));

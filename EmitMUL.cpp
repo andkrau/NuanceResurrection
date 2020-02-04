@@ -1202,7 +1202,7 @@ void Emit_MUL_SVScalarShiftSvshift(EmitterVariables * const vars, const Nuance &
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+4);
   vars->codeCache->X86Emit_MOVRM(x86Reg_edx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+8);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebp, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+12);
-  vars->codeCache->X86Emit_MOVIR(vars->regBase, x86Reg_esi);
+  vars->codeCache->X86Emit_MOVIR((uint32)&(vars->mpe->cc), x86Reg_esi);
 }
 
 void Emit_MUL_SVRuShiftImmediate(EmitterVariables * const vars, const Nuance &nuance)
@@ -1311,7 +1311,7 @@ void Emit_MUL_SVRuShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+4);
   vars->codeCache->X86Emit_MOVRM(x86Reg_edx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+8);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebp, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+12);
-  vars->codeCache->X86Emit_MOVIR(vars->regBase, x86Reg_esi);
+  vars->codeCache->X86Emit_MOVIR((uint32)&(vars->mpe->cc), x86Reg_esi);
 }
 
 void Emit_MUL_SVRvShiftImmediate(EmitterVariables * const vars, const Nuance &nuance)
@@ -1418,7 +1418,7 @@ void Emit_MUL_SVRvShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+4);
   vars->codeCache->X86Emit_MOVRM(x86Reg_edx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+8);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebp, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+12);
-  vars->codeCache->X86Emit_MOVIR(vars->regBase, x86Reg_esi);
+  vars->codeCache->X86Emit_MOVIR((uint32)&(vars->mpe->cc), x86Reg_esi);
 }
 
 void Emit_MUL_SVVectorShiftImmediate(EmitterVariables * const vars, const Nuance &nuance)
@@ -1898,7 +1898,7 @@ void Emit_MUL_PVectorShiftImmediate(EmitterVariables * const vars, const Nuance 
     vars->codeCache->X86Emit_SHLIR(x86Reg_ecx, shift);
     vars->codeCache->X86Emit_SHLIR(x86Reg_ebx, shift);
   }
-  vars->codeCache->X86Emit_MOVIR(vars->regBase, x86Reg_esi);
+  vars->codeCache->X86Emit_MOVIR((uint32)&(vars->mpe->cc), x86Reg_esi);
   vars->codeCache->X86Emit_MOVRM(x86Reg_eax, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+0);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ecx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+4);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+8);
@@ -2126,7 +2126,7 @@ void Emit_DOTPVectorShiftSvshift(EmitterVariables * const vars, const Nuance &nu
   vars->codeCache->X86Emit_IMULRRR(x86Reg_ebx, x86Reg_ebp);
   vars->codeCache->X86Emit_IMULRRR(x86Reg_esi, x86Reg_ecx);
   vars->codeCache->X86Emit_ADDRR(x86Reg_ebx, x86Reg_esi);
-  vars->codeCache->X86Emit_MOVIR(vars->regBase, x86Reg_esi);
+  vars->codeCache->X86Emit_MOVIR((uint32)&(vars->mpe->cc), x86Reg_esi);
   vars->codeCache->X86Emit_ADDRR(x86Reg_eax, x86Reg_ebx);
 
   vars->codeCache->X86Emit_MOVIR(16, x86Reg_ebp);

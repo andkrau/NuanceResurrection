@@ -68,6 +68,7 @@ public:
     return (uint32)(pEmitLoc - ptrNativeCodeBuffer);
   }
 
+#if 0
   uint8 *LockBuffer(uint32 * const pByteCount, const uint32 alignment)
   {
     if(pByteCount)
@@ -75,6 +76,7 @@ public:
 
     return pEmitLoc;
   }
+#endif
 
   uint32 GetTotalCodeBufferSize() const
   {
@@ -468,6 +470,7 @@ public:
 
   void X86Emit_EMMS();
   void X86Emit_FEMMS();
+
   PatchManager *patchMgr;
 
 private:

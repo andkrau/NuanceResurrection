@@ -34,7 +34,10 @@ public:
   }
 
 private:
-  uint32 AlignAddress(uint32 address, uint32 alignment);
+  uint32 AlignAddress(const uint32 address, const uint32 alignment)
+  {
+    return (address + alignment - 1) & (~(alignment - 1));
+  }
   bool TestForInvalidPowerOfTwo(uint32 requestedAlignment);
 
   uint32 maxBytes;
