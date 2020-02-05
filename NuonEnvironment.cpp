@@ -25,19 +25,6 @@ static bool bFMODInitialized = false;
 static FSOUND_STREAM *audioStream;
 static int audioChannel = 0;
 
-void NuonEnvironment::TriggerAudioInterrupt(void)
-{
-  if(bAudioInterruptsEnabled)
-    for(uint32 i = 0; i < 4; ++i)
-      mpe[i].TriggerInterrupt(INT_AUDIO);
-}
-
-void NuonEnvironment::TriggerVideoInterrupt(void)
-{
-  for(uint32 i = 0; i < 4; ++i)
-    mpe[i].TriggerInterrupt(INT_VIDTIMER);
-}
-
 class AudioCallbacks
 {
 public:
@@ -311,7 +298,7 @@ void *NuonEnvironment::GetPointerToSystemMemory(const uint32 address, const bool
 void NuonEnvironment::WriteFile(MPE &MPE, uint32 fd, uint32 buf, uint32 len)
 {
   char * const pBuf = (char *)GetPointerToMemory(MPE, buf, false);
-  char tempChar = pBuf[len];
+  const char tempChar = pBuf[len];
   pBuf[len] = '\0';
 
   switch(fd)
@@ -366,6 +353,8 @@ void NuonEnvironment::Init()
   bAudioInterruptsEnabled = true;
 
   trigger_render_video = false;
+
+  schedule_intsrc = 0;
 
   for(uint32 i = 0; i < 4; i++)
     mpe[i].Init(i, mainBusDRAM, systemBusDRAM, flashEEPROM->GetBasePointer());

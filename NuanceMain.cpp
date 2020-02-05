@@ -835,6 +835,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       nuonEnv.mpe[2].FetchDecodeExecute();
       nuonEnv.mpe[1].FetchDecodeExecute();
       nuonEnv.mpe[0].FetchDecodeExecute();
+
+      nuonEnv.TriggerScheduledInterrupts();
+
       if(nuonEnv.pendingCommRequests)
         DoCommBusController();
 

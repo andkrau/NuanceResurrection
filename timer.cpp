@@ -31,10 +31,7 @@ void CALLBACK SysTimer0Callback(void* lpParameter,BOOLEAN TimerOrWaitFired)
 void CALLBACK SysTimer0Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2)
 #endif
 { 
-  nuonEnv.mpe[0].TriggerInterrupt(INT_SYSTIMER0);
-  nuonEnv.mpe[1].TriggerInterrupt(INT_SYSTIMER0);
-  nuonEnv.mpe[2].TriggerInterrupt(INT_SYSTIMER0);
-  nuonEnv.mpe[3].TriggerInterrupt(INT_SYSTIMER0);
+  nuonEnv.ScheduleInterrupt(INT_SYSTIMER0);
 } 
 
 #ifdef USE_QUEUE_TIMERS
@@ -43,10 +40,7 @@ void CALLBACK SysTimer1Callback(void* lpParameter, BOOLEAN TimerOrWaitFired)
 void CALLBACK SysTimer1Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2)
 #endif
 { 
-  nuonEnv.mpe[0].TriggerInterrupt(INT_SYSTIMER1);
-  nuonEnv.mpe[1].TriggerInterrupt(INT_SYSTIMER1);
-  nuonEnv.mpe[2].TriggerInterrupt(INT_SYSTIMER1);
-  nuonEnv.mpe[3].TriggerInterrupt(INT_SYSTIMER1);
+  nuonEnv.ScheduleInterrupt(INT_SYSTIMER1);
 }
 
 // this one is set by InitBios for mpe[3] at ~60Hz
