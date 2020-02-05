@@ -57,8 +57,33 @@ public:
     return dvdBase;
   }
 
-  void TriggerAudioInterrupt(void);
-  void TriggerVideoInterrupt(void);
+  void TriggerAudioInterrupt(void)
+  {
+    if(bAudioInterruptsEnabled)
+      ScheduleInterrupt(INT_AUDIO);
+  }
+
+  void TriggerVideoInterrupt(void)
+  {
+    ScheduleInterrupt(INT_VIDTIMER);
+  }
+
+  LONG schedule_intsrc;
+
+  inline void ScheduleInterrupt(const uint32 which)
+  {
+    _InterlockedOr(&schedule_intsrc,(LONG)which);
+  }
+
+  inline void TriggerScheduledInterrupts()
+  {
+    const uint32 which = _InterlockedExchange(&schedule_intsrc,(LONG)0);
+    if(which)
+    {
+      for(int i = 0; i < 4; ++i)
+        mpe[i].TriggerInterrupt(which);
+    }
+  }
 
   void SetDVDBaseFromFileName(const char* const filename);
 
