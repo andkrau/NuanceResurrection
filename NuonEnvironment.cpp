@@ -25,10 +25,6 @@ static bool bFMODInitialized = false;
 static FSOUND_STREAM *audioStream;
 static int audioChannel = 0;
 
-class AudioCallbacks
-{
-public:
-
   static void ConvertNuonAudioData(const uint8 * const pNuonAudioBuffer, uint8 * const pPCAudioBuffer, const uint32 numBytes)
   {
     assert((numBytes % 4) == 0);
@@ -75,9 +71,6 @@ public:
 
     return FALSE;
   }
-};
-
-AudioCallbacks audioCallbacks;
 
 //InitAudio: Initialize sound library, create audio stream
 //Playback rate is 44100 Hz, Format is signed 16 bit stereo samples

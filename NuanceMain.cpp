@@ -528,10 +528,10 @@ bool OnDisplayPaint(WPARAM wparam, LPARAM lparam)
     RenderVideo(display.clientWidth,display.clientHeight);
   else
   {
-    gfx_lock.lock();
+    if(bUseSeparateThread) gfx_lock.lock();
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();
-    gfx_lock.unlock();
+    if(bUseSeparateThread) gfx_lock.unlock();
   }
 
   return true;
@@ -539,7 +539,7 @@ bool OnDisplayPaint(WPARAM wparam, LPARAM lparam)
 
 bool OnDisplayResize(uint16 width, uint16 height)
 {
-  gfx_lock.lock();
+  if(bUseSeparateThread) gfx_lock.lock();
 
   glViewport(0,0,width,height);
 
@@ -558,7 +558,7 @@ bool OnDisplayResize(uint16 width, uint16 height)
 
   glClear(GL_COLOR_BUFFER_BIT);
 
-  gfx_lock.unlock();
+  if(bUseSeparateThread) gfx_lock.unlock();
 
   OnDisplayPaint(0,0);
 

@@ -37,6 +37,7 @@ public:
 
   GLWindow();
   ~GLWindow();
+
   bool Create();
   void MessagePump();
   void ToggleFullscreen();
@@ -50,19 +51,23 @@ public:
   GLWINDOW_CALLBACK closeQueryHandler;
   GLWINDOW_CALLBACK destroyHandler;
   GLWINDOW_CALLBACK paintHandler;
-protected:
 
+private:
   void OnResize(int width, int height);
   bool CreateWindowGL();
   bool RegisterWindowClass();
   void CleanUp();
+  bool ChangeScreenResolution(int width, int height);
+
   static DWORD WINAPI GLWindowMain(void *glWindow);
   static LRESULT CALLBACK GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-  bool ChangeScreenResolution(int width, int height);
-  unsigned long threadID;
+
+  HANDLE threadHandle;
+  DWORD threadID;
+
   uint32 windowStyle, windowExtendedStyle;
   uint32 fullScreenWindowStyle, fullScreenWindowExtendedStyle;
-  HANDLE threadHandle;
+
   int restoreWidth;
   int restoreHeight;
   int restoreX;

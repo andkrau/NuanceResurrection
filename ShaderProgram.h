@@ -28,7 +28,7 @@ public:
   GLhandleARB GetVertexShaderObject() { return hVertexShaderObject; }
   GLhandleARB GetFragmentShaderObject() { return hFragmentShaderObject; }
 
-protected:
+private:
   GLhandleARB hVertexShaderObject;
   GLhandleARB hFragmentShaderObject;
   GLhandleARB hProgramObject;
