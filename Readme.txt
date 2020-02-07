@@ -379,6 +379,7 @@ Optimizations
 Always enable Pixel Shaders and fully support mode 2
 Remove fields per second and always update video setting in cfg
 Support Nuons VSyncing if machine is emulating 'too fast'
+Fix fullscreen toggle (via F1/ESC)
 Rudimentary support for x64/64bit compiles, needs to disable dynamic compiler though
 
 5/30/2007, version 0.5.0:

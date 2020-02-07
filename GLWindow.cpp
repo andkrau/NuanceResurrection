@@ -1,4 +1,3 @@
-//!! fullscreen window? what and how does bFullScreen work?
 #include "basetypes.h"
 #include <windows.h>
 #include <mutex>
@@ -417,7 +416,7 @@ void GLWindow::CleanUp()
 {
   if(hWnd)
   {
-    gfx_lock.lock();
+    if(bUseSeparateThread) gfx_lock.lock();
 		if(hDC)
 		{
 			wglMakeCurrent(hDC, 0);
@@ -431,7 +430,7 @@ void GLWindow::CleanUp()
 		}
 		DestroyWindow(hWnd);
 		hWnd = 0;
-    gfx_lock.unlock();
+    if(bUseSeparateThread) gfx_lock.unlock();
   }
 
   if(bFullScreen)
@@ -558,10 +557,10 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       }
       else
       {
-        gfx_lock.lock();
+        if(bUseSeparateThread) gfx_lock.lock();
         glClear(GL_COLOR_BUFFER_BIT);
         glFlush();
-        gfx_lock.unlock();
+        if(bUseSeparateThread) gfx_lock.unlock();
       }
       EndPaint(hWnd,&ps);
       break;
@@ -718,11 +717,11 @@ DWORD WINAPI GLWindow::GLWindowMain(void *param)
   {
     glWindow->OnResize(glWindow->clientWidth,glWindow->clientHeight);
     
-    gfx_lock.lock();
+    if(bUseSeparateThread) gfx_lock.lock();
     const GLenum err = glewInit();
     if (err != GLEW_OK)
       MessageBox(NULL, (char*)glewGetErrorString(err), "Error", MB_ICONWARNING);
-    gfx_lock.unlock();
+    if(bUseSeparateThread) gfx_lock.unlock();
 
     if(bUseSeparateThread)
     {

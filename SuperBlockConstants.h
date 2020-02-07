@@ -225,7 +225,7 @@ public:
   PropagateConstantsStatusStruct status;
   bool bConstantPropagated;
 
-protected:
+private:
   uint32 currentInstructionIndex;
   uint32 tempScalarRegisterConstants[32];
   uint32 tempMiscRegisterConstants[32];
