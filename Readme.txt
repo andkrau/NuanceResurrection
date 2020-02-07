@@ -1,6 +1,6 @@
 Nuance 0.5.0
 Copyright 2002 - 2007 Mike Perry
-Continued with the released source by Carsten Wächter in 2020
+Continued using the released source by Carsten Wächter in 2020
 NUON is a trademark of Genesis Microchip, Inc.
 
 License Agreement
@@ -25,12 +25,14 @@ you lose unsaved data while playing with it, don't say that I didn't warn you.
 
 Requirements
 ============
-This emulator requires SSE2 instruction support, at least 128 Megabytes 
-of RAM, and an OpenGL 1.5 implementation with support for GLSL.
+This emulator requires SSE2 instruction support, at least 200 Megabytes 
+of free RAM, and an OpenGL 1.5 implementation with support for GLSL.
 
 The emulator is completely and utterly CPU bound.  Machines 
-that do not meet the minimum requirements may even suffer reduced performance when 
-running the less demanding SDK demos.
+that do not meet minimum requirements may even suffer reduced performance when 
+running the less demanding SDK demos, or may hang on certain game situations
+(in the latter case try disabling AudioInterrupts in the 'nuance.cfg', at
+the cost of missing or screwed up sound).
 
 Installation
 ============
@@ -305,7 +307,14 @@ Interrupts:
 
 Interrupts are fully supported but hardware specific interrupts such as
 VDP interrupts are not emulated.  Comm, timer, VDG and software interrupts
-should behave as expected.
+should behave as expected. Note though that timer, video and audio interrupts
+(and also VSyncs) are triggered (mostly) at an 'ideal'/PC-based-timing, so that the
+emulator will behave as an "over- or under-clocked" Nuon to Nuon-apps, which so far
+all tested apps seem to be able to cope with though, as they feature some variant
+of a syncing mechanism to not run too slow or fast. The benefit of doing emulation
+like this is, that sound and gameplay will (mostly) run at the intended speed even
+when running the emulator on a PC that will not be able to match 50/60 fps (full
+cycle emulation speed).
 
 Comm Bus support:
 
@@ -372,15 +381,16 @@ Z: switch between controller 0 and controller 1
 
 History
 =======
-Fix corrupted gfx in T3K
-Fix wrong DMAs in Ballistic and Merlin Racing
+Fix corrupted gfx in (at least) T3K
+Fix wrong DMAs in Ballistic and Merlin Racing (so that these display more correct now)
 (Mostly) fix distorted sound
-Optimizations
+Optimizations all over the place (memory and performance)
 Always enable Pixel Shaders and fully support mode 2
-Remove fields per second and always update video setting in cfg
-Support Nuons VSyncing if machine is emulating 'too fast'
+Remove fields per second and always update video settings in the 'nuance.cfg'
+Support Nuons VSyncing mechanism if a PC is emulating 'too fast'
+Resolve a lot of hangs during gameplay, although this can still happen in some demanding situations (especially on low end PCs)
 Fix fullscreen toggle (via F1/ESC)
-Rudimentary support for x64/64bit compiles, needs to disable dynamic compiler though
+Rudimentary support for x64/64bit compiles, needs to force-disable dynamic compiler though
 
 5/30/2007, version 0.5.0:
   Fixed tons of compiler bugs.  Fixed TimeToSleep routine, allowing Snake to work again.  

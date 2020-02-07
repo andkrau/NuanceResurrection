@@ -415,7 +415,7 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
   return false;
 }
 
-NativeCodeCacheEntryPoint SuperBlock::CompileBlock(MPE * const mpe, const uint32 address, NativeCodeCache &codeCache, const SuperBlockCompileType compileType, const bool bLimitToSinglePacket, bool &bError)
+NativeCodeCacheEntryPoint SuperBlock::CompileBlock(const uint32 address, NativeCodeCache &codeCache, const SuperBlockCompileType compileType, const bool bLimitToSinglePacket, bool &bError)
 {
   const NativeCodeCacheEntryPoint entryPoint = (NativeCodeCacheEntryPoint)codeCache.GetEmitPointer();
   bCanEmitNativeCode = true;
@@ -429,7 +429,7 @@ NativeCodeCacheEntryPoint SuperBlock::CompileBlock(MPE * const mpe, const uint32
 
   //Step 1, fetch the block (or superblock)
   //int32 fetchSuperBlockResult; //!! never used
-  if((/*fetchSuperBlockResult =*/ FetchSuperBlock(*mpe,address,bContainsBranch)) <= 0)
+  if((/*fetchSuperBlockResult =*/ FetchSuperBlock(address,bContainsBranch)) <= 0)
   {
     //For whatever reason, no entries were added to the instruction list.  This is most likely due to the first instruction candidate being
     //a delayed branch followed by an instruction that cannot be compiled in a delay slot such as a control register memory operation or
@@ -861,7 +861,7 @@ void SuperBlock::UpdateDependencyInfo()
 
 #define ALLOW_NATIVE_CODE_EMIT true
 
-int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContainsBranch)
+int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
 {
   uint32 decodeOptions = (DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST | DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST);
   bCanEmitNativeCode = ALLOW_NATIVE_CODE_EMIT;
@@ -890,17 +890,12 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
 
   int32 packetCounter = bSinglePacket ? 1 : MAX_SUPERBLOCK_PACKETS;
 
-  //if(startAddress == 0x800265e0)
-  {
-    //startAddress = 0x800265e0;
-  }
-
   while(packetCounter > 0)
   {
     InstructionCacheEntry packet;
     packet.pcexec = packetAddress;
 
-    mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),packet, decodeOptions);
+    pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(*pMPE,packetAddress,false),packet, decodeOptions);
     packetAddress = packet.pcroute;
 
     packetsProcessed++;
@@ -923,24 +918,26 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
           bContainsBranch = true;
 
           if(packet.packetInfo & PACKETINFO_BRANCH_ALWAYS)
-          {
             decodeOptions |= DECOMPRESS_OPTIONS_INHIBIT_ECU;
-          }
 
-          //if(!IsBranchConditionCompilable(startAddress, mpe.mpeIndex, packet.ecuConditionCode))// || (numPackets != 0))
-          //{
-          //  goto non_compilable_packet;
-          //}
+          /*if(!IsBranchConditionCompilable(startAddress, pMPE->mpeIndex, packet.ecuConditionCode))// || (numPackets != 0))
+          {
+            //Packet contains non-compilable instruction: don't add it to the list and stop adding packets
+            //Don't modify the current value of the delay counter
+            exitAddress = packet.pcexec;
+            packetsProcessed--;
+            break;
+          }*/
 
           if(!(packet.packetInfo & PACKETINFO_BRANCH_NOP))
           {
             InstructionCacheEntry packetDelaySlot1, packetDelaySlot2;
             //Delayed branch with explicit delay slot instructions
             packetDelaySlot1.pcexec = packetAddress;
-            mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),packetDelaySlot1, decodeOptions);
+            pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(*pMPE,packetAddress,false),packetDelaySlot1, decodeOptions);
             packetAddress = packetDelaySlot1.pcroute;
             packetDelaySlot2.pcexec = packetAddress;
-            mpe.DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(mpe,packetAddress,false),packetDelaySlot2, decodeOptions);
+            pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(*pMPE,packetAddress,false),packetDelaySlot2, decodeOptions);
             packet.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
             packetDelaySlot1.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
             packetDelaySlot2.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
@@ -949,18 +946,17 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
 
             if(((packetDelaySlot1.packetInfo|packetDelaySlot2.packetInfo) & (PACKETINFO_MEMORY_IO|PACKETINFO_MEMORY_INDIRECT|PACKETINFO_ECU|PACKETINFO_NEVERCOMPILE)))
             {
+              //Packet contains non-compilable instruction: don't add it to the list and stop adding packets
+              //Don't modify the current value of the delay counter
+              exitAddress = packet.pcexec;
+              packetsProcessed--;
+              break;
+
               if(!bFirstNonNOPReached)
-              {
-                goto non_compilable_packet;
-                bForceILBlock = true;
-              }
-              else
-              {
-                goto non_compilable_packet;
-              }
+                bForceILBlock = true; //!! after break, see also below?!
             }
  
-            if(!((packetDelaySlot1.packetInfo|packetDelaySlot2.packetInfo) & (PACKETINFO_MEMORY_IO|PACKETINFO_MEMORY_INDIRECT|PACKETINFO_ECU|PACKETINFO_NEVERCOMPILE)) 
+            if(!((packetDelaySlot1.packetInfo | packetDelaySlot2.packetInfo) & (PACKETINFO_MEMORY_IO|PACKETINFO_MEMORY_INDIRECT|PACKETINFO_ECU|PACKETINFO_NEVERCOMPILE)) 
               || bForceILBlock)
             {
               AddPacketToList(packet,numPackets);
@@ -972,7 +968,7 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
 
               if(bForceILBlock)
               {
-                //goto force_il_block;
+                //goto force_il_block; //!! ???
               }
 
               if((!(packetDelaySlot1.packetInfo & PACKETINFO_NOP) && (packetDelaySlot1.nuanceCount != 0)) || bForceILBlock)
@@ -996,19 +992,21 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
               packetCounter--;
 
               packetsProcessed += 2;
-              packetCounter = 0;
+              packetCounter = 0; //!! ?? never used again anyway
 
-              exitAddress = packetDelaySlot2.pcroute;           
+              exitAddress = packetDelaySlot2.pcroute;
 //force_il_block:
               if(bForceILBlock)
-              {
                 bCanEmitNativeCode = false;
-              }
               break;
             }
             else
             {
-              goto non_compilable_packet;
+              //Packet contains non-compilable instruction: don't add it to the list and stop adding packets
+              //Don't modify the current value of the delay counter
+              exitAddress = packet.pcexec;
+              packetsProcessed--;
+              break;
             }
           }
           else
@@ -1043,7 +1041,6 @@ int32 SuperBlock::FetchSuperBlock(MPE &mpe, uint32 packetAddress, bool &bContain
       }
       else
       {
-non_compilable_packet:
         //Packet contains non-compilable instruction: don't add it to the list and stop adding packets
         //Don't modify the current value of the delay counter
         exitAddress = packet.pcexec;
@@ -1059,23 +1056,17 @@ non_compilable_packet:
       exitAddress = packet.pcroute;
       if(nextDelayCounter || !bAllowBlockCompile)
       //if(nextDelayCounter)
-      {
         packetCounter--;
-      }
     }
 
     if(nextDelayCounter > 1)
-    {
       nextDelayCounter--;
-    }
   }
 
   //Assume all instructions are live for now
   //Mark the last added instruction with SUPERBLOCKINFO_SYNC to ensure EliminateDeadCode works.
   if(numInstructions)
-  {
-    instructions[numInstructions - 1].flags |= SUPERBLOCKINFO_SYNC;
-  }
+    instructions[numInstructions-1].flags |= SUPERBLOCKINFO_SYNC;
 
   return packetsProcessed;
 }

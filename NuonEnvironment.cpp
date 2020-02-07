@@ -56,13 +56,13 @@ static int audioChannel = 0;
     if(!position)
     {
       ConvertNuonAudioData(&pNuonAudioBuffer[len], (uint8 *)buff, len); // kinda double buffering in here
-      if((nuonEnv.nuonAudioChannelMode & ENABLE_WRAP_INT) && !nuonEnv.bUseCycleBasedTiming)
+      if((nuonEnv.nuonAudioChannelMode & ENABLE_WRAP_INT) && !nuonEnv.bUseCycleBasedTiming) // =all of the buffer done -> wrap now
         nuonEnv.TriggerAudioInterrupt();
     }
     else
     {
       ConvertNuonAudioData(pNuonAudioBuffer, (uint8 *)buff, len); // kinda double buffering in here
-      if((nuonEnv.nuonAudioChannelMode & ENABLE_HALF_INT) && !nuonEnv.bUseCycleBasedTiming)
+      if((nuonEnv.nuonAudioChannelMode & ENABLE_HALF_INT) && !nuonEnv.bUseCycleBasedTiming) // =half the buffer done?!
         nuonEnv.TriggerAudioInterrupt();
     }
     position = !position;

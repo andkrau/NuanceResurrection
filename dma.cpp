@@ -1711,7 +1711,7 @@ void DMADo(MPE &mpe)
     //mdmacptr
     mpe.mdmacptr = cmdBlock;
 
-do_mdmacmd:
+    while(true) {
     const uint32* const cmdptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,cmdBlock,false);
     uint32 dmaflags = *cmdptr;
     uint32 baseaddr = *(cmdptr + 1);
@@ -1725,12 +1725,7 @@ do_mdmacmd:
       case 0:
         //linear DMA
         DMALinear(mpe,dmaflags,baseaddr,intaddr);
-        if(dmaflags & (1UL << 30)) // batch? -> repeat
-        {
-          mpe.mdmacptr += 16;
-          goto do_mdmacmd;
-        }
-        return;
+        break;
       case 3:
       {
         //bilinear pixel DMA
@@ -1740,15 +1735,16 @@ do_mdmacmd:
         SwapScalarBytes(&yptr);
         SwapScalarBytes(&intaddr);
         DMABiLinear(mpe,dmaflags,baseaddr,xptr,yptr,intaddr);
-        if(dmaflags & (1UL << 30)) // batch? -> repeat
-        {
-          mpe.mdmacptr += 16;
-          goto do_mdmacmd;
-        }
-        return;
+        break;
       }
       default:
         return;
+    }
+
+    if(dmaflags & (1UL << 30)) // batch? -> repeat the loop
+      mpe.mdmacptr += 16;
+    else
+      return;
     }
   }
 }

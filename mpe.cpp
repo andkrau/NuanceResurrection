@@ -1993,19 +1993,19 @@ bool MPE::FetchDecodeExecute()
 
     NativeCodeCacheEntry* pNativeCodeCacheEntry = 0;
     NativeCodeCacheEntryPoint nativeCodeCacheEntryPoint = 0;
-    InstructionCacheEntry* pInstructionCacheEntry = 0;
 
-    if(!(ecuSkipCounter | interpretNextPacket))
+    bool skip_to_execute_block = false;
+
+    const bool only_find_icache_entry = (ecuSkipCounter | interpretNextPacket) != 0;
+    if(!only_find_icache_entry)
     {
-//find_code_cache_entry:
       pNativeCodeCacheEntry = nativeCodeCache->GetPageMap()->FindEntry(pcexecLookupValue);
       if(pNativeCodeCacheEntry && (pNativeCodeCacheEntry->virtualAddress == pcexecLookupValue))
       {
         nativeCodeCacheEntryPoint = pNativeCodeCacheEntry->entryPoint;
-        goto execute_block;
+        skip_to_execute_block = true;
       }
-    
-      if(bInvalidateInterpreterCache)
+      else if(bInvalidateInterpreterCache)
       {
         numInterpreterCacheFlushes++;
         instructionCache->InvalidateRegion(interpreterInvalidateRegionStart, interpreterInvalidateRegionEnd);
@@ -2013,10 +2013,13 @@ bool MPE::FetchDecodeExecute()
         interpreterInvalidateRegionStart = 0xFFFFFFFFUL;
         interpreterInvalidateRegionEnd = 0x00000000;
       }
+    }
 
-      bool bCacheEntryValid;
-      pInstructionCacheEntry = instructionCache->FindInstructionCacheEntry(pcexec,bCacheEntryValid);
-      if(bCacheEntryValid && (pcexec == pInstructionCacheEntry->pcexec))
+    bool bCacheEntryValid;
+    InstructionCacheEntry* const pInstructionCacheEntry = !skip_to_execute_block ? instructionCache->FindInstructionCacheEntry(pcexec,bCacheEntryValid) : 0;
+    if(!skip_to_execute_block && bCacheEntryValid && (pcexec == pInstructionCacheEntry->pcexec))
+    {
+      if (!only_find_icache_entry)
       {
 //check_compile_threshhold:
         if(!(pInstructionCacheEntry->packetInfo & (PACKETINFO_COMPILED | PACKETINFO_NEVERCOMPILE)) && (pInstructionCacheEntry->frequencyCount >= COMPILE_THRESHOLD))
@@ -2072,40 +2075,32 @@ bool MPE::FetchDecodeExecute()
           if(pInstructionCacheEntry->frequencyCount == 0) // overflow?
             pInstructionCacheEntry->frequencyCount = ~0u;
         }
+      }
 
-        goto execute_block;
-      }
-    }
-    else
-    {
-//find_icache_entry:
-      bool bCacheEntryValid;
-      pInstructionCacheEntry = instructionCache->FindInstructionCacheEntry(pcexec,bCacheEntryValid);
-      if(bCacheEntryValid && (pcexec == pInstructionCacheEntry->pcexec))
-      {
-        goto execute_block;
-      }
+      skip_to_execute_block = true;
     }
 
-    pInstructionCacheEntry->pcexec = pcexec;
-    pInstructionCacheEntry->frequencyCount = 1;
-    if(pcexec < ROM_BIOS_BASE)
+    if(!skip_to_execute_block)
     {
-      DecompressPacket(GetPointerToMemoryBank(pcexec),*pInstructionCacheEntry,DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST);
-      if(((pcexec >= BIOS_JUMPTABLE_START) && (pcexec <= BIOS_JUMPTABLE_END)) || (pInstructionCacheEntry->packetInfo & PACKETINFO_BREAKPOINT))
+      pInstructionCacheEntry->pcexec = pcexec;
+      pInstructionCacheEntry->frequencyCount = 1;
+      if(pcexec < ROM_BIOS_BASE)
       {
+        DecompressPacket(GetPointerToMemoryBank(pcexec),*pInstructionCacheEntry,DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST);
+        if(((pcexec >= BIOS_JUMPTABLE_START) && (pcexec <= BIOS_JUMPTABLE_END)) || (pInstructionCacheEntry->packetInfo & PACKETINFO_BREAKPOINT))
+        {
+          pInstructionCacheEntry->packetInfo |= PACKETINFO_NEVERCOMPILE;
+        }
+      }
+      else
+      {
+        pInstructionCacheEntry->nuanceCount = 0;
+        pInstructionCacheEntry->pcroute = 0;
         pInstructionCacheEntry->packetInfo |= PACKETINFO_NEVERCOMPILE;
       }
+      instructionCache->SetEntryValid(pcexec);
     }
-    else
-    {
-      pInstructionCacheEntry->nuanceCount = 0;
-      pInstructionCacheEntry->pcroute = 0;
-      pInstructionCacheEntry->packetInfo |= PACKETINFO_NEVERCOMPILE;
-    }
-    instructionCache->SetEntryValid(pcexec);
 
-execute_block:
     interpretNextPacket = 0;
 
     //StopPerformanceTimer();
@@ -2118,6 +2113,7 @@ execute_block:
     }
 #endif
 
+    bool skip_to_halt_block = false;
     if(nativeCodeCacheEntryPoint)
     {
       assert(pNativeCodeCacheEntry);
@@ -2128,12 +2124,13 @@ execute_block:
       if(pNativeCodeCacheEntry->accessCount == 0) // overflow?
         pNativeCodeCacheEntry->accessCount = ~0;
 
+      prevPcexec = pcexec;
       if((pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK) || (pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE))
       {
         const uint32 nInstructions = pNativeCodeCacheEntry->numInstructions;
         const Nuance* pNuance = (Nuance *)nativeCodeCacheEntryPoint;
         bInterpretedBranchTaken = false;
-        prevPcexec = pcexec;
+
         for(uint32 i = 0; i < nInstructions; i++)
         {
           (nuanceHandlers[pNuance->fields[0]])(*this,pICacheEntryRegs,*pNuance);
@@ -2142,15 +2139,19 @@ execute_block:
           if(bInterpretedBranchTaken) // Execute_CheckECUSkipCounter can set this
           {
             pcexec = pcfetchnext;
-            goto check_for_halt;
+            skip_to_halt_block = true;
+            break;
           }
         }
-        pcexec = pNativeCodeCacheEntry->nextVirtualAddress;
-        goto check_for_halt;
+
+        if(!skip_to_halt_block)
+        {
+          pcexec = pNativeCodeCacheEntry->nextVirtualAddress;
+          skip_to_halt_block = true;
+        }
       }
       else
       {
-        prevPcexec = pcexec;
         //do
         {
           nativeCodeCacheEntryPoint();
@@ -2197,7 +2198,7 @@ execute_block:
       bCallingMediaCallback = false;
     }
 
-    if(ecuSkipCounter)
+    if(!skip_to_halt_block && ecuSkipCounter != 0)
     {
       ecuSkipCounter--;
       if(ecuSkipCounter == 0)
@@ -2235,16 +2236,8 @@ execute_block:
       }
     }
 
-check_for_halt:
-
-    if(excephalten & excepsrc)
-    {
+    if((excephalten & excepsrc) || (pcexec == breakpointAddress))
       Halt();
-    }
-    else if(pcexec == breakpointAddress)
-    {
-      mpectl &= ~MPECTRL_MPEGO;
-    }
 
     //StopPerformanceTimer();
     //timeDelta = GetTimeDeltaMs();
@@ -2353,7 +2346,7 @@ uint8 MPE::DecodeSingleInstruction(const uint8 *const iPtr, InstructionCacheEntr
 
 NativeCodeCacheEntryPoint MPE::CompileNativeCodeBlock(const uint32 pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket)
 {
-  return superBlock->CompileBlock(this, pcexec, *nativeCodeCache, compileType, bSinglePacket, bError);
+  return superBlock->CompileBlock(pcexec, *nativeCodeCache, compileType, bSinglePacket, bError);
 }
 
 void MPE::PrintInstructionCachePacket(char *buffer, const InstructionCacheEntry &entry)

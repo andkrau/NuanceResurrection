@@ -84,12 +84,12 @@ public:
   void PrintBlockToFile(SuperBlockCompileType blockType, uint32 size);
   void AddPacketToList(InstructionCacheEntry &packet, const uint32 index);
   bool AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry * const pPacketEntry, const uint32 index, const bool bExplicitNOP = false);
-  NativeCodeCacheEntryPoint CompileBlock(MPE * const mpe, const uint32 address, NativeCodeCache &codeCache, const SuperBlockCompileType eCompileType, const bool bSinglePacket, bool &bError);
+  NativeCodeCacheEntryPoint CompileBlock(const uint32 address, NativeCodeCache &codeCache, const SuperBlockCompileType eCompileType, const bool bSinglePacket, bool &bError);
   bool EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, const bool bContainsBranch);
   void UpdateDependencyInfo();
   void PerformConstantPropagation();
   uint32 PerformDeadCodeElimination();
-  int32 FetchSuperBlock(MPE &mpe, uint32 address, bool &bContainsBranch);
+  int32 FetchSuperBlock(uint32 address, bool &bContainsBranch);
 
   uint32 numInstructions;
   uint32 numPackets;

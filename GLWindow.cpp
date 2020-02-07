@@ -10,8 +10,6 @@
 OpenGL Window Code
 ****************************************************************************/
 
-static const char defaultTitle[] = "GLWindow";
-
 extern std::mutex gfx_lock;
 
 GLWindow::GLWindow()
@@ -49,8 +47,6 @@ GLWindow::GLWindow()
 
   fullScreenWindowStyle = WS_POPUP;
   fullScreenWindowExtendedStyle = WS_EX_APPWINDOW | WS_EX_TOPMOST;
-
-  title = defaultTitle;
 
   UpdateRestoreValues();
 }
@@ -170,8 +166,8 @@ bool GLWindow::CreateWindowGL()
   // Create The OpenGL Window
   hWnd = CreateWindowEx(
     wStyleEx,
-    "GLWindow",
-    title,
+    "NuanceGLWindow",
+    "Nuance(F1 to toggle fullscreen)",
     wStyle,
     windowRect.left, windowRect.top,
     windowRect.right - windowRect.left,
@@ -277,12 +273,12 @@ bool GLWindow::CreateWindowGL()
     MessageBox( NULL, (LPCTSTR)lpMsgBuf, "Error", MB_OK | MB_ICONINFORMATION );
 
     // Free the buffer.
-    LocalFree( lpMsgBuf );  
-		ReleaseDC(hWnd, hDC);
-		hDC = 0;
-		DestroyWindow(hWnd);
-		hWnd = 0;
-		return false;
+    LocalFree( lpMsgBuf );
+    ReleaseDC(hWnd, hDC);
+    hDC = 0;
+    DestroyWindow(hWnd);
+    hWnd = 0;
+    return false;
   }
 
   if(!SetPixelFormat(hDC, PixelFormat, &pfd))
@@ -301,9 +297,9 @@ bool GLWindow::CreateWindowGL()
     {
       // Handle the error.
       ReleaseDC(hWnd, hDC);
-		  hDC = 0;
-		  DestroyWindow(hWnd);
-		  hWnd = 0;
+      hDC = 0;
+      DestroyWindow(hWnd);
+      hWnd = 0;
       return false;
     }
 
@@ -317,10 +313,10 @@ bool GLWindow::CreateWindowGL()
     LocalFree( lpMsgBuf );  
 
     ReleaseDC(hWnd, hDC);
-		hDC = 0;
-		DestroyWindow(hWnd);
-		hWnd = 0;
-		return false;
+    hDC = 0;
+    DestroyWindow(hWnd);
+    hWnd = 0;
+    return false;
   }
 
   hRC = wglCreateContext(hDC);
@@ -341,9 +337,9 @@ bool GLWindow::CreateWindowGL()
     {
       // Handle the error.
       ReleaseDC(hWnd, hDC);
-		  hDC = 0;
-		  DestroyWindow(hWnd);
-		  hWnd = 0;
+      hDC = 0;
+      DestroyWindow(hWnd);
+      hWnd = 0;
       return false;
     }
 
@@ -352,11 +348,11 @@ bool GLWindow::CreateWindowGL()
 
     // Free the buffer.
     LocalFree( lpMsgBuf );  
-		ReleaseDC(hWnd, hDC);
-		hDC = 0;
-		DestroyWindow(hWnd);
-		hWnd = 0;
-		return false;
+    ReleaseDC(hWnd, hDC);
+    hDC = 0;
+    DestroyWindow(hWnd);
+    hWnd = 0;
+    return false;
   }
 
   if(!wglMakeCurrent(hDC, hRC))
@@ -375,11 +371,11 @@ bool GLWindow::CreateWindowGL()
     {
       // Handle the error.
       wglDeleteContext(hRC);
-		  hRC = 0;
-		  ReleaseDC(hWnd, hDC);
-		  hDC = 0;
-		  DestroyWindow(hWnd);
-		  hWnd = 0;
+      hRC = 0;
+      ReleaseDC(hWnd, hDC);
+      hDC = 0;
+      DestroyWindow(hWnd);
+      hWnd = 0;
       return false;
     }
 
@@ -393,12 +389,12 @@ bool GLWindow::CreateWindowGL()
     LocalFree( lpMsgBuf );  
 
     wglDeleteContext(hRC);
-		hRC = 0;
-		ReleaseDC(hWnd, hDC);
-		hDC = 0;
-		DestroyWindow(hWnd);
-		hWnd = 0;
-		return false;
+    hRC = 0;
+    ReleaseDC(hWnd, hDC);
+    hDC = 0;
+    DestroyWindow(hWnd);
+    hWnd = 0;
+    return false;
   }
 
   DescribePixelFormat(hDC,GetPixelFormat(hDC),sizeof(PIXELFORMATDESCRIPTOR),&pfd);
@@ -439,7 +435,7 @@ void GLWindow::CleanUp()
 		ShowCursor(TRUE);
   }
 
-  UnregisterClass(className, hInstance);
+  UnregisterClass("NuanceGLWindow", hInstance);
 }
 
 LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -631,7 +627,7 @@ bool GLWindow::RegisterWindowClass()
   windowClass.hInstance	= hInstance;
   windowClass.hbrBackground	= (HBRUSH)NULL;
   windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
-  windowClass.lpszClassName	= "GLWindow";
+  windowClass.lpszClassName	= "NuanceGLWindow";
 
   if(!RegisterClassEx(&windowClass))
   {
@@ -684,8 +680,6 @@ bool GLWindow::Create()
   return threadHandle;
 }
 
-static const char className[] = "GLWindow";
-
 void GLWindow::MessagePump()
 {
   if(!bUseSeparateThread)
@@ -700,19 +694,9 @@ DWORD WINAPI GLWindow::GLWindowMain(void *param)
 {
   GLWindow * const glWindow = (GLWindow *)param;
 
-  // Fill Out Application Data
-  glWindow->className = ::className;
-
-  // Fill Out Window
-
-  // Register the window class
   if(!glWindow->RegisterWindowClass())
-  {
-    MessageBox(HWND_DESKTOP, "Error Registering Window Class!", "Error", MB_OK | MB_ICONEXCLAMATION);
     return false;
-  }
 
-  // Create A Window
   if(glWindow->CreateWindowGL())
   {
     glWindow->OnResize(glWindow->clientWidth,glWindow->clientHeight);
@@ -740,10 +724,7 @@ DWORD WINAPI GLWindow::GLWindowMain(void *param)
     }
   }
   else
-  {
-    MessageBox(HWND_DESKTOP, "Error Creating OpenGL Window", "Error", MB_OK | MB_ICONEXCLAMATION);
     return false;
-  }
 
   return true;
 }

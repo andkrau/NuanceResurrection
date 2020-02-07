@@ -2,6 +2,7 @@
 #ifndef GLWindowH
 #define GLWindowH
 
+#include "basetypes.h"
 #include <windows.h>
 
 #define bUseSeparateThread false
@@ -25,15 +26,12 @@ public:
   HDC   hDC;
   HGLRC hRC;
 
-  const char *className;
-
   int x, y;
   int width, height;
   int clientWidth, clientHeight;
   int fullScreenWidth, fullScreenHeight;
   volatile bool bVisible;
   bool bFullScreen;
-  const char *title;
 
   GLWindow();
   ~GLWindow();
