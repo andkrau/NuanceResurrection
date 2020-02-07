@@ -106,7 +106,7 @@ void NuonEnvironment::InitAudio(void)
   MuteAudio(false);
 
   //Create stream
-  audioStream = FSOUND_Stream_Create(AudioCallbacks::StreamCallback, nuonAudioBufferSize>>1, // >>1: see callback, kinda double buffering in there
+  audioStream = FSOUND_Stream_Create(StreamCallback, nuonAudioBufferSize>>1, // >>1: see callback, kinda double buffering in there
     (DEFAULT_SAMPLE_FORMAT | FSOUND_LOOP_NORMAL | FSOUND_NONBLOCKING), nuonAudioPlaybackRate, USER_PARAM);
     
   if(audioStream)
