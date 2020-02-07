@@ -854,8 +854,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     while(PeekMessage(&msg,hStatusDlg,0,0,PM_REMOVE))
       IsDialogMessage(hStatusDlg,&msg);
 
-    display.MessagePump();
-
     while(bRun && !nuonEnv.trigger_render_video)
     {
       nuonEnv.mpe[3].FetchDecodeExecute();
