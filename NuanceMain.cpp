@@ -6,6 +6,7 @@
 #include <commdlg.h>
 #include "external\glew-2.1.0\include\GL\glew.h"
 #include <GL/gl.h>
+#include <mutex>
 
 #include "byteswap.h"
 #include "comm.h"
@@ -25,6 +26,7 @@ char **pArgs = 0;
 GLWindow display;
 
 extern ControllerData *controller;
+extern std::mutex gfx_lock;
 
 bool bQuit = false;
 bool bRun = false;
@@ -271,7 +273,7 @@ void UpdateControlPanelDisplay()
   SendMessage(reTermDisplay,EM_REPLACESEL,NULL,LPARAM(buf));
 }
 
-static const char displayWindowTitle[] = "Nuance Video Display";
+static const char displayWindowTitle[] = "Nuance (F1 to toggle fullscreen)";
 
 void OnMPELEDDoubleClick(uint32 which)
 {
@@ -360,20 +362,8 @@ INT_PTR CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPAR
   }
 }
 
-INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
+void Run()
 {
-  switch(msg)
-  {
-    case WM_CLOSE:
-      bQuit = true;
-      return FALSE;
-    case WM_COMMAND:
-      switch(HIWORD(wParam))
-      {
-        case BN_CLICKED:
-          if((HWND)lParam == cbRun)
-          {
-Run:
             uint32 bpAddr = 0;
             FILE *inFile = fopen("breakpoint.txt","r");
 
@@ -393,6 +383,47 @@ Run:
             EnableWindow(cbSingleStep,FALSE);
             EnableWindow(cbStop,TRUE);
             bRun = true;
+}
+
+void Load()
+{
+            if(GetOpenFileName(&ofn))
+            {
+              bool bSuccess = nuonEnv.mpe[3].LoadNuonRomFile(ofn.lpstrFile);
+              if(!bSuccess)
+              {
+                bSuccess = nuonEnv.mpe[3].LoadCoffFile(ofn.lpstrFile);
+                if(!bSuccess)
+                {
+                  MessageBox(NULL,"Invalid COFF or NUONROM-DISK file",ERROR,MB_ICONWARNING);
+                }
+              }
+              
+              if(bSuccess)
+              {
+                nuonEnv.SetDVDBaseFromFileName(ofn.lpstrFile);
+                nuonEnv.mpe[3].Go();
+                UpdateControlPanelDisplay();
+                SetWindowPos(display.hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+                Run();
+              }
+            }
+}
+
+INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
+{
+  switch(msg)
+  {
+    case WM_CLOSE:
+      bQuit = true;
+      return FALSE;
+    case WM_COMMAND:
+      switch(HIWORD(wParam))
+      {
+        case BN_CLICKED:
+          if((HWND)lParam == cbRun)
+          {
+            Run();
             return TRUE;
           }
           else if((HWND)lParam == cbSingleStep)
@@ -427,26 +458,7 @@ Run:
           }
           else if((HWND)lParam == cbLoadFile)
           {
-            if(GetOpenFileName(&ofn))
-            {
-              bool bSuccess = nuonEnv.mpe[3].LoadNuonRomFile(ofn.lpstrFile);
-              if(!bSuccess)
-              {
-                bSuccess = nuonEnv.mpe[3].LoadCoffFile(ofn.lpstrFile);
-                if(!bSuccess)
-                {
-                  MessageBox(NULL,"Invalid COFF or NUONROM-DISK file",ERROR,MB_ICONWARNING);
-                }
-              }
-              
-              if(bSuccess)
-              {
-                nuonEnv.SetDVDBaseFromFileName(ofn.lpstrFile);
-                nuonEnv.mpe[3].Go();
-                UpdateControlPanelDisplay();
-                goto Run;
-              }
-            }
+            Load();
             return TRUE;
           }
           else if((HWND)lParam == textMPE0)
@@ -516,8 +528,10 @@ bool OnDisplayPaint(WPARAM wparam, LPARAM lparam)
     RenderVideo(display.clientWidth,display.clientHeight);
   else
   {
+    gfx_lock.lock();
     glClear(GL_COLOR_BUFFER_BIT);
     glFlush();
+    gfx_lock.unlock();
   }
 
   return true;
@@ -525,6 +539,8 @@ bool OnDisplayPaint(WPARAM wparam, LPARAM lparam)
 
 bool OnDisplayResize(uint16 width, uint16 height)
 {
+  gfx_lock.lock();
+
   glViewport(0,0,width,height);
 
   glMatrixMode(GL_PROJECTION);
@@ -541,7 +557,11 @@ bool OnDisplayResize(uint16 width, uint16 height)
   glDisable(GL_FOG);
 
   glClear(GL_COLOR_BUFFER_BIT);
+
+  gfx_lock.unlock();
+
   OnDisplayPaint(0,0);
+
   return false;
 }
 
@@ -764,9 +784,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   display.Create();
   while (!display.bVisible) {}
 
-  const GLenum err = glewInit();
-  if(err != GLEW_OK)
-    MessageBox(NULL,(char *)glewGetErrorString(err),"Error",MB_ICONWARNING);
+  if(bUseSeparateThread)
+  {
+    HGLRC hRC = wglCreateContext(display.hDC);
+    wglShareLists(hRC, display.hRC);
+    //wglMakeCurrent(display.hDC, hRC);
+  }
 
   AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,false);
   AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,true);
@@ -816,10 +839,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   UpdateControlPanelDisplay();
 
+  Load();
+
   nuonEnv.videoDisplayCycleCount = 0;
 
   while(!bQuit)
   {
+    display.MessagePump();
+
     MSG msg;
     while(PeekMessage(&msg,hDlg,0,0,PM_REMOVE))
       IsDialogMessage(hDlg,&msg);
@@ -873,7 +900,7 @@ CLEANUP AND APPLICATION SHUTDOWN CODE
   FreeTextureMemory(false);
   FreeTextureMemory(true);
 
-  display.Close();
+  VideoCleanup();
 
   return 0;
 }

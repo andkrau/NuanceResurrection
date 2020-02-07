@@ -1,6 +1,5 @@
 #include <io.h>
 #include <fcntl.h>
-#include <string.h>
 #include "mpe.h"
 #include "coff.h"
 #include "NuonEnvironment.h"
@@ -167,4 +166,3 @@ bool MPE::LoadCoffFile(const char * const filename, bool bSetEntryPoint, int han
     return false;
   }
 }
-
