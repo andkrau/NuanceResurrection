@@ -273,8 +273,6 @@ void UpdateControlPanelDisplay()
   SendMessage(reTermDisplay,EM_REPLACESEL,NULL,LPARAM(buf));
 }
 
-static const char displayWindowTitle[] = "Nuance (F1 to toggle fullscreen)";
-
 void OnMPELEDDoubleClick(uint32 which)
 {
   HWND handles[] = {picMPE0LED,picMPE1LED,picMPE2LED,picMPE3LED};
@@ -748,13 +746,13 @@ inline void ProcessCycleBasedEvents(void)
  // }
 }
 
-bool CheckForInvalidCommStatus(MPE *mpe)
+bool CheckForInvalidCommStatus(const MPE &mpe)
 {
-  bool bInvalid = (mpe->intsrc & INT_COMMRECV) && 
-   (!(mpe->commctl & (1UL << 31)));  //&& (!(mpe->intctl & (1UL << 5)) || (mpe->pcexec >= 0x807604D2))) ||
-   //((mpe->commctl & (1UL << 31)) && (mpe->pcexec >= 0x807604C8) && (mpe->pcexec < 0x807604D2)));
-  bool bInvalid2 = (!(mpe->intsrc & INT_COMMRECV) && (mpe->commctl & (1UL << 31)) &&
-    ((mpe->pcexec <= 0x807604C0) || (mpe->pcexec >= 0x807604D2)));
+  bool bInvalid = (mpe.intsrc & INT_COMMRECV) && 
+   (!(mpe.commctl & (1UL << 31)));  //&& (!(mpe.intctl & (1UL << 5)) || (mpe.pcexec >= 0x807604D2))) ||
+   //((mpe.commctl & (1UL << 31)) && (mpe.pcexec >= 0x807604C8) && (mpe.pcexec < 0x807604D2)));
+  bool bInvalid2 = (!(mpe.intsrc & INT_COMMRECV) && (mpe.commctl & (1UL << 31)) &&
+    ((mpe.pcexec <= 0x807604C0) || (mpe.pcexec >= 0x807604D2)));
   if(bInvalid || bInvalid2)
   {
     bInvalid = false;
@@ -775,7 +773,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   nuonEnv.Init();
 
-  display.title = displayWindowTitle;
   display.resizeHandler = OnDisplayResize;
   display.keyDownHandler = OnDisplayKeyDown;
   display.keyUpHandler = OnDisplayKeyUp;

@@ -73,10 +73,10 @@ public:
 
   inline void ScheduleInterrupt(const uint32 which)
   {
-    _InterlockedOr(&schedule_intsrc,(LONG)which);
+    _InterlockedOr(&schedule_intsrc,(LONG)which); //!! if using cycle based timing at some point, do a TriggerInterrupt on all MPEs instead
   }
 
-  inline void TriggerScheduledInterrupts()
+  inline void TriggerScheduledInterrupts() //!! if using cycle based timing at some point, remove again
   {
     const uint32 which = _InterlockedExchange(&schedule_intsrc,(LONG)0);
     if(which)
