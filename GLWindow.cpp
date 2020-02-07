@@ -1,52 +1,57 @@
 //!! fullscreen window? what and how does bFullScreen work?
 #include "basetypes.h"
 #include <windows.h>
+#include <mutex>
 #include "external\glew-2.1.0\include\GL\glew.h"
 #include <GL/gl.h>
 #include "GLWindow.h"
 #include "video.h"
-//---------------------------------------------------------------------------
+
 /****************************************************************************
 OpenGL Window Code
 ****************************************************************************/
 
 static const char defaultTitle[] = "GLWindow";
 
+extern std::mutex gfx_lock;
+
 GLWindow::GLWindow()
 {
-  bFullScreen = false; // fullscreen broken at the moment
+  bFullScreen = false; // starting fullscreen from the start is broken at the moment, so leave at false and rather toggle dynamically later on
+
   bVisible = false;
-  bUseSeparateThread = false;
-  bitsPerPixel = 32;
   keyDownHandler = 0;
   keyUpHandler = 0;
-  idleHandler = 0;
   createHandler = 0;
   closeHandler = 0;
   closeQueryHandler = 0;
   destroyHandler = 0;
   paintHandler = 0;
   resizeHandler = 0;
+
+  clientWidth = VIDEO_WIDTH; // native res
+  clientHeight = 480;
+  fullScreenWidth = 1920; // fullscreen res, only used if bFullScreen is set to true in ctor!
+  fullScreenHeight = 1080;
+
   if(!bFullScreen)
   {
-    fullScreenWidth = clientWidth = VIDEO_WIDTH; // native res
-    fullScreenHeight = clientHeight = 480;
     x = 100;
     y = 100;
   }
   else
   {
-    fullScreenWidth = clientWidth = 1920; // fullscreen res
-    fullScreenHeight = clientHeight = 1080;
     x = 0;
     y = 0;
   }
+
   windowStyle = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_THICKFRAME;
   windowExtendedStyle = WS_EX_APPWINDOW;
+
   fullScreenWindowStyle = WS_POPUP;
-  fullScreenWindowStyle = WS_EX_APPWINDOW | WS_EX_TOPMOST;
+  fullScreenWindowExtendedStyle = WS_EX_APPWINDOW | WS_EX_TOPMOST;
+
   title = defaultTitle;
-  bTerminate = false;
 
   UpdateRestoreValues();
 }
@@ -81,29 +86,20 @@ void GLWindow::OnResize(int width, int height)
   }
 }
 
-void GLWindow::Close()
-{
-  if(bCreated)
-  {
-	  //PostMessage(hWnd, WM_QUIT, 0, 0);
-	  //bTerminate = true;
-  }
-}
-
 void GLWindow::ToggleFullscreen()
 {
 	PostMessage(hWnd, WM_TOGGLEFULLSCREEN, 0, 0);
 }
 
-bool GLWindow::ChangeScreenResolution(int width, int height, int bitsPerPixel)
+bool GLWindow::ChangeScreenResolution(int width, int height)
 {
 	DEVMODE dmScreenSettings;
 	ZeroMemory(&dmScreenSettings, sizeof(DEVMODE));
 	dmScreenSettings.dmSize	= sizeof(DEVMODE);
 	dmScreenSettings.dmPelsWidth = width;
-	dmScreenSettings.dmPelsHeight	= height;
-	dmScreenSettings.dmBitsPerPel	= bitsPerPixel;
-	dmScreenSettings.dmFields	= DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+	dmScreenSettings.dmPelsHeight = height;
+	dmScreenSettings.dmBitsPerPel = 32;
+	dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 	if(ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
 	{
 		return false;
@@ -119,11 +115,6 @@ bool GLWindow::CreateWindowGL()
   wStyle = windowStyle;
   wStyleEx = windowExtendedStyle;
 
-  if(!bitsPerPixel)
-  {
-    bitsPerPixel = 32;
-  }
-  
   PIXELFORMATDESCRIPTOR pfd;
   pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
   pfd.nVersion = 1;
@@ -152,7 +143,7 @@ bool GLWindow::CreateWindowGL()
 
   if(bFullScreen)
   {
-    if(!ChangeScreenResolution(fullScreenWidth, fullScreenHeight, bitsPerPixel))
+    if(!ChangeScreenResolution(fullScreenWidth, fullScreenHeight))
     {
       // Fullscreen Mode Failed.  Run In Windowed Mode Instead
       MessageBox(HWND_DESKTOP,"Mode Switch Failed.\nRunning In Windowed Mode.", "Error", MB_OK | MB_ICONEXCLAMATION);
@@ -161,7 +152,6 @@ bool GLWindow::CreateWindowGL()
     else
     {
       // Fullscreen mode switch succeeded
-      ShowCursor(FALSE);
       wStyle = fullScreenWindowStyle;
       wStyleEx = fullScreenWindowExtendedStyle;
       clientWidth = fullScreenWidth;
@@ -425,8 +415,9 @@ bool GLWindow::CreateWindowGL()
 
 void GLWindow::CleanUp()
 {
-	if(hWnd)
-	{
+  if(hWnd)
+  {
+    gfx_lock.lock();
 		if(hDC)
 		{
 			wglMakeCurrent(hDC, 0);
@@ -440,15 +431,16 @@ void GLWindow::CleanUp()
 		}
 		DestroyWindow(hWnd);
 		hWnd = 0;
-	}
+    gfx_lock.unlock();
+  }
 
-	if(bFullScreen)
-	{
+  if(bFullScreen)
+  {
 		ChangeDisplaySettings(NULL,0);
 		ShowCursor(TRUE);
-	}
+  }
 
-	UnregisterClass(className, hInstance);
+  UnregisterClass(className, hInstance);
 }
 
 LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -502,8 +494,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       }
 
       //Call the default close handler
-			window->Close();
-		  return 0;
+      return 0;
 
     case WM_DESTROY:
       if(window->destroyHandler)
@@ -513,9 +504,9 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       return 0;
 
     case WM_MOVE:
-      GetWindowRect(window->hWnd,&windowRect);
       if(!window->bFullScreen)
       {
+        GetWindowRect(window->hWnd,&windowRect);
         window->x = windowRect.left;
         window->y = windowRect.top;
         window->UpdateRestoreValues();
@@ -546,7 +537,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       {
         window->keyDownHandler((int)wParam,(unsigned __int32)lParam);
       }
-      if((int)wParam == VK_F1)
+      if((int)wParam == VK_F1 || ((int)wParam == VK_ESCAPE && window->bFullScreen))
       {
         window->ToggleFullscreen();
       }
@@ -563,11 +554,14 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       BeginPaint(hWnd,&ps);
       if(window->paintHandler)
       {
-        window->paintHandler((int)wParam,(unsigned __int32)lParam);
+        window->paintHandler(wParam,lParam);
       }
       else
       {
+        gfx_lock.lock();
         glClear(GL_COLOR_BUFFER_BIT);
+        glFlush();
+        gfx_lock.unlock();
       }
       EndPaint(hWnd,&ps);
       break;
@@ -581,43 +575,46 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       {
         window->restoreX = window->x;
         window->restoreY = window->y;
-        window->restoreWidth = window->width;
-        window->restoreHeight = window->height;
-
-        windowRect.left = 0;
-        windowRect.top = 0;
-        windowRect.right = window->fullScreenWidth;
-        windowRect.bottom = window->fullScreenHeight;
-        AdjustWindowRectEx(&windowRect, window->windowStyle, 0, window->windowExtendedStyle);
-
-        window->clientWidth = window->fullScreenWidth;
-        window->clientHeight = window->fullScreenHeight;
-        window->width = windowRect.right - windowRect.left;
-        window->height = windowRect.bottom - windowRect.top;
-        window->x = windowRect.left;
-        window->y = windowRect.top;
+        window->restoreWidth = window->clientWidth;
+        window->restoreHeight = window->clientHeight;
 
         ShowWindow(window->hWnd,SW_HIDE);
-        SetWindowPos(window->hWnd, HWND_TOP, window->x, window->y, window->width, window->height, 0);
-        ShowWindow(window->hWnd,SW_NORMAL);
-        window->ChangeScreenResolution(window->clientWidth,window->clientHeight,window->bitsPerPixel);
+        SetWindowLongPtr(window->hWnd, GWL_STYLE, window->fullScreenWindowStyle);
+        SetWindowLongPtr(window->hWnd, GWL_EXSTYLE, window->fullScreenWindowExtendedStyle);
+        //if(!window->ChangeScreenResolution(window->fullScreenWidth, window->fullScreenHeight))
+        //  MessageBox(HWND_DESKTOP, "Mode Switch Failed.\nRunning In Windowed Mode.", "Error", MB_OK | MB_ICONEXCLAMATION);
+        SetWindowPos(window->hWnd, HWND_TOP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), SWP_SHOWWINDOW); //!! aspect ratio of widescreens wrong for Nuon!
+        SetCursorPos(GetSystemMetrics(SM_CXSCREEN)/2, GetSystemMetrics(SM_CYSCREEN));
+
+        window->clientWidth = GetSystemMetrics(SM_CXSCREEN);
+        window->clientHeight = GetSystemMetrics(SM_CYSCREEN);
+        window->width = GetSystemMetrics(SM_CXSCREEN);
+        window->height = GetSystemMetrics(SM_CYSCREEN);
+        window->x = 0;
+        window->y = 0;
       }
       else
       {
         //Switch back to the desktop resolution
         window->x = window->restoreX;
         window->y = window->restoreY;
-        window->width = window->restoreWidth;
-        window->height = window->restoreHeight;
+        window->clientWidth = window->restoreWidth;
+        window->clientHeight = window->restoreHeight;
+
+        windowRect.left = 0;
+        windowRect.top = 0;
+        windowRect.right = window->restoreWidth;
+        windowRect.bottom = window->restoreHeight;
+        AdjustWindowRectEx(&windowRect, window->windowStyle, 0, window->windowExtendedStyle);
+        window->width = windowRect.right - windowRect.left;
+        window->height = windowRect.bottom - windowRect.top;
 
         ShowWindow(window->hWnd,SW_HIDE);
-        window->ChangeScreenResolution(0,0,0);
-        SetWindowPos(window->hWnd, HWND_TOP,window->x,window->y,window->width,window->height,0);
-        ShowWindow(window->hWnd,SW_NORMAL);
-
-        GetClientRect(window->hWnd,&windowRect);
-        window->clientWidth = windowRect.right;
-        window->clientHeight = windowRect.bottom;
+        SetWindowLongPtr(window->hWnd, GWL_STYLE, window->windowStyle);
+        SetWindowLongPtr(window->hWnd, GWL_EXSTYLE, window->windowExtendedStyle);
+        //window->ChangeScreenResolution(0,0);
+        SetWindowPos(window->hWnd, HWND_TOP,window->x,window->y,window->width,window->height, SWP_SHOWWINDOW);
+        SetCursorPos(window->x + window->width/2, window->y + window->height/2);
       }
       break;
   }
@@ -627,24 +624,24 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
 bool GLWindow::RegisterWindowClass()
 {
-	WNDCLASSEX windowClass;
-	memset(&windowClass, 0, sizeof (WNDCLASSEX));
-	windowClass.cbSize = sizeof (WNDCLASSEX);
-	windowClass.style	= CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-	windowClass.lpfnWndProc	= (WNDPROC)(GLWindowProc);
-	windowClass.hInstance	= hInstance;
-	windowClass.hbrBackground	= (HBRUSH)NULL;
-	windowClass.hCursor	= LoadCursor(NULL, IDC_ARROW);
-	windowClass.lpszClassName	= "GLWindow";
+  WNDCLASSEX windowClass;
+  memset(&windowClass, 0, sizeof (WNDCLASSEX));
+  windowClass.cbSize = sizeof (WNDCLASSEX);
+  windowClass.style	= CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+  windowClass.lpfnWndProc = (WNDPROC)(GLWindowProc);
+  windowClass.hInstance	= hInstance;
+  windowClass.hbrBackground	= (HBRUSH)NULL;
+  windowClass.hCursor = LoadCursor(NULL, IDC_ARROW);
+  windowClass.lpszClassName	= "GLWindow";
 
-	if(!RegisterClassEx(&windowClass))
-	{
-		// NOTE: Failure, Should Never Happen
-		MessageBox(HWND_DESKTOP, "RegisterClassEx Failed!", "Error", MB_OK | MB_ICONEXCLAMATION);
-		return false;
-	}
+  if(!RegisterClassEx(&windowClass))
+  {
+    // NOTE: Failure, Should Never Happen
+    MessageBox(HWND_DESKTOP, "RegisterClassEx Failed!", "Error", MB_OK | MB_ICONEXCLAMATION);
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
 bool GLWindow::Create()
@@ -692,14 +689,17 @@ static const char className[] = "GLWindow";
 
 void GLWindow::MessagePump()
 {
-  MSG msg;
-  while(PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
-    DispatchMessage(&msg);
+  if(!bUseSeparateThread)
+  {
+    MSG msg;
+    while(PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
+      DispatchMessage(&msg);
+  }
 }
 
 DWORD WINAPI GLWindow::GLWindowMain(void *param)
 {
-  GLWindow *glWindow = (GLWindow *)param;
+  GLWindow * const glWindow = (GLWindow *)param;
 
   // Fill Out Application Data
   glWindow->className = ::className;
@@ -713,47 +713,31 @@ DWORD WINAPI GLWindow::GLWindowMain(void *param)
     return false;
   }
 
-  glWindow->bTerminate = false;
-
   // Create A Window
   if(glWindow->CreateWindowGL())
   {
     glWindow->OnResize(glWindow->clientWidth,glWindow->clientHeight);
     
-    glWindow->bCreated = true;
-    if(glWindow->bUseSeparateThread)
-    {
-      bool bMessagePumpActive = true;
-      while(bMessagePumpActive)
-      {
-        // Success Creating Window.  Check For Window Messages
-        MSG msg;
-        if(PeekMessage(&msg, glWindow->hWnd, 0, 0, PM_REMOVE))
-        {
-          // Check For WM_QUIT Message
-          if(msg.message != WM_QUIT)
-          {
-            DispatchMessage(&msg);
-          }
-          else
-          {
-            bMessagePumpActive = false;
-          }
-        }
-        else
-        {
-          // Process Application Loop
-          if(glWindow->idleHandler)
-          {
-            glWindow->idleHandler(0,0);
-          }
+    gfx_lock.lock();
+    const GLenum err = glewInit();
+    if (err != GLEW_OK)
+      MessageBox(NULL, (char*)glewGetErrorString(err), "Error", MB_ICONWARNING);
+    gfx_lock.unlock();
 
-          WaitMessage();
-        }
+    if(bUseSeparateThread)
+    {
+      // Success Creating Window.  Check For Window Messages
+      MSG msg;
+      BOOL bRet;
+      while((bRet = GetMessage(&msg, glWindow->hWnd, 0, 0)) != 0)
+      {
+        if(bRet == -1 || msg.message == WM_QUIT)
+          break;
+
+        DispatchMessage(&msg);
       }
 
       glWindow->CleanUp();
-      glWindow->bCreated = false;
     }
   }
   else

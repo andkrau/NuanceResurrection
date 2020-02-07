@@ -2,6 +2,7 @@
 #define NuonEnvironmentH
 
 #include "basetypes.h"
+#include <windows.h>
 #include "audio.h"
 #include "mpe.h"
 #include "NuonMemoryManager.h"

@@ -3,6 +3,9 @@
 #define GLWindowH
 
 #include <windows.h>
+
+#define bUseSeparateThread false
+
 //---------------------------------------------------------------------------
 typedef bool (* GLWINDOW_CALLBACK)(WPARAM wparam, LPARAM lparam);
 typedef bool (* GLWINDOW_RESIZECALLBACK)(unsigned __int16 width, unsigned __int16 height);
@@ -28,17 +31,13 @@ public:
   int width, height;
   int clientWidth, clientHeight;
   int fullScreenWidth, fullScreenHeight;
-  int bitsPerPixel;
   volatile bool bVisible;
   bool bFullScreen;
-  bool bTerminate;
-  bool bUseSeparateThread;
   const char *title;
 
   GLWindow();
   ~GLWindow();
   bool Create();
-  void Close();
   void MessagePump();
   void ToggleFullscreen();
   void UpdateRestoreValues();
@@ -46,7 +45,6 @@ public:
   GLWINDOW_KEYCALLBACK keyDownHandler;
   GLWINDOW_KEYCALLBACK keyUpHandler;
   GLWINDOW_RESIZECALLBACK resizeHandler;
-  GLWINDOW_CALLBACK idleHandler;
   GLWINDOW_CALLBACK createHandler;
   GLWINDOW_CALLBACK closeHandler;
   GLWINDOW_CALLBACK closeQueryHandler;
@@ -60,12 +58,10 @@ protected:
   void CleanUp();
   static DWORD WINAPI GLWindowMain(void *glWindow);
   static LRESULT CALLBACK GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-  static void CALLBACK MMTimerCallback(UINT uID, UINT uMsg, DWORD dwUser, DWORD dw1, DWORD dw2);
-  bool ChangeScreenResolution(int width, int height, int bitsPerPixel);
-  bool bCreated;
+  bool ChangeScreenResolution(int width, int height);
   unsigned long threadID;
-  unsigned __int32 windowStyle, windowExtendedStyle;
-  unsigned __int32 fullScreenWindowStyle, fullScreenWindowExtendedStyle;
+  uint32 windowStyle, windowExtendedStyle;
+  uint32 fullScreenWindowStyle, fullScreenWindowExtendedStyle;
   HANDLE threadHandle;
   int restoreWidth;
   int restoreHeight;

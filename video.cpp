@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <windows.h>
+#include <mutex>
 #include "external\glew-2.1.0\include\GL\glew.h"
 #include "external\glew-2.1.0\include\GL\wglew.h"
 
@@ -19,6 +20,8 @@
 
 extern NuonEnvironment nuonEnv;
 extern _LARGE_INTEGER tickFrequency;
+
+std::mutex gfx_lock;
 
 vidTexInfo videoTexInfo;
 
@@ -149,6 +152,8 @@ void UpdateTextureStates(void)
 {
   GLint uniformLoc;
   const GLint filterType = bUseBilinearFiltering ? GL_LINEAR : GL_NEAREST;
+
+  gfx_lock.lock();
 
   if(!bShadersInstalled)
   {
@@ -283,10 +288,14 @@ void UpdateTextureStates(void)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+  gfx_lock.unlock();
 }
 
 void UpdateDisplayList(void)
 {
+  gfx_lock.lock();
+
   if(!glIsList(videoTexInfo.displayListName[0]))
   {
     videoTexInfo.displayListName[0] = glGenLists(1);
@@ -351,6 +360,8 @@ void UpdateDisplayList(void)
     glEnd();
     glEndList();
   }
+
+  gfx_lock.unlock();
 }
 
 void InitTextures(void)
@@ -363,6 +374,9 @@ void InitTextures(void)
   videoTexInfo.transColor[1] = (GLfloat)(transparencyTexture[1] / 255.0);
   videoTexInfo.transColor[2] = (GLfloat)(transparencyTexture[2] / 255.0);
   videoTexInfo.transColor[3] = (GLfloat)(transparencyTexture[3] / 255.0);
+
+  gfx_lock.lock();
+
   glGenTextures(1,&videoTexInfo.mainTexName);
   glGenBuffers(1, &videoTexInfo.mainTexPBO);
   glGenTextures(1,&videoTexInfo.osdTexName);
@@ -380,6 +394,8 @@ void InitTextures(void)
   glActiveTexture(lutTextureUnit);
   glBindTexture(GL_TEXTURE_2D, videoTexInfo.LUTTexName);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, &(LUT16[0][0]));
+
+  gfx_lock.unlock();
 
   UpdateTextureStates();
 
@@ -412,12 +428,16 @@ void RenderVideo(const int winwidth, const int winheight)
 
   if(!bSetupViewport)
   {
+    gfx_lock.lock();
+
     glViewport(0,0,winwidth,winheight);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0.0,1.0,0.0,1.0,-1.0,1.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+
+    gfx_lock.unlock();
     bSetupViewport = true;
   }
 
@@ -699,6 +719,8 @@ process_overlay_buffer:
 render_main_buffer:
   if(bMainChannelActive)
   {
+    gfx_lock.lock();
+
     glActiveTexture(mainTextureUnit);
     glBindTexture(TEXTURE_TARGET,videoTexInfo.mainTexName);
 
@@ -739,10 +761,14 @@ render_main_buffer:
       glTexSubImage2D(TEXTURE_TARGET,0,0,0,structMainChannel.src_width,structMainChannel.src_height,mainExternalTextureFormat,mainPixelType, mainPixels);
 #endif
     }
+
+    gfx_lock.unlock();
   }
 
   if(bOverlayChannelActive)
   {
+    gfx_lock.lock();
+
     glActiveTexture(osdTextureUnit);
     glBindTexture(TEXTURE_TARGET,videoTexInfo.osdTexName);
 
@@ -783,6 +809,8 @@ render_main_buffer:
       glTexSubImage2D(TEXTURE_TARGET,0,0,0,structOverlayChannel.src_width,structOverlayChannel.src_height,osdExternalTextureFormat,osdPixelType, osdPixels);
 #endif
     }
+
+    gfx_lock.unlock();
   }
 
   if(videoTexInfo.bUpdateDisplayList)
@@ -792,9 +820,11 @@ render_main_buffer:
   }
 
   const uint32 activeChannels = (bOverlayChannelActive ? CHANNELSTATE_OVERLAY_ACTIVE: 0) | (bMainChannelActive ? CHANNELSTATE_MAIN_ACTIVE : 0);
- 
+
+  gfx_lock.lock();
   glCallList(videoTexInfo.displayListName[activeChannels]);
   glFlush();
+  gfx_lock.unlock();
 }
 
 void UpdateBufferLengths(void)
@@ -1490,6 +1520,7 @@ void VidSetCLUTRange(MPE &mpe)
 
 void VideoCleanup(void)
 {
+  gfx_lock.lock();
   for(uint32 i = 0; i < 4; i++)
   {
     if(glIsList(videoTexInfo.displayListName[i]))
@@ -1497,4 +1528,5 @@ void VideoCleanup(void)
       glDeleteLists(videoTexInfo.displayListName[i],1);
     }
   }
+  gfx_lock.unlock();
 }

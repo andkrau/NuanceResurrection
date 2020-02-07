@@ -1,6 +1,7 @@
 #ifndef MPE_H
 #define MPE_H
 
+#include "basetypes.h"
 #include "InstructionCache.h"
 #include "NativeCodeCache.h"
 #include "NuonMemoryMap.h"
