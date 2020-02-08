@@ -60,8 +60,6 @@ const GLint osdTextureUnit = GL_TEXTURE1;
 
 const GLint lutTextureUnit = GL_TEXTURE2;
 
-const bool bUseBilinearFiltering = false;
-
 static bool bTexturesInitialized = false;
 static bool bShadersInstalled = false;
 static bool bSetupViewport = false;
@@ -151,7 +149,7 @@ void FreeTextureMemory(const bool bOverlay)
 void UpdateTextureStates(void)
 {
   GLint uniformLoc;
-  const GLint filterType = bUseBilinearFiltering ? GL_LINEAR : GL_NEAREST;
+  const GLint filterType = GL_NEAREST; // otherwise 16bit formats will be screwed! do filtering on our own in the pixel shader instead!
 
   if(bUseSeparateThread) gfx_lock.lock();
 
@@ -895,11 +893,8 @@ void VidConfig(MPE &mpe)
   const uint32 main = mpe.regs[1];
   const uint32 osd = mpe.regs[2];
   //const uint32 reserved = mpe.regs[3];
+
   VidDisplay maindisplay;
-
-  channelStatePrev = channelState;
-  channelState = 0;
-
   if(display)
   {
     VidDisplay *const pMainDisplay = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe, display);
@@ -917,6 +912,9 @@ void VidConfig(MPE &mpe)
     return; // leave unchanged from last call
   }
 
+  channelStatePrev = channelState;
+  channelState = 0;
+
   VidChannel mainchannel;
   if(main)
   {
@@ -926,6 +924,7 @@ void VidConfig(MPE &mpe)
     SwapVectorBytes((uint32 *)&mainchannel.dest_width);
     SwapScalarBytes((uint32 *)&mainchannel.src_width);
     SwapScalarBytes((uint32 *)&mainchannel.src_height);
+
     if(mainchannel.base == 0)
       mainchannel.base = structMainChannel.base;
   }
@@ -939,6 +938,7 @@ void VidConfig(MPE &mpe)
     SwapVectorBytes((uint32 *)&osdchannel.dest_width);
     SwapScalarBytes((uint32 *)&osdchannel.src_width);
     SwapScalarBytes((uint32 *)&osdchannel.src_height);
+
     if(osdchannel.base == 0)
       osdchannel.base = structOverlayChannel.base;
   }
@@ -955,6 +955,7 @@ void VidConfig(MPE &mpe)
     borderTexture[1] = (structMainDisplay.bordcolor >> 16) & 0xFF;
     borderTexture[2] = (structMainDisplay.bordcolor >> 8) & 0xFF;
     borderTexture[3] = 0;
+
     videoTexInfo.borderColor[0] = borderTexture[0];
     videoTexInfo.borderColor[1] = borderTexture[1];
     videoTexInfo.borderColor[2] = borderTexture[2];
@@ -1021,14 +1022,10 @@ void VidConfig(MPE &mpe)
     //check for -1 in dest_xoff or dest_yoff: if either is -1, compute proper
     //offset needed to center along x and/or y
     if(structMainChannel.dest_xoff == -1)
-    {
       structMainChannel.dest_xoff = (structMainDisplay.dispwidth - structMainChannel.dest_width) >> 1;
-    }
 
     if(structMainChannel.dest_yoff == -1)
-    {
       structMainChannel.dest_yoff = (structMainDisplay.dispheight - structMainChannel.dest_height) >> 1;
-    }
 
     //AllocateTextureMemory32(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)),false);
     mainChannelScaleX = (float)((double)structMainChannel.dest_width/(double)structMainChannel.src_width);
@@ -1036,19 +1033,20 @@ void VidConfig(MPE &mpe)
     bMainChannelActive = true;
     channelState |= CHANNELSTATE_MAIN_ACTIVE;
 
-    bUpdateOpenGLData |= (structMainChannel.alpha != structMainChannelPrev.alpha);
+    bUpdateOpenGLData |= (structMainChannel.dmaflags != structMainChannelPrev.dmaflags);
+    bUpdateOpenGLData |= (memcmp(&structMainChannel.dest_xoff, &structMainChannelPrev.dest_xoff, 8*sizeof(int32) + 4*sizeof(uint8)) != 0);
+    /*bUpdateOpenGLData |= (structMainChannel.alpha != structMainChannelPrev.alpha);
     bUpdateOpenGLData |= (structMainChannel.clut_select != structMainChannelPrev.clut_select);
     bUpdateOpenGLData |= (structMainChannel.dest_height != structMainChannelPrev.dest_height);
     bUpdateOpenGLData |= (structMainChannel.dest_width != structMainChannelPrev.dest_width);
     bUpdateOpenGLData |= (structMainChannel.dest_xoff != structMainChannelPrev.dest_xoff);
     bUpdateOpenGLData |= (structMainChannel.dest_yoff != structMainChannelPrev.dest_yoff);
-    bUpdateOpenGLData |= (structMainChannel.dmaflags != structMainChannelPrev.dmaflags);
     bUpdateOpenGLData |= (structMainChannel.hfilter != structMainChannelPrev.hfilter);
     bUpdateOpenGLData |= (structMainChannel.src_width != structMainChannelPrev.src_width);
     bUpdateOpenGLData |= (structMainChannel.src_height != structMainChannelPrev.src_height);
     bUpdateOpenGLData |= (structMainChannel.src_xoff != structMainChannelPrev.src_xoff);
     bUpdateOpenGLData |= (structMainChannel.src_yoff != structMainChannelPrev.src_yoff);
-    bUpdateOpenGLData |= (structMainChannel.vfilter != structMainChannelPrev.vfilter);
+    bUpdateOpenGLData |= (structMainChannel.vfilter != structMainChannelPrev.vfilter);*/
   }
 
   if(osd)
@@ -1105,14 +1103,10 @@ void VidConfig(MPE &mpe)
     //check for -1 in dest_xoff or dest_yoff: if either is -1, compute proper
     //offset needed to center along x and/or y
     if(structOverlayChannel.dest_xoff == -1)
-    {
       structOverlayChannel.dest_xoff = (structMainDisplay.dispwidth - structOverlayChannel.dest_width) >> 1;
-    }
 
     if(structOverlayChannel.dest_yoff == -1)
-    {
       structOverlayChannel.dest_yoff = (structMainDisplay.dispheight - structOverlayChannel.dest_height) >> 1;
-    }
 
     //AllocateTextureMemory32(((structOverlayChannel.src_width & 0xFFFF) * (structOverlayChannel.src_height & 0xFFFF)),true);
     overlayChannelScaleX = (float)((double)structOverlayChannel.dest_width/(double)structOverlayChannel.src_width);
@@ -1120,19 +1114,20 @@ void VidConfig(MPE &mpe)
     bOverlayChannelActive = true;
     channelState |= CHANNELSTATE_OVERLAY_ACTIVE;
 
-    bUpdateOpenGLData |= (structOverlayChannel.alpha != structOverlayChannelPrev.alpha);
+    bUpdateOpenGLData |= (structOverlayChannel.dmaflags != structOverlayChannelPrev.dmaflags);
+    bUpdateOpenGLData |= (memcmp(&structOverlayChannel.dest_xoff, &structOverlayChannelPrev.dest_xoff, 8*sizeof(int32) + 4*sizeof(uint8)) != 0);
+    /*bUpdateOpenGLData |= (structOverlayChannel.alpha != structOverlayChannelPrev.alpha);
     bUpdateOpenGLData |= (structOverlayChannel.clut_select != structOverlayChannelPrev.clut_select);
     bUpdateOpenGLData |= (structOverlayChannel.dest_height != structOverlayChannelPrev.dest_height);
     bUpdateOpenGLData |= (structOverlayChannel.dest_width != structOverlayChannelPrev.dest_width);
     bUpdateOpenGLData |= (structOverlayChannel.dest_xoff != structOverlayChannelPrev.dest_xoff);
     bUpdateOpenGLData |= (structOverlayChannel.dest_yoff != structOverlayChannelPrev.dest_yoff);
-    bUpdateOpenGLData |= (structOverlayChannel.dmaflags != structOverlayChannelPrev.dmaflags);
     bUpdateOpenGLData |= (structOverlayChannel.hfilter != structOverlayChannelPrev.hfilter);
     bUpdateOpenGLData |= (structOverlayChannel.src_width != structOverlayChannelPrev.src_width);
     bUpdateOpenGLData |= (structOverlayChannel.src_height != structOverlayChannelPrev.src_height);
     bUpdateOpenGLData |= (structOverlayChannel.src_xoff != structOverlayChannelPrev.src_xoff);
     bUpdateOpenGLData |= (structOverlayChannel.src_yoff != structOverlayChannelPrev.src_yoff);
-    bUpdateOpenGLData |= (structOverlayChannel.vfilter != structOverlayChannelPrev.vfilter);
+    bUpdateOpenGLData |= (structOverlayChannel.vfilter != structOverlayChannelPrev.vfilter);*/
   }
 
   if(nuonEnv.systemBusDRAM)
@@ -1171,17 +1166,12 @@ void VidSetup(MPE &mpe)
   channelStatePrev = channelState;
   channelState = 0;
 
+  memcpy(&structMainChannelPrev, &structMainChannel, sizeof(VidChannel));
+
   if(mainChannelBase)
   {
-    structMainChannelPrev.base = structMainChannel.base;
     structMainChannel.base = mainChannelBase;
     channelState |= CHANNELSTATE_MAIN_ACTIVE;
-
-    structMainChannelPrev.dmaflags = structMainChannel.dmaflags;
-    structMainChannelPrev.src_width = structMainChannel.src_width;
-    structMainChannelPrev.src_height = structMainChannel.src_height;
-    structMainChannelPrev.clut_select = structMainChannel.clut_select;
-    structMainChannelPrev.vfilter = structMainChannel.vfilter;
   }
 
   //FreeTextureMemory(false);
@@ -1245,30 +1235,32 @@ void VidSetup(MPE &mpe)
   structMainChannel.dest_yoff = (structMainDisplay.dispheight - structMainChannel.dest_height) >> 1;
 
   //AllocateTextureMemory32(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)),false);
-  mainChannelScaleX = (float)structMainChannel.dest_width/(float)structMainChannel.src_width;
-  mainChannelScaleY = (float)structMainChannel.dest_height/(float)structMainChannel.src_height;
+  mainChannelScaleX = (float)((double)structMainChannel.dest_width/(double)structMainChannel.src_width);
+  mainChannelScaleY = (float)((double)structMainChannel.dest_height/(double)structMainChannel.src_height);
   bMainChannelActive = true;
   bOverlayChannelActive = false;
 
   mpe.regs[0] = 1;
+
   bCanDisplayVideo = true;
   UpdateBufferLengths();
 
   bool bUpdateOpenGLData = false;
   bUpdateOpenGLData |= (channelState != channelStatePrev);
-  bUpdateOpenGLData |= (structMainChannel.alpha != structMainChannelPrev.alpha);
+  bUpdateOpenGLData |= (structMainChannel.dmaflags != structMainChannelPrev.dmaflags);
+  bUpdateOpenGLData |= (memcmp(&structMainChannel.dest_xoff, &structMainChannelPrev.dest_xoff, 8*sizeof(int32) + 4*sizeof(uint8)) != 0);
+  /*bUpdateOpenGLData |= (structMainChannel.alpha != structMainChannelPrev.alpha);
   bUpdateOpenGLData |= (structMainChannel.clut_select != structMainChannelPrev.clut_select);
   bUpdateOpenGLData |= (structMainChannel.dest_height != structMainChannelPrev.dest_height);
   bUpdateOpenGLData |= (structMainChannel.dest_width != structMainChannelPrev.dest_width);
   bUpdateOpenGLData |= (structMainChannel.dest_xoff != structMainChannelPrev.dest_xoff);
   bUpdateOpenGLData |= (structMainChannel.dest_yoff != structMainChannelPrev.dest_yoff);
-  bUpdateOpenGLData |= (structMainChannel.dmaflags != structMainChannelPrev.dmaflags);
   bUpdateOpenGLData |= (structMainChannel.hfilter != structMainChannelPrev.hfilter);
   bUpdateOpenGLData |= (structMainChannel.src_width != structMainChannelPrev.src_width);
   bUpdateOpenGLData |= (structMainChannel.src_height != structMainChannelPrev.src_height);
   bUpdateOpenGLData |= (structMainChannel.src_xoff != structMainChannelPrev.src_xoff);
   bUpdateOpenGLData |= (structMainChannel.src_yoff != structMainChannelPrev.src_yoff);
-  bUpdateOpenGLData |= (structMainChannel.vfilter != structMainChannelPrev.vfilter);
+  bUpdateOpenGLData |= (structMainChannel.vfilter != structMainChannelPrev.vfilter);*/
 
   if(bUpdateOpenGLData || (channelState != channelStatePrev))
   {
@@ -1282,9 +1274,6 @@ void VidSetup(MPE &mpe)
     *((uint32 *)&nuonEnv.systemBusDRAM[LAST_VIDEO_CONFIG_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK])
       = *((uint32 *)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
   }
-
-  bCanDisplayVideo = true;
-
 }
 
 void VidSync(MPE& mpe) // should wait (as seen by the app) for mpe.regs[0] fields (= mpe.regs[0] * 1/60 or 1/50 second), if 0 or -1 just return internal field counter, -2 is internal only
