@@ -624,35 +624,23 @@ void InitBios(MPE &mpe)
   InitDVDJumpTable();
 
   //DEFAULT VIDCHANNEL INITIALIZATION
+  memset(&structMainChannel,0,sizeof(VidChannel));
   structMainChannel.base = 0x40000000;
   structMainChannel.src_width = VIDEO_WIDTH;
   structMainChannel.src_height = 480;
   structMainChannel.dest_width = VIDEO_WIDTH;
   structMainChannel.dest_height = 480;
-  structMainChannel.src_xoff = 0;
-  structMainChannel.src_yoff = 0;
-  structMainChannel.dest_xoff = 0;
-  structMainChannel.dest_yoff = 0;
   structMainChannel.dmaflags = (4 << 4);
-  for(uint32 i = 0; i < 5; i++)
-  {
-    structMainChannel.reserved[i] = 0;
-  }
+
+  memset(&structOverlayChannel,0,sizeof(VidChannel));
   structOverlayChannel.base = 0x40000000;
   structOverlayChannel.src_width = VIDEO_WIDTH;
   structOverlayChannel.src_height = 480;
   structOverlayChannel.dest_width = VIDEO_WIDTH;
   structOverlayChannel.dest_height = 480;
-  structOverlayChannel.src_xoff = 0;
-  structOverlayChannel.src_yoff = 0;
-  structOverlayChannel.dest_xoff = 0;
-  structOverlayChannel.dest_yoff = 0;
   structOverlayChannel.dmaflags = (4 << 4);
   structOverlayChannel.alpha = 0xFF;
-  for(uint32 i = 0; i < 5; i++)
-  {
-    structOverlayChannel.reserved[i] = 0;
-  }
+
   structMainChannelPrev.base = 0;
   structMainChannelPrev.src_width = 0;
   structOverlayChannelPrev.base = 0;
