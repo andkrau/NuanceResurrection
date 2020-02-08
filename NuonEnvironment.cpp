@@ -364,8 +364,10 @@ void NuonEnvironment::Init()
   bProcessorStartStopChange = false;
   pendingCommRequests = 0;
 
+  memset(&structMainDisplay,0,sizeof(VidDisplay));
   structMainDisplay.dispwidth = VIDEO_WIDTH;
   structMainDisplay.dispheight = 480;
+
   bInterlaced = false;
   InitializeColorSpaceTables();
   mainChannelLowerLimit = 0;
