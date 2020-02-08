@@ -167,7 +167,7 @@ bool GLWindow::CreateWindowGL()
   hWnd = CreateWindowEx(
     wStyleEx,
     "NuanceGLWindow",
-    "Nuance(F1 to toggle fullscreen)",
+    "Nuance (F1 to toggle fullscreen)",
     wStyle,
     windowRect.left, windowRect.top,
     windowRect.right - windowRect.left,
