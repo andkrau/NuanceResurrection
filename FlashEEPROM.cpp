@@ -1,5 +1,4 @@
 #include "basetypes.h"
-#include <assert.h>
 #include <stdio.h>
 #include "FlashEEPROM.h"
 

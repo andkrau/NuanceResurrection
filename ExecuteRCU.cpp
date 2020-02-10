@@ -1,5 +1,4 @@
 #include "basetypes.h"
-#include <assert.h>
 #include "InstructionCache.h"
 #include "mpe.h"
 

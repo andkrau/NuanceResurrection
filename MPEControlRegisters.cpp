@@ -1,5 +1,4 @@
 #include "basetypes.h"
-#include <assert.h>
 #include "byteswap.h"
 #include "comm.h"
 #include "dma.h"
@@ -324,10 +323,10 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       return;
     case 0xE:
       //intclr: clears corresponding bit in intsrc
-      if((data & 0x10) && (pcexec > 0x80000000) && (commctl & 0x80000000) && ((pcexec < 0x807604C0) || (pcexec > 0x807604C8)))
+      /*if((data & 0x10) && (pcexec > 0x80000000) && (commctl & 0x80000000) && ((pcexec < 0x807604C0) || (pcexec > 0x807604C8)))
       {
         intsrc &= ~data;
-      }
+      }*/
       intsrc &= ~data;
       return;
     case 0xF:

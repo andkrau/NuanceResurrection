@@ -1,7 +1,7 @@
 #include "basetypes.h"
-#include <assert.h>
-#include <stdio.h>
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
 #include <windows.h>
+#endif
 #include "bdma_type5.h"
 #include "bdma_type8.h"
 #include "bdma_type12.h"
@@ -607,6 +607,9 @@ const BilinearDMAHandler BilinearDMAHandlers[] =
 
 void UnimplementedBilinearDMAHandler(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "UnimplementedBilinearDMAHandler", "Error", MB_OK);
+#endif
   return;
 }
 
@@ -1023,6 +1026,9 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
   switch(whichRoutine >> 4)
   {
     case 0:
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+      MessageBox(NULL,"whichRoutine>>4 not found","DMABiLinear Error",MB_OK);
+#endif
       //whichRoutine = 0;
       return;
       break;
@@ -1089,6 +1095,9 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       return;
       break;
     default:
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+      MessageBox(NULL,"whichRoutine>>4 not found","DMABiLinear Error",MB_OK);
+#endif
       //whichRoutine = 0;
       return;
       break;
@@ -1099,7 +1108,9 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
 
   if(bChain)
   {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
     MessageBox(NULL,"Chained DMA not supported","DMABiLinear Error",MB_OK);
+#endif
     return;
   }
 
@@ -1314,6 +1325,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
 
   //base address is always a system address (absolute)
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   if((sdramBase < 0x40000000) || (sdramBase > 0x407FFFFF))
   {
     char msgBuf[512];
@@ -1323,6 +1335,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
   //else
   //{
   //}
+#endif
 
   assert(((sdramBase >> 23) & 0x1FUL) < 4);
   void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
@@ -1738,6 +1751,9 @@ void DMADo(MPE &mpe)
         break;
       }
       default:
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+        MessageBox(NULL, "(dmaflags >> 14) & 0x03UL not found", "DMADo Error", MB_OK);
+#endif
         return;
     }
 

@@ -1,5 +1,4 @@
 #include "basetypes.h"
-#include <assert.h>
 #include "byteswap.h"
 #include "dma.h"
 #include "NuonEnvironment.h"

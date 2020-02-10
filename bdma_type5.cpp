@@ -1,5 +1,7 @@
 #include "basetypes.h"
-#include <assert.h>
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+#include <windows.h>
+#endif
 #include "byteswap.h"
 #include "dma.h"
 #include "NuonEnvironment.h"
@@ -235,7 +237,12 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
   const bool bChain = flags & (1UL << 29);
 
   if (bChain)
+  {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+    MessageBox(NULL, "Chained DMA not supported", "DMABiLinear Error", MB_OK);
+#endif
     return;
+  }
 
   const bool bRemote = flags & (1UL << 28);
   //const bool bDirect = flags & (1UL << 27);

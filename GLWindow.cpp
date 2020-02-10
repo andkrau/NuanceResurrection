@@ -17,12 +17,9 @@ GLWindow::GLWindow()
   bFullScreen = false; // starting fullscreen from the start is broken at the moment, so leave at false and rather toggle dynamically later on
 
   bVisible = false;
+
   keyDownHandler = 0;
   keyUpHandler = 0;
-  createHandler = 0;
-  closeHandler = 0;
-  closeQueryHandler = 0;
-  destroyHandler = 0;
   paintHandler = 0;
   resizeHandler = 0;
 
@@ -83,32 +80,27 @@ void GLWindow::OnResize(int width, int height)
 
 void GLWindow::ToggleFullscreen()
 {
-	PostMessage(hWnd, WM_TOGGLEFULLSCREEN, 0, 0);
+  PostMessage(hWnd, WM_TOGGLEFULLSCREEN, 0, 0);
 }
 
 bool GLWindow::ChangeScreenResolution(int width, int height)
 {
-	DEVMODE dmScreenSettings;
-	ZeroMemory(&dmScreenSettings, sizeof(DEVMODE));
-	dmScreenSettings.dmSize	= sizeof(DEVMODE);
-	dmScreenSettings.dmPelsWidth = width;
-	dmScreenSettings.dmPelsHeight = height;
-	dmScreenSettings.dmBitsPerPel = 32;
-	dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-	if(ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
-	{
-		return false;
-	}
-	return true;
+  DEVMODE dmScreenSettings;
+  ZeroMemory(&dmScreenSettings, sizeof(DEVMODE));
+  dmScreenSettings.dmSize	= sizeof(DEVMODE);
+  dmScreenSettings.dmPelsWidth = width;
+  dmScreenSettings.dmPelsHeight = height;
+  dmScreenSettings.dmBitsPerPel = 32;
+  dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+  if(ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
+    return false;
+  return true;
 }
 
 bool GLWindow::CreateWindowGL()
 {
-  GLuint PixelFormat;
-  unsigned __int32 wStyle, wStyleEx;
-
-  wStyle = windowStyle;
-  wStyleEx = windowExtendedStyle;
+  uint32 wStyle = windowStyle;
+  uint32 wStyleEx = windowExtendedStyle;
 
   PIXELFORMATDESCRIPTOR pfd;
   pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
@@ -243,7 +235,7 @@ bool GLWindow::CreateWindowGL()
     return false;
   }
 
-  PixelFormat = ChoosePixelFormat(hDC, &pfd);
+  GLuint PixelFormat = ChoosePixelFormat(hDC, &pfd);
   if(!PixelFormat)
   {
     LPVOID lpMsgBuf;
@@ -446,7 +438,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
   switch(uMsg)
   {
-		case WM_SYSCOMMAND:
+    case WM_SYSCOMMAND:
 		{
 			switch(wParam)
 			{
@@ -456,46 +448,18 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 			}
 			break;
 		}
-		case WM_CREATE:
+    case WM_CREATE:
 		{
 			CREATESTRUCT *creation = (CREATESTRUCT *)(lParam);
 			window = (GLWindow *)(creation->lpCreateParams);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)(window));
-
-      if(window->createHandler)
-      {
-        window->createHandler(wParam, lParam);
-      }
-
 		}
 		return 0;
 
-		case WM_CLOSE:
-      if(window->closeQueryHandler)
-      {
-        if(!window->closeQueryHandler(0,0))
-        {
-          //CloseQuery callback said not to close the window
-          return -1;
-        }
-        else
-        {
-          if(window->closeHandler)
-          {
-            //Close callback exists, so call it
-            window->closeHandler(0,0);
-          }
-        }
-      }
-
-      //Call the default close handler
+    case WM_CLOSE:
       return 0;
 
     case WM_DESTROY:
-      if(window->destroyHandler)
-      {
-        window->destroyHandler(0,0);
-      }
       return 0;
 
     case WM_MOVE:
@@ -530,7 +494,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
     case WM_KEYDOWN:
       if(window->keyDownHandler)
       {
-        window->keyDownHandler((int)wParam,(unsigned __int32)lParam);
+        window->keyDownHandler((int16)wParam,(uint32)lParam);
       }
       if((int)wParam == VK_F1 || ((int)wParam == VK_ESCAPE && window->bFullScreen))
       {
@@ -541,7 +505,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
     case WM_KEYUP:
       if(window->keyUpHandler)
       {
-        window->keyUpHandler((int)wParam,(unsigned __int32)lParam);
+        window->keyUpHandler((int16)wParam,(uint32)lParam);
       }
       break;
 

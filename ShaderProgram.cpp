@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include "ShaderProgram.h"
 #include "Windows.h"
-#include <assert.h>
 
 ShaderProgram::ShaderProgram()
 {

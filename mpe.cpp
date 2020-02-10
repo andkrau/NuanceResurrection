@@ -1,5 +1,4 @@
 #include "basetypes.h"
-#include <assert.h>
 #include <fcntl.h>
 #include <intrin.h>
 #include <io.h>
@@ -37,6 +36,8 @@
 #include "SuperBlock.h"
 #include "X86EmitTypes.h"
 #include "Utility.h"
+
+#define COMPILE_THRESHOLD 50UL
 
 //#define LOG_COMM
 //#define LOG_PROGRAM_FLOW
@@ -870,8 +871,6 @@ void MPE::FreeMPELocalMemory()
 {
   delete [] dtrom;
 }
-
-const uint32 COMPILE_THRESHOLD = 50UL;
 
 void MPE::Reset()
 {

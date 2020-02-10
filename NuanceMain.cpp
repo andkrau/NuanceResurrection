@@ -23,52 +23,59 @@
 
 NuonEnvironment nuonEnv;
 char **pArgs = 0;
-GLWindow display;
 
 extern ControllerData *controller;
+
 extern std::mutex gfx_lock;
-
-bool bQuit = false;
-bool bRun = false;
-
-HICON iconApp;
-HBITMAP bmpLEDOn;
-HBITMAP bmpLEDOff;
-HWND picMPE0LED;
-HWND picMPE1LED;
-HWND picMPE2LED;
-HWND picMPE3LED;
-HWND textMPE0;
-HWND textMPE1;
-HWND textMPE2;
-HWND textMPE3;
-HWND textMPE0Pcexec;
-HWND textMPE1Pcexec;
-HWND textMPE2Pcexec;
-HWND textMPE3Pcexec;
-HWND cbLoadFile;
-HWND cbSingleStep;
-HWND cbRun;
-HWND cbStop;
-HWND cbReset;
-HWND reTermDisplay;
-
-HWND cbCommStatus;
-HWND cbDisplayStatus;
-HWND cbMPEStatus;
-HWND cbDumpMPEs;
-HWND reStatus;
-
-OPENFILENAME ofn;
-char openFileName[512];
-
-unsigned long whichController = 1;
-unsigned long disassemblyMPE = 3;
-unsigned long whichStatus = 0;
 
 extern VidChannel structMainChannel, structOverlayChannel;
 extern bool bOverlayChannelActive, bMainChannelActive;
 extern vidTexInfo videoTexInfo;
+
+//
+
+static bool bQuit = false;
+static bool bRun = false;
+
+static bool load4firsttime = true;
+
+static GLWindow display;
+
+static HICON iconApp;
+static HBITMAP bmpLEDOn;
+static HBITMAP bmpLEDOff;
+static HWND picMPE0LED;
+static HWND picMPE1LED;
+static HWND picMPE2LED;
+static HWND picMPE3LED;
+static HWND textMPE0;
+static HWND textMPE1;
+static HWND textMPE2;
+static HWND textMPE3;
+static HWND textMPE0Pcexec;
+static HWND textMPE1Pcexec;
+static HWND textMPE2Pcexec;
+static HWND textMPE3Pcexec;
+static HWND cbLoadFile;
+static HWND cbSingleStep;
+static HWND cbRun;
+static HWND cbStop;
+static HWND cbReset;
+static HWND reTermDisplay;
+
+static HWND cbCommStatus;
+static HWND cbDisplayStatus;
+static HWND cbMPEStatus;
+static HWND cbDumpMPEs;
+static HWND reStatus;
+
+static OPENFILENAME ofn;
+static char openFileName[512];
+
+static unsigned long whichController = 1;
+static unsigned long disassemblyMPE = 3;
+static unsigned long whichStatus = 0;
+
 
 bool GetMPERunStatus(const uint32 which)
 {
@@ -78,13 +85,9 @@ bool GetMPERunStatus(const uint32 which)
 void SetMPERunStatus(const uint32 which, const bool run)
 {
   if(run)
-  {
     nuonEnv.mpe[which & 0x03].mpectl |= MPECTRL_MPEGO;
-  }
   else
-  {
     nuonEnv.mpe[which & 0x03].mpectl &= ~MPECTRL_MPEGO;
-  }
 }
 
 void UpdateStatusWindowDisplay()
@@ -249,8 +252,8 @@ void UpdateStatusWindowDisplay()
 
 void UpdateControlPanelDisplay()
 {
-  HWND ledHandles[] = {picMPE0LED,picMPE1LED,picMPE2LED,picMPE3LED};
-  HWND pcexecHandles[] = {textMPE0Pcexec,textMPE1Pcexec,textMPE2Pcexec,textMPE3Pcexec};
+  const HWND ledHandles[] = {picMPE0LED,picMPE1LED,picMPE2LED,picMPE3LED};
+  const HWND pcexecHandles[] = {textMPE0Pcexec,textMPE1Pcexec,textMPE2Pcexec,textMPE3Pcexec};
 
   for(uint32 i = 0; i < 4; i++)
   {
@@ -275,7 +278,7 @@ void UpdateControlPanelDisplay()
 
 void OnMPELEDDoubleClick(uint32 which)
 {
-  HWND handles[] = {picMPE0LED,picMPE1LED,picMPE2LED,picMPE3LED};
+  const HWND handles[] = {picMPE0LED,picMPE1LED,picMPE2LED,picMPE3LED};
 
   which = which & 0x03;
   const bool rs = GetMPERunStatus(which);
@@ -290,9 +293,7 @@ void ExecuteSingleStep()
   nuonEnv.mpe[1].ExecuteSingleStep();
   nuonEnv.mpe[0].ExecuteSingleStep();
   if(nuonEnv.pendingCommRequests)
-  {
     DoCommBusController();
-  }
 }
 
 INT_PTR CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
@@ -383,29 +384,30 @@ void Run()
             bRun = true;
 }
 
-void Load()
+bool Load()
 {
-            if(GetOpenFileName(&ofn))
-            {
-              bool bSuccess = nuonEnv.mpe[3].LoadNuonRomFile(ofn.lpstrFile);
-              if(!bSuccess)
-              {
-                bSuccess = nuonEnv.mpe[3].LoadCoffFile(ofn.lpstrFile);
-                if(!bSuccess)
-                {
-                  MessageBox(NULL,"Invalid COFF or NUONROM-DISK file",ERROR,MB_ICONWARNING);
-                }
-              }
-              
-              if(bSuccess)
-              {
-                nuonEnv.SetDVDBaseFromFileName(ofn.lpstrFile);
-                nuonEnv.mpe[3].Go();
-                UpdateControlPanelDisplay();
-                SetWindowPos(display.hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
-                Run();
-              }
-            }
+  if(GetOpenFileName(&ofn))
+  {
+    bool bSuccess = nuonEnv.mpe[3].LoadNuonRomFile(ofn.lpstrFile);
+    if(!bSuccess)
+    {
+      bSuccess = nuonEnv.mpe[3].LoadCoffFile(ofn.lpstrFile);
+      if(!bSuccess)
+        MessageBox(NULL,"Invalid COFF or NUONROM-DISK file",ERROR,MB_ICONWARNING);
+    }
+    
+    if(bSuccess)
+    {
+      nuonEnv.SetDVDBaseFromFileName(ofn.lpstrFile);
+      nuonEnv.mpe[3].Go();
+      UpdateControlPanelDisplay();
+      SetWindowPos(display.hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+      Run();
+      return true;
+    }
+  }
+
+  return false;
 }
 
 INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
@@ -444,19 +446,26 @@ INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPAR
             EnableWindow(cbRun,TRUE);
             bRun = false;
             UpdateControlPanelDisplay();
+
             return TRUE;
           }
           else if((HWND)lParam == cbReset)
           {
             for(uint32 i = 0; i < 4; i++)
-            {
               nuonEnv.mpe[i].Reset();
-            }
+
+            EnableWindow(cbLoadFile, TRUE);
+
             return TRUE;
           }
           else if((HWND)lParam == cbLoadFile)
           {
-            Load();
+            if (!load4firsttime)
+              nuonEnv.InitBios(); //!! hacky, but seems to work
+
+            if (Load())
+              load4firsttime = false;
+
             return TRUE;
           }
           else if((HWND)lParam == textMPE0)
@@ -788,9 +797,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     //wglMakeCurrent(display.hDC, hRC);
   }
 
-  AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,false);
-  AllocateTextureMemory32(ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT,true);
-
   const HMODULE hRichEditLibrary = LoadLibrary("Riched20.dll"); // needs to be loaded, otherwise program hangs
   hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_CONTROL_PANEL),NULL,ControlPanelDialogProc);
   const HWND hStatusDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_STATUS_DIALOG),NULL,StatusWindowDialogProc);
@@ -836,7 +842,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   UpdateControlPanelDisplay();
 
-  Load();
+  if(Load())
+    load4firsttime = false;
 
   nuonEnv.videoDisplayCycleCount = 0;
 
@@ -891,9 +898,6 @@ CLEANUP AND APPLICATION SHUTDOWN CODE
   ShowWindow(hStatusDlg,FALSE);
   EndDialog(hDlg,IDOK);
   EndDialog(hStatusDlg,IDOK);
-
-  FreeTextureMemory(false);
-  FreeTextureMemory(true);
 
   VideoCleanup();
 
