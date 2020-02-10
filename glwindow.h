@@ -1,4 +1,3 @@
-//---------------------------------------------------------------------------
 #ifndef GLWindowH
 #define GLWindowH
 
@@ -44,10 +43,6 @@ public:
   GLWINDOW_KEYCALLBACK keyDownHandler;
   GLWINDOW_KEYCALLBACK keyUpHandler;
   GLWINDOW_RESIZECALLBACK resizeHandler;
-  GLWINDOW_CALLBACK createHandler;
-  GLWINDOW_CALLBACK closeHandler;
-  GLWINDOW_CALLBACK closeQueryHandler;
-  GLWINDOW_CALLBACK destroyHandler;
   GLWINDOW_CALLBACK paintHandler;
 
 private:

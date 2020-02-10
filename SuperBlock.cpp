@@ -1,5 +1,4 @@
 #include "basetypes.h"
-#include <assert.h>
 #include "Handlers.h"
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"

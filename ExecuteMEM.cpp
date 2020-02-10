@@ -1,5 +1,4 @@
 #include "basetypes.h"
-#include <assert.h>
 #include "byteswap.h"
 #include "ExecuteMEM.h"
 #include "InstructionCache.h"

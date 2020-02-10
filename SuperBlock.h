@@ -2,7 +2,6 @@
 #define INSTRUCTION_SUPERBLOCK_H
 
 #include "basetypes.h"
-#include <stdio.h>
 #include "InstructionCache.h"
 #include "mpe.h"
 #include "NativeCodeCache.h"
@@ -91,21 +90,20 @@ public:
   uint32 PerformDeadCodeElimination();
   int32 FetchSuperBlock(uint32 address, bool &bContainsBranch);
 
+  MPE *pMPE;
+  InstructionEntry *instructions;
   uint32 numInstructions;
+
+private:
+  PacketEntry *packets;
+  SuperBlockConstants *constants;
   uint32 numPackets;
   uint32 packetsProcessed;
-  bool bSinglePacket;
-  bool bAllowBlockCompile;
-  PacketEntry *packets;
-  InstructionEntry *instructions;
-  SuperBlockConstants *constants;
   uint32 startAddress;
   uint32 exitAddress;
   uint32 nextDelayCounter;
-  MPE *pMPE;
-  FILE *blockFile;
-
-private:
+  bool bSinglePacket;
+  bool bAllowBlockCompile;
   bool bCanEmitNativeCode;
 };
 

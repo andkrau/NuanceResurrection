@@ -1,5 +1,4 @@
 #include "basetypes.h"
-#include <assert.h>
 #include <time.h>
 #include <windows.h>
 #include <mmsystem.h>

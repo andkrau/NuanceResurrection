@@ -5,7 +5,9 @@
 #include <fcntl.h>
 #include <io.h>
 #include <stdlib.h>
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
 #include <windows.h>
+#endif
 #include "byteswap.h"
 #include "file.h"
 #include "mpe.h"
@@ -312,7 +314,9 @@ void FileIoctl(MPE &mpe)
   //uint32 argp = mpe.regs[2];
   //uint32 errnum = mpe.regs[3];
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   MessageBox(NULL,"This handler does nothing","Unimplemented File Call: FileIoctl",MB_OK);
+#endif
 }
 
 void FileFstat(MPE &mpe)
@@ -414,9 +418,10 @@ void FileStat(MPE &mpe)
   //uint32 buf = mpe.regs[1];
   //uint32 errnum = mpe.regs[2];
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   const char * const pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
-
   MessageBox(NULL,pPath,"Unimplemented File Call: FileStat",MB_OK);
+#endif
 
   mpe.regs[0] = 0;
 }
@@ -426,9 +431,10 @@ void FileIsatty(MPE &mpe)
   const uint32 path = mpe.regs[0];
   //uint32 errnum = mpe.regs[1];
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   const char * const pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
-
   MessageBox(NULL,pPath,"Unimplemented File Call: FileIsatty",MB_OK);
+#endif
 }
 
 void FileLseek(MPE &mpe)
@@ -465,7 +471,9 @@ void FileLink(MPE &mpe)
   //uint32 newpath = mpe.regs[1];
   //uint32 errnum = mpe.regs[2];
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   MessageBox(NULL,"This handler does nothing","Unimplemented File Call: FileLink",MB_OK);
+#endif
 }
 
 void FileLstat(MPE &mpe)
@@ -474,9 +482,10 @@ void FileLstat(MPE &mpe)
   //uint32 buf = mpe.regs[1];
   //uint32 errnum = mpe.regs[2];
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   const char * const pFilename = (char *)nuonEnv.GetPointerToMemory(mpe,file_name);
-
   MessageBox(NULL,pFilename,"Unimplemented File Call: FileLstat",MB_OK);
+#endif
 }
 
 void FileUnlink(MPE &mpe)
@@ -484,7 +493,8 @@ void FileUnlink(MPE &mpe)
   const uint32 pathname = mpe.regs[0];
   //uint32 errnum = mpe.regs[1];
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   const char * const pPathname = (char *)nuonEnv.GetPointerToMemory(mpe,pathname);
-
   MessageBox(NULL,pPathname,"Unimplemented File Call: FileUnlink",MB_OK);
+#endif
 }

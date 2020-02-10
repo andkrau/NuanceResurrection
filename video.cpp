@@ -1,8 +1,6 @@
 #define SUPPORT_VSYNC_WAITING // necessary to frame limit some games that rely on vsync, and the implementation SHOULD not harm systems that are too slow/cannot match 60fps emulation, but requires more testing to be 100% sure
 
 #include "basetypes.h"
-#include <assert.h>
-#include <stdio.h>
 #include <windows.h>
 #include <mutex>
 #include "external\glew-2.1.0\include\GL\glew.h"
@@ -33,6 +31,7 @@ bool bOverlayChannelActive = false;
 VidDisplay structMainDisplay;
 VidChannel structMainChannel;
 VidChannel structOverlayChannel;
+
 VidChannel structMainChannelPrev;
 VidChannel structOverlayChannelPrev;
 
@@ -64,8 +63,8 @@ static bool bTexturesInitialized = false;
 static bool bShadersInstalled = false;
 static bool bSetupViewport = false;
 
-static uint32 *mainChannelBuffer = 0;
-static uint32 *overlayChannelBuffer = 0;
+static uint32 mainChannelBuffer[ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT];
+static uint32 overlayChannelBuffer[ALLOCATED_TEXTURE_WIDTH*ALLOCATED_TEXTURE_HEIGHT];
 
 static int bMainTexturePixType = -1;
 static int bOverlayTexturePixType = -1;
@@ -104,46 +103,6 @@ void InitializeColorSpaceTables(void)
       // Alpha can differ, so leave out!
       LUT16[i][i2] = ((uint32)CB << 16) | ((uint32)CR << 8) | (uint32)Y;
     }
-}
-
-uint32 *AllocateTextureMemory32(const uint32 size, const bool bOverlay)
-{
-  if(bOverlay)
-  {
-    if(!overlayChannelBuffer)
-    {
-      overlayChannelBuffer = new uint32[size];
-    }
-    return overlayChannelBuffer;
-  }
-  else
-  {
-    if(!mainChannelBuffer)
-    {
-      mainChannelBuffer = new uint32[size];
-    }
-    return mainChannelBuffer;
-  }
-}
-
-void FreeTextureMemory(const bool bOverlay)
-{
-  if(bOverlay)
-  {
-    if(overlayChannelBuffer)
-    {
-      delete [] overlayChannelBuffer;
-      overlayChannelBuffer = 0;
-    }
-  }
-  else
-  {
-    if(mainChannelBuffer)
-    {
-      delete [] mainChannelBuffer;
-      mainChannelBuffer = 0;
-    }
-  }
 }
 
 void UpdateTextureStates(void)
@@ -1027,7 +986,6 @@ void VidConfig(MPE &mpe)
     if(structMainChannel.dest_yoff == -1)
       structMainChannel.dest_yoff = (structMainDisplay.dispheight - structMainChannel.dest_height) >> 1;
 
-    //AllocateTextureMemory32(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)),false);
     mainChannelScaleX = (float)((double)structMainChannel.dest_width/(double)structMainChannel.src_width);
     mainChannelScaleY = (float)((double)structMainChannel.dest_height/(double)structMainChannel.src_height);
     bMainChannelActive = true;
@@ -1108,7 +1066,6 @@ void VidConfig(MPE &mpe)
     if(structOverlayChannel.dest_yoff == -1)
       structOverlayChannel.dest_yoff = (structMainDisplay.dispheight - structOverlayChannel.dest_height) >> 1;
 
-    //AllocateTextureMemory32(((structOverlayChannel.src_width & 0xFFFF) * (structOverlayChannel.src_height & 0xFFFF)),true);
     overlayChannelScaleX = (float)((double)structOverlayChannel.dest_width/(double)structOverlayChannel.src_width);
     overlayChannelScaleY = (float)((double)structOverlayChannel.dest_height/(double)structOverlayChannel.src_height);
     bOverlayChannelActive = true;
@@ -1234,7 +1191,6 @@ void VidSetup(MPE &mpe)
   //Center along Y
   structMainChannel.dest_yoff = (structMainDisplay.dispheight - structMainChannel.dest_height) >> 1;
 
-  //AllocateTextureMemory32(((structMainChannel.src_width & 0xFFFF) * (structMainChannel.src_height & 0xFFFF)),false);
   mainChannelScaleX = (float)((double)structMainChannel.dest_width/(double)structMainChannel.src_width);
   mainChannelScaleY = (float)((double)structMainChannel.dest_height/(double)structMainChannel.src_height);
   bMainChannelActive = true;
@@ -1330,10 +1286,10 @@ void VidChangeBase(MPE &mpe)
 
   mpe.regs[0] = 1;
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   if(!base)
-  {
     MessageBox(NULL,"VidChangeBase was called with a base parameter of 0","Invalid Video Pointer",MB_OK);
-  }
+#endif
 
   if(((which == VID_CHANNEL_MAIN) && !mainChannelBuffer) ||
     ((which == VID_CHANNEL_OSD) && !overlayChannelBuffer))

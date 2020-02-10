@@ -1,7 +1,7 @@
 #include "basetypes.h"
-#include <assert.h>
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
 #include <windows.h>
-#include <stdio.h>
+#endif
 #include "external\fmod-3.75\api\inc\fmod.h"
 
 #include "audio.h"
@@ -181,7 +181,7 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, 
 {
   if(address < MAIN_BUS_BASE)
   {
-#if 1//def _DEBUG
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
     if(bCheckAddress)
     {
       if((address < MPE_ADDR_SPACE_BASE) || (address >= MPE1_ADDR_BASE))
@@ -203,7 +203,7 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, 
   }
   else if(address < SYSTEM_BUS_BASE)
   {
-#if 1//def _DEBUG
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
     if(bCheckAddress)
     {
       if((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK)))
@@ -225,7 +225,7 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, 
   }
   else if(address < ROM_BIOS_BASE)
   {
-#if 1//def _DEBUG
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
     if(bCheckAddress)
     {
       if((address > (SYSTEM_BUS_BASE + SYSTEM_BUS_VALID_MEMORY_MASK)))
@@ -261,7 +261,7 @@ void *NuonEnvironment::GetPointerToSystemMemory(const uint32 address, const bool
   }
   else if(address < SYSTEM_BUS_BASE)
   {
-#if 1//def _DEBUG
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
     if(bCheckAddress)
     {
       if((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK)))

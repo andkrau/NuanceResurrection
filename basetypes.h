@@ -1,6 +1,9 @@
 #ifndef BASETYPES_H
 #define BASETYPES_H
 
+#define ENABLE_ASSERTS
+#define ENABLE_EMULATION_MESSAGEBOXES
+
 #define STRICT
 #define WIN32_LEAN_AND_MEAN
 
@@ -15,7 +18,7 @@ typedef unsigned __int64 uint64;
 typedef unsigned char uchar;
 typedef signed char schar;
 
-#if 1 // initialize all nuon memory to a defined value
+#if 1 // initialize all nuon memory to a defined value (0xcd, like VS debugger)
 #include <memory.h>
 inline void init_nuon_mem(uint8* const p, const size_t length)
 {
@@ -23,6 +26,12 @@ inline void init_nuon_mem(uint8* const p, const size_t length)
 }
 #else
 inline void init_nuon_mem(const uint8* const p, const size_t length) {}
+#endif
+
+#ifdef ENABLE_ASSERTS
+#include <assert.h>
+#else
+#define assert(expression) ((void)0)
 #endif
 
 #endif

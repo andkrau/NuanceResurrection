@@ -95,8 +95,6 @@ struct VidChannel
 #define VIDEO_MODE_NTSC	(1)
 #define VIDEO_MODE_PAL (2)
 
-uint32 *AllocateTextureMemory32(uint32 size, const bool bOverlay);
-void FreeTextureMemory(const bool bOverlay);
 void VidConfig(MPE &mpe);
 void VidQueryConfig(MPE &mpe);
 void VidSync(MPE& mpe);

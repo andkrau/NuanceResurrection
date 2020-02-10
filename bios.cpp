@@ -1,7 +1,7 @@
 #include "basetypes.h"
-#include <string.h>
-#include <stdio.h>
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
 #include <windows.h>
+#endif
 
 #include "byteswap.h"
 #include "media.h"
@@ -190,7 +190,9 @@ void UnimplementedFileHandler(MPE &mpe)
 
 void UnimplementedMediaHandler(MPE &mpe)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   MessageBox(NULL,"This BIOS Handler does nothing","Unimplemented Media Routine",MB_OK);
+#endif
 }
 
 void UnimplementedCacheHandler(MPE &mpe)
@@ -200,7 +202,9 @@ void UnimplementedCacheHandler(MPE &mpe)
 
 void UnimplementedCommHandler(MPE &mpe)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   MessageBox(NULL,"This BIOS Handler does nothing","Unimplemented Comm Routine",MB_OK);
+#endif
 }
 
 void NullBiosHandler(MPE &mpe)
