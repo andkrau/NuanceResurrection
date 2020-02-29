@@ -37,13 +37,6 @@
 #include "X86EmitTypes.h"
 #include "Utility.h"
 
-#define COMPILE_THRESHOLD 50UL
-
-//#define LOG_COMM
-//#define LOG_PROGRAM_FLOW
-//#define LOG_ADDRESS_ONLY
-//#define LOG_BIOS_CALLS
-
 #define LOG_MPE_INDEX (1)
 
 #ifdef LOG_PROGRAM_FLOW
@@ -56,10 +49,13 @@
 
 extern NuonEnvironment nuonEnv;
 extern NuonBiosHandler BiosJumpTable[];
-extern NuonBiosHandler DVDJumpTable[];
-extern char *BiosRoutineNames[];
+#ifdef LOG_BIOS_CALLS
+extern const char *BiosRoutineNames[];
+#endif
 extern bool bCallingMediaCallback;
+#ifdef LOG_COMM
 extern FILE *commLogFile;
+#endif
 
 const NuanceHandler nuanceHandlers[] =
 {
@@ -765,7 +761,9 @@ NativeEmitHandler emitHandlers[] =
   Emit_SaveRegs,
 };
 
+#ifdef LOG_STUFF
 FILE *logfile = NULL;
+#endif
 
 void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr)
 {
@@ -778,37 +776,31 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
   numNonCompilablePackets = 0;
   mpeIndex = index;
   bStrictMemoryDependencyPolicy = true;
-  AllocateMPELocalMemory();
-  nativeCodeCache = new NativeCodeCache(5UL*1024UL*1024UL, 0, numTLBEntries[mpeIndex & 0x03]);
+  InitMPELocalMemory();
+  nativeCodeCache = new NativeCodeCache(5UL*1024UL*1024UL, numTLBEntries[mpeIndex & 0x03]);
   instructionCache = new InstructionCache(numCacheEntries[mpeIndex & 0x03]);
-  overlayManager = new OverlayManager();
-  overlayManager->SetOverlayLength(overlayLengths[mpeIndex]);
+  overlayManager.SetOverlayLength(overlayLengths[mpeIndex]);
   bInvalidateInstructionCaches = false;
   bInvalidateInterpreterCache = false;
   overlayMask = 0;
 
   interpretNextPacket = 0;
 
-  EmitterVariables emitvars;
-  emitvars.mpe = this;
-  emitvars.codeCache = nativeCodeCache;
-  emitvars.ppEmitLoc = nativeCodeCache->GetEmitPointerAddress();
-  emitvars.patchMgr = nativeCodeCache->patchMgr;
-  nativeCodeCache->SetEmitVars(emitvars);
+  nativeCodeCache->SetEmitVars(this, nativeCodeCache);
 
   superBlock = new SuperBlock(this);
 
   if(mpeIndex == LOG_MPE_INDEX)
   {      
+#ifdef LOG_STUFF
     if(!logfile)
-    {
       logfile = fopen("logfile","w");
-    }
+#endif
 
+#ifdef LOG_COMM
     if(!commLogFile)
-    {
       commLogFile = fopen("commlog","w");
-    }
+#endif
   }
   Reset();
 
@@ -846,30 +838,24 @@ MPE::~MPE()
 {
   delete nativeCodeCache;
   delete instructionCache;
-  delete overlayManager;
   delete superBlock;
 
   if(mpeIndex == LOG_MPE_INDEX)
   {
+#ifdef LOG_STUFF
     if(logfile)
       fclose(logfile);
-
+#endif
+#ifdef LOG_COMM
     if(commLogFile)
       fclose(commLogFile);
+#endif
   }
-
-  FreeMPELocalMemory();
 }
 
-void MPE::AllocateMPELocalMemory()
+void MPE::InitMPELocalMemory()
 {
-  dtrom = new uint8[MPE_LOCAL_MEMORY_SIZE];
   init_nuon_mem(dtrom, MPE_LOCAL_MEMORY_SIZE);
-}
-
-void MPE::FreeMPELocalMemory()
-{
-  delete [] dtrom;
 }
 
 void MPE::Reset()
@@ -882,7 +868,7 @@ void MPE::Reset()
   nativeCodeCache->Flush();
 
   invalidateRegionStart = MPE_IRAM_BASE;
-  invalidateRegionEnd = (MPE_IRAM_BASE + OVERLAY_SIZE - 1);
+  invalidateRegionEnd = MPE_IRAM_BASE + OVERLAY_SIZE - 1;
   interpreterInvalidateRegionStart = 0;
   interpreterInvalidateRegionEnd = 0;
 
@@ -1945,10 +1931,10 @@ bool MPE::FetchDecodeExecute()
         //pcexec is within MPE IRAM region that has been modified since the last time it was hashed
 
         bool bInvalidateOverlayRegion;
-        /*overlayIndex =*/ overlayManager->FindOverlay((uint32 *)&dtrom[MPE_IRAM_OFFSET], bInvalidateOverlayRegion);
+        /*overlayIndex =*/ overlayManager.FindOverlay((uint32 *)&dtrom[MPE_IRAM_OFFSET], bInvalidateOverlayRegion);
 
         //Get the new overlay mask
-        overlayMask = overlayManager->GetOverlayMask();
+        overlayMask = overlayManager.GetOverlayMask();
 
         //Invalidate the interpreter cache because these entries are not mapped to unique address ranges
         
@@ -1998,7 +1984,7 @@ bool MPE::FetchDecodeExecute()
     const bool only_find_icache_entry = (ecuSkipCounter | interpretNextPacket) != 0;
     if(!only_find_icache_entry)
     {
-      pNativeCodeCacheEntry = nativeCodeCache->GetPageMap()->FindEntry(pcexecLookupValue);
+      pNativeCodeCacheEntry = nativeCodeCache->pageMap.FindEntry(pcexecLookupValue);
       if(pNativeCodeCacheEntry && (pNativeCodeCacheEntry->virtualAddress == pcexecLookupValue))
       {
         nativeCodeCacheEntryPoint = pNativeCodeCacheEntry->entryPoint;
@@ -2030,14 +2016,11 @@ bool MPE::FetchDecodeExecute()
             instructionCache->ClearCompiledStates();
           }
 
-//#define COMPILE_TYPE SUPERBLOCKCOMPILETYPE_IL_BLOCK
-#define COMPILE_TYPE SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK
-
           bool bError;
           nativeCodeCacheEntryPoint = CompileNativeCodeBlock(pcexecLookupValue, COMPILE_TYPE, bError);
           if(!bError)
           {
-            pNativeCodeCacheEntry = nativeCodeCache->GetPageMap()->FindEntry(pcexecLookupValue);
+            pNativeCodeCacheEntry = nativeCodeCache->pageMap.FindEntry(pcexecLookupValue);
             assert(pNativeCodeCacheEntry && pNativeCodeCacheEntry->virtualAddress == pcexecLookupValue);
 
             if(nuonEnv.compilerOptions.bDumpBlocks)

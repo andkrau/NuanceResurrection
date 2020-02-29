@@ -52,26 +52,26 @@ struct PropagateConstantsStatusStruct
 class SuperBlockConstants
 {
 public:
-  SuperBlockConstants(SuperBlock *sBlock);
-  ~SuperBlockConstants();
+  SuperBlockConstants(MPE * const mpe) : pMPE(mpe) {}
+  ~SuperBlockConstants() {}
 
   void PropagateConstants()
   {
     (ConstantHandlers[pCurrentInstructionEntry->instruction.fields[0]])(*this);
   }
-  void FirstInstruction()
+  void FirstInstruction(InstructionEntry* const entry)
   {
     bConstantPropagated = false;
     currentInstructionIndex = 0;
-    pCurrentInstructionEntry = pSuperBlock->instructions;
-    nuance = &(pSuperBlock->instructions[0].instruction);
+    pCurrentInstructionEntry = entry;
+    nuance = &(pCurrentInstructionEntry->instruction);
   }
-  bool NextInstruction()
+  uint32 NextInstruction()
   {
     currentInstructionIndex++;
     pCurrentInstructionEntry++;
     nuance = &(pCurrentInstructionEntry->instruction);
-    return currentInstructionIndex < pSuperBlock->numInstructions;
+    return currentInstructionIndex;
   }
   void ClearInstructionFlags(const uint32 mask)
   {
@@ -187,17 +187,11 @@ public:
     miscRegisterConstantsStatus = tempMiscRegisterConstantsStatus;
     if(scalarRegisterConstantsStatus)
     {
-      for(uint32 i = 0; i < 32; i++)
-      {
-        scalarRegisterConstants[i] = tempScalarRegisterConstants[i];
-      }
+      memcpy(scalarRegisterConstants, tempScalarRegisterConstants, 32*sizeof(uint32));
     }
     if(miscRegisterConstantsStatus)
     {
-      for(uint32 i = 0; i < 32; i++)
-      {
-        miscRegisterConstants[i] = tempMiscRegisterConstants[i];
-      }
+      memcpy(miscRegisterConstants, tempMiscRegisterConstants, 32*sizeof(uint32));
     }
   }
   bool IsScalarRegisterConstant(const uint32 index) const
@@ -217,11 +211,11 @@ public:
     return miscRegisterConstants[index];
   }
 
-  bool EvaluateBranchCondition(const uint32 whichCondition, bool * const branchResult);
+  bool EvaluateBranchCondition(const uint32 whichCondition, bool &branchResult);
 
   Nuance *nuance;
   InstructionEntry *pCurrentInstructionEntry;
-  SuperBlock* pSuperBlock;
+  MPE* pMPE;
   PropagateConstantsStatusStruct status;
   bool bConstantPropagated;
 

@@ -11,24 +11,20 @@ struct InstructionEntry;
 struct Nuance;
 class NativeCodeCache;
 
-class EmitterVariables
+struct EmitterVariables
 {
-public:
   MPE *mpe;
   NativeCodeCache *codeCache;
-  PatchManager *patchMgr;
+
   InstructionEntry *pInstructionEntry;
   uint32 scalarRegDep;
   uint32 miscRegDep;
   uint32 scalarRegOutDep;
   uint32 miscRegOutDep;
-  uint8 **ppEmitLoc;
 
   bool bCheckECUSkipCounter;
   bool bSaveRegs;
   bool bUsesMMX;
-
-  uint8 *GetEmitLoc() { return *ppEmitLoc; }
 };
 
 inline x86BaseReg GetScalarRegReadBaseReg(const EmitterVariables* const vars, const uint32 regIndex)

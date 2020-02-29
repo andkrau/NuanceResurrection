@@ -29,6 +29,7 @@ extern VidChannel structOverlayChannelPrev;
 
 void KPrintf(MPE &mpe);
 
+#ifdef LOG_BIOS_CALLS
 const char *BiosRoutineNames[512] = {
 "CommSend",
 "CommSendInfo",
@@ -182,6 +183,7 @@ const char *BiosRoutineNames[512] = {
 "SetISRExitHook",
 "CompatibilityMode"
 };
+#endif
 
 void UnimplementedFileHandler(MPE &mpe)
 {

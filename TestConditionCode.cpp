@@ -1,6 +1,6 @@
 #include "mpe.h"
 
-bool MPE::TestConditionCode(uint32 whichCondition)
+bool MPE::TestConditionCode(const uint32 whichCondition) const
 {
   //This sequencing is correct for 32/64 bit ECU instructions.  The decode
   //handler for 16/48 bit ECU instructions converts the extracted condition

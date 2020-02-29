@@ -400,14 +400,7 @@ void NuonEnvironment::Init()
   videoDisplayCycleCount = 120000;
   whichAudioInterrupt = false;
 
-  if(!pArgs)
-  {
-    LoadConfigFile("nuance.cfg");
-  }
-  else
-  {
-    LoadConfigFile(pArgs[1]);
-  }
+  LoadConfigFile(!pArgs ? "nuance.cfg" : pArgs[1]);
 
   cycleCounter = 0;
 

@@ -52,7 +52,7 @@ void PropagateConstants_BRAConditional(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -84,7 +84,7 @@ void PropagateConstants_BRAConditional_NOP(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -168,7 +168,7 @@ void PropagateConstants_JMPConditionalIndirect(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -200,7 +200,7 @@ void PropagateConstants_JMPConditionalIndirect_NOP(SuperBlockConstants &constant
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -250,7 +250,7 @@ void PropagateConstants_JSRConditional(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -282,7 +282,7 @@ void PropagateConstants_JSRConditional_NOP(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -366,7 +366,7 @@ void PropagateConstants_JSRConditionalIndirect(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -398,7 +398,7 @@ void PropagateConstants_JSRConditionalIndirect_NOP(SuperBlockConstants &constant
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -446,7 +446,7 @@ void PropagateConstants_RTSConditional(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -477,7 +477,7 @@ void PropagateConstants_RTSConditional_NOP(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -508,7 +508,7 @@ void PropagateConstants_RTI1Conditional(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -540,7 +540,7 @@ void PropagateConstants_RTI1Conditional_NOP(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -572,7 +572,7 @@ void PropagateConstants_RTI2Conditional(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {
@@ -604,7 +604,7 @@ void PropagateConstants_RTI2Conditional_NOP(SuperBlockConstants &constants)
   }
 
   bool branchResult;
-  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], &branchResult))
+  if(constants.EvaluateBranchCondition(constants.nuance->fields[FIELD_ECU_CONDITION], branchResult))
   {
     if(branchResult)
     {

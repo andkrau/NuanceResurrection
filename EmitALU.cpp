@@ -867,7 +867,7 @@ void Emit_ANDImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVIR(src1Imm, x86Reg_ebx);
@@ -877,17 +877,17 @@ void Emit_ANDImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_shl,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_SHLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_ANDMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -930,7 +930,7 @@ void Emit_ANDImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_ANDScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
@@ -952,7 +952,7 @@ void Emit_ANDScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
@@ -962,17 +962,17 @@ void Emit_ANDScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_shl,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_SHLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_ANDMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -1015,7 +1015,7 @@ void Emit_ANDScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_ANDScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuance)
@@ -1037,7 +1037,7 @@ void Emit_ANDScalarRotateScalar(EmitterVariables * const vars, const Nuance &nua
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
@@ -1047,17 +1047,17 @@ void Emit_ANDScalarRotateScalar(EmitterVariables * const vars, const Nuance &nua
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_rol);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
 
   vars->codeCache->X86Emit_RORRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_rol,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_rol,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_ROLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_ANDMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -1100,7 +1100,7 @@ void Emit_ANDScalarRotateScalar(EmitterVariables * const vars, const Nuance &nua
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_ANDScalarShiftLeftImmediate(EmitterVariables * const vars, const Nuance &nuance)
@@ -1324,7 +1324,7 @@ void Emit_FTSTImmediateShiftScalar(EmitterVariables * const vars, const Nuance &
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVIR(src1Imm, x86Reg_ebx);
@@ -1334,17 +1334,17 @@ void Emit_FTSTImmediateShiftScalar(EmitterVariables * const vars, const Nuance &
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_shl,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_SHLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
   
   vars->codeCache->X86Emit_ANDMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -1382,7 +1382,7 @@ void Emit_FTSTImmediateShiftScalar(EmitterVariables * const vars, const Nuance &
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_FTSTScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
@@ -1404,7 +1404,7 @@ void Emit_FTSTScalarShiftScalar(EmitterVariables * const vars, const Nuance &nua
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
@@ -1414,17 +1414,17 @@ void Emit_FTSTScalarShiftScalar(EmitterVariables * const vars, const Nuance &nua
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_shl,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_SHLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
   
   vars->codeCache->X86Emit_ANDMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -1462,7 +1462,7 @@ void Emit_FTSTScalarShiftScalar(EmitterVariables * const vars, const Nuance &nua
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_FTSTScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuance)
@@ -1484,7 +1484,7 @@ void Emit_FTSTScalarRotateScalar(EmitterVariables * const vars, const Nuance &nu
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
@@ -1494,17 +1494,17 @@ void Emit_FTSTScalarRotateScalar(EmitterVariables * const vars, const Nuance &nu
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_rol);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
 
   vars->codeCache->X86Emit_RORRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_rol,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_rol,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_ROLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
   
   vars->codeCache->X86Emit_ANDMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -1542,7 +1542,7 @@ void Emit_FTSTScalarRotateScalar(EmitterVariables * const vars, const Nuance &nu
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_FTSTScalarShiftLeftImmediate(EmitterVariables * const vars, const Nuance &nuance)
@@ -1766,7 +1766,7 @@ void Emit_ORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &nu
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVIR(src1Imm, x86Reg_ebx);
@@ -1776,17 +1776,17 @@ void Emit_ORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &nu
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_shl,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_SHLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_ORMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -1829,7 +1829,7 @@ void Emit_ORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &nu
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_ORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
@@ -1851,7 +1851,7 @@ void Emit_ORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuanc
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
@@ -1861,17 +1861,17 @@ void Emit_ORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuanc
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_shl,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_SHLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_ORMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -1914,7 +1914,7 @@ void Emit_ORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuanc
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_ORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuance)
@@ -1936,7 +1936,7 @@ void Emit_ORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuan
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
@@ -1946,17 +1946,17 @@ void Emit_ORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuan
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_rol);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
 
   vars->codeCache->X86Emit_RORRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_rol,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_rol,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_ROLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_ORMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -1999,7 +1999,7 @@ void Emit_ORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuan
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_ORScalarShiftLeftImmediate(EmitterVariables * const vars, const Nuance &nuance)
@@ -2233,7 +2233,7 @@ void Emit_EORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVIR(src1Imm, x86Reg_ebx);
@@ -2243,17 +2243,17 @@ void Emit_EORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_shl,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_SHLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_XORMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -2296,7 +2296,7 @@ void Emit_EORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_EORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
@@ -2318,7 +2318,7 @@ void Emit_EORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
@@ -2328,17 +2328,17 @@ void Emit_EORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_shl,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_SHLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
   
   vars->codeCache->X86Emit_XORMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -2381,7 +2381,7 @@ void Emit_EORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_EORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuance)
@@ -2403,7 +2403,7 @@ void Emit_EORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nua
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
@@ -2413,17 +2413,17 @@ void Emit_EORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nua
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_rol);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
 
   vars->codeCache->X86Emit_RORRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_rol,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_rol,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_ROLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
   
   vars->codeCache->X86Emit_XORMR(x86Reg_ebx, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
@@ -2466,7 +2466,7 @@ void Emit_EORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nua
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_EORScalarShiftLeftImmediate(EmitterVariables * const vars, const Nuance &nuance)
@@ -3664,7 +3664,7 @@ void Emit_ROT(EmitterVariables * const vars, const Nuance &nuance)
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
@@ -3674,17 +3674,17 @@ void Emit_ROT(EmitterVariables * const vars, const Nuance &nuance)
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_rol);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
 
   vars->codeCache->X86Emit_RORRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_rol,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_rol,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_ROLRR(x86Reg_ebx);
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
   
   if(vars->scalarRegOutDep)
   {
@@ -3725,7 +3725,7 @@ void Emit_ROT(EmitterVariables * const vars, const Nuance &nuance)
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_ROL(EmitterVariables * const vars, const Nuance &nuance)
@@ -3858,7 +3858,7 @@ void Emit_AS(EmitterVariables * const vars, const Nuance &nuance)
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
@@ -3869,7 +3869,7 @@ void Emit_AS(EmitterVariables * const vars, const Nuance &nuance)
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_asl);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_asl);
 
   vars->codeCache->X86Emit_SARRR(x86Reg_ebx);
 
@@ -3879,9 +3879,9 @@ void Emit_AS(EmitterVariables * const vars, const Nuance &nuance)
     vars->codeCache->X86Emit_ANDIR(CC_ALU_CARRY, x86Reg_ebp);
   }
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_asl,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_asl,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_XORRR(x86Reg_edx, x86Reg_edx);
   vars->codeCache->X86Emit_SHLRR(x86Reg_ebx);
@@ -3894,7 +3894,7 @@ void Emit_AS(EmitterVariables * const vars, const Nuance &nuance)
     vars->codeCache->X86Emit_ANDIR(CC_ALU_CARRY, x86Reg_ebp);
   }
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
   
   if(vars->scalarRegOutDep)
   {
@@ -3940,7 +3940,7 @@ void Emit_AS(EmitterVariables * const vars, const Nuance &nuance)
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_ASL(EmitterVariables * const vars, const Nuance &nuance)
@@ -4097,7 +4097,7 @@ void Emit_LS(EmitterVariables * const vars, const Nuance &nuance)
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_ecx, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
   vars->codeCache->X86Emit_MOVMR(x86Reg_ebx, src2RegReadBaseReg, x86IndexReg_none, x86Scale_1, src2RegDisp);
@@ -4108,7 +4108,7 @@ void Emit_LS(EmitterVariables * const vars, const Nuance &nuance)
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr,X86_CC_NZ,l_asl);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_asl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
@@ -4118,9 +4118,9 @@ void Emit_LS(EmitterVariables * const vars, const Nuance &nuance)
     vars->codeCache->X86Emit_ANDIR(CC_ALU_CARRY, x86Reg_ebp);
   }
 
-  vars->codeCache->X86Emit_JMPI_Label(vars->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
 
-  vars->patchMgr->SetLabelPointer(l_asl,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_asl,vars->codeCache->GetEmitPointer());
 
   vars->codeCache->X86Emit_XORRR(x86Reg_edx, x86Reg_edx);
   vars->codeCache->X86Emit_SHLRR(x86Reg_ebx);
@@ -4133,7 +4133,7 @@ void Emit_LS(EmitterVariables * const vars, const Nuance &nuance)
     vars->codeCache->X86Emit_ANDIR(CC_ALU_CARRY, x86Reg_ebp);
   }
 
-  vars->patchMgr->SetLabelPointer(l_calc_flags,vars->GetEmitLoc());
+  vars->codeCache->patchMgr.SetLabelPointer(l_calc_flags,vars->codeCache->GetEmitPointer());
   
   if(vars->scalarRegOutDep)
   {
@@ -4179,7 +4179,7 @@ void Emit_LS(EmitterVariables * const vars, const Nuance &nuance)
     vars->codeCache->X86Emit_ORRM(x86Reg_eax, ccRegWriteBaseReg, x86IndexReg_none, x86Scale_1, ccRegDisp);
   }
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_LSR(EmitterVariables * const vars, const Nuance &nuance)

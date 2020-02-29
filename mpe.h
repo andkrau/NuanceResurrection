@@ -1,6 +1,18 @@
 #ifndef MPE_H
 #define MPE_H
 
+#define COMPILE_THRESHOLD 50UL
+
+//#define COMPILE_TYPE SUPERBLOCKCOMPILETYPE_IL_BLOCK
+#define COMPILE_TYPE SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK
+
+#define ALLOW_NATIVE_CODE_EMIT true
+
+//#define LOG_COMM
+//#define LOG_PROGRAM_FLOW
+//#define LOG_ADDRESS_ONLY
+//#define LOG_BIOS_CALLS
+
 #include "basetypes.h"
 #include "InstructionCache.h"
 #include "NativeCodeCache.h"
@@ -10,7 +22,7 @@
 
 class SuperBlock;
 enum SuperBlockCompileType;
-class EmitterVariables;
+struct EmitterVariables;
 
 #define INDEX_REG 35
 
@@ -327,7 +339,7 @@ public:
 
   //emulator variables
 
-  uint8 *dtrom;
+  uint8  dtrom[MPE_LOCAL_MEMORY_SIZE];
   uint32 pcfetchnext;
   uint32 prevPcexec;
   uint32 breakpointAddress;
@@ -362,12 +374,11 @@ public:
   InstructionCache *instructionCache;
   SuperBlock *superBlock;
   NativeCodeCache *nativeCodeCache;
-  OverlayManager *overlayManager;
+  OverlayManager overlayManager;
 
   uint8 *bankPtrTable[16];
 
-  void AllocateMPELocalMemory();
-  void FreeMPELocalMemory();
+  void InitMPELocalMemory();
   uint8 DecodeSingleInstruction(const uint8 * const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt, bool &bTerminating);
   uint32 GetPacketDelta(const uint8 *iPtr, uint32 numLevels);
   void DecompressPacket(const uint8 *iBuffer, InstructionCacheEntry &pICacheEntry, const uint32 options = 0);
@@ -426,7 +437,7 @@ public:
   void DecodeInstruction_MUL16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void DecodeInstruction_MUL32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
 
-  bool TestConditionCode(uint32 whichCondition);
+  bool TestConditionCode(const uint32 whichCondition) const;
   
   MPE() {}
   void Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr);
@@ -488,7 +499,7 @@ public:
 
   inline void *GetPointerToMemory() const
   {
-    return dtrom;
+    return (void*)dtrom;
   }
 
   inline uint8 *GetPointerToMemoryBank(const uint32 address) const

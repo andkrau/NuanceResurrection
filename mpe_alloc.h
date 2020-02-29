@@ -25,7 +25,7 @@ class MPE;
 /* special flags for MPE's being allocated */
 #define MPE_ALLOC_USER 0x01000000  /* allocated by user */
 #define MPE_ALLOC_BIOS 0x02000000  /* allocated by BIOS (e.g. for CDI) */
-#define MPE_ALLOC_ANY (MPE_ALLOC_USER|MPE_ALLOC_BIOS)
+#define MPE_ALLOC_ANY (MPE_ALLOC_USER | MPE_ALLOC_BIOS)
 
 /* function definitions */
 

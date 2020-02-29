@@ -9,9 +9,9 @@
 extern NuonEnvironment nuonEnv;
 extern uint32 vdgCLUT[];
 
+#ifdef LOG_COMM
 FILE *commLogFile;
-
-//#define LOG_COMM
+#endif
 
 void DoCommBusController(void)
 {
