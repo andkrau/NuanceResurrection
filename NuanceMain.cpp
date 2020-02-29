@@ -185,10 +185,10 @@ void UpdateStatusWindowDisplay()
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     sprintf(buf,"Overlays in use: (%d, %d, %d, %d)\n",
-      nuonEnv.mpe[0].overlayManager->GetOverlaysInUse(),
-      nuonEnv.mpe[1].overlayManager->GetOverlaysInUse(),
-      nuonEnv.mpe[2].overlayManager->GetOverlaysInUse(),
-      nuonEnv.mpe[3].overlayManager->GetOverlaysInUse());     
+      nuonEnv.mpe[0].overlayManager.GetOverlaysInUse(),
+      nuonEnv.mpe[1].overlayManager.GetOverlaysInUse(),
+      nuonEnv.mpe[2].overlayManager.GetOverlaysInUse(),
+      nuonEnv.mpe[3].overlayManager.GetOverlaysInUse());
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     sprintf(buf,"MPE3 invec1 = $%8.8lx, intvec2 = $%8.8lx\n",nuonEnv.mpe[3].intvec1,nuonEnv.mpe[3].intvec2);

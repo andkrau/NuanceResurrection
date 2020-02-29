@@ -12,10 +12,16 @@
 extern NuonEnvironment nuonEnv;
 extern NativeEmitHandler emitHandlers[];
 
-FILE *blockFile;
+static FILE *blockFile;
+
 #define NOP_IBYTE_LENGTH (2)
 
-bool IsBranchConditionCompilable(const uint32 startAddress, const uint32 mpeIndex, const uint32 condition)
+#define BRANCH_SLOT (0x4UL)
+#define DELAY_SLOT_ANY (0x3UL)
+#define DELAY_SLOT_1 (0x2UL)
+#define DELAY_SLOT_2 (0x1UL)
+
+static bool IsBranchConditionCompilable(const uint32 startAddress, const uint32 mpeIndex, const uint32 condition)
 {
   switch(condition)
   {
@@ -120,26 +126,20 @@ bool IsBranchConditionCompilable(const uint32 startAddress, const uint32 mpeInde
   }
 }
 
-SuperBlock::SuperBlock(MPE * const mpe)
+SuperBlock::SuperBlock(MPE * const mpe) : pMPE(mpe)
 {
-  pMPE = mpe;
-  //allocate enough instruction entries to account for packet start/end IL
-  instructions = new InstructionEntry[(MAX_SUPERBLOCK_PACKETS + 2) * (MAX_SUPERBLOCK_INSTRUCTIONS_PER_PACKET + 2)];
   //!! init_array((uint8*)instructions, ((MAX_SUPERBLOCK_PACKETS + 2) * (MAX_SUPERBLOCK_INSTRUCTIONS_PER_PACKET + 2)) * sizeof(InstructionEntry));
-  packets = new PacketEntry[MAX_SUPERBLOCK_PACKETS + 2];
   //!! init_array((uint8*)packets, (MAX_SUPERBLOCK_PACKETS + 2) * sizeof(PacketEntry));
+
   numInstructions = 0;
   numPackets = 0;
-  constants = new SuperBlockConstants(this);
-  char fileStr[128];
-  sprintf(fileStr,"SuperBlocks%li.txt",mpe->mpeIndex);
-  blockFile = fopen(fileStr,"w");
+  constants = new SuperBlockConstants(mpe);
+
+  blockFile = nullptr;
 }
 
 SuperBlock::~SuperBlock()
 {
-  delete [] instructions;
-  delete [] packets;
   delete constants;
   if(blockFile)
   {
@@ -147,12 +147,7 @@ SuperBlock::~SuperBlock()
   }
 }
 
-#define BRANCH_SLOT (0x4UL)
-#define DELAY_SLOT_ANY (0x3UL)
-#define DELAY_SLOT_1 (0x2UL)
-#define DELAY_SLOT_2 (0x1UL)
-
-void GetFlagString(uint32 flags, char *buffer)
+static void GetFlagString(const uint32 flags, char *buffer)
 {
   char tempStr[128];
 
@@ -218,7 +213,7 @@ void GetFlagString(uint32 flags, char *buffer)
   }
 }
 
-void GetIFlagsString(char *buffer, uint32 dep)
+static void GetIFlagsString(char *buffer, const uint32 dep)
 {
   const bool bN = dep & DEPENDENCY_FLAG_N;
   const bool bV = dep & DEPENDENCY_FLAG_V;
@@ -250,9 +245,9 @@ extern NuancePrintHandler printHandlers[];
 
 bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, const bool bContainsBranch)
 {
-  codeCache.GetEmitVars()->bSaveRegs = false;
-  codeCache.GetEmitVars()->bCheckECUSkipCounter = false;
-  codeCache.GetEmitVars()->bUsesMMX = false;
+  codeCache.emitVars.bSaveRegs = false;
+  codeCache.emitVars.bCheckECUSkipCounter = false;
+  codeCache.emitVars.bUsesMMX = false;
 
   if(!bAllowBlockCompile)
     compileType = SUPERBLOCKCOMPILETYPE_IL_SINGLE;
@@ -297,7 +292,7 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
             ptrEmitNuance->fields[2] = pInstruction->miscOpDependencies;
             if(pInstruction->scalarOpDependencies | (pInstruction->miscOpDependencies & ~DEPENDENCY_FLAG_ALLFLAGS))
             {
-              codeCache.GetEmitVars()->bSaveRegs = true;
+              codeCache.emitVars.bSaveRegs = true;
             }
           }
           else
@@ -332,32 +327,32 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
   else if(compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
   {
     uint8 * const entryPoint = codeCache.GetEmitPointer();
-    codeCache.GetEmitVars()->pInstructionEntry = pInstruction;
+    codeCache.emitVars.pInstructionEntry = pInstruction;
     
     if(numInstructions > 0)
     {
       codeCache.X86Emit_PUSHAD();
-      codeCache.X86Emit_MOVIR((uint32)&(codeCache.GetEmitVars()->mpe->cc), x86Reg_esi);
-      codeCache.X86Emit_MOVIR((uint32)&(codeCache.GetEmitVars()->mpe->tempCC), x86Reg_edi);
+      codeCache.X86Emit_MOVIR((uint32)&(codeCache.emitVars.mpe->cc), x86Reg_esi);
+      codeCache.X86Emit_MOVIR((uint32)&(codeCache.emitVars.mpe->tempCC), x86Reg_edi);
       if(bContainsBranch)
       {
-        codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr_dword, (uint32)&(codeCache.GetEmitVars()->mpe->pcfetchnext));
+        codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr_dword, (uint32)&(codeCache.emitVars.mpe->pcfetchnext));
       }
     }
 
     for(uint32 i = numInstructions; i > 0; i--)
     {
-      codeCache.GetEmitVars()->pInstructionEntry = pInstruction;
+      codeCache.emitVars.pInstructionEntry = pInstruction;
       const uint32 flags = pInstruction->flags;
       if(!(flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
       {
         if(!(flags & SUPERBLOCKINFO_DEAD))
         {
           numLiveInstructions++;
-          codeCache.GetEmitVars()->scalarRegOutDep = pInstruction->scalarOutputDependencies;
-          codeCache.GetEmitVars()->miscRegOutDep = pInstruction->miscOutputDependencies;
+          codeCache.emitVars.scalarRegOutDep = pInstruction->scalarOutputDependencies;
+          codeCache.emitVars.miscRegOutDep = pInstruction->miscOutputDependencies;
 
-          ((NativeEmitHandler)(emitHandlers[pInstruction->instruction.fields[0]]))(codeCache.GetEmitVars(),pInstruction->instruction);
+          ((NativeEmitHandler)(emitHandlers[pInstruction->instruction.fields[0]]))(&codeCache.emitVars,pInstruction->instruction);
         }
       }
       else if(flags & SUPERBLOCKINFO_PACKETSTART)
@@ -367,19 +362,19 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
         {
           numLiveInstructions++;
           pInstruction->instruction.fields[0] = Handler_SaveRegs;
-          codeCache.GetEmitVars()->scalarRegDep = 0;
-          codeCache.GetEmitVars()->miscRegDep = 0;
+          codeCache.emitVars.scalarRegDep = 0;
+          codeCache.emitVars.miscRegDep = 0;
 
           if(flags & PACKETINFO_DEPENDENCY_PRESENT)
           {
-            codeCache.GetEmitVars()->scalarRegDep = pInstruction->scalarOpDependencies;
-            codeCache.GetEmitVars()->miscRegDep = pInstruction->miscOpDependencies;
+            codeCache.emitVars.scalarRegDep = pInstruction->scalarOpDependencies;
+            codeCache.emitVars.miscRegDep = pInstruction->miscOpDependencies;
 
             pInstruction->instruction.fields[1] = pInstruction->scalarOpDependencies;
             pInstruction->instruction.fields[2] = pInstruction->miscOpDependencies;
             if(pInstruction->scalarOpDependencies | (pInstruction->miscOpDependencies & ~DEPENDENCY_FLAG_ALLFLAGS))
             {
-              codeCache.GetEmitVars()->bSaveRegs = true;
+              codeCache.emitVars.bSaveRegs = true;
             }
           }
           else
@@ -387,15 +382,15 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
             pInstruction->instruction.fields[1] = 0;
             pInstruction->instruction.fields[2] = 0;
           }
-          Emit_SaveRegs(codeCache.GetEmitVars(),pInstruction->instruction);
+          Emit_SaveRegs(&codeCache.emitVars,pInstruction->instruction);
         }
       }
       pInstruction++;
     }
 
-    codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr_dword,(uint32)&(codeCache.GetEmitVars()->mpe->pcexec));
+    codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr_dword,(uint32)&(codeCache.emitVars.mpe->pcexec));
 
-    if(codeCache.GetEmitVars()->bSaveRegs || codeCache.GetEmitVars()->bUsesMMX)
+    if(codeCache.emitVars.bSaveRegs || codeCache.emitVars.bUsesMMX)
     {
       codeCache.X86Emit_EMMS();
     }
@@ -496,7 +491,7 @@ NativeCodeCacheEntryPoint SuperBlock::CompileBlock(const uint32 address, NativeC
 void SuperBlock::PerformConstantPropagation()
 {
   constants->ClearConstants();
-  constants->FirstInstruction();
+  constants->FirstInstruction(instructions);
   for(uint32 i = numInstructions; i > 0; i--)
   {     
     constants->PropagateConstants();
@@ -508,7 +503,11 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
 {
   if(!blockFile)
   {
-    return;
+    char fileStr[128];
+    sprintf(fileStr,"SuperBlocks%li.txt",pMPE->mpeIndex);
+    blockFile = fopen(fileStr,"w");
+    if(!blockFile)
+      return;
   }
 
   InstructionEntry *pCurrentInstruction = instructions;
@@ -857,8 +856,6 @@ void SuperBlock::UpdateDependencyInfo()
     pCurrentInstruction++;
   }
 }
-
-#define ALLOW_NATIVE_CODE_EMIT true
 
 int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
 {

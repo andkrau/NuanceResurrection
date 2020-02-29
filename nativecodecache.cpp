@@ -7,70 +7,31 @@
 #define x86Emit_MRM(mod,reg,rm) (*pEmitLoc++ = (((mod) << 6) | ((reg) << 3) | (rm)))
 #define x86Emit_SIB(base, scale, index) (*pEmitLoc++ = (((scale) << 6) | ((index) << 3) | (base)))
 
-NativeCodeCache::NativeCodeCache(uint32 numBytes, uint32 warningThreshold, uint32 desiredTLBEntries)
+NativeCodeCache::NativeCodeCache(uint32 _numBytes, uint32 _desiredTLBEntries)
+    : numBytes(_numBytes == 0 ? DEFAULT_CODE_BUFFER_BYTES : _numBytes)
+    , numTLBEntries(_desiredTLBEntries == 0 ? DEFAULT_NUM_TLB_ENTRIES : _desiredTLBEntries)
 {
-  pageMap = new PageMap;
-
-  if(numBytes == 0)
-  {
-    numBytes = DEFAULT_CODE_BUFFER_BYTES;
-  }
-
-  numTLBEntries = desiredTLBEntries;
-
-  if(desiredTLBEntries == 0)
-  {
-    numTLBEntries = DEFAULT_NUM_TLB_ENTRIES;
-  }
-
-  if(warningThreshold == 0)
-  {
-    this->warningThreshold = (uint32)(0.97 * numBytes); 
-  }
-  else
-  {
-    this->warningThreshold = (uint32)((double)warningThreshold/(double)numBytes) * numBytes;
-  }
-
-  ptrNativeCodeBuffer = (uint8 *)VirtualAlloc(NULL,numBytes,MEM_COMMIT,PAGE_EXECUTE_READWRITE);
+  ptrNativeCodeBuffer = (uint8 *)VirtualAlloc(NULL,numBytes,MEM_RESERVE | MEM_COMMIT,PAGE_EXECUTE_READWRITE/*PAGE_READWRITE*/); //!! pages are f.e. 64k wide, so this does not work
   pEmitLoc = ptrNativeCodeBuffer;
 
   if(ptrNativeCodeBuffer)
   {
-    this->numBytes = numBytes;
-    if(warningThreshold == 0)
-    {
-      this->warningThreshold = (uint32)(0.97 * numBytes); 
-    }
-    else
-    {
-      this->warningThreshold = (uint32)((double)warningThreshold/(double)numBytes) * numBytes;
-    }
+    FlushInstructionCache(GetCurrentProcess(), pEmitLoc, numBytes); //!! should not be necessary, as each code block is flushed independently below in ReleaseBuffer(), but do it in case that ReleaseBuffer() is not the only thing called after emitting code
+
+    warningThreshold = (uint32)(0.97 * numBytes);
   }
   else
   {
     numBytes = 0;
-    this->warningThreshold = 0;
+    warningThreshold = 0;
   }
-
-  patchMgr = new PatchManager();
 }
 
 NativeCodeCache::~NativeCodeCache()
 {
-  if(pageMap)
-  {
-    delete pageMap;
-  }
-
   if(ptrNativeCodeBuffer)
   {
     VirtualFree(ptrNativeCodeBuffer,0,MEM_RELEASE);
-  }
-
-  if(patchMgr)
-  {
-    delete patchMgr;
   }
 }
 
@@ -87,8 +48,16 @@ bool NativeCodeCache::ReleaseBuffer(NativeCodeCacheEntryPoint entryPoint, uint32
   newEntry.nextBranchDelayCount = nextDelayCount;
   newEntry.accessCount = 0;
 
-  pageMap->UpdateEntry(virtualAddress,newEntry);
+  pageMap.UpdateEntry(newEntry);
   pEmitLoc = ((uint8 *)entryPoint) + newUsedBytes;
+  /*DWORD oldProtect;
+  if (!VirtualProtect(entryPoint, newUsedBytes, PAGE_EXECUTE_READ, &oldProtect) || oldProtect != PAGE_READWRITE) //!! pages are f.e. 64k wide, so this does not work
+  {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+    MessageBox(NULL, "VirtualProtect failed", "VirtualProtect failed", MB_OK);
+#endif
+  }*/
+  FlushInstructionCache(GetCurrentProcess(), entryPoint, newUsedBytes);
 
   if(alignment)
   {
@@ -97,14 +66,22 @@ bool NativeCodeCache::ReleaseBuffer(NativeCodeCacheEntryPoint entryPoint, uint32
     pEmitLoc = (uint8 *)address;
   }
 
-  return GetUsedCodeBufferSize() > warningThreshold;
+  return IsBeyondThreshold();
 }
 
 
 void NativeCodeCache::Flush()
 {
-  pageMap->Invalidate();
+  pageMap.Invalidate();
   pEmitLoc = ptrNativeCodeBuffer;
+  /*DWORD oldProtect;
+  if (!VirtualProtect(pEmitLoc, numBytes, PAGE_READWRITE, &oldProtect)) //!! pages are f.e. 64k wide, so this does not work
+  {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+    MessageBox(NULL, "VirtualProtect failed", "VirtualProtect failed", MB_OK);
+#endif
+  }*/
+  FlushInstructionCache(GetCurrentProcess(), pEmitLoc, numBytes); //!! should not be necessary, as each code block is flushed independently below in ReleaseBuffer(), but do it in case that ReleaseBuffer() is not the only thing called after emitting code
 }
 
 void NativeCodeCache::X86Emit_ModRegRM(x86ModType modType, x86ModReg regSpare, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)

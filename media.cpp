@@ -114,7 +114,7 @@ void MediaInitMPE(MPE &mpe)
 
   for(uint32 i = 0; i < 4; i++)
   {
-    if((mpeFlags[i] & (MPE_ALLOC_BIOS|MPE_ALLOC_USER)) == 0)
+    if((mpeFlags[i] & (MPE_ALLOC_BIOS | MPE_ALLOC_USER)) == 0)
     {
         which = i;
         MediaInitMPE(i);

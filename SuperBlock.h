@@ -91,11 +91,12 @@ public:
   int32 FetchSuperBlock(uint32 address, bool &bContainsBranch);
 
   MPE *pMPE;
-  InstructionEntry *instructions;
+  //allocate enough instruction entries to account for packet start/end IL
+  InstructionEntry instructions[(MAX_SUPERBLOCK_PACKETS + 2) * (MAX_SUPERBLOCK_INSTRUCTIONS_PER_PACKET + 2)];
   uint32 numInstructions;
 
 private:
-  PacketEntry *packets;
+  PacketEntry packets[MAX_SUPERBLOCK_PACKETS + 2];
   SuperBlockConstants *constants;
   uint32 numPackets;
   uint32 packetsProcessed;

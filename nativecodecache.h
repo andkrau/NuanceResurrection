@@ -7,7 +7,7 @@
 #include "PatchManager.h"
 #include "X86EmitTypes.h"
 
-#define DEFAULT_CODE_BUFFER_BYTES (8*1024UL*1024UL);
+#define DEFAULT_CODE_BUFFER_BYTES (8*1024UL*1024UL)
 #define DEFAULT_NUM_TLB_ENTRIES (16384UL)
 
 struct NativeCodeCacheTLBEntry
@@ -19,13 +19,13 @@ struct NativeCodeCacheTLBEntry
 class NativeCodeCache
 {
 public:
-  NativeCodeCache(uint32 numBytes, uint32 warningThreshold = 0, uint32 desiredTLBEntries = DEFAULT_NUM_TLB_ENTRIES);
+  NativeCodeCache(uint32 _numBytes, uint32 _desiredTLBEntries);
   ~NativeCodeCache();
 
   void Flush();
   void FlushRegion(const uint32 start, const uint32 end)
   {
-    pageMap->InvalidateRegion(start, end);
+    pageMap.InvalidateRegion(start, end);
   }
   bool ReleaseBuffer(NativeCodeCacheEntryPoint entryPoint, uint32 virtualAddress, uint32 nextVirtualAddress, uint32 newUsedBytes, uint32 packetCount, uint32 instructionCount, SuperBlockCompileType compileType, uint32 nextDelayCount, uint32 alignment);
 
@@ -34,19 +34,9 @@ public:
     return ptrNativeCodeBuffer;
   }
 
-  PageMap* GetPageMap() const
-  {
-    return pageMap;
-  }
-
   uint8 *GetEmitPointer() const
   {
     return pEmitLoc;
-  }
-
-   uint8 **GetEmitPointerAddress()
-  {
-    return &pEmitLoc;
   }
 
   void AlignEmitPointer(const uint8 boundary)
@@ -93,19 +83,10 @@ public:
     return GetUsedCodeBufferSize() > warningThreshold;
   }
 
-  EmitterVariables *GetEmitVars()
+  void SetEmitVars(MPE* const mpe, NativeCodeCache* const nativeCodeCache)
   {
-    return &emitVars;
-  }
-
-  void SetEmitVars(const EmitterVariables &vars)
-  {
-    emitVars = vars;
-  }
-
-  void SetEmitLoc(uint8 *emitLoc)
-  {
-    pEmitLoc = emitLoc;
+    emitVars.mpe = mpe;
+    emitVars.codeCache = nativeCodeCache;
   }
 
   void X86Emit_ModRegRM(x86ModType, x86ModReg modReg, uint32 baseReg, x86IndexReg = x86IndexReg_none, x86ScaleVal = x86Scale_1, int32 disp = 0);
@@ -471,16 +452,16 @@ public:
   void X86Emit_EMMS();
   void X86Emit_FEMMS();
 
-  PatchManager *patchMgr;
+  PatchManager patchMgr;
+  PageMap pageMap;
+  EmitterVariables emitVars;
 
 private:
   uint8 *pEmitLoc;
   uint8 *ptrNativeCodeBuffer;
-  PageMap* pageMap;
   uint32 warningThreshold;
   uint32 numBytes;
-  uint32 numTLBEntries;
-  EmitterVariables emitVars;
+  const uint32 numTLBEntries;
 };
 
 #endif

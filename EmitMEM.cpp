@@ -151,17 +151,17 @@ void Emit_LoadByteLinear(EmitterVariables * const vars, const Nuance &nuance)
   const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
   vars->codeCache->X86Emit_MOVRR(x86Reg_ebx, x86Reg_eax);
   vars->codeCache->X86Emit_ANDIR(0xFFF00000, x86Reg_ebx);
   vars->codeCache->X86Emit_CMPIR(0x20500000, x86Reg_ebx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr, X86_CC_NZ, l_not_control_reg);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr, X86_CC_NZ, l_not_control_reg);
   vars->codeCache->X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->codeCache->X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
   Emit_ExitBlock(vars);
-  vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
+  vars->codeCache->patchMgr.SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
   vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
   vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
@@ -177,7 +177,7 @@ void Emit_LoadByteLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->codeCache->X86Emit_SHLIR(x86Reg_ebp, 24);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebp, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_LoadByteBilinearXY(EmitterVariables * const vars, const Nuance &nuance)
@@ -284,17 +284,17 @@ void Emit_LoadWordLinear(EmitterVariables * const vars, const Nuance &nuance)
   const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
   vars->codeCache->X86Emit_MOVRR(x86Reg_ebx, x86Reg_eax);
   vars->codeCache->X86Emit_ANDIR(0xFFF00000, x86Reg_ebx);
   vars->codeCache->X86Emit_CMPIR(0x20500000, x86Reg_ebx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr, X86_CC_NZ, l_not_control_reg);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr, X86_CC_NZ, l_not_control_reg);
   vars->codeCache->X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->codeCache->X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
   Emit_ExitBlock(vars);
-  vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
+  vars->codeCache->patchMgr.SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
   vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
   vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
@@ -311,7 +311,7 @@ void Emit_LoadWordLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->codeCache->X86Emit_BSWAP(x86Reg_ebp);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebp, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_LoadWordBilinearXY(EmitterVariables * const vars, const Nuance &nuance)
@@ -435,17 +435,17 @@ void Emit_LoadScalarLinear(EmitterVariables * const vars, const Nuance &nuance)
   const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
   vars->codeCache->X86Emit_MOVRR(x86Reg_ebx, x86Reg_eax);
   vars->codeCache->X86Emit_ANDIR(0xFFF00000, x86Reg_ebx);
   vars->codeCache->X86Emit_CMPIR(0x20500000, x86Reg_ebx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr, X86_CC_NZ, l_not_control_reg);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr, X86_CC_NZ, l_not_control_reg);
   vars->codeCache->X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->codeCache->X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
   Emit_ExitBlock(vars);
-  vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
+  vars->codeCache->patchMgr.SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
   //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
   //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
@@ -464,7 +464,7 @@ void Emit_LoadScalarLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->codeCache->X86Emit_BSWAP(x86Reg_ebp);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebp, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_LoadScalarBilinearXY(EmitterVariables * const vars, const Nuance &nuance)
@@ -772,17 +772,17 @@ void Emit_LoadVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
   const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, srcRegReadBaseReg, x86IndexReg_none, x86Scale_1, srcRegDisp);
   vars->codeCache->X86Emit_MOVRR(x86Reg_ebx, x86Reg_eax);
   vars->codeCache->X86Emit_ANDIR(0xFFF00000, x86Reg_ebx);
   vars->codeCache->X86Emit_CMPIR(0x20500000, x86Reg_ebx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr, X86_CC_NZ, l_not_control_reg);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr, X86_CC_NZ, l_not_control_reg);
   vars->codeCache->X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->codeCache->X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
   Emit_ExitBlock(vars);
-  vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
+  vars->codeCache->patchMgr.SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
   //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
   //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
@@ -812,7 +812,7 @@ void Emit_LoadVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->codeCache->X86Emit_BSWAP(x86Reg_ecx);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ecx, destRegWriteBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp+12);
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_LoadVectorBilinearXY(EmitterVariables * const vars, const Nuance &nuance)
@@ -1267,17 +1267,17 @@ void Emit_StoreScalarLinear(EmitterVariables * const vars, const Nuance &nuance)
   const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
   vars->codeCache->X86Emit_MOVRR(x86Reg_ebx, x86Reg_eax);
   vars->codeCache->X86Emit_ANDIR(0xFFF00000, x86Reg_ebx);
   vars->codeCache->X86Emit_CMPIR(0x20500000, x86Reg_ebx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr, X86_CC_NZ, l_not_control_reg);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr, X86_CC_NZ, l_not_control_reg);
   vars->codeCache->X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->codeCache->X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
   Emit_ExitBlock(vars);
-  vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
+  vars->codeCache->patchMgr.SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
   //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
   //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
@@ -1297,7 +1297,7 @@ void Emit_StoreScalarLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->codeCache->X86Emit_BSWAP(x86Reg_ebp);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebp, x86BaseReg_eax, x86IndexReg_ebx);
 
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_StoreScalarBilinearXY(EmitterVariables * const vars, const Nuance &nuance)
@@ -1606,17 +1606,17 @@ void Emit_StoreVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
   const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
-  vars->patchMgr->Reset();
+  vars->codeCache->patchMgr.Reset();
 
   vars->codeCache->X86Emit_MOVMR(x86Reg_eax, destRegReadBaseReg, x86IndexReg_none, x86Scale_1, destRegDisp);
   vars->codeCache->X86Emit_MOVRR(x86Reg_ebx, x86Reg_eax);
   vars->codeCache->X86Emit_ANDIR(0xFFF00000, x86Reg_ebx);
   vars->codeCache->X86Emit_CMPIR(0x20500000, x86Reg_ebx);
-  vars->codeCache->X86Emit_JCC_Label(vars->patchMgr, X86_CC_NZ, l_not_control_reg);
+  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr, X86_CC_NZ, l_not_control_reg);
   vars->codeCache->X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->codeCache->X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
   Emit_ExitBlock(vars);
-  vars->codeCache->patchMgr->SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
+  vars->codeCache->patchMgr.SetLabelPointer(l_not_control_reg,vars->codeCache->GetEmitPointer());
   //vars->codeCache->X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg_ebx);
   //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg_ecx);
   //vars->codeCache->X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg_edx);
@@ -1644,7 +1644,7 @@ void Emit_StoreVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebp, x86BaseReg_eax, x86IndexReg_ebx, x86Scale_1, 8);
   vars->codeCache->X86Emit_BSWAP(x86Reg_ecx);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ecx, x86BaseReg_eax, x86IndexReg_ebx, x86Scale_1, 12);
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_StorePixelAbsolute(EmitterVariables * const vars, const Nuance &nuance)
@@ -1718,7 +1718,7 @@ void Emit_StoreVectorBilinearXY(EmitterVariables * const vars, const Nuance &nua
   vars->codeCache->X86Emit_MOVRM(x86Reg_ebp, x86BaseReg_eax, x86IndexReg_ebx, x86Scale_1, 8);
   vars->codeCache->X86Emit_BSWAP(x86Reg_ecx);
   vars->codeCache->X86Emit_MOVRM(x86Reg_ecx, x86BaseReg_eax, x86IndexReg_ebx, x86Scale_1, 12);
-  vars->patchMgr->ApplyPatches();
+  vars->codeCache->patchMgr.ApplyPatches();
 }
 
 void Emit_StoreVectorBilinearUV(EmitterVariables * const vars, const Nuance &nuance)

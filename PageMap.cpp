@@ -31,16 +31,6 @@ PageMap::~PageMap()
   }
 }
 
-NativeCodeCacheEntry *PageMap::AllocateEntry(const uint32 address)
-{
-  return &((AllocatePage(address))[address & 0x3FFUL]);
-}
-
-void PageMap::UpdateEntry(const uint32 address,NativeCodeCacheEntry &entry)
-{
-  *(AllocateEntry(address)) = entry;
-}
-
 NativeCodeCacheEntry *PageMap::AllocatePage(const uint32 address)
 {
   const uint32 rootIndex = address >> 23;

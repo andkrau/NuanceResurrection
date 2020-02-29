@@ -45,8 +45,10 @@ public:
   ~PageMap();
 
   NativeCodeCacheEntry *AllocatePage(const uint32 address);
-  NativeCodeCacheEntry *AllocateEntry(const uint32 address);
-  void UpdateEntry(const uint32 address,NativeCodeCacheEntry &entry);
+  void UpdateEntry(NativeCodeCacheEntry &entry)
+  {
+    AllocatePage(entry.virtualAddress)[entry.virtualAddress & 0x3FFUL] = entry;
+  }
   void Invalidate();
   void InvalidateEntry(const uint32 address);
   void InvalidateRegion(const uint32 startAddress, const uint32 endAddress)
