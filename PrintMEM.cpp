@@ -1,9 +1,10 @@
 #include "basetypes.h"
 #include <stdio.h>
 #include <string.h>
+#include "mpe.h"
 #include "InstructionCache.h"
 #include "NuonMemoryMap.h"
-#include "SuperBlockConstants.h"
+#include "SuperBlock.h"
 
 const char *GetControlRegister(uint32 which)
 {

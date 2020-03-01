@@ -5,14 +5,10 @@
 #include "InstructionCache.h"
 #include "mpe.h"
 #include "NativeCodeCache.h"
+#include "SuperBlockConstants.h"
 
 #define MAX_SUPERBLOCK_PACKETS 120
 #define MAX_SUPERBLOCK_INSTRUCTIONS_PER_PACKET 5
-
-#ifndef SUPERBLOCK_STRUCTS
-#define SUPERBLOCK_STRUCTS
-
-class SuperBlockConstants;
 
 class CompilerOptions
 {
@@ -36,35 +32,6 @@ public:
   bool bAllowCompile; //!! on 64bit this is always force disabled for now, as no x64 code can be emitted
   bool bDumpBlocks;
 };
-
-struct PacketEntry
-{
-  uint32 pcexec;
-  uint32 pcroute;
-  uint32 pcfetchnext;
-  uint32 instructionCount;
-  uint32 comboScalarInputDependencies;
-  uint32 comboMiscInputDependencies;
-  uint32 comboScalarOutputDependencies;
-  uint32 comboMiscOutputDependencies;
-  uint32 flags;
-  uint32 liveCount;
-};
-
-struct InstructionEntry
-{
-  PacketEntry *packet;
-  Nuance instruction;
-  uint32 pcexec;
-  uint32 flags;
-  uint32 scalarInputDependencies;
-  uint32 miscInputDependencies;
-  uint32 scalarOutputDependencies;
-  uint32 miscOutputDependencies;
-  uint32 scalarOpDependencies;
-  uint32 miscOpDependencies;
-};
-#endif
 
 enum SuperBlockCompileType
 {
@@ -97,7 +64,7 @@ public:
 
 private:
   PacketEntry packets[MAX_SUPERBLOCK_PACKETS + 2];
-  SuperBlockConstants *constants;
+  SuperBlockConstants constants;
   uint32 numPackets;
   uint32 packetsProcessed;
   uint32 startAddress;

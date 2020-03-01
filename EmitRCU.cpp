@@ -299,7 +299,7 @@ void Emit_RangeOnly(EmitterVariables * const vars, const Nuance &nuance)
   //eax = rcu_range, ebx = rcu_src, ecx = rcu_src & 0xFFFF0000
   
   vars->codeCache->X86Emit_CMPRR(x86Reg_ecx, x86Reg_eax);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_L,l_testmodmi);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_L,l_testmodmi);
 
   vars->codeCache->X86Emit_SUBRR(x86Reg_ebx, x86Reg_eax);
 
@@ -308,11 +308,11 @@ void Emit_RangeOnly(EmitterVariables * const vars, const Nuance &nuance)
     vars->codeCache->X86Emit_ORIM(CC_MODGE, x86MemPtr_dword, ccWriteBaseReg, x86IndexReg_none, x86Scale_1, ccDisp);
   }
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_exit);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_exit);
   vars->codeCache->patchMgr.SetLabelPointer(l_testmodmi,vars->codeCache->GetEmitPointer());
   //compare rcu_src to zero
   vars->codeCache->X86Emit_CMPIR(0,x86Reg_ebx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NL,l_exit);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NL,l_exit);
 
   vars->codeCache->X86Emit_ADDRR(x86Reg_ebx, x86Reg_eax);
 

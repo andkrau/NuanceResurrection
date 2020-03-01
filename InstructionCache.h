@@ -117,6 +117,34 @@ struct Nuance
   size_t fields[FIELDS_PER_NUANCE]; //!! size_t due to some being real pointers, i.e. to support 64bit compiles
 };
 
+struct PacketEntry
+{
+  uint32 pcexec;
+  uint32 pcroute;
+  uint32 pcfetchnext;
+  uint32 instructionCount;
+  uint32 comboScalarInputDependencies;
+  uint32 comboMiscInputDependencies;
+  uint32 comboScalarOutputDependencies;
+  uint32 comboMiscOutputDependencies;
+  uint32 flags;
+  uint32 liveCount;
+};
+
+struct InstructionEntry
+{
+  PacketEntry *packet;
+  Nuance instruction;
+  uint32 pcexec;
+  uint32 flags;
+  uint32 scalarInputDependencies;
+  uint32 miscInputDependencies;
+  uint32 scalarOutputDependencies;
+  uint32 miscOutputDependencies;
+  uint32 scalarOpDependencies;
+  uint32 miscOpDependencies;
+};
+
 class InstructionCacheEntry
 {
 public:

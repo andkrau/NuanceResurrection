@@ -420,14 +420,10 @@ void NuonEnvironment::Init()
 
 uint32 NuonEnvironment::GetBufferSize(uint32 channelMode)
 {
-  uint32 bufferSize;
-
-  if((channelMode & BUFFER_SIZE_64K) == 0)
-    bufferSize = 8192;
-  else
-    bufferSize = 512UL << (((channelMode & BUFFER_SIZE_64K) >> 5) & 0x7UL);
-
-  return bufferSize;
+  return ((channelMode & BUFFER_SIZE_64K) == 0) ?
+    8192
+    :
+    (512UL << (((channelMode & BUFFER_SIZE_64K) >> 5) & 0x7UL));
 }
 
 void NuonEnvironment::InitBios()
@@ -462,7 +458,7 @@ const char CONFIG_COMMENT_CHAR = ';';
 const char CONFIG_VARIABLE_START_CHAR = '[';
 const char CONFIG_VARIABLE_FINISH_CHAR = ']';
 
-void ReplaceNewline(char *line, char replaceChar, uint32 maxIndex)
+void ReplaceNewline(char * const line, const char replaceChar, const uint32 maxIndex)
 {
   uint32 index = 0;
 
@@ -521,10 +517,6 @@ ConfigTokenType NuonEnvironment::ReadConfigLine(FILE *file, char *buf)
   else
     return CONFIG_STRING;
 }
-
-char *dvdWriteBase;
-char *dvdReadBase;
-char *dvdReadWriteBase;
 
 bool NuonEnvironment::LoadConfigFile(const char * const fileName)
 {

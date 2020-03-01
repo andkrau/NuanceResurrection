@@ -4,8 +4,8 @@
 #include "EmitMisc.h"
 #include "NativeCodeCache.h"
 #include "PatchManager.h"
-#include "SuperBlock.h"
 #include "mpe.h"
+#include "SuperBlock.h"
 
 static const uint32 sub_sv_mask[] = {0xFFFF0000UL, 0xFFFF0000UL};
 
@@ -877,11 +877,11 @@ void Emit_ANDImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
@@ -962,11 +962,11 @@ void Emit_ANDScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
@@ -1047,11 +1047,11 @@ void Emit_ANDScalarRotateScalar(EmitterVariables * const vars, const Nuance &nua
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
 
   vars->codeCache->X86Emit_RORRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_rol,vars->codeCache->GetEmitPointer());
 
@@ -1334,11 +1334,11 @@ void Emit_FTSTImmediateShiftScalar(EmitterVariables * const vars, const Nuance &
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
@@ -1414,11 +1414,11 @@ void Emit_FTSTScalarShiftScalar(EmitterVariables * const vars, const Nuance &nua
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
@@ -1494,11 +1494,11 @@ void Emit_FTSTScalarRotateScalar(EmitterVariables * const vars, const Nuance &nu
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
 
   vars->codeCache->X86Emit_RORRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_rol,vars->codeCache->GetEmitPointer());
 
@@ -1776,11 +1776,11 @@ void Emit_ORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &nu
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
@@ -1861,11 +1861,11 @@ void Emit_ORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuanc
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
@@ -1946,11 +1946,11 @@ void Emit_ORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuan
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
 
   vars->codeCache->X86Emit_RORRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_rol,vars->codeCache->GetEmitPointer());
 
@@ -2243,11 +2243,11 @@ void Emit_EORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
@@ -2328,11 +2328,11 @@ void Emit_EORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_shl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_shl,vars->codeCache->GetEmitPointer());
 
@@ -2413,11 +2413,11 @@ void Emit_EORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nua
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
 
   vars->codeCache->X86Emit_RORRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_rol,vars->codeCache->GetEmitPointer());
 
@@ -3674,11 +3674,11 @@ void Emit_ROT(EmitterVariables * const vars, const Nuance &nuance)
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_rol);
 
   vars->codeCache->X86Emit_RORRR(x86Reg_ebx);
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_rol,vars->codeCache->GetEmitPointer());
 
@@ -3869,7 +3869,7 @@ void Emit_AS(EmitterVariables * const vars, const Nuance &nuance)
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_asl);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_asl);
 
   vars->codeCache->X86Emit_SARRR(x86Reg_ebx);
 
@@ -3879,7 +3879,7 @@ void Emit_AS(EmitterVariables * const vars, const Nuance &nuance)
     vars->codeCache->X86Emit_ANDIR(CC_ALU_CARRY, x86Reg_ebp);
   }
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_asl,vars->codeCache->GetEmitPointer());
 
@@ -4108,7 +4108,7 @@ void Emit_LS(EmitterVariables * const vars, const Nuance &nuance)
 
   vars->codeCache->X86Emit_TESTIR(0x20, x86Reg_ecx);
   vars->codeCache->X86Emit_CMOVNZRR(x86Reg_ecx, x86Reg_edx);
-  vars->codeCache->X86Emit_JCC_Label(&vars->codeCache->patchMgr,X86_CC_NZ,l_asl);
+  vars->codeCache->X86Emit_JCC_Label(vars->codeCache->patchMgr,X86_CC_NZ,l_asl);
 
   vars->codeCache->X86Emit_SHRRR(x86Reg_ebx);
 
@@ -4118,7 +4118,7 @@ void Emit_LS(EmitterVariables * const vars, const Nuance &nuance)
     vars->codeCache->X86Emit_ANDIR(CC_ALU_CARRY, x86Reg_ebp);
   }
 
-  vars->codeCache->X86Emit_JMPI_Label(&vars->codeCache->patchMgr,l_calc_flags);
+  vars->codeCache->X86Emit_JMPI_Label(vars->codeCache->patchMgr,l_calc_flags);
 
   vars->codeCache->patchMgr.SetLabelPointer(l_asl,vars->codeCache->GetEmitPointer());
 

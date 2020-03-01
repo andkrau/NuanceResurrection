@@ -1,3 +1,4 @@
+#include "mpe.h"
 #include "SuperBlockConstants.h"
 
 void PropagateConstants_PacketStart(SuperBlockConstants &constants)

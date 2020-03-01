@@ -3,6 +3,7 @@
 #include "InstructionDependencies.h"
 #include "InstructionCache.h"
 #include "PropagateConstants.h"
+#include "mpe.h"
 #include "SuperBlockConstants.h"
 
 #define ALLOW_PROPAGATE_ECU true

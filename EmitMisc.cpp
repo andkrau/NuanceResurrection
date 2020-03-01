@@ -1,9 +1,9 @@
 #include "basetypes.h"
 #include "EmitMisc.h"
 #include "InstructionDependencies.h"
+#include "mpe.h"
 #include "SuperBlockConstants.h"
 #include "X86EmitTypes.h"
-#include "mpe.h"
 
 void Emit_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
