@@ -126,25 +126,23 @@ static bool IsBranchConditionCompilable(const uint32 startAddress, const uint32 
   }
 }
 
-SuperBlock::SuperBlock(MPE * const mpe) : pMPE(mpe)
+SuperBlock::SuperBlock(MPE * const mpe)
+    : pMPE(mpe)
+    , constants(SuperBlockConstants(mpe))
 {
   //!! init_array((uint8*)instructions, ((MAX_SUPERBLOCK_PACKETS + 2) * (MAX_SUPERBLOCK_INSTRUCTIONS_PER_PACKET + 2)) * sizeof(InstructionEntry));
   //!! init_array((uint8*)packets, (MAX_SUPERBLOCK_PACKETS + 2) * sizeof(PacketEntry));
 
   numInstructions = 0;
   numPackets = 0;
-  constants = new SuperBlockConstants(mpe);
 
   blockFile = nullptr;
 }
 
 SuperBlock::~SuperBlock()
 {
-  delete constants;
   if(blockFile)
-  {
     fclose(blockFile);
-  }
 }
 
 static void GetFlagString(const uint32 flags, char *buffer)
@@ -417,7 +415,7 @@ NativeCodeCacheEntryPoint SuperBlock::CompileBlock(const uint32 address, NativeC
   bool bContainsBranch = false;
 
   bError = false;
-  constants->bConstantPropagated = false;
+  constants.bConstantPropagated = false;
 
   bAllowBlockCompile = (compileType != SUPERBLOCKCOMPILETYPE_IL_SINGLE);
 
@@ -490,12 +488,12 @@ NativeCodeCacheEntryPoint SuperBlock::CompileBlock(const uint32 address, NativeC
 
 void SuperBlock::PerformConstantPropagation()
 {
-  constants->ClearConstants();
-  constants->FirstInstruction(instructions);
+  constants.ClearConstants();
+  constants.FirstInstruction(instructions);
   for(uint32 i = numInstructions; i > 0; i--)
   {     
-    constants->PropagateConstants();
-    constants->NextInstruction();
+    constants.PropagateConstants();
+    constants.NextInstruction();
   }
 }
 
@@ -515,14 +513,7 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
   //fprintf(blockFile,"***\n");
   fprintf(blockFile,"****************************************\n");
   fprintf(blockFile,"Virtual Address: $%8lx\n",startAddress);
-  if(constants->bConstantPropagated)
-  {
-    fprintf(blockFile,"Constants Propagated: TRUE\n");
-  }
-  else
-  {
-    fprintf(blockFile,"Constants Propagated: FALSE\n");
-  }
+  fprintf(blockFile,"Constants Propagated: %s\n",constants.bConstantPropagated ? "TRUE" : "FALSE");
   fprintf(blockFile,"Instruction Count: %li\n",numInstructions);
   fprintf(blockFile,"Packet Count: %li\n",packetsProcessed);
   fprintf(blockFile,"Code Size: %lu bytes\n",size);

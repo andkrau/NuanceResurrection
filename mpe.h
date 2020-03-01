@@ -19,9 +19,8 @@
 #include "NuonMemoryMap.h"
 #include "OverlayManager.h"
 #include "Syscall.h"
+#include "SuperBlock.h"
 
-class SuperBlock;
-enum SuperBlockCompileType;
 struct EmitterVariables;
 
 #define INDEX_REG 35
@@ -302,7 +301,7 @@ public:
   uint32 intvec1;
   uint32 intvec2;
   uint32 intsrc;
-  uint32 intclr;
+  uint32 intclr; // unused, always reads as zero
   uint32 intctl;
   uint32 inten1;
   uint32 inten1set;
@@ -372,7 +371,7 @@ public:
   uint32* pICacheEntryRegs; // pointer to 48 MPE Regs, always points to either reg_union or tempreg_union, which is then passed to the Nuances
 
   InstructionCache *instructionCache;
-  SuperBlock *superBlock;
+  SuperBlock superBlock;
   NativeCodeCache *nativeCodeCache;
   OverlayManager overlayManager;
 
@@ -439,7 +438,7 @@ public:
 
   bool TestConditionCode(const uint32 whichCondition) const;
   
-  MPE() {}
+  MPE() : superBlock(SuperBlock(this)) {}
   void Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr);
   ~MPE();
 

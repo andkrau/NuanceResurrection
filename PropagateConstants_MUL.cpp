@@ -4,6 +4,7 @@
 #include "InstructionCache.h"
 #include "PropagateConstants.h"
 #include "PropagateConstants_MEM.h"
+#include "mpe.h"
 #include "SuperBlockConstants.h"
 
 #define ALLOW_MUL_PROPAGATION true

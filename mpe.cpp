@@ -788,8 +788,6 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
 
   nativeCodeCache->SetEmitVars(this, nativeCodeCache);
 
-  superBlock = new SuperBlock(this);
-
   if(mpeIndex == LOG_MPE_INDEX)
   {      
 #ifdef LOG_STUFF
@@ -838,7 +836,6 @@ MPE::~MPE()
 {
   delete nativeCodeCache;
   delete instructionCache;
-  delete superBlock;
 
   if(mpeIndex == LOG_MPE_INDEX)
   {
@@ -2028,7 +2025,7 @@ bool MPE::FetchDecodeExecute()
               //if(pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
               //if(pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK)
               {
-                superBlock->PrintBlockToFile(pNativeCodeCacheEntry->compileType, pNativeCodeCacheEntry->codeSize);
+                superBlock.PrintBlockToFile(pNativeCodeCacheEntry->compileType, pNativeCodeCacheEntry->codeSize);
               }
             }
 
@@ -2328,7 +2325,7 @@ uint8 MPE::DecodeSingleInstruction(const uint8 *const iPtr, InstructionCacheEntr
 
 NativeCodeCacheEntryPoint MPE::CompileNativeCodeBlock(const uint32 pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket)
 {
-  return superBlock->CompileBlock(pcexec, *nativeCodeCache, compileType, bSinglePacket, bError);
+  return superBlock.CompileBlock(pcexec, *nativeCodeCache, compileType, bSinglePacket, bError);
 }
 
 void MPE::PrintInstructionCachePacket(char *buffer, const InstructionCacheEntry &entry)

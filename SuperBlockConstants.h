@@ -2,7 +2,6 @@
 #define SUPERBLOCKCONSTANTS_H
 
 #include "basetypes.h"
-#include "SuperBlock.h"
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
 #include "PropagateConstants.h"

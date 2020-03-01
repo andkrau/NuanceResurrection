@@ -4,6 +4,7 @@
 #include "PropagateConstants_RCU.h"
 #include "PropagateConstants_MEM.h"
 #include "PropagateConstants_MUL.h"
+#include "mpe.h"
 #include "SuperBlockConstants.h"
 
 const PropagateConstantsHandler ConstantHandlers[] = {

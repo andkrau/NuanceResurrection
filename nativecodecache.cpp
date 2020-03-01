@@ -1062,11 +1062,11 @@ void NativeCodeCache::X86Emit_JCC(uint8 *pTarget, int8 conditionCode)
   }
 }
 
-void NativeCodeCache::X86Emit_JCC_Label(PatchManager *patchMgr, int8 conditionCode, uint32 labelIndex)
+void NativeCodeCache::X86Emit_JCC_Label(PatchManager &patchMgr, int8 conditionCode, uint32 labelIndex)
 {
-  if(labelIndex >= patchMgr->numLabels)
+  if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr->AddPatch(pEmitLoc + 2, PatchType_Rel32, pEmitLoc + 6, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 2, PatchType_Rel32, pEmitLoc + 6, labelIndex);
     *pEmitLoc++ = 0x0F;
     *pEmitLoc++ = 0x80 + conditionCode;
     *((int32 *)pEmitLoc) = 0;
@@ -1074,7 +1074,7 @@ void NativeCodeCache::X86Emit_JCC_Label(PatchManager *patchMgr, int8 conditionCo
   }
   else
   {
-    X86Emit_JCC(patchMgr->GetLabelPointer(labelIndex),conditionCode);
+    X86Emit_JCC(patchMgr.GetLabelPointer(labelIndex),conditionCode);
   }
 }
 
@@ -1385,18 +1385,18 @@ void NativeCodeCache::X86Emit_JMPI(uint8 *target, uint16 seg)
   }
 }
 
-void NativeCodeCache::X86Emit_JMPI_Label(PatchManager *patchMgr, uint32 labelIndex)
+void NativeCodeCache::X86Emit_JMPI_Label(PatchManager &patchMgr, uint32 labelIndex)
 {
-  if(labelIndex >= patchMgr->numPatches)
+  if(labelIndex >= patchMgr.numPatches)
   {
-    patchMgr->AddPatch(pEmitLoc + 1, PatchType_Rel32, pEmitLoc + 5, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 1, PatchType_Rel32, pEmitLoc + 5, labelIndex);
     *pEmitLoc++ = 0xE9;
     *((int32 *)pEmitLoc) = 0;
     pEmitLoc += sizeof(int32);
   }
   else
   {
-    X86Emit_JMPI(patchMgr->GetLabelPointer(labelIndex),0);
+    X86Emit_JMPI(patchMgr.GetLabelPointer(labelIndex),0);
   }
 }
 
@@ -1907,17 +1907,17 @@ void NativeCodeCache::X86Emit_LOOPNE(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_LOOPNE_Label(PatchManager *patchMgr, uint32 labelIndex)
+void NativeCodeCache::X86Emit_LOOPNE_Label(PatchManager &patchMgr, uint32 labelIndex)
 {
-  if(labelIndex >= patchMgr->numLabels)
+  if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr->AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
     *pEmitLoc++ = 0xE2;
     *pEmitLoc++ = 0;
   }
   else
   {
-    X86Emit_LOOP(patchMgr->GetLabelPointer(labelIndex));
+    X86Emit_LOOP(patchMgr.GetLabelPointer(labelIndex));
   }
 }
 
@@ -1929,17 +1929,17 @@ void NativeCodeCache::X86Emit_LOOPE(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_LOOPE_Label(PatchManager *patchMgr, uint32 labelIndex)
+void NativeCodeCache::X86Emit_LOOPE_Label(PatchManager &patchMgr, uint32 labelIndex)
 {
-  if(labelIndex >= patchMgr->numLabels)
+  if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr->AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
     *pEmitLoc++ = 0xE0;
     *pEmitLoc++ = 0;
   }
   else
   {
-    X86Emit_LOOPE(patchMgr->GetLabelPointer(labelIndex));
+    X86Emit_LOOPE(patchMgr.GetLabelPointer(labelIndex));
   }
 }
 
@@ -1951,17 +1951,17 @@ void NativeCodeCache::X86Emit_LOOP(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_LOOP_Label(PatchManager *patchMgr, uint32 labelIndex)
+void NativeCodeCache::X86Emit_LOOP_Label(PatchManager &patchMgr, uint32 labelIndex)
 {
-  if(labelIndex >= patchMgr->numLabels)
+  if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr->AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
     *pEmitLoc++ = 0xE2;
     *pEmitLoc++ = 0;
   }
   else
   {
-    X86Emit_LOOP(patchMgr->GetLabelPointer(labelIndex));
+    X86Emit_LOOP(patchMgr.GetLabelPointer(labelIndex));
   }
 }
 
@@ -1975,18 +1975,18 @@ void NativeCodeCache::X86Emit_JCXZ(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_JCXZ_Label(PatchManager *patchMgr, uint32 labelIndex)
+void NativeCodeCache::X86Emit_JCXZ_Label(PatchManager &patchMgr, uint32 labelIndex)
 {
-  if(labelIndex >= patchMgr->numLabels)
+  if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr->AddPatch(pEmitLoc + 2, PatchType_Rel8, pEmitLoc + 3, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 2, PatchType_Rel8, pEmitLoc + 3, labelIndex);
     *pEmitLoc++ = 0x67;
     *pEmitLoc++ = 0xE3;
     *pEmitLoc++ = 0;
   }
   else
   {
-    X86Emit_LOOP(patchMgr->GetLabelPointer(labelIndex));
+    X86Emit_LOOP(patchMgr.GetLabelPointer(labelIndex));
   }
 }
 
@@ -1998,17 +1998,17 @@ void NativeCodeCache::X86Emit_JECXZ(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_JECXZ_Label(PatchManager *patchMgr, uint32 labelIndex)
+void NativeCodeCache::X86Emit_JECXZ_Label(PatchManager &patchMgr, uint32 labelIndex)
 {
-  if(labelIndex >= patchMgr->numLabels)
+  if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr->AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
     *pEmitLoc++ = 0xE3;
     *pEmitLoc++ = 0;
   }
   else
   {
-    X86Emit_JECXZ(patchMgr->GetLabelPointer(labelIndex));
+    X86Emit_JECXZ(patchMgr.GetLabelPointer(labelIndex));
   }
 }
 

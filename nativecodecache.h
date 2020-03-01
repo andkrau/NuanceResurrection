@@ -185,7 +185,7 @@ public:
   void X86Emit_OUTSW();
   void X86Emit_OUTSD();
   void X86Emit_JCC(uint8 *pTarget, int8 conditionCode);
-  void X86Emit_JCC_Label(PatchManager *patchMgr, int8 conditionCode, uint32 labelIndex);
+  void X86Emit_JCC_Label(PatchManager &patchMgr, int8 conditionCode, uint32 labelIndex);
   void X86Emit_JO(uint8 *pTarget);
   void X86Emit_JNO(uint8 *pTarget);
   void X86Emit_JB(uint8 *pTarget);
@@ -218,7 +218,7 @@ public:
   void X86Emit_CDQ();
   void X86Emit_CALLI(uint32 offset, uint16 seg);
   void X86Emit_JMPI(uint8 *target, uint16 seg);
-  void X86Emit_JMPI_Label(PatchManager *patchMgr, uint32 labelIndex);
+  void X86Emit_JMPI_Label(PatchManager &patchMgr, uint32 labelIndex);
   void X86Emit_WAIT();
   void X86Emit_PUSHFW();
   void X86Emit_PUSHFD();
@@ -313,19 +313,19 @@ public:
   void X86Emit_ESC6();
   void X86Emit_ESC7();
   void X86Emit_LOOPNE(uint8 *pTarget);
-  void X86Emit_LOOPNE_Label(PatchManager *patchMgr, uint32 labelIndex);
+  void X86Emit_LOOPNE_Label(PatchManager &patchMgr, uint32 labelIndex);
   #define X86Emit_LOOPNZ X86Emit_LOOPNE
   #define X86Emit_LOOPNZ_Label X86Emit_LOOPNE_Label
   void X86Emit_LOOPE(uint8 *pTarget);
-  void X86Emit_LOOPE_Label(PatchManager *patchMgr, uint32 labelIndex);
+  void X86Emit_LOOPE_Label(PatchManager &patchMgr, uint32 labelIndex);
   #define X86Emit_LOOPZ X86Emit_LOOPE
   #define X86Emit_LOOPZ_Label X86Emit_LOOPZ_Label
   void X86Emit_LOOP(uint8 *pTarget);
-  void X86Emit_LOOP_Label(PatchManager *patchMgr, uint32 labelIndex);
+  void X86Emit_LOOP_Label(PatchManager &patchMgr, uint32 labelIndex);
   void X86Emit_JCXZ(uint8 *pTarget);
-  void X86Emit_JCXZ_Label(PatchManager *patchMgr, uint32 labelIndex);
+  void X86Emit_JCXZ_Label(PatchManager &patchMgr, uint32 labelIndex);
   void X86Emit_JECXZ(uint8 *pTarget);
-  void X86Emit_JECXZ_Label(PatchManager *patchMgr, uint32 labelIndex);
+  void X86Emit_JECXZ_Label(PatchManager &patchMgr, uint32 labelIndex);
   void X86Emit_INI(x86Reg regDest, uint8 port);
   void X86Emit_OUTI(x86Reg regDest, uint8 data);
   void X86Emit_INR(x86Reg regDest);
