@@ -73,25 +73,29 @@ static int audioChannel = 0;
   }
 
 //InitAudio: Initialize sound library, create audio stream
-//Playback rate is 44100 Hz, Format is signed 16 bit stereo samples
+//Playback rate is the initially requested one (to avoid a resampling step), or 48000 Hz if exceeding supported ones,
+//Format is signed 16 bit stereo samples
 //Nuon sound samples must be byte-swapped for use by libraries which require
 //little-endian byte ordering
 
-#define MIX_RATE (44100)
-#define MAX_SOFTWARE_CHANNELS (6)
+#define MIX_RATE (48000) // all tested games so far are actually using 32k
+#define MAX_SOFTWARE_CHANNELS (2)
 #define INIT_FLAGS FSOUND_INIT_GLOBALFOCUS
 #define DEFAULT_SAMPLE_FORMAT (FSOUND_16BITS | FSOUND_STEREO | FSOUND_SIGNED)
 #define USER_PARAM (0)
 
 void NuonEnvironment::InitAudio(void)
 {
+  if(nuonAudioPlaybackRate == 0) // delay FMOD init until SetAudioPlaybackRate has been called so that we can set requested rate here to avoid one resampling step!
+    return;
+
   if(!bFMODInitialized)
   {
     //Select default sound driver
     FSOUND_SetDriver(0);
     FSOUND_SetMixer(FSOUND_MIXER_QUALITY_AUTODETECT);
     //Initialize FMOD
-    if(FSOUND_Init(MIX_RATE, MAX_SOFTWARE_CHANNELS, INIT_FLAGS))
+    if(FSOUND_Init(nuonAudioPlaybackRate <= 65535 ? nuonAudioPlaybackRate : MIX_RATE, MAX_SOFTWARE_CHANNELS, INIT_FLAGS)) // 65535 = max rate of FMOD
       bFMODInitialized = true;
     else
       return;
@@ -135,6 +139,12 @@ void NuonEnvironment::MuteAudio(const bool mute)
 
 void NuonEnvironment::SetAudioPlaybackRate(uint32 rate)
 {
+  if (nuonEnv.nuonAudioChannelMode & ENABLE_SAMP_INT)
+    nuonEnv.cyclesPerAudioInterrupt = 54000000 / nuonEnv.nuonAudioPlaybackRate;
+
+  if(!bFMODInitialized)
+    InitAudio();
+
   if(bFMODInitialized && audioStream)
   {
     if(FSOUND_IsPlaying(audioChannel))
@@ -381,7 +391,7 @@ void NuonEnvironment::Init()
 
   pNuonAudioBuffer = 0;
   nuonAudioChannelMode = 0;
-  nuonAudioPlaybackRate = 32000;
+  nuonAudioPlaybackRate = 0; //!! was 32000
   nuonAudioBufferSize = 1024;
   nuonSupportedPlaybackRates =
     RATE_16_KHZ |
