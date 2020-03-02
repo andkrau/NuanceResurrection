@@ -162,6 +162,7 @@ public:
   uint32 ecuConditionCode;
   size_t nuances[MAX_INSTRUCTIONS_PER_PACKET * FIELDS_PER_NUANCE]; //!! size_t due to some being real pointers, i.e. to support 64bit compiles
 
+  // do not change order of these 4, see below
   uint32 scalarInputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 miscInputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
   uint32 scalarOutputDependencies[MAX_INSTRUCTIONS_PER_PACKET];
@@ -184,7 +185,7 @@ public:
   void Invalidate();
   void InvalidateRegion(const uint32 start, const uint32 end);
 
-  InstructionCacheEntry *FindInstructionCacheEntry(const uint32 addressKey, bool &bValid)
+  InstructionCacheEntry *FindInstructionCacheEntry(const uint32 addressKey, bool &bValid) const
   {
     const uint32 cacheEntryIndex = (addressKey >> 1) & (numEntries - 1);
     bValid = (validBitmap[cacheEntryIndex >> 5] & (0x80000000UL >> (cacheEntryIndex & 0x1FUL)));

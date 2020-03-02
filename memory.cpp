@@ -34,9 +34,11 @@ void MemAlloc(MPE &mpe)
   const uint32 flags = mpe.regs[2];
   const uint32 result = nuonEnv.nuonMemoryManager.Alloc(requestedBytes, requestedAlignment, flags);
   mpe.regs[0] = result;
-  if(!result)
+  if(!result) // allocation failed
   {
-    printf("WARNING WILL ROBINSON");
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+    MessageBox(NULL,"WARNING WILL ROBINSON", "WARNING WILL ROBINSON", MB_OK);
+#endif
   }
 }
 

@@ -368,7 +368,7 @@ void MediaIoctl(MPE &mpe)
           if(value)
           {
             uint32* const ptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,value);
-            //For now, return physical sector zero, but in the future there needs to be some sort
+            //!! For now, return physical sector zero, but in the future there needs to be some sort
             //of TOC to allow for loading from image files in which case the base file sector will
             //be non-zero
             *ptr = 0;

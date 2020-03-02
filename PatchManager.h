@@ -56,8 +56,10 @@ public:
     numLabels = 0;
   }
 
-  void AddPatch(uint8 *patchPtr, PatchType patchType, uint8 *basePtr, uint32 destLabel)
+  void AddPatch(uint8 * const patchPtr, const PatchType patchType, uint8 * const basePtr, const uint32 destLabel)
   {
+    assert(numPatches < MAX_PATCH_ENTRIES);
+
     patchData[numPatches].patchPtr = patchPtr;
     patchData[numPatches].patchType = patchType;
     patchData[numPatches].basePtr = basePtr;
@@ -65,14 +67,18 @@ public:
     numPatches++;
   }
 
-  void SetLabelPointer(uint32 labelIndex, uint8 *ptr)
+  void SetLabelPointer(const uint32 labelIndex, uint8 * const ptr)
   {
+    assert(labelIndex < MAX_PATCH_LABELS);
+
     labelPointers[labelIndex] = ptr;
     numLabels++;
   }
 
-  uint8 *GetLabelPointer(uint32 labelIndex)
+  uint8 *GetLabelPointer(const uint32 labelIndex) const
   {
+    assert(labelIndex < MAX_PATCH_LABELS);
+
     return labelPointers[labelIndex];
   }
 };

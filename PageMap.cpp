@@ -4,10 +4,7 @@
 
 PageMap::PageMap()
 {
-  for(uint32 i = 0; i < NUM_ROOT_PAGENODE_ENTRIES; i++)
-  {
-    root.entries[i] = 0;
-  }
+  memset(root.entries, 0, sizeof(Level1PageNode*) * NUM_ROOT_PAGENODE_ENTRIES);
 }
 
 PageMap::~PageMap()
@@ -41,10 +38,7 @@ NativeCodeCacheEntry *PageMap::AllocatePage(const uint32 address)
   if(!pL1Node)
   {
     pL1Node = new Level1PageNode;
-    for(uint32 i = 0; i < NUM_LEVEL1_PAGENODE_ENTRIES; i++)
-    {
-      pL1Node->entries[i] = 0;  
-    }
+    memset(pL1Node->entries, 0, sizeof(NativeCodeCacheEntry*) * NUM_LEVEL1_PAGENODE_ENTRIES);
     root.entries[rootIndex] = pL1Node;
   }
 

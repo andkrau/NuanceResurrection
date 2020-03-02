@@ -1,27 +1,17 @@
 #include "basetypes.h"
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+ #include <windows.h>
+#endif
 #include "MemoryManager.h"
 
-MemoryManager::MemoryManager(uint32 maxBytes, uint32 defaultAlignment)
-{
-  this->defaultAlignment = defaultAlignment;
-  this->maxBytes = maxBytes;
-}
-
-bool MemoryManager::TestForInvalidPowerOfTwo(uint32 requestedAlignment)
-{
-  return (requestedAlignment & (requestedAlignment - 1)) != 0;
-}
-
-void MemoryManager::Add(uint32 startAddress, uint32 endAddress, uint32 index)
+void MemoryManager::Add(const uint32 startAddress, const uint32 endAddress, uint32 index)
 {
   FreeMemoryBlock newFreeBlock;
-  uint32 vectorSize;
-
   newFreeBlock.startAddress = startAddress;
   newFreeBlock.endAddress = endAddress;
   newFreeBlock.numBytes = endAddress - startAddress + 1;
 
-  vectorSize = (uint32)freeBlockVector.size();
+  const uint32 vectorSize = (uint32)freeBlockVector.size();
 
   if(vectorSize == 0)
   {
@@ -32,7 +22,7 @@ void MemoryManager::Add(uint32 startAddress, uint32 endAddress, uint32 index)
 
   if((index == 0) || (index >= vectorSize))
   {
-    //Dont know where to put it
+    //Dont know where to put it, find a slot
     for(index = 0; index < vectorSize; index++)
     {
       if(freeBlockVector[index].startAddress > startAddress)
@@ -97,7 +87,7 @@ void MemoryManager::Add(uint32 startAddress, uint32 endAddress, uint32 index)
   }
 }
 
-void MemoryManager::AddAllocatedBlock(uint32 startAddress, uint32 numBytes)
+void MemoryManager::AddAllocatedBlock(const uint32 startAddress, const uint32 numBytes)
 {
   AllocatedMemoryBlock newAllocatedBlock;
   newAllocatedBlock.startAddress = startAddress;
@@ -105,27 +95,26 @@ void MemoryManager::AddAllocatedBlock(uint32 startAddress, uint32 numBytes)
 
   const uint32 vectorSize = (uint32)allocatedBlockVector.size();
 
-  uint32 index;
-  for(index = 0; index < vectorSize; index++)
+  for(uint32 index = 0; index < vectorSize; index++)
   {
     if(allocatedBlockVector[index].startAddress > startAddress)
     {
-      break;
+      allocatedBlockVector.insert(allocatedBlockVector.begin() + index, newAllocatedBlock);
+
+      return;
     }
   }
-
-  allocatedBlockVector.insert(allocatedBlockVector.begin() + index, newAllocatedBlock);
 }
 
-void MemoryManager::Free(uint32 startAddress)
+void MemoryManager::Free(const uint32 startAddress)
 {
-  FreeMemoryBlock newFreeBlock;
   const uint32 vectorSize = (uint32)allocatedBlockVector.size();
 
   for(uint32 index = 0; index < vectorSize; index++)
   {
     if(allocatedBlockVector[index].startAddress == startAddress)
     {
+      FreeMemoryBlock newFreeBlock;
       newFreeBlock.startAddress = allocatedBlockVector[index].startAddress;
       newFreeBlock.numBytes = allocatedBlockVector[index].numBytes;
       newFreeBlock.endAddress = newFreeBlock.startAddress + newFreeBlock.numBytes - 1;
@@ -134,6 +123,7 @@ void MemoryManager::Free(uint32 startAddress)
       //Add a new memory block item into the free block list (specify index equal to size
       //to force search for proper insertion point)
       Add(newFreeBlock.startAddress,newFreeBlock.endAddress,(uint32)freeBlockVector.size());
+
       return;
     }
   }
@@ -141,9 +131,6 @@ void MemoryManager::Free(uint32 startAddress)
 
 uint32 MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
 {
-  FreeMemoryBlock fmb2;
-  uint32 adjustedAddress;
-
   if(requestedBytes == 0)
   {
     requestedBytes = 1;
@@ -158,6 +145,9 @@ uint32 MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
   //stricter alignments must be powers of two
   if(TestForInvalidPowerOfTwo(requestedAlignment))
   {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+    MessageBox(NULL,"TestForInvalidPowerOfTwo","TestForInvalidPowerOfTwo",MB_OK);
+#endif
     return 0;
   }
 
@@ -168,6 +158,9 @@ uint32 MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
 
   if(vectorSize == 0)
   {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+    MessageBox(NULL,"vectorSize == 0","vectorSize == 0",MB_OK);
+#endif
     return 0;
   }
 
@@ -177,7 +170,7 @@ uint32 MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
     {
       //Find the first address greater or equal to the block starting address
       //that is aligned to the number of bytes specified by requestedAlignment
-      adjustedAddress = AlignAddress(freeBlockVector[index].startAddress, requestedAlignment);
+      const uint32 adjustedAddress = AlignAddress(freeBlockVector[index].startAddress, requestedAlignment);
       if(adjustedAddress <= freeBlockVector[index].endAddress)
       {
         if((freeBlockVector[index].endAddress - adjustedAddress + 1) >= requestedBytes)
@@ -208,6 +201,7 @@ uint32 MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
             }
             else
             {
+              FreeMemoryBlock fmb2;
               //Allocated block splits free block in two
               fmb2.endAddress = freeBlockVector[index].endAddress;
               //NewFreeBlock1: pFB1.start_address stays the same
@@ -238,6 +232,7 @@ uint32 MemoryManager::Allocate(uint32 requestedBytes, uint32 requestedAlignment)
     //Trivial rejection of block candidates that do not have enough bytes
     //to meet the request under any circumstance
   }
+
   //No block was able to meet the requirements
   return 0;
 }
@@ -388,7 +383,3 @@ void MemInit(MPE *mpe)
 }
 
 */
-
-
-
-

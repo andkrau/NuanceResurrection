@@ -11,7 +11,7 @@ InstructionCache::InstructionCache(const uint32 desiredEntries)
   }
 
   validBitmap = new uint32[(numEntries/32) + 1];
-  //!! init_array((uint8*)validBitmap, ((numEntries / 32) + 1)*sizeof(uint32));
+  // init_array((uint8*)validBitmap, ((numEntries / 32) + 1)*sizeof(uint32)); // not needed as Invalidate is called below
   cacheEntries = new InstructionCacheEntry[numEntries];
   //!! init_array((uint8*)cacheEntries, numEntries*sizeof(InstructionCacheEntry));
 

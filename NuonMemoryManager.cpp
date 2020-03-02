@@ -1,4 +1,7 @@
 #include "basetypes.h"
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+ #include <windows.h>
+#endif
 #include "Bios.h"
 #include "NuonMemoryMap.h"
 #include "NuonMemoryManager.h"
@@ -6,8 +9,8 @@
 
 NuonMemoryManager::NuonMemoryManager()
 {
-  mainBusMemoryManager = new MemoryManager(8*1024*1024,16);
-  otherBusMemoryManager = new MemoryManager(8*1024*1024,16);
+  mainBusMemoryManager = new MemoryManager(8UL*1024UL*1024UL,16);
+  otherBusMemoryManager = new MemoryManager(8UL*1024UL*1024UL,16);
 }
 
 NuonMemoryManager::~NuonMemoryManager()
@@ -16,31 +19,35 @@ NuonMemoryManager::~NuonMemoryManager()
   delete otherBusMemoryManager;
 }
 
-uint32 NuonMemoryManager::Alloc(uint32 requestedBytes, uint32 requestedAlignment, uint32 flags)
+uint32 NuonMemoryManager::Alloc(const uint32 requestedBytes, const uint32 requestedAlignment, const uint32 flags)
 {
-  char msg[128];
   uint32 address = 0;
 
   if(flags & kMemSDRAM)
   {
     address = mainBusMemoryManager->Allocate(requestedBytes,requestedAlignment);
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
     if((address != 0) && ((address < MAIN_BUS_BASE) || (address >= MAIN_BUS_BASE + MAIN_BUS_SIZE)))
     {
+      char msg[128];
       sprintf(msg,"Illegal Main Bus memory address allocation: %8.8lX",address);
-      //QMessageBox::warning(0,"MemAlloc Error",QString(msg));
+      MessageBox(NULL,"MemAlloc Error",msg,MB_OK);
     }
+#endif
   }
   
   if((address == 0) && (flags & kMemSysRam))
   {
     address = otherBusMemoryManager->Allocate(requestedBytes,requestedAlignment);
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
     if((address != 0) && ((address < SYSTEM_BUS_BASE) || (address >= BIOS_FUNCTIONS_BASE)))
     {
+      char msg[128];
       sprintf(msg,"Illegal Other Bus memory address allocation: %8.8lX",address);
-      //QMessageBox::warning(0,"MemAlloc Error",QString(msg));
+      MessageBox(NULL,"MemAlloc Error",msg,MB_OK);
     }
+#endif
   }
-
 
   return address;
 }

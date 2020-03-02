@@ -9,9 +9,11 @@ class NuonMemoryManager
 public:
   NuonMemoryManager();
   ~NuonMemoryManager();
-  uint32 Alloc(uint32 requestedBytes, uint32 requestedAlignment, uint32 flags);
+
+  uint32 Alloc(const uint32 requestedBytes, const uint32 requestedAlignment, const uint32 flags);
   void Free(uint32 address);
   void Init();
+
 private:
   MemoryManager *mainBusMemoryManager;
   MemoryManager *otherBusMemoryManager;
