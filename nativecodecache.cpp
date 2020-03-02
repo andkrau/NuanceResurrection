@@ -1306,7 +1306,6 @@ void NativeCodeCache::X86Emit_XCHGRR(x86Reg reg1, x86Reg reg2)
       *pEmitLoc++ = 87;
       X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(reg2 & 0x07),(reg1 & 0x07));
     }
-  
   }
 }
 
@@ -3542,5 +3541,5 @@ void NativeCodeCache::X86Emit_PADDRM(x86Reg regSrc, uint32 base, x86IndexReg ind
     *pEmitLoc++ = 0x0F;
     *pEmitLoc++ = 0xFE;
   }
-  X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regSrc & 0x07),base, index, scale, disp);
+  X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regSrc & 0x07), base, index, scale, disp);
 }

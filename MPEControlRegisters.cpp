@@ -31,7 +31,7 @@ uint32 MPE::ReadControlRegister(const uint32 address, const uint32 entrypRegs[48
     case 0x5:
       return pcfetch;
     case 0x6:
-      return pcroute & 0xFFFFFFFE;
+      return pcroute & 0xFFFFFFFEUL;
     case 0x7:
       return pcexec;
     case 0x8:
@@ -76,7 +76,7 @@ uint32 MPE::ReadControlRegister(const uint32 address, const uint32 entrypRegs[48
     case 0x22:
       return entrypRegs[XYR_REG] & ((0x3FFUL << 16) | 0x3FFUL);
     case 0x23:
-      return xybase & 0xFFFFFFFC;
+      return xybase & 0xFFFFFFFCUL;
     case 0x24:
       return entrypRegs[XYC_REG] & ~((1UL << 11) | (1UL << 27) | (1UL << 31));
     case 0x25:
@@ -88,19 +88,19 @@ uint32 MPE::ReadControlRegister(const uint32 address, const uint32 entrypRegs[48
     case 0x27:
       return entrypRegs[UVR_REG] & ((0x3FFUL << 16) | 0x3FFUL);
     case 0x28:
-      return uvbase & 0xFFFFFFFC;
+      return uvbase & 0xFFFFFFFCUL;
     case 0x29:
       return entrypRegs[UVC_REG] & ~((1UL << 11) | (1UL << 27) | (1UL << 31));
     case 0x2A:
       return linpixctl & ((1UL << 28) | (15UL << 20));
     case 0x2B:
-      return clutbase & 0xFFFFFFC0;
+      return clutbase & 0xFFFFFFC0UL;
     case 0x2C:
       return entrypRegs[SVS_REG] & 0x03UL;
     case 0x2D:
       return (((int32)(entrypRegs[ACS_REG] << 25)) >> 25);
     case 0x2E:
-      return sp & 0xFFFFFFF0;
+      return sp & 0xFFFFFFF0UL;
     case 0x2F:
       return dabreak;
     case 0x30:
@@ -255,7 +255,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       //If the resetMpe bit is set, handle the MPE reset
       if(data & MPECTRL_MPERESET)
       {
-        //????????
+        //!! ????????
       }
 
       if(!prevGoState && (mpectl & MPECTRL_MPEGO))
@@ -293,7 +293,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       pcfetch = data;
       return;
     case 0x6:
-      pcroute = data & 0xFFFFFFFE;
+      pcroute = data & 0xFFFFFFFEUL;
       return;
     case 0x7:
       pcexec = data;
@@ -413,7 +413,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       linpixctl = data & ((0x01UL << 28) | (0xFUL << 20));
       if(data & 0xFUL)
       {
-        //M3DL sets the lower four bits in MPR_START, and the value seems
+        //!! M3DL sets the lower four bits in MPR_START, and the value seems
         //to be the pixel type, so this hack allows bits 0-3 to be mapped
         //to linpixctl bits 20-23
         linpixctl |= ((data & 0x0FUL) << 20);

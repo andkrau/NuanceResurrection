@@ -21,11 +21,12 @@ struct AllocatedMemoryBlock
 class MemoryManager
 {
 public:
-  MemoryManager(uint32 maxBytes, uint32 defaultAlignment = 16);
-  void AddAllocatedBlock(uint32 base, uint32 numBytes);
-  void Add(uint32 startAddress, uint32 endAddress, uint32 index = 0);
+  MemoryManager(uint32 _maxBytes, uint32 _defaultAlignment = 16) : defaultAlignment(_defaultAlignment), maxBytes(_maxBytes) {}
+  ~MemoryManager() {}
+  void AddAllocatedBlock(const uint32 base, const uint32 numBytes);
+  void Add(const uint32 startAddress, const uint32 endAddress, uint32 index = 0);
   uint32 Allocate(uint32 requestedBytes, uint32 requestedAlignment);
-  void Free(uint32 address);
+  void Free(const uint32 address);
 
   inline void Reset()
   {
@@ -38,7 +39,10 @@ private:
   {
     return (address + alignment - 1) & (~(alignment - 1));
   }
-  bool TestForInvalidPowerOfTwo(uint32 requestedAlignment);
+  bool TestForInvalidPowerOfTwo(const uint32 requestedAlignment)
+  {
+    return (requestedAlignment & (requestedAlignment - 1)) != 0;
+  }
 
   uint32 maxBytes;
   uint32 defaultAlignment;

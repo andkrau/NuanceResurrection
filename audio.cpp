@@ -36,6 +36,8 @@ void AudioSetSampleRate(MPE &mpe)
   if(!(newRate & nuonEnv.nuonSupportedPlaybackRates))
     return;
 
+  // NISE always triggers 16bit stereo at 32kHz per its spec
+
   // search for bits from most significant bit onwards, as specified
   if(newRate & RATE_16_KHZ)
     nuonEnv.nuonAudioPlaybackRate = 16000;
@@ -70,6 +72,8 @@ void AudioQueryChannelMode(MPE &mpe)
 void AudioSetChannelMode(MPE &mpe)
 {
   const uint32 newMode = mpe.regs[0];
+
+  // NISE always triggers 16bit stereo at 32kHz per its spec
 
   nuonEnv.nuonAudioChannelMode = newMode;
   nuonEnv.nuonAudioBufferSize = nuonEnv.GetBufferSize(newMode);
