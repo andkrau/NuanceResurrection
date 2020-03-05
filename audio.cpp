@@ -61,7 +61,7 @@ void AudioSetSampleRate(MPE &mpe)
     //default to 32KHZ
     nuonEnv.nuonAudioPlaybackRate = 32000;
 
-  nuonEnv.SetAudioPlaybackRate(nuonEnv.nuonAudioPlaybackRate);
+  nuonEnv.SetAudioPlaybackRate();
 }
 
 void AudioQueryChannelMode(MPE &mpe)
@@ -75,13 +75,19 @@ void AudioSetChannelMode(MPE &mpe)
 
   // NISE always triggers 16bit stereo at 32kHz per its spec
 
+  assert((newMode & STREAM_FOUR_16_BIT) == 0);
+  assert((newMode & STREAM_TWO_32_BIT) == 0);
+  assert((newMode & STREAM_EIGHT_16_BIT) == 0);
+  assert((newMode & STREAM_EIGHT_32_BIT) == 0);
+  assert((newMode & STREAM_FOUR_32_BIT) == 0);
+
   nuonEnv.nuonAudioChannelMode = newMode;
   nuonEnv.nuonAudioBufferSize = nuonEnv.GetBufferSize(newMode);
   if(newMode & ENABLE_SAMP_INT)
     nuonEnv.cyclesPerAudioInterrupt = 54000000/nuonEnv.nuonAudioPlaybackRate;
 
   nuonEnv.RestartAudio();
-  nuonEnv.SetAudioVolume(255);
+  nuonEnv.SetAudioVolume(255); //!! not necessary as never changed anywhere?!
 }
 
 void AudioSetDMABuffer(MPE &mpe)
