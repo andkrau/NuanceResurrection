@@ -87,7 +87,7 @@ void AudioSetChannelMode(MPE &mpe)
     nuonEnv.cyclesPerAudioInterrupt = 54000000/nuonEnv.nuonAudioPlaybackRate;
 
   nuonEnv.RestartAudio();
-  nuonEnv.SetAudioVolume(255); //!! not necessary as never changed anywhere?!
+  //nuonEnv.SetAudioVolume(255); //!! not necessary as never changed anywhere?!
 }
 
 void AudioSetDMABuffer(MPE &mpe)

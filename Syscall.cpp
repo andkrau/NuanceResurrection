@@ -13,31 +13,28 @@ void Syscall_InterruptTriggered(MPE &mpe)
   const uint32 mpeIndex = mpe.mpeIndex;
   const uint32 interruptMask = WaitForInterruptList[mpeIndex];
 
-  if(interruptMask)
+  if(interruptMask && (mpe.intsrc & (mpe.inten1 | (1u << mpe.inten2sel)) & interruptMask))
   {
-    if(mpe.intsrc & (mpe.inten1 | (1 << mpe.inten2sel)) & interruptMask)
-    {
-      //enabled interrupt is waiting to be processed so wake up the processor
-      mpe.mpectl |= MPECTRL_MPEGO;
-      //no longer waiting for interrupts
-      WaitForInterruptList[mpeIndex] = 0;
-      //register the state change in case we want to optimize the outer dispatch loop
-      nuonEnv.bProcessorStartStopChange = true;
-    }
+    //enabled interrupt is waiting to be processed so wake up the processor
+    mpe.mpectl |= MPECTRL_MPEGO;
+    //no longer waiting for interrupts
+    WaitForInterruptList[mpeIndex] = 0;
+    //register the state change in case we want to optimize the outer dispatch loop
+    nuonEnv.bProcessorStartStopChange = true;
   }
 }
 
 void Syscall_WaitForInterruptCommon(const uint32 mpeIndex, const uint32 interruptMask)
 {
   MPE &mpe = nuonEnv.mpe[mpeIndex];
-  if(interruptMask && !(mpe.intsrc & (mpe.inten1 | (1 << mpe.inten2sel)) & interruptMask))
+  if(interruptMask && !(mpe.intsrc & (mpe.inten1 | (1u << mpe.inten2sel)) & interruptMask))
   {
     //stop
     mpe.mpectl &= ~MPECTRL_MPEGO;
     //clear hw and sw masks
     mpe.intctl = 0;
     WaitForInterruptList[mpe.mpeIndex] = interruptMask;
-      //register the state change in case we want to optimize the outer dispatch loop
+    //register the state change in case we want to optimize the outer dispatch loop
     nuonEnv.bProcessorStartStopChange = true;
   }
 }
@@ -62,7 +59,7 @@ void Syscall_WaitForCommPacket(MPE &mpe)
     if(*memPtr == *(memPtr + 1))
     {
       //If queue2 head equals queue2 tail then there are no user packets available so the processor should wait for interrupts
-      Syscall_WaitForInterruptCommon(mpeIndex,mpe.inten1 | (1 << mpe.inten2sel));
+      Syscall_WaitForInterruptCommon(mpeIndex,mpe.inten1 | (1u << mpe.inten2sel));
     }
   }
   else if(mpeIndex == 3)
@@ -72,13 +69,13 @@ void Syscall_WaitForCommPacket(MPE &mpe)
     if(!*memPtr)
     {
       //No user comm packet is available so wait for interrupts
-      Syscall_WaitForInterruptCommon(mpeIndex,mpe.inten1 | (1 << mpe.inten2sel));
+      Syscall_WaitForInterruptCommon(mpeIndex,mpe.inten1 | (1u << mpe.inten2sel));
     }
   }
   else if(!(mpe.commctl & COMM_RECV_BUFFER_FULL_BIT))
   {
     //The commrecv buffer is empty so there is obviously no available packet and we should wait for interrupts
-    Syscall_WaitForInterruptCommon(mpeIndex,mpe.inten1 | (1 << mpe.inten2sel));
+    Syscall_WaitForInterruptCommon(mpeIndex,mpe.inten1 | (1u << mpe.inten2sel));
   }
 }
 

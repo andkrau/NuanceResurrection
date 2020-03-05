@@ -3,6 +3,7 @@
 
 #include "basetypes.h"
 #include <windows.h>
+#include "external\fmod-3.75\api\inc\fmod.h"
 #include "audio.h"
 #include "mpe.h"
 #include "NuonMemoryManager.h"
@@ -24,7 +25,7 @@ enum ConfigTokenType
 class NuonEnvironment
 {
 public:
-  NuonEnvironment() {}
+  NuonEnvironment() : bFMODInitialized(false), audioChannel(0) {}
   void Init();
   ~NuonEnvironment();
 
@@ -91,9 +92,11 @@ public:
 
   MPE mpe[4];
   NuonMemoryManager nuonMemoryManager;
-  uint8 *mainBusDRAM;
-  uint8 *systemBusDRAM;
-  FlashEEPROM *flashEEPROM;
+
+  uint8 mainBusDRAM[MAIN_BUS_SIZE];
+  uint8 systemBusDRAM[SYSTEM_BUS_SIZE];
+  FlashEEPROM flashEEPROM;
+
   uint32 cycleCounter;
   uint32 pendingCommRequests;
   uint32 mainChannelUpperLimit, mainChannelLowerLimit;
@@ -137,6 +140,11 @@ private:
 
   char *dvdBase;
   bool bAudioInterruptsEnabled;
+
+  // FMOD specific stuff
+  bool bFMODInitialized;
+  FSOUND_STREAM* audioStream;
+  int audioChannel;
 };
 
 #endif

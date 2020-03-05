@@ -7,16 +7,16 @@
 class NuonMemoryManager
 {
 public:
-  NuonMemoryManager();
-  ~NuonMemoryManager();
+  NuonMemoryManager() {}
+  ~NuonMemoryManager() {}
 
   uint32 Alloc(const uint32 requestedBytes, const uint32 requestedAlignment, const uint32 flags);
   void Free(uint32 address);
   void Init();
 
 private:
-  MemoryManager *mainBusMemoryManager;
-  MemoryManager *otherBusMemoryManager;
+  MemoryManager mainBusMemoryManager;
+  MemoryManager otherBusMemoryManager;
 };
 
 #endif
