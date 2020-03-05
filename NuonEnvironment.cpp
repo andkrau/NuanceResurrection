@@ -42,34 +42,14 @@ static int audioChannel = 0;
 
   static schar F_CALLBACKAPI StreamCallback(FSOUND_STREAM *stream, void *buff, int len, void* userdata)
   {
-    static bool position = false;
-
-    if(!buff)
-      return FALSE;
-
-    assert(len == (nuonEnv.nuonAudioBufferSize>>1));
-
     const uint8* const pNuonAudioBuffer = nuonEnv.pNuonAudioBuffer;
 
-    if (pNuonAudioBuffer && (nuonEnv.nuonAudioBufferSize >= 1024))
-    {
-    if(!position)
-    {
-      ConvertNuonAudioData(&pNuonAudioBuffer[len], (uint8 *)buff, len); // kinda double buffering in here
-      if((nuonEnv.nuonAudioChannelMode & ENABLE_WRAP_INT) && !nuonEnv.bUseCycleBasedTiming) // =all of the buffer done -> wrap now
-        nuonEnv.TriggerAudioInterrupt();
-    }
-    else
-    {
-      ConvertNuonAudioData(pNuonAudioBuffer, (uint8 *)buff, len); // kinda double buffering in here
-      if((nuonEnv.nuonAudioChannelMode & ENABLE_HALF_INT) && !nuonEnv.bUseCycleBasedTiming) // =half the buffer done?!
-        nuonEnv.TriggerAudioInterrupt();
-    }
-    position = !position;
-    return nuonEnv.pNuonAudioBuffer ? TRUE : FALSE; // was it killed off while processing in here?
-    }
+    if(!buff || !pNuonAudioBuffer)
+      return FALSE;
 
-    return FALSE;
+    _InterlockedExchange(&nuonEnv.audio_buffer_played, 1);
+    ConvertNuonAudioData(pNuonAudioBuffer+nuonEnv.audio_buffer_offset, (uint8*)buff, len);
+    return TRUE;
   }
 
 //InitAudio: Initialize sound library, create audio stream
@@ -390,7 +370,9 @@ void NuonEnvironment::Init()
   InitializeTimingMethod();
 
   pNuonAudioBuffer = 0;
-  nuonAudioChannelMode = 0;
+  audio_buffer_offset = 0;
+  audio_buffer_played = 0;
+  oldNuonAudioChannelMode = nuonAudioChannelMode = 0;
   nuonAudioPlaybackRate = 0; //!! was 32000
   nuonAudioBufferSize = 1024;
   nuonSupportedPlaybackRates =

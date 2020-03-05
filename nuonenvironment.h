@@ -61,7 +61,8 @@ public:
   void TriggerAudioInterrupt(void)
   {
     if(bAudioInterruptsEnabled)
-      ScheduleInterrupt(INT_AUDIO);
+      for(int i = 0; i < 4; ++i)
+        mpe[i].TriggerInterrupt(INT_AUDIO);
   }
 
   void TriggerVideoInterrupt(void)
@@ -100,11 +101,16 @@ public:
 
   //Last accepted value stored using _AudioSetChannelMode
   uint32 nuonAudioChannelMode;
+  uint32 oldNuonAudioChannelMode;
   //Nuon audio buffer size in bytes
   //Supported values are 1K/2K/4K/8K/16K/32K/64K
   uint32 nuonAudioBufferSize;
   //PC pointer to Nuon audio buffer in main bus or system bus DRAM
   uint8 * volatile pNuonAudioBuffer;
+  //Current position in the audio buffer for the sound output callback
+  uint32 audio_buffer_offset;
+  //0 or 1, depending if the audio callback has played since the last emulation cycle
+  uint32 audio_buffer_played;
   //Bitflag value passed back as return value in _AudioQuerySampleRates
   //The constructor initializes this variable.  Supported rates are
   //16000/22050/24000/32000/44100/48000/64000/88200/96000

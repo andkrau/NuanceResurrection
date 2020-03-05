@@ -865,10 +865,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       nuonEnv.mpe[1].FetchDecodeExecute();
       nuonEnv.mpe[0].FetchDecodeExecute();
 
-      nuonEnv.TriggerScheduledInterrupts();
-
       if(nuonEnv.pendingCommRequests)
         DoCommBusController();
+
+      if (!nuonEnv.bUseCycleBasedTiming &&
+           nuonEnv.pNuonAudioBuffer && // was nuon audio setup already?
+         ((nuonEnv.nuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT)) != (nuonEnv.oldNuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT))) && // was a new audio interrupt requested?
+       ((((nuonEnv.mpe[0].intsrc & nuonEnv.mpe[0].inten1) | (nuonEnv.mpe[1].intsrc & nuonEnv.mpe[1].inten1) | (nuonEnv.mpe[2].intsrc & nuonEnv.mpe[2].inten1) | (nuonEnv.mpe[3].intsrc & nuonEnv.mpe[3].inten1)) & INT_AUDIO) == 0) && // & (INT_AUDIO | INT_COMMXMIT | INT_VIDTIMER) // are any audio interrupts still pending?
+          _InterlockedExchange(&nuonEnv.audio_buffer_played,0) == 1) // was a audio buffer already played since last cycle?
+          //!! should also check if enough emulated cycles since last update have passed so that the Nuon could've filled up the new sound buffer
+      {
+        nuonEnv.audio_buffer_offset = (nuonEnv.nuonAudioChannelMode & ENABLE_WRAP_INT) ? 0 : (nuonEnv.nuonAudioBufferSize >> 1);
+        nuonEnv.oldNuonAudioChannelMode = nuonEnv.nuonAudioChannelMode;
+        nuonEnv.TriggerAudioInterrupt();
+      }
+
+      nuonEnv.TriggerScheduledInterrupts();
 
       //nuonEnv.videoDisplayCycleCount += nuonEnv.mpe[3].cycleCounter;
       //ProcessCycleBasedEvents();
