@@ -12,15 +12,19 @@ Playable.
 
 The Next Tetris
 -----------------
-Playable.
+Playable, distorted music.
 
 Merlin Racing
 -------------
-Playable.
+Playable, BUT hangs most of the time on/shortly after race start.
 
 Tempest 3000
 ------------
-Playable.
+Playable, BUT
+1) hangs most of the time when starting a game from certain levels (level 1 as prominent example).
+   WORKAROUND enter options->music test first and play some different musics
+2) hangs (only if dynamic compilation enabled) on entering level select
+   WORKAROUND after doing 1), enter options->vector test first
 
 Ballistic
 ---------
@@ -33,4 +37,3 @@ Unplayable.  Will require MPEG playback.
 Iron Soldier 3
 --------------
 Unplayable.  Will require MPEG playback.
-

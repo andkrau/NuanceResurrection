@@ -2,7 +2,6 @@
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
 #include <windows.h>
 #endif
-#include "external\fmod-3.75\api\inc\fmod.h"
 
 #include "audio.h"
 #include "Bios.h"
@@ -18,14 +17,9 @@
 
 extern VidDisplay structMainDisplay;
 
-extern NuonEnvironment nuonEnv;
 extern char **pArgs;
 
-static bool bFMODInitialized = false;
-static FSOUND_STREAM *audioStream;
-static int audioChannel = 0;
-
-  static void ConvertNuonAudioData(const uint8 * const __restrict pNuonAudioBuffer, uint8 * const __restrict pPCAudioBuffer, const uint32 numBytes)
+  inline void ConvertNuonAudioData(const uint8 * const __restrict pNuonAudioBuffer, uint8 * const __restrict pPCAudioBuffer, const uint32 numBytes)
   {
     assert((numBytes % 4) == 0); //!! only handles 16bit stereo at the moment
 
@@ -40,13 +34,16 @@ static int audioChannel = 0;
 
   static schar F_CALLBACKAPI StreamCallback(FSOUND_STREAM *stream, void *buff, int len, void* userdata)
   {
-    const uint8* const pNuonAudioBuffer = nuonEnv.pNuonAudioBuffer;
+    NuonEnvironment * const nuonEnv = (NuonEnvironment*)userdata;
+    const uint8* const pNuonAudioBuffer = nuonEnv->pNuonAudioBuffer;
 
     if(!buff || !pNuonAudioBuffer)
       return FALSE;
 
-    assert(len == (nuonEnv.nuonAudioBufferSize>>1));
-    ConvertNuonAudioData(pNuonAudioBuffer+nuonEnv.audio_buffer_offset, (uint8*)buff, len);
+    assert(len == (nuonEnv->nuonAudioBufferSize>>1));
+
+    _InterlockedExchange(&nuonEnv->audio_buffer_played, 1); // signal the NuanceMain loop that we did do some sound update
+    ConvertNuonAudioData(pNuonAudioBuffer + nuonEnv->audio_buffer_offset, (uint8*)buff, len);
     return TRUE;
   }
 
@@ -60,7 +57,6 @@ static int audioChannel = 0;
 #define MAX_SOFTWARE_CHANNELS (2)
 #define INIT_FLAGS FSOUND_INIT_GLOBALFOCUS
 #define DEFAULT_SAMPLE_FORMAT (FSOUND_16BITS | FSOUND_STEREO | FSOUND_SIGNED)
-#define USER_PARAM (0)
 
 void NuonEnvironment::InitAudio(void)
 {
@@ -89,21 +85,10 @@ void NuonEnvironment::InitAudio(void)
 
   //Create stream
   audioStream = FSOUND_Stream_Create(StreamCallback, (nuonAudioBufferSize>>1), // >>1: see callback, kinda double buffering in there
-    (DEFAULT_SAMPLE_FORMAT /*| FSOUND_LOOP_NORMAL | FSOUND_NONBLOCKING*/), nuonAudioPlaybackRate, USER_PARAM);
+    DEFAULT_SAMPLE_FORMAT, nuonAudioPlaybackRate, this);
     
   if(audioStream)
-  {
     audioChannel = FSOUND_Stream_Play(FSOUND_FREE,audioStream);
-
-    // both should never happen
-    uint32 rate = nuonAudioPlaybackRate;
-    if (rate > 96000)
-      rate = 96000;
-    else if (rate < 16000)
-      rate = 16000;
-
-    FSOUND_SetFrequency(audioChannel, rate);
-  }
 }
 
 void NuonEnvironment::CloseAudio()
@@ -128,8 +113,8 @@ void NuonEnvironment::MuteAudio(const bool mute)
 
 void NuonEnvironment::SetAudioPlaybackRate()
 {
-  if (nuonEnv.nuonAudioChannelMode & ENABLE_SAMP_INT)
-    nuonEnv.cyclesPerAudioInterrupt = 54000000 / nuonAudioPlaybackRate;
+  if (nuonAudioChannelMode & ENABLE_SAMP_INT)
+    cyclesPerAudioInterrupt = 54000000 / nuonAudioPlaybackRate;
 
   if(!bFMODInitialized)
     InitAudio();
@@ -247,7 +232,7 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, 
   }
   else
   {
-    return flashEEPROM->GetBasePointer() + ((address - ROM_BIOS_BASE) & (DEFAULT_EEPROM_SIZE - 1));
+    return flashEEPROM.GetBasePointer() + ((address - ROM_BIOS_BASE) & (DEFAULT_EEPROM_SIZE - 1));
   }
 }
 
@@ -335,11 +320,8 @@ void NuonEnvironment::WriteFile(MPE &MPE, uint32 fd, uint32 buf, uint32 len)
 
 void NuonEnvironment::Init()
 {
-  mainBusDRAM = new uint8[MAIN_BUS_SIZE];
   init_nuon_mem(mainBusDRAM, MAIN_BUS_SIZE);
-  systemBusDRAM = new uint8[SYSTEM_BUS_SIZE];
   init_nuon_mem(systemBusDRAM, SYSTEM_BUS_SIZE);
-  flashEEPROM = new FlashEEPROM;
 
   dvdBase = new char[1];
   dvdBase[0] = 0;
@@ -350,7 +332,7 @@ void NuonEnvironment::Init()
   schedule_intsrc = 0;
 
   for(uint32 i = 0; i < 4; i++)
-    mpe[i].Init(i, mainBusDRAM, systemBusDRAM, flashEEPROM->GetBasePointer());
+    mpe[i].Init(i, mainBusDRAM, systemBusDRAM, flashEEPROM.GetBasePointer());
 
   //mpe[0].mpeStartAddress = 0x20000000;
   //mpe[0].mpeEndAddress = 0x207FFFFF;
@@ -433,14 +415,6 @@ NuonEnvironment::~NuonEnvironment()
   CloseAudio();
   FSOUND_Close();
   bFMODInitialized = false;
-
-  //Free up allocated RAM 
-  delete [] mainBusDRAM;
-  mainBusDRAM = 0;
-  delete [] systemBusDRAM;
-  systemBusDRAM = 0;
-
-  delete flashEEPROM;
 
   //Free up string memory
   delete [] dvdBase;

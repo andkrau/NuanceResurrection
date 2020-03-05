@@ -21,7 +21,7 @@ struct AllocatedMemoryBlock
 class MemoryManager
 {
 public:
-  MemoryManager(uint32 _maxBytes, uint32 _defaultAlignment = 16) : defaultAlignment(_defaultAlignment), maxBytes(_maxBytes) {}
+  MemoryManager() {}
   ~MemoryManager() {}
   void AddAllocatedBlock(const uint32 base, const uint32 numBytes);
   void Add(const uint32 startAddress, const uint32 endAddress, uint32 index = 0);
@@ -44,8 +44,6 @@ private:
     return (requestedAlignment & (requestedAlignment - 1)) != 0;
   }
 
-  uint32 maxBytes;
-  uint32 defaultAlignment;
   vector<FreeMemoryBlock> freeBlockVector;
   vector<AllocatedMemoryBlock> allocatedBlockVector;
 };

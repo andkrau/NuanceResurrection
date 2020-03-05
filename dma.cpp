@@ -715,7 +715,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false);
       }
       uint32* const pDest32 = (uint32 *)intMemory;
-      nuonEnv.flashEEPROM->ReadData(baseaddr - 0xF0000000,pDest32);
+      nuonEnv.flashEEPROM.ReadData(baseaddr - 0xF0000000,pDest32);
       SwapScalarBytes(pDest32);
     }
     else
@@ -734,7 +734,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
       const uint32* const pSrc32 = (uint32 *)intMemory;
       uint32 tempScalar = *pSrc32;
       SwapScalarBytes(&tempScalar);
-      nuonEnv.flashEEPROM->WriteData(baseaddr - 0xF0000000,tempScalar);
+      nuonEnv.flashEEPROM.WriteData(baseaddr - 0xF0000000,tempScalar);
     }
     return;
   }

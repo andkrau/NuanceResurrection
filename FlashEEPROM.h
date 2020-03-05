@@ -37,7 +37,6 @@ public:
   FlashEEPROM()
   {
     eepromSize = DEFAULT_EEPROM_SIZE;
-    eeprom = new uint8[DEFAULT_EEPROM_SIZE];
     init_nuon_mem(eeprom, DEFAULT_EEPROM_SIZE);
     //Device ID: AT49BV162A/163A
     eepromDeviceID = 0xC0;
@@ -50,7 +49,6 @@ public:
   ~FlashEEPROM()
   {
     SaveToFile("FlashEEPROM.bin");
-    delete [] eeprom;
   }
 
   uint8 *GetBasePointer()
@@ -87,7 +85,7 @@ public:
 
 private:
   uint32 eepromSize;
-  uint8 *eeprom;
+  uint8 eeprom[DEFAULT_EEPROM_SIZE];
   uint32 state;
   uint32 errorState;
   uint32 eepromManufacturerCode;
