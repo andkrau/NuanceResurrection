@@ -38,7 +38,7 @@ public:
   void StopAudio(void);
   void RestartAudio(void);
   void SetAudioVolume(uint32 volume);
-  void SetAudioPlaybackRate(uint32 rate);
+  void SetAudioPlaybackRate();
 
   bool IsAudioHalfInterruptEnabled(void) const
   {

@@ -25,18 +25,16 @@ static bool bFMODInitialized = false;
 static FSOUND_STREAM *audioStream;
 static int audioChannel = 0;
 
-  static void ConvertNuonAudioData(const uint8 * const pNuonAudioBuffer, uint8 * const pPCAudioBuffer, const uint32 numBytes)
+  static void ConvertNuonAudioData(const uint8 * const __restrict pNuonAudioBuffer, uint8 * const __restrict pPCAudioBuffer, const uint32 numBytes)
   {
-    assert((numBytes % 4) == 0);
+    assert((numBytes % 4) == 0); //!! only handles 16bit stereo at the moment
 
-    uint32 byteCount = 0;
-    while(byteCount < numBytes)
+    for(uint32 byteCount = 0; byteCount < numBytes; byteCount += 4)
     {
       pPCAudioBuffer[byteCount  ] = pNuonAudioBuffer[byteCount+1];
       pPCAudioBuffer[byteCount+1] = pNuonAudioBuffer[byteCount  ];
       pPCAudioBuffer[byteCount+2] = pNuonAudioBuffer[byteCount+3];
       pPCAudioBuffer[byteCount+3] = pNuonAudioBuffer[byteCount+2];
-      byteCount += 4;
     }
   }
 
@@ -47,18 +45,18 @@ static int audioChannel = 0;
     if(!buff || !pNuonAudioBuffer)
       return FALSE;
 
-    _InterlockedExchange(&nuonEnv.audio_buffer_played, 1);
+    assert(len == (nuonEnv.nuonAudioBufferSize>>1));
     ConvertNuonAudioData(pNuonAudioBuffer+nuonEnv.audio_buffer_offset, (uint8*)buff, len);
     return TRUE;
   }
 
 //InitAudio: Initialize sound library, create audio stream
 //Playback rate is the initially requested one (to avoid a resampling step), or 48000 Hz if exceeding supported ones,
-//Format is signed 16 bit stereo samples
+//Format is signed 16 bit stereo samples (for now, due to most apps using NISE)
 //Nuon sound samples must be byte-swapped for use by libraries which require
 //little-endian byte ordering
 
-#define MIX_RATE (48000) // all tested games so far are actually using 32k
+#define MIX_RATE (48000) // all tested games so far are actually using 32k due to NISE
 #define MAX_SOFTWARE_CHANNELS (2)
 #define INIT_FLAGS FSOUND_INIT_GLOBALFOCUS
 #define DEFAULT_SAMPLE_FORMAT (FSOUND_16BITS | FSOUND_STEREO | FSOUND_SIGNED)
@@ -66,7 +64,7 @@ static int audioChannel = 0;
 
 void NuonEnvironment::InitAudio(void)
 {
-  if(nuonAudioPlaybackRate == 0) // delay FMOD init until SetAudioPlaybackRate has been called so that we can set requested rate here to avoid one resampling step!
+  if(nuonAudioPlaybackRate == 0 || nuonAudioBufferSize == 0) // delay FMOD init until SetAudioPlaybackRate and AudioSetChannelMode has been called so that we can set requested rate and buffer size here (also avoids one resampling step then!)
     return;
 
   if(!bFMODInitialized)
@@ -90,11 +88,22 @@ void NuonEnvironment::InitAudio(void)
   MuteAudio(false);
 
   //Create stream
-  audioStream = FSOUND_Stream_Create(StreamCallback, nuonAudioBufferSize>>1, // >>1: see callback, kinda double buffering in there
-    (DEFAULT_SAMPLE_FORMAT | FSOUND_LOOP_NORMAL | FSOUND_NONBLOCKING), nuonAudioPlaybackRate, USER_PARAM);
+  audioStream = FSOUND_Stream_Create(StreamCallback, (nuonAudioBufferSize>>1), // >>1: see callback, kinda double buffering in there
+    (DEFAULT_SAMPLE_FORMAT /*| FSOUND_LOOP_NORMAL | FSOUND_NONBLOCKING*/), nuonAudioPlaybackRate, USER_PARAM);
     
   if(audioStream)
+  {
     audioChannel = FSOUND_Stream_Play(FSOUND_FREE,audioStream);
+
+    // both should never happen
+    uint32 rate = nuonAudioPlaybackRate;
+    if (rate > 96000)
+      rate = 96000;
+    else if (rate < 16000)
+      rate = 16000;
+
+    FSOUND_SetFrequency(audioChannel, rate);
+  }
 }
 
 void NuonEnvironment::CloseAudio()
@@ -117,10 +126,10 @@ void NuonEnvironment::MuteAudio(const bool mute)
     FSOUND_SetMute(FSOUND_ALL,mute ? TRUE : FALSE);
 }
 
-void NuonEnvironment::SetAudioPlaybackRate(uint32 rate)
+void NuonEnvironment::SetAudioPlaybackRate()
 {
   if (nuonEnv.nuonAudioChannelMode & ENABLE_SAMP_INT)
-    nuonEnv.cyclesPerAudioInterrupt = 54000000 / nuonEnv.nuonAudioPlaybackRate;
+    nuonEnv.cyclesPerAudioInterrupt = 54000000 / nuonAudioPlaybackRate;
 
   if(!bFMODInitialized)
     InitAudio();
@@ -129,13 +138,14 @@ void NuonEnvironment::SetAudioPlaybackRate(uint32 rate)
   {
     if(FSOUND_IsPlaying(audioChannel))
     {
-        // both should never happen
-        if (rate > 96000)
-            rate = 96000;
-        else if (rate < 16000)
-            rate = 16000;
+      // both should never happen
+      uint32 rate = nuonAudioPlaybackRate;
+      if (rate > 96000)
+        rate = 96000;
+      else if (rate < 16000)
+        rate = 16000;
         
-        FSOUND_SetFrequency(audioChannel,rate);
+      FSOUND_SetFrequency(audioChannel,rate);
     }
   }
 }
@@ -374,7 +384,7 @@ void NuonEnvironment::Init()
   audio_buffer_played = 0;
   oldNuonAudioChannelMode = nuonAudioChannelMode = 0;
   nuonAudioPlaybackRate = 0; //!! was 32000
-  nuonAudioBufferSize = 1024;
+  nuonAudioBufferSize = 0; //!! was 1024
   nuonSupportedPlaybackRates =
     RATE_16_KHZ |
     RATE_32_KHZ |
@@ -403,9 +413,9 @@ void NuonEnvironment::Init()
 uint32 NuonEnvironment::GetBufferSize(uint32 channelMode)
 {
   return ((channelMode & BUFFER_SIZE_64K) == 0) ?
-    8192
+    8192 //!! why hardcoded to 8k ??
     :
-    (512UL << (((channelMode & BUFFER_SIZE_64K) >> 5) & 0x7UL));
+    (512UL << (((channelMode & BUFFER_SIZE_64K) >> 5) & 0x7UL)); //!! ??
 }
 
 void NuonEnvironment::InitBios()

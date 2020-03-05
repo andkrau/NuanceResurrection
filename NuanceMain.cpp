@@ -868,6 +868,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       if(nuonEnv.pendingCommRequests)
         DoCommBusController();
 
+      /*if (nuonEnv.nuonAudioChannelMode & ENABLE_SAMP_INT)
+      {
+        //!! also see FMOD callback
+        nuonEnv.TriggerAudioInterrupt(); //!! meh
+      } else*/
+
       if (!nuonEnv.bUseCycleBasedTiming &&
            nuonEnv.pNuonAudioBuffer && // was nuon audio setup already?
          ((nuonEnv.nuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT)) != (nuonEnv.oldNuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT))) && // was a new audio interrupt requested?
@@ -875,7 +881,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
           _InterlockedExchange(&nuonEnv.audio_buffer_played,0) == 1) // was a audio buffer already played since last cycle?
           //!! should also check if enough emulated cycles since last update have passed so that the Nuon could've filled up the new sound buffer
       {
-        nuonEnv.audio_buffer_offset = (nuonEnv.nuonAudioChannelMode & ENABLE_WRAP_INT) ? 0 : (nuonEnv.nuonAudioBufferSize >> 1);
+        nuonEnv.audio_buffer_offset = (nuonEnv.nuonAudioChannelMode & ENABLE_HALF_INT) ? 0 : (nuonEnv.nuonAudioBufferSize >> 1); //!! ENABLE_HALF_INT leads to better sound in Tetris, although one would assume it should be ENABLE_WRAP_INT here
         nuonEnv.oldNuonAudioChannelMode = nuonEnv.nuonAudioChannelMode;
         nuonEnv.TriggerAudioInterrupt();
       }

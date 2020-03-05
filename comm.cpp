@@ -121,8 +121,9 @@ void DoCommBusController(void)
           if(cmdValue == 0x2C)
           {
             //write channel mode register: update NuonEnviroment variable only for now
-            //To do: modify SetChannelMode to recreate the sound buffer only if the new
+            //!! TODO modify SetChannelMode to recreate the sound buffer only if the new
             //channel mode buffer size differs from the previous value.
+            assert((nuonEnv.mpe[currentTransmitID].commxmit1 & ~(ENABLE_WRAP_INT | ENABLE_HALF_INT)) == (nuonEnv.nuonAudioChannelMode & ~(ENABLE_WRAP_INT | ENABLE_HALF_INT))); // for now we only support a change in these two flags
             nuonEnv.nuonAudioChannelMode = nuonEnv.mpe[currentTransmitID].commxmit1;
           }
           break;
