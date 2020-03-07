@@ -17,6 +17,7 @@
 //---------------------------------------------------------------------------
 
 extern NuonEnvironment nuonEnv;
+extern GLWindow display;
 extern _LARGE_INTEGER tickFrequency;
 
 std::mutex gfx_lock;
@@ -781,7 +782,8 @@ render_main_buffer:
   if(bUseSeparateThread) gfx_lock.lock();
 
   glCallList(videoTexInfo.displayListName[activeChannels]);
-  glFlush();
+  //glFlush();
+  SwapBuffers(display.hDC);
 
   if(bUseSeparateThread) gfx_lock.unlock();
 }
@@ -848,15 +850,15 @@ void VidQueryConfig(MPE &mpe)
 
 void VidConfig(MPE &mpe)
 {
-  const uint32 display = mpe.regs[0];
+  const uint32 display_addr = mpe.regs[0];
   const uint32 main = mpe.regs[1];
   const uint32 osd = mpe.regs[2];
   //const uint32 reserved = mpe.regs[3];
 
   VidDisplay maindisplay;
-  if(display)
+  if(display_addr)
   {
-    VidDisplay *const pMainDisplay = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe, display);
+    VidDisplay *const pMainDisplay = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe, display_addr);
     memcpy(&maindisplay,pMainDisplay,sizeof(VidDisplay));
     SwapScalarBytes((uint32 *)&maindisplay.bordcolor);
 
@@ -905,7 +907,7 @@ void VidConfig(MPE &mpe)
   bool bUpdateOpenGLData = false;
   VidDisplay structMainDisplayPrev;
 
-  //if(display)
+  //if(display_addr)
   {
     memcpy(&structMainDisplayPrev,&structMainDisplay,sizeof(VidDisplay));
     memcpy(&structMainDisplay,&maindisplay,sizeof(VidDisplay));

@@ -105,7 +105,7 @@ bool GLWindow::CreateWindowGL()
   PIXELFORMATDESCRIPTOR pfd;
   pfd.nSize = sizeof(PIXELFORMATDESCRIPTOR);
   pfd.nVersion = 1;
-  pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL;
+  pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
   pfd.iPixelType = PFD_TYPE_RGBA;
   pfd.cColorBits = 32;
   pfd.cRedBits = pfd.cRedShift = pfd.cGreenBits = pfd.cGreenShift = pfd.cBlueBits = pfd.cBlueShift = 0;
@@ -519,7 +519,8 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       {
         if(bUseSeparateThread) gfx_lock.lock();
         glClear(GL_COLOR_BUFFER_BIT);
-        glFlush();
+        //glFlush();
+        SwapBuffers(window->hDC);
         if(bUseSeparateThread) gfx_lock.unlock();
       }
       EndPaint(hWnd,&ps);
