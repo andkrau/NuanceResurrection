@@ -382,15 +382,16 @@ Z: switch between controller 0 and controller 1
 History
 =======
 Fix corrupted gfx in (at least) T3K
-Fix wrong DMAs in Ballistic and Merlin Racing (so that these display more correct now)
+Fix wrong DMAs in Ballistic and Merlin Racing (so that these display mostly correct now)
 (Mostly) fix distorted sound
-Optimizations all over the place (memory and performance)
-Always enable Pixel Shaders and fully support mode 2
+Optimizations all over the place (memory usage and performance)
+Always enable Pixel Shaders and fully support pixel mode 2 for more performance
 Remove fields per second and always update video settings in the 'nuance.cfg'
 Support Nuons VSyncing mechanism if a PC is emulating 'too fast'
 Resolve a lot of hangs during gameplay, although this can still happen in some demanding situations (especially on low end PCs)
 Fix fullscreen toggle (via F1/ESC)
 Rudimentary support for x64/64bit compiles, needs to force-disable dynamic compiler though
+Enable Reshade support by using double buffering
 
 5/30/2007, version 0.5.0:
   Fixed tons of compiler bugs.  Fixed TimeToSleep routine, allowing Snake to work again.  

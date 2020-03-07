@@ -39,7 +39,7 @@ static bool bRun = false;
 
 static bool load4firsttime = true;
 
-static GLWindow display;
+GLWindow display;
 
 static HICON iconApp;
 static HBITMAP bmpLEDOn;
@@ -537,7 +537,8 @@ bool OnDisplayPaint(WPARAM wparam, LPARAM lparam)
   {
     if(bUseSeparateThread) gfx_lock.lock();
     glClear(GL_COLOR_BUFFER_BIT);
-    glFlush();
+    //glFlush();
+    SwapBuffers(display.hDC);
     if(bUseSeparateThread) gfx_lock.unlock();
   }
 
@@ -860,10 +861,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     while(bRun && !nuonEnv.trigger_render_video)
     {
-      nuonEnv.mpe[3].FetchDecodeExecute();
-      nuonEnv.mpe[2].FetchDecodeExecute();
-      nuonEnv.mpe[1].FetchDecodeExecute();
-      nuonEnv.mpe[0].FetchDecodeExecute();
+      for(int i = 3; i >= 0; --i)
+        nuonEnv.mpe[i].FetchDecodeExecute(); // execute a single cycle
 
       if(nuonEnv.pendingCommRequests)
         DoCommBusController();
