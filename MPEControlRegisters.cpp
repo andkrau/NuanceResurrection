@@ -267,7 +267,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
           ecuSkipCounter = 0;
         }
         InvalidateICache();
-        nativeCodeCache->Flush();
+        nativeCodeCache.Flush();
         invalidateRegionStart = MPE_IRAM_BASE;
         invalidateRegionEnd = MPE_IRAM_BASE+OVERLAY_SIZE-1;
       }

@@ -11,7 +11,7 @@ void Execute_Halt(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
   {
     mpe.excepsrc |= 0x01;
     mpe.invalidateRegionStart = MPE_IRAM_BASE;
-    mpe.invalidateRegionEnd = (MPE_IRAM_BASE + OVERLAY_SIZE - 1);
+    mpe.invalidateRegionEnd = MPE_IRAM_BASE + OVERLAY_SIZE - 1;
 
     //If the halt enable bit for the halt exception is not set
     if(!(mpe.excephalten & (1UL << 0)))

@@ -14,7 +14,6 @@ class NativeCodeCache;
 struct EmitterVariables
 {
   MPE *mpe;
-  NativeCodeCache *codeCache;
 
   InstructionEntry *pInstructionEntry;
   uint32 scalarRegDep;

@@ -1,8 +1,6 @@
-//---------------------------------------------------------------------------
-
 #ifndef commH
 #define commH
-//---------------------------------------------------------------------------
+
 #define COMM_RECV_BUFFER_FULL_BIT (1UL << 31)
 #define COMM_RECV_DISABLE_BIT (1UL << 30)
 #define COMM_DISABLED_BITS (3UL << 30)

@@ -2,7 +2,7 @@
 #define BASETYPES_H
 
 #define ENABLE_ASSERTS
-#define ENABLE_EMULATION_MESSAGEBOXES
+#define ENABLE_EMULATION_MESSAGEBOXES // also enables "DumpCompiledBlocks" config file option
 
 #define STRICT
 #define WIN32_LEAN_AND_MEAN

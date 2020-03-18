@@ -7,8 +7,15 @@
 class CriticalSection
 {
 public:
-  CriticalSection();
-  ~CriticalSection();
+  CriticalSection()
+  {
+    InitializeCriticalSection(&criticalSection);
+  }
+
+  ~CriticalSection()
+  {
+    DeleteCriticalSection(&criticalSection);
+  }
 
   void Enter()
   {

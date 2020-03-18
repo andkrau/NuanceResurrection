@@ -14,9 +14,11 @@ struct NativeCodeCacheEntry
   uint32 numPackets;  //Number of packets represented in code block
   uint32 numInstructions;  //Number of explicit packeted instructions contained in code block
   uint32 nextVirtualAddress;  //Virtual address of instruction following this code block
-  uint32 nextBranchDelayCount;
-  uint32 codeSize;  //Number of bytes used in code block
-  uint32 accessCount;  //Number of times code block has been executed
+  //uint32 nextBranchDelayCount;
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  uint32 codeSize;  //Number of bytes used in code block, only used for print output so far
+#endif
+  //uint32 accessCount;  //Number of times code block has been executed
 };
 
 #define NUM_ROOT_PAGENODE_ENTRIES (512)
@@ -45,7 +47,7 @@ public:
   ~PageMap();
 
   NativeCodeCacheEntry *AllocatePage(const uint32 address);
-  void UpdateEntry(NativeCodeCacheEntry &entry)
+  void UpdateEntry(const NativeCodeCacheEntry &entry)
   {
     AllocatePage(entry.virtualAddress)[entry.virtualAddress & 0x3FFUL] = entry;
   }

@@ -5,11 +5,9 @@
 
 struct structBilinearAddressInfo
 {
-  uint32 clutBase;
   void *pPixelData;
-  uint32 *pRegs;
-  uint32 bChnorm;
-  uint32 pixType;
+  uint32* pRegs;
+  uint32 clutBase;
   uint32 base;
   uint32 control;
   uint32 x;

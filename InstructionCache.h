@@ -121,8 +121,8 @@ struct PacketEntry
 {
   uint32 pcexec;
   uint32 pcroute;
-  uint32 pcfetchnext;
-  uint32 instructionCount;
+  //uint32 pcfetchnext;
+  //uint32 instructionCount;
   uint32 comboScalarInputDependencies;
   uint32 comboMiscInputDependencies;
   uint32 comboScalarOutputDependencies;
@@ -201,9 +201,7 @@ public:
   void ClearCompiledStates()
   {
     for(uint32 i = 0; i < numEntries; i++)
-    {
       cacheEntries[i].packetInfo &= ~PACKETINFO_COMPILED;
-    }
   }
 
 private:

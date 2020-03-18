@@ -520,11 +520,13 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
           tokenType = ReadConfigLine(configFile,line);
           compilerOptions.bAllowCompile = !_stricmp(line,"Enabled");
         }
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
         else if(_strnicmp(&line[1],"DumpCompiledBlocks]",sizeof("DumpCompiledBlocks]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
           compilerOptions.bDumpBlocks = !_stricmp(line,"Enabled");
         }
+#endif
         else if(_strnicmp(&line[1],"CompilerDeadCodeElimination]",sizeof("CompilerDeadCodeElimination]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
