@@ -340,13 +340,10 @@ public:
 
   uint8  dtrom[MPE_LOCAL_MEMORY_SIZE];
   uint32 pcfetchnext;
-  uint32 prevPcexec;
+  //uint32 prevPcexec;
   uint32 breakpointAddress;
   uint32 ecuSkipCounter;
   uint64 cycleCounter;
-
-  uint32 strictMemoryPolicyMiscInputDependencies;
-  uint32 strictMemoryPolicyMiscOutputDependencies;
 
   //uint32 overlayIndex;
   uint32 overlayMask;
@@ -359,7 +356,6 @@ public:
   bool bInvalidateInterpreterCache;
   bool bInvalidateInstructionCaches;
   bool bInterpretedBranchTaken;
-  bool bStrictMemoryDependencyPolicy;
 
   uint32 numInterpreterCacheFlushes;
   uint32 numNativeCodeCacheFlushes;
@@ -372,7 +368,7 @@ public:
 
   InstructionCache *instructionCache;
   SuperBlock superBlock;
-  NativeCodeCache *nativeCodeCache;
+  NativeCodeCache nativeCodeCache;
   OverlayManager overlayManager;
 
   uint8 *bankPtrTable[16];

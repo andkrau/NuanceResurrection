@@ -10,7 +10,7 @@
 
 #include "byteswap.h"
 #include "comm.h"
-#include "CriticalSection.h"
+//#include "CriticalSection.h"
 #include "GLWindow.h"
 #include "audio.h"
 #include "mpe.h"

@@ -7,9 +7,21 @@
 #define x86Emit_MRM(mod,reg,rm) (*pEmitLoc++ = (((mod) << 6) | ((reg) << 3) | (rm)))
 #define x86Emit_SIB(base, scale, index) (*pEmitLoc++ = (((scale) << 6) | ((index) << 3) | (base)))
 
-NativeCodeCache::NativeCodeCache(uint32 _numBytes, uint32 _desiredTLBEntries)
+
+NativeCodeCache::NativeCodeCache()
+    : numBytes(5UL*1024UL*1024UL)
+{
+  Init();
+}
+
+NativeCodeCache::NativeCodeCache(uint32 _numBytes/*, uint32 _desiredTLBEntries*/)
     : numBytes(_numBytes == 0 ? DEFAULT_CODE_BUFFER_BYTES : _numBytes)
-    , numTLBEntries(_desiredTLBEntries == 0 ? DEFAULT_NUM_TLB_ENTRIES : _desiredTLBEntries)
+    //, numTLBEntries(_desiredTLBEntries == 0 ? DEFAULT_NUM_TLB_ENTRIES : _desiredTLBEntries)
+{
+  Init();
+}
+
+void NativeCodeCache::Init()
 {
   ptrNativeCodeBuffer = (uint8 *)VirtualAlloc(NULL,numBytes,MEM_RESERVE | MEM_COMMIT,PAGE_EXECUTE_READWRITE/*PAGE_READWRITE*/); //!! pages are f.e. 64k wide, so this does not work
   pEmitLoc = ptrNativeCodeBuffer;
@@ -22,6 +34,7 @@ NativeCodeCache::NativeCodeCache(uint32 _numBytes, uint32 _desiredTLBEntries)
   }
   else
   {
+    assert(false);
     numBytes = 0;
     warningThreshold = 0;
   }
@@ -41,12 +54,14 @@ bool NativeCodeCache::ReleaseBuffer(NativeCodeCacheEntryPoint entryPoint, uint32
   newEntry.entryPoint = entryPoint;
   newEntry.virtualAddress = virtualAddress;
   newEntry.nextVirtualAddress = nextVirtualAddress;
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   newEntry.codeSize = newUsedBytes;
+#endif
   newEntry.numPackets = packetCount;
   newEntry.numInstructions = instructionCount;
   newEntry.compileType = compileType;
-  newEntry.nextBranchDelayCount = nextDelayCount;
-  newEntry.accessCount = 0;
+  //newEntry.nextBranchDelayCount = nextDelayCount;
+  //newEntry.accessCount = 0;
 
   pageMap.UpdateEntry(newEntry);
   pEmitLoc = ((uint8 *)entryPoint) + newUsedBytes;
@@ -84,7 +99,7 @@ void NativeCodeCache::Flush()
   FlushInstructionCache(GetCurrentProcess(), pEmitLoc, numBytes); //!! should not be necessary, as each code block is flushed independently below in ReleaseBuffer(), but do it in case that ReleaseBuffer() is not the only thing called after emitting code
 }
 
-void NativeCodeCache::X86Emit_ModRegRM(x86ModType modType, x86ModReg regSpare, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ModRegRM(const x86ModType modType, const x86ModReg regSpare, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(base > 7)
   {
@@ -160,7 +175,7 @@ void NativeCodeCache::X86Emit_ModRegRM(x86ModType modType, x86ModReg regSpare, u
   }
 }
 
-void NativeCodeCache::X86Emit_Group1RR(x86Reg regDest, x86Reg regSrc, uint8 groupIndex)
+void NativeCodeCache::X86Emit_Group1RR(const x86Reg regDest, const x86Reg regSrc, const uint8 groupIndex)
 {
   //OP r8, reg8, OP r16, reg16 or OP r32, reg32
   
@@ -185,7 +200,7 @@ void NativeCodeCache::X86Emit_Group1RR(x86Reg regDest, x86Reg regSrc, uint8 grou
   }
 }
 
-void NativeCodeCache::X86Emit_Group1RM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp, uint8 groupIndex)
+void NativeCodeCache::X86Emit_Group1RM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex)
 {
   //OP m8, reg8, OP m16, reg16 or OP m32, reg32
 
@@ -210,7 +225,7 @@ void NativeCodeCache::X86Emit_Group1RM(x86Reg regSrc, uint32 base, x86IndexReg i
   }
 }
 
-void NativeCodeCache::X86Emit_Group1MR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp, uint8 groupIndex)
+void NativeCodeCache::X86Emit_Group1MR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex)
 {
   //OP reg8, m8, OP reg16, m16 or OP reg32, m32
   if(regDest < x86Reg_ax)
@@ -234,7 +249,7 @@ void NativeCodeCache::X86Emit_Group1MR(x86Reg regDest, uint32 base, x86IndexReg 
   }
 }
 
-void NativeCodeCache::X86Emit_Group1IR(int32 imm, x86Reg regDest, uint8 groupIndex)
+void NativeCodeCache::X86Emit_Group1IR(const int32 imm, const x86Reg regDest, const uint8 groupIndex)
 {
   if(regDest < x86Reg_ax)
   {
@@ -305,7 +320,7 @@ void NativeCodeCache::X86Emit_Group1IR(int32 imm, x86Reg regDest, uint8 groupInd
   }
 }
 
-void NativeCodeCache::X86Emit_Group1IM(int32 imm, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp, uint8 groupIndex)
+void NativeCodeCache::X86Emit_Group1IM(const int32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex)
 {
   if(ptrType == x86MemPtr_byte)
   {
@@ -358,7 +373,7 @@ void NativeCodeCache::X86Emit_Group1IM(int32 imm, x86MemPtr ptrType, uint32 base
   }
 }
 
-void NativeCodeCache::X86Emit_Group2IR(x86Reg regDest, uint8 shiftCount, uint8 groupIndex)
+void NativeCodeCache::X86Emit_Group2IR(const x86Reg regDest, uint8 shiftCount, const uint8 groupIndex)
 {
   //SHIFTOP r8, CL, SHIFTOP r16, CL, or SHIFTOP r32, CL
   
@@ -408,7 +423,7 @@ void NativeCodeCache::X86Emit_Group2IR(x86Reg regDest, uint8 shiftCount, uint8 g
   }
 }
 
-void NativeCodeCache::X86Emit_Group2IM(x86MemPtr ptrType, uint8 shiftCount, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp, uint8 groupIndex)
+void NativeCodeCache::X86Emit_Group2IM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex)
 {
   if(ptrType == x86MemPtr_byte)
   {
@@ -456,7 +471,7 @@ void NativeCodeCache::X86Emit_Group2IM(x86MemPtr ptrType, uint8 shiftCount, uint
   }
 }
 
-void NativeCodeCache::X86Emit_Group2RR(x86Reg regDest, uint8 groupIndex)
+void NativeCodeCache::X86Emit_Group2RR(const x86Reg regDest, const uint8 groupIndex)
 {
   //SHIFTOP r8, CL, SHIFTOP r16, CL, or SHIFTOP r32, CL
   
@@ -481,7 +496,7 @@ void NativeCodeCache::X86Emit_Group2RR(x86Reg regDest, uint8 groupIndex)
   }
 }
 
-void NativeCodeCache::X86Emit_Group2RM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp, uint8 groupIndex)
+void NativeCodeCache::X86Emit_Group2RM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex)
 {
   //OP m8, reg8, OP m16, reg16 or OP m32, reg32
 
@@ -503,27 +518,27 @@ void NativeCodeCache::X86Emit_Group2RM(x86MemPtr ptrType, uint32 base, x86IndexR
   }
 }
 
-void NativeCodeCache::X86Emit_ADDRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_ADDRR(const x86Reg regDest, const x86Reg regSrc)
 {
   X86Emit_Group1RR(regDest, regSrc, 0);
 }
 
-void NativeCodeCache::X86Emit_ADDRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ADDRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 0);
 }
 
-void NativeCodeCache::X86Emit_ADDMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ADDMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1MR(regDest, base, index, scale, disp, 0);
 }
 
-void NativeCodeCache::X86Emit_ADDIR(int32 imm, x86Reg regDest)
+void NativeCodeCache::X86Emit_ADDIR(const int32 imm, const x86Reg regDest)
 {
   X86Emit_Group1IR(imm, regDest, 0);
 }
 
-void NativeCodeCache::X86Emit_ADDIM(int32 imm, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ADDIM(const int32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 0);
 }
@@ -538,27 +553,27 @@ void NativeCodeCache::X86Emit_POPES()
   *pEmitLoc++ = 0x07;
 }
 
-void NativeCodeCache::X86Emit_ORRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_ORRR(const x86Reg regDest, const x86Reg regSrc)
 {
   X86Emit_Group1RR(regDest, regSrc, 1);
 }
 
-void NativeCodeCache::X86Emit_ORRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ORRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 1);
 }
 
-void NativeCodeCache::X86Emit_ORMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ORMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1MR(regDest, base, index, scale, disp, 1);
 }
 
-void NativeCodeCache::X86Emit_ORIR(int32 imm, x86Reg regDest)
+void NativeCodeCache::X86Emit_ORIR(const int32 imm, const x86Reg regDest)
 {
   X86Emit_Group1IR(imm, regDest, 1);
 }
 
-void NativeCodeCache::X86Emit_ORIM(int32 imm, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ORIM(const int32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 1);
 }
@@ -568,27 +583,27 @@ void NativeCodeCache::X86Emit_PUSHCS()
   *pEmitLoc++ = 0x0E;
 }
 
-void NativeCodeCache::X86Emit_ADCRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_ADCRR(const x86Reg regDest, const x86Reg regSrc)
 {
   X86Emit_Group1RR(regDest, regSrc, 2);
 }
 
-void NativeCodeCache::X86Emit_ADCRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ADCRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 2);
 }
 
-void NativeCodeCache::X86Emit_ADCMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ADCMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1MR(regDest, base, index, scale, disp, 2);
 }
 
-void NativeCodeCache::X86Emit_ADCIR(int32 imm, x86Reg regDest)
+void NativeCodeCache::X86Emit_ADCIR(const int32 imm, const x86Reg regDest)
 {
   X86Emit_Group1IR(imm, regDest, 2);
 }
 
-void NativeCodeCache::X86Emit_ADCIM(int32 imm, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ADCIM(const int32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 2);
 }
@@ -603,27 +618,27 @@ void NativeCodeCache::X86Emit_POPSS()
   *pEmitLoc++ = 0x17;
 }
 
-void NativeCodeCache::X86Emit_SBBRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_SBBRR(const x86Reg regDest, const x86Reg regSrc)
 {
   X86Emit_Group1RR(regDest, regSrc, 3);
 }
 
-void NativeCodeCache::X86Emit_SBBRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SBBRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 3);
 }
 
-void NativeCodeCache::X86Emit_SBBMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SBBMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1MR(regDest, base, index, scale, disp, 3);
 }
 
-void NativeCodeCache::X86Emit_SBBIR(int32 imm, x86Reg regDest)
+void NativeCodeCache::X86Emit_SBBIR(const int32 imm, const x86Reg regDest)
 {
   X86Emit_Group1IR(imm, regDest, 3);
 }
 
-void NativeCodeCache::X86Emit_SBBIM(int32 imm, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SBBIM(const int32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 3);
 }
@@ -638,27 +653,27 @@ void NativeCodeCache::X86Emit_POPDS()
   *pEmitLoc++ = 0x1F;
 }
 
-void NativeCodeCache::X86Emit_ANDRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_ANDRR(const x86Reg regDest, const x86Reg regSrc)
 {
   X86Emit_Group1RR(regDest, regSrc, 4);
 }
 
-void NativeCodeCache::X86Emit_ANDRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ANDRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 4);
 }
 
-void NativeCodeCache::X86Emit_ANDMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ANDMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1MR(regDest, base, index, scale, disp, 4);
 }
 
-void NativeCodeCache::X86Emit_ANDIR(int32 imm, x86Reg regDest)
+void NativeCodeCache::X86Emit_ANDIR(const int32 imm, const x86Reg regDest)
 {
   X86Emit_Group1IR(imm, regDest, 4);
 }
 
-void NativeCodeCache::X86Emit_ANDIM(int32 imm, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ANDIM(const int32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 4);
 }
@@ -673,27 +688,27 @@ void NativeCodeCache::X86Emit_DAA()
   *pEmitLoc++ = 0x27;
 }
 
-void NativeCodeCache::X86Emit_SUBRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_SUBRR(const x86Reg regDest, const x86Reg regSrc)
 {
   X86Emit_Group1RR(regDest, regSrc, 5);
 }
 
-void NativeCodeCache::X86Emit_SUBRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SUBRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 5);
 }
 
-void NativeCodeCache::X86Emit_SUBMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SUBMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1MR(regDest, base, index, scale, disp, 5);
 }
 
-void NativeCodeCache::X86Emit_SUBIR(int32 imm, x86Reg regDest)
+void NativeCodeCache::X86Emit_SUBIR(const int32 imm, const x86Reg regDest)
 {
   X86Emit_Group1IR(imm, regDest, 5);
 }
 
-void NativeCodeCache::X86Emit_SUBIM(int32 imm, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SUBIM(const int32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 5);
 }
@@ -708,27 +723,27 @@ void NativeCodeCache::X86Emit_DAS()
   *pEmitLoc++ = 0x2F;
 }
 
-void NativeCodeCache::X86Emit_XORRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_XORRR(const x86Reg regDest, const x86Reg regSrc)
 {
   X86Emit_Group1RR(regDest, regSrc, 6);
 }
 
-void NativeCodeCache::X86Emit_XORRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_XORRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 6);
 }
 
-void NativeCodeCache::X86Emit_XORMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_XORMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1MR(regDest, base, index, scale, disp, 6);
 }
 
-void NativeCodeCache::X86Emit_XORIR(int32 imm, x86Reg regDest)
+void NativeCodeCache::X86Emit_XORIR(const int32 imm, const x86Reg regDest)
 {
   X86Emit_Group1IR(imm, regDest, 6);
 }
 
-void NativeCodeCache::X86Emit_XORIM(int32 imm, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_XORIM(const int32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 6);
 }
@@ -743,27 +758,27 @@ void NativeCodeCache::X86Emit_AAA()
   *pEmitLoc++ = 0x37;
 }
 
-void NativeCodeCache::X86Emit_CMPRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_CMPRR(const x86Reg regDest, const x86Reg regSrc)
 {
   X86Emit_Group1RR(regDest, regSrc, 7);
 }
 
-void NativeCodeCache::X86Emit_CMPRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMPRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 7);
 }
 
-void NativeCodeCache::X86Emit_CMPMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMPMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1MR(regDest, base, index, scale, disp, 7);
 }
 
-void NativeCodeCache::X86Emit_CMPIR(int32 imm, x86Reg regDest)
+void NativeCodeCache::X86Emit_CMPIR(const int32 imm, const x86Reg regDest)
 {
   X86Emit_Group1IR(imm, regDest, 7);
 }
 
-void NativeCodeCache::X86Emit_CMPIM(int32 imm, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMPIM(const int32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 7);
 }
@@ -778,7 +793,7 @@ void NativeCodeCache::X86Emit_AAS()
   *pEmitLoc++ = 0x3F;
 }
 
-void NativeCodeCache::X86Emit_INCR(x86Reg reg)
+void NativeCodeCache::X86Emit_INCR(const x86Reg reg)
 {
   if(reg < x86Reg_ax)
   {
@@ -796,7 +811,7 @@ void NativeCodeCache::X86Emit_INCR(x86Reg reg)
   }
 }
 
-void NativeCodeCache::X86Emit_DECR(x86Reg reg)
+void NativeCodeCache::X86Emit_DECR(const x86Reg reg)
 {
   if(reg < x86Reg_ax)
   {
@@ -814,7 +829,7 @@ void NativeCodeCache::X86Emit_DECR(x86Reg reg)
   }
 }
 
-void NativeCodeCache::X86Emit_PUSHR(x86Reg reg)
+void NativeCodeCache::X86Emit_PUSHR(const x86Reg reg)
 {
   if(reg < x86Reg_eax)
   {
@@ -824,7 +839,7 @@ void NativeCodeCache::X86Emit_PUSHR(x86Reg reg)
   *pEmitLoc++ = 0x50 + (reg & 0x07);  
 }
 
-void NativeCodeCache::X86Emit_POPR(x86Reg reg)
+void NativeCodeCache::X86Emit_POPR(const x86Reg reg)
 {
   if(reg < x86Reg_eax)
   {
@@ -876,20 +891,20 @@ void NativeCodeCache::X86Emit_ADSIZE()
   *pEmitLoc++ = 0x67;
 }
 
-void NativeCodeCache::X86Emit_PUSHID(int32 imm)
+void NativeCodeCache::X86Emit_PUSHID(const int32 imm)
 {
   *pEmitLoc++ = 0x68;
   *((int32 *)pEmitLoc++) = imm;
 }
 
-void NativeCodeCache::X86Emit_PUSHIW(int16 imm)
+void NativeCodeCache::X86Emit_PUSHIW(const int16 imm)
 {
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0x68;
   *((int16 *)pEmitLoc++) = imm;
 }
 
-void NativeCodeCache::X86Emit_IMULMRR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_IMULMRR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -901,7 +916,7 @@ void NativeCodeCache::X86Emit_IMULMRR(x86Reg regDest, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07),base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_IMULRRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_IMULRRR(const x86Reg regDest, const x86Reg regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -913,7 +928,7 @@ void NativeCodeCache::X86Emit_IMULRRR(x86Reg regDest, x86Reg regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_IMULIRR(x86Reg regDest, int32 imm, x86Reg regSrc)
+void NativeCodeCache::X86Emit_IMULIRR(const x86Reg regDest, const int32 imm, const x86Reg regSrc)
 {
   if(regSrc < x86Reg_eax)
   {
@@ -953,7 +968,7 @@ void NativeCodeCache::X86Emit_IMULIRR(x86Reg regDest, int32 imm, x86Reg regSrc)
   }
 }
 
-void NativeCodeCache::X86Emit_IMULIMR(x86Reg regDest, int32 imm, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_IMULIMR(const x86Reg regDest, const int32 imm, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -993,7 +1008,7 @@ void NativeCodeCache::X86Emit_IMULIMR(x86Reg regDest, int32 imm, uint32 base, x8
   }
 }
 
-void NativeCodeCache::X86Emit_PUSHIB(int8 imm)
+void NativeCodeCache::X86Emit_PUSHIB(const int8 imm)
 {
   *pEmitLoc++ = 0x6A;
   *pEmitLoc++ = imm;
@@ -1043,7 +1058,7 @@ void NativeCodeCache::X86Emit_EMMS()
   *pEmitLoc++ = 0x77;
 }
 
-void NativeCodeCache::X86Emit_JCC(uint8 *pTarget, int8 conditionCode)
+void NativeCodeCache::X86Emit_JCC(uint8 *pTarget, const int8 conditionCode)
 {
   int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   int32 pOffsetNear = (int32)(pTarget - (pEmitLoc + 6));
@@ -1062,7 +1077,7 @@ void NativeCodeCache::X86Emit_JCC(uint8 *pTarget, int8 conditionCode)
   }
 }
 
-void NativeCodeCache::X86Emit_JCC_Label(PatchManager &patchMgr, int8 conditionCode, uint32 labelIndex)
+void NativeCodeCache::X86Emit_JCC_Label(PatchManager &patchMgr, const int8 conditionCode, uint32 labelIndex)
 {
   if(labelIndex >= patchMgr.numLabels)
   {
@@ -1158,7 +1173,7 @@ void NativeCodeCache::X86Emit_JNLE(uint8 *pTarget)
   X86Emit_JCC(pTarget,15);
 }
 
-void NativeCodeCache::X86Emit_TESTRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_TESTRR(const x86Reg regDest, const x86Reg regSrc)
 {
   //OP r8, reg8, OP r16, reg16 or OP r32, reg32
   if(regSrc < x86Reg_ax)
@@ -1182,7 +1197,7 @@ void NativeCodeCache::X86Emit_TESTRR(x86Reg regDest, x86Reg regSrc)
   }
 }
 
-void NativeCodeCache::X86Emit_TESTRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_TESTRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   //OP m8, reg8, OP m16, reg16 or OP m32, reg32
 
@@ -1207,7 +1222,7 @@ void NativeCodeCache::X86Emit_TESTRM(x86Reg regSrc, uint32 base, x86IndexReg ind
   }
 }
 
-void NativeCodeCache::X86Emit_XCHGRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_XCHGRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   //OP m8, reg8, OP m16, reg16 or OP m32, reg32
 
@@ -1232,12 +1247,12 @@ void NativeCodeCache::X86Emit_XCHGRM(x86Reg regSrc, uint32 base, x86IndexReg ind
   }
 }
 
-void NativeCodeCache::X86Emit_MOVRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_MOVRR(const x86Reg regDest, const x86Reg regSrc)
 {
   X86Emit_Group1RR(regDest,regSrc,17);
 }
 
-void NativeCodeCache::X86Emit_LEA(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_LEA(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -1248,7 +1263,7 @@ void NativeCodeCache::X86Emit_LEA(x86Reg regDest, uint32 base, x86IndexReg index
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07),base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_POPM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_POPM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(ptrType == x86MemPtr_word)
   {
@@ -1265,7 +1280,7 @@ void NativeCodeCache::X86Emit_NOP()
   *pEmitLoc++ = 0x90;
 }
 
-void NativeCodeCache::X86Emit_XCHGRR(x86Reg reg1, x86Reg reg2)
+void NativeCodeCache::X86Emit_XCHGRR(const x86Reg reg1, const x86Reg reg2)
 {
   if((reg2 == x86Reg_eax) || (reg2 == x86Reg_ax))
   {
@@ -1436,7 +1451,7 @@ void NativeCodeCache::X86Emit_LAHF()
   *pEmitLoc++ = 0x9F;
 }
 
-void NativeCodeCache::X86Emit_MOVMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_MOVMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if((base > 7) && ((regDest == x86Reg_eax) || (regDest == x86Reg_ax) || (regDest == x86Reg_al)))
   {
@@ -1454,7 +1469,6 @@ void NativeCodeCache::X86Emit_MOVMR(x86Reg regDest, uint32 base, x86IndexReg ind
     }
     *((uint32 *)pEmitLoc) = base;
     pEmitLoc += sizeof(int32);
-
   }
   else
   {
@@ -1462,7 +1476,7 @@ void NativeCodeCache::X86Emit_MOVMR(x86Reg regDest, uint32 base, x86IndexReg ind
   }
 }
 
-void NativeCodeCache::X86Emit_MOVRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_MOVRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if((base > 7) && ((regSrc == x86Reg_eax) || (regSrc == x86Reg_ax) || (regSrc == x86Reg_al)))
   {
@@ -1487,7 +1501,7 @@ void NativeCodeCache::X86Emit_MOVRM(x86Reg regSrc, uint32 base, x86IndexReg inde
   }
 }
 
-void NativeCodeCache::X86Emit_MOVIR(int32 imm, x86Reg regDest)
+void NativeCodeCache::X86Emit_MOVIR(const int32 imm, const x86Reg regDest)
 {
   if(regDest < x86Reg_ax)
   {
@@ -1593,122 +1607,122 @@ void NativeCodeCache::X86Emit_SCASD()
   *pEmitLoc++ = 0xAF;
 }
 
-void NativeCodeCache::X86Emit_ROLIR(x86Reg regDest, uint8 shiftCount)
+void NativeCodeCache::X86Emit_ROLIR(const x86Reg regDest, uint8 shiftCount)
 {
   X86Emit_Group2IR(regDest, shiftCount, 0);
 }
 
-void NativeCodeCache::X86Emit_RORIR(x86Reg regDest, uint8 shiftCount)
+void NativeCodeCache::X86Emit_RORIR(const x86Reg regDest, uint8 shiftCount)
 {
   X86Emit_Group2IR(regDest, shiftCount, 1);
 }
 
-void NativeCodeCache::X86Emit_RCLIR(x86Reg regDest, uint8 shiftCount)
+void NativeCodeCache::X86Emit_RCLIR(const x86Reg regDest, uint8 shiftCount)
 {
   X86Emit_Group2IR(regDest, shiftCount, 2);
 }
 
-void NativeCodeCache::X86Emit_RCRIR(x86Reg regDest, uint8 shiftCount)
+void NativeCodeCache::X86Emit_RCRIR(const x86Reg regDest, uint8 shiftCount)
 {
   X86Emit_Group2IR(regDest, shiftCount, 3);
 }
 
-void NativeCodeCache::X86Emit_SHLIR(x86Reg regDest, uint8 shiftCount)
+void NativeCodeCache::X86Emit_SHLIR(const x86Reg regDest, uint8 shiftCount)
 {
   X86Emit_Group2IR(regDest, shiftCount, 4);
 }
 
-void NativeCodeCache::X86Emit_SHRIR(x86Reg regDest, uint8 shiftCount)
+void NativeCodeCache::X86Emit_SHRIR(const x86Reg regDest, uint8 shiftCount)
 {
   X86Emit_Group2IR(regDest, shiftCount, 5);
 }
 
-void NativeCodeCache::X86Emit_SALIR(x86Reg regDest, uint8 shiftCount)
+void NativeCodeCache::X86Emit_SALIR(const x86Reg regDest, uint8 shiftCount)
 {
   X86Emit_Group2IR(regDest, shiftCount, 6);
 }
 
-void NativeCodeCache::X86Emit_SARIR(x86Reg regDest, uint8 shiftCount)
+void NativeCodeCache::X86Emit_SARIR(const x86Reg regDest, uint8 shiftCount)
 {
   X86Emit_Group2IR(regDest, shiftCount, 7);
 }
 
-void NativeCodeCache::X86Emit_ROLIM(x86MemPtr ptrType, uint8 shiftCount, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ROLIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 0);
 }
 
-void NativeCodeCache::X86Emit_RORIM(x86MemPtr ptrType, uint8 shiftCount, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_RORIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 1);
 }
 
-void NativeCodeCache::X86Emit_RCLIM(x86MemPtr ptrType, uint8 shiftCount, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_RCLIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 2);
 }
 
-void NativeCodeCache::X86Emit_RCRIM(x86MemPtr ptrType, uint8 shiftCount, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_RCRIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 3);
 }
 
-void NativeCodeCache::X86Emit_SHLIM(x86MemPtr ptrType, uint8 shiftCount, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SHLIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 4);
 }
 
-void NativeCodeCache::X86Emit_SHRIM(x86MemPtr ptrType, uint8 shiftCount, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SHRIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 5);
 }
 
-void NativeCodeCache::X86Emit_SALIM(x86MemPtr ptrType, uint8 shiftCount, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SALIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 6);
 }
 
-void NativeCodeCache::X86Emit_SARIM(x86MemPtr ptrType, uint8 shiftCount, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SARIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 7);
 }
 
-void NativeCodeCache::X86Emit_ROLRM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_ROLRM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 0);
 }
 
-void NativeCodeCache::X86Emit_RORRM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_RORRM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 1);
 }
 
-void NativeCodeCache::X86Emit_RCLRM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_RCLRM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 2);
 }
 
-void NativeCodeCache::X86Emit_RCRRM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_RCRRM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 3);
 }
 
-void NativeCodeCache::X86Emit_SHLRM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SHLRM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 4);
 }
 
-void NativeCodeCache::X86Emit_SHRRM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SHRRM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 5);
 }
 
-void NativeCodeCache::X86Emit_SALRM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SALRM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 6);
 }
 
-void NativeCodeCache::X86Emit_SARRM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SARRM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 7);
 }
@@ -1727,7 +1741,7 @@ void NativeCodeCache::X86Emit_RETN(uint16 iw)
   }
 }
 
-void NativeCodeCache::X86Emit_MOVIM(int32 imm, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_MOVIM(const int32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(ptrType == x86MemPtr_byte)
   {
@@ -1795,42 +1809,42 @@ void NativeCodeCache::X86Emit_IRET()
   *pEmitLoc++ = 0xCF;
 }
 
-void NativeCodeCache::X86Emit_ROLRR(x86Reg regDest)
+void NativeCodeCache::X86Emit_ROLRR(const x86Reg regDest)
 {
   X86Emit_Group2RR(regDest, 0);
 }
 
-void NativeCodeCache::X86Emit_RORRR(x86Reg regDest)
+void NativeCodeCache::X86Emit_RORRR(const x86Reg regDest)
 {
   X86Emit_Group2RR(regDest, 1);
 }
 
-void NativeCodeCache::X86Emit_RCLRR(x86Reg regDest)
+void NativeCodeCache::X86Emit_RCLRR(const x86Reg regDest)
 {
   X86Emit_Group2RR(regDest, 2);
 }
 
-void NativeCodeCache::X86Emit_RCRRR(x86Reg regDest)
+void NativeCodeCache::X86Emit_RCRRR(const x86Reg regDest)
 {
   X86Emit_Group2RR(regDest, 3);
 }
 
-void NativeCodeCache::X86Emit_SHLRR(x86Reg regDest)
+void NativeCodeCache::X86Emit_SHLRR(const x86Reg regDest)
 {
   X86Emit_Group2RR(regDest, 4);
 }
 
-void NativeCodeCache::X86Emit_SHRRR(x86Reg regDest)
+void NativeCodeCache::X86Emit_SHRRR(const x86Reg regDest)
 {
   X86Emit_Group2RR(regDest, 5);
 }
 
-void NativeCodeCache::X86Emit_SALRR(x86Reg regDest)
+void NativeCodeCache::X86Emit_SALRR(const x86Reg regDest)
 {
   X86Emit_Group2RR(regDest, 6);
 }
 
-void NativeCodeCache::X86Emit_SARRR(x86Reg regDest)
+void NativeCodeCache::X86Emit_SARRR(const x86Reg regDest)
 {
   X86Emit_Group2RR(regDest, 7);
 }
@@ -2011,7 +2025,7 @@ void NativeCodeCache::X86Emit_JECXZ_Label(PatchManager &patchMgr, uint32 labelIn
   }
 }
 
-void NativeCodeCache::X86Emit_INI(x86Reg regDest, uint8 port)
+void NativeCodeCache::X86Emit_INI(const x86Reg regDest, uint8 port)
 {
   if(regDest < x86Reg_ax)
   {
@@ -2031,7 +2045,7 @@ void NativeCodeCache::X86Emit_INI(x86Reg regDest, uint8 port)
   }
 }
 
-void NativeCodeCache::X86Emit_OUTI(x86Reg regDest, uint8 data)
+void NativeCodeCache::X86Emit_OUTI(const x86Reg regDest, uint8 data)
 {
   if(regDest < x86Reg_ax)
   {
@@ -2051,7 +2065,7 @@ void NativeCodeCache::X86Emit_OUTI(x86Reg regDest, uint8 data)
   }
 }
 
-void NativeCodeCache::X86Emit_INR(x86Reg regDest)
+void NativeCodeCache::X86Emit_INR(const x86Reg regDest)
 {
   if(regDest < x86Reg_ax)
   {
@@ -2068,7 +2082,7 @@ void NativeCodeCache::X86Emit_INR(x86Reg regDest)
   }
 }
 
-void NativeCodeCache::X86Emit_OUTR(x86Reg regDest)
+void NativeCodeCache::X86Emit_OUTR(const x86Reg regDest)
 {
   if(regDest < x86Reg_ax)
   {
@@ -2115,7 +2129,7 @@ void NativeCodeCache::X86Emit_CMC()
   *pEmitLoc++ = 0xF5;
 }
 
-void NativeCodeCache::X86Emit_NOTR(x86Reg regDest)
+void NativeCodeCache::X86Emit_NOTR(const x86Reg regDest)
 {
   if(regDest < x86Reg_ax)
   {
@@ -2133,7 +2147,7 @@ void NativeCodeCache::X86Emit_NOTR(x86Reg regDest)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,regDest & 0x07);
 }
 
-void NativeCodeCache::X86Emit_NOTM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_NOTM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(ptrType == x86MemPtr_byte)
   {
@@ -2151,7 +2165,7 @@ void NativeCodeCache::X86Emit_NOTM(x86MemPtr ptrType, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_IMULRR(x86Reg regSrc)
+void NativeCodeCache::X86Emit_IMULRR(const x86Reg regSrc)
 {
   if(regSrc < x86Reg_ax)
   {
@@ -2168,7 +2182,7 @@ void NativeCodeCache::X86Emit_IMULRR(x86Reg regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)5,regSrc & 0x07);
 }
 
-void NativeCodeCache::X86Emit_IMULMR(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_IMULMR(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(ptrType == x86MemPtr_byte)
   {
@@ -2186,7 +2200,7 @@ void NativeCodeCache::X86Emit_IMULMR(x86MemPtr ptrType, uint32 base, x86IndexReg
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)5,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_NEGR(x86Reg regDest)
+void NativeCodeCache::X86Emit_NEGR(const x86Reg regDest)
 {
   if(regDest < x86Reg_ax)
   {
@@ -2204,7 +2218,7 @@ void NativeCodeCache::X86Emit_NEGR(x86Reg regDest)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)3,regDest & 0x07);
 }
 
-void NativeCodeCache::X86Emit_TESTIR(uint32 imm, x86Reg regSrc)
+void NativeCodeCache::X86Emit_TESTIR(const uint32 imm, const x86Reg regSrc)
 {
   if(regSrc < x86Reg_ax)
   {
@@ -2256,7 +2270,7 @@ void NativeCodeCache::X86Emit_TESTIR(uint32 imm, x86Reg regSrc)
   }
 }
 
-void NativeCodeCache::X86Emit_TESTIM(uint32 imm, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_TESTIM(const uint32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(ptrType == x86MemPtr_byte)
   {
@@ -2283,7 +2297,7 @@ void NativeCodeCache::X86Emit_TESTIM(uint32 imm, x86MemPtr ptrType, uint32 base,
 }
 
 
-void NativeCodeCache::X86Emit_NEGM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_NEGM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(ptrType == x86MemPtr_byte)
   {
@@ -2331,7 +2345,7 @@ void NativeCodeCache::X86Emit_STD()
   *pEmitLoc++ = 0xFD;
 }
 
-void NativeCodeCache::X86Emit_INCM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_INCM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(ptrType == x86MemPtr_byte)
   {
@@ -2349,7 +2363,7 @@ void NativeCodeCache::X86Emit_INCM(x86MemPtr ptrType, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)0,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_DECM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_DECM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(ptrType == x86MemPtr_byte)
   {
@@ -2367,13 +2381,13 @@ void NativeCodeCache::X86Emit_DECM(x86MemPtr ptrType, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)1,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_CALLNM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CALLNM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0xFF;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_CALLR(x86Reg regSrc)
+void NativeCodeCache::X86Emit_CALLR(const x86Reg regSrc)
 {
   if(regSrc < x86Reg_eax)
   {
@@ -2390,13 +2404,13 @@ void NativeCodeCache::X86Emit_CALLR(x86Reg regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CALLFM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CALLFM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0xFF;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)3,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_JMPR(x86Reg regSrc)
+void NativeCodeCache::X86Emit_JMPR(const x86Reg regSrc)
 {
   if(regSrc < x86Reg_eax)
   {
@@ -2413,19 +2427,19 @@ void NativeCodeCache::X86Emit_JMPR(x86Reg regSrc)
   }
 }
 
-void NativeCodeCache::X86Emit_JMPNM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_JMPNM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0xFF;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)4,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_JMPFM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_JMPFM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0xFF;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)5,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_PUSHM(x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_PUSHM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(ptrType == x86MemPtr_word)
   {
@@ -2436,255 +2450,255 @@ void NativeCodeCache::X86Emit_PUSHM(x86MemPtr ptrType, uint32 base, x86IndexReg 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)6,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_INVD(x86Reg reg)
+void NativeCodeCache::X86Emit_INVD(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x08;
 }
 
-void NativeCodeCache::X86Emit_WBINVD(x86Reg reg)
+void NativeCodeCache::X86Emit_WBINVD(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x09;
 }
 
-void NativeCodeCache::X86Emit_UD1(x86Reg reg)
+void NativeCodeCache::X86Emit_UD1(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x0B;
 }
 
-void NativeCodeCache::X86Emit_BSWAP(x86Reg reg)
+void NativeCodeCache::X86Emit_BSWAP(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0xC8 + (reg & 0x07);
 }
 
-void NativeCodeCache::X86Emit_SETOR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETOR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x90;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETOM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETOM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x90;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETNOR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETNOR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x91;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETNOM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETNOM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x91;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETBR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETBR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x92;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETBM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETBM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x92;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETNBR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETNBR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x93;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETNBM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETNBM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x93;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETZR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETZR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x94;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETZM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETZM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x94;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETNZR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETNZR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x95;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETNZM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETNZM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x95;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETBER(x86Reg reg)
+void NativeCodeCache::X86Emit_SETBER(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x96;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETBEM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETBEM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x96;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETNBER(x86Reg reg)
+void NativeCodeCache::X86Emit_SETNBER(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x97;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETNBEM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETNBEM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x97;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETSR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETSR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x98;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETSM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETSM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x98;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETNSR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETNSR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x99;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETNSM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETNSM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x99;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETPR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETPR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9A;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETPM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETPM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9A;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETNPR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETNPR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9B;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETNPM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETNPM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9B;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETLR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETLR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9C;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETLM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETLM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9C;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETNLR(x86Reg reg)
+void NativeCodeCache::X86Emit_SETNLR(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9D;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETNLM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETNLM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9D;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETLER(x86Reg reg)
+void NativeCodeCache::X86Emit_SETLER(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9E;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETLEM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETLEM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9E;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_SETNLER(x86Reg reg)
+void NativeCodeCache::X86Emit_SETNLER(const x86Reg reg)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9F;
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)2,(reg & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SETNLEM(uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SETNLEM(const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9F;
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVORR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVORR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2697,7 +2711,7 @@ void NativeCodeCache::X86Emit_CMOVORR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVOMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVOMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2710,7 +2724,7 @@ void NativeCodeCache::X86Emit_CMOVOMR(x86Reg regDest, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVNORR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVNORR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2723,7 +2737,7 @@ void NativeCodeCache::X86Emit_CMOVNORR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVNOMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVNOMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2736,7 +2750,7 @@ void NativeCodeCache::X86Emit_CMOVNOMR(x86Reg regDest, uint32 base, x86IndexReg 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVBRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVBRR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2749,7 +2763,7 @@ void NativeCodeCache::X86Emit_CMOVBRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVBMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVBMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2762,7 +2776,7 @@ void NativeCodeCache::X86Emit_CMOVBMR(x86Reg regDest, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVNBRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVNBRR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2775,7 +2789,7 @@ void NativeCodeCache::X86Emit_CMOVNBRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVNBMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVNBMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2788,7 +2802,7 @@ void NativeCodeCache::X86Emit_CMOVNBMR(x86Reg regDest, uint32 base, x86IndexReg 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVZRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVZRR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2801,7 +2815,7 @@ void NativeCodeCache::X86Emit_CMOVZRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVZMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVZMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2814,7 +2828,7 @@ void NativeCodeCache::X86Emit_CMOVZMR(x86Reg regDest, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVNZRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVNZRR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2827,7 +2841,7 @@ void NativeCodeCache::X86Emit_CMOVNZRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVNZMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVNZMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2840,7 +2854,7 @@ void NativeCodeCache::X86Emit_CMOVNZMR(x86Reg regDest, uint32 base, x86IndexReg 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVBERR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVBERR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2853,7 +2867,7 @@ void NativeCodeCache::X86Emit_CMOVBERR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVBEMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVBEMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2866,7 +2880,7 @@ void NativeCodeCache::X86Emit_CMOVBEMR(x86Reg regDest, uint32 base, x86IndexReg 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVNBERR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVNBERR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2879,7 +2893,7 @@ void NativeCodeCache::X86Emit_CMOVNBERR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVNBEMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVNBEMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2894,7 +2908,7 @@ void NativeCodeCache::X86Emit_CMOVNBEMR(x86Reg regDest, uint32 base, x86IndexReg
 
 //
 
-void NativeCodeCache::X86Emit_CMOVSRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVSRR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2907,7 +2921,7 @@ void NativeCodeCache::X86Emit_CMOVSRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVSMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVSMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2920,7 +2934,7 @@ void NativeCodeCache::X86Emit_CMOVSMR(x86Reg regDest, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVNSRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVNSRR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2933,7 +2947,7 @@ void NativeCodeCache::X86Emit_CMOVNSRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVNSMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVNSMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2946,7 +2960,7 @@ void NativeCodeCache::X86Emit_CMOVNSMR(x86Reg regDest, uint32 base, x86IndexReg 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVPRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVPRR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2959,7 +2973,7 @@ void NativeCodeCache::X86Emit_CMOVPRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVPMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVPMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2972,7 +2986,7 @@ void NativeCodeCache::X86Emit_CMOVPMR(x86Reg regDest, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVNPRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVNPRR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2985,7 +2999,7 @@ void NativeCodeCache::X86Emit_CMOVNPRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVNPMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVNPMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -2998,7 +3012,7 @@ void NativeCodeCache::X86Emit_CMOVNPMR(x86Reg regDest, uint32 base, x86IndexReg 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVLRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVLRR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3011,7 +3025,7 @@ void NativeCodeCache::X86Emit_CMOVLRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVLMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVLMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3024,7 +3038,7 @@ void NativeCodeCache::X86Emit_CMOVLMR(x86Reg regDest, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVNLRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVNLRR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3037,7 +3051,7 @@ void NativeCodeCache::X86Emit_CMOVNLRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVNLMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVNLMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3050,7 +3064,7 @@ void NativeCodeCache::X86Emit_CMOVNLMR(x86Reg regDest, uint32 base, x86IndexReg 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVLERR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVLERR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3063,7 +3077,7 @@ void NativeCodeCache::X86Emit_CMOVLERR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVLEMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVLEMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3076,7 +3090,7 @@ void NativeCodeCache::X86Emit_CMOVLEMR(x86Reg regDest, uint32 base, x86IndexReg 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_CMOVNLERR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_CMOVNLERR(const x86Reg regDest, const uint32 regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3089,7 +3103,7 @@ void NativeCodeCache::X86Emit_CMOVNLERR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_CMOVNLEMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_CMOVNLEMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3102,7 +3116,7 @@ void NativeCodeCache::X86Emit_CMOVNLEMR(x86Reg regDest, uint32 base, x86IndexReg
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_MOVQRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_MOVQRR(const x86Reg regDest, const x86Reg regSrc)
 {
   if(regDest < x86Reg_xmm0)
   {
@@ -3120,7 +3134,7 @@ void NativeCodeCache::X86Emit_MOVQRR(x86Reg regDest, x86Reg regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_MOVQMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_MOVQMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_xmm0)
   {
@@ -3138,7 +3152,7 @@ void NativeCodeCache::X86Emit_MOVQMR(x86Reg regDest, uint32 base, x86IndexReg in
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07),base,index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_MOVQRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_MOVQRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regSrc < x86Reg_xmm0)
   {
@@ -3156,7 +3170,7 @@ void NativeCodeCache::X86Emit_MOVQRM(x86Reg regSrc, uint32 base, x86IndexReg ind
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regSrc & 0x07),base,index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_SHLDIRR(x86Reg regDest, x86Reg regSrc, uint8 shiftCount)
+void NativeCodeCache::X86Emit_SHLDIRR(const x86Reg regDest, const x86Reg regSrc, uint8 shiftCount)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3170,7 +3184,7 @@ void NativeCodeCache::X86Emit_SHLDIRR(x86Reg regDest, x86Reg regSrc, uint8 shift
 
 }
 
-void NativeCodeCache::X86Emit_SHLDRRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_SHLDRRR(const x86Reg regDest, const x86Reg regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3182,7 +3196,7 @@ void NativeCodeCache::X86Emit_SHLDRRR(x86Reg regDest, x86Reg regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regSrc & 0x07),(regDest & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SHLDIMR(x86Reg regDest, x86MemPtr ptrType, uint8 shiftCount, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SHLDIMR(const x86Reg regDest, const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3196,7 +3210,7 @@ void NativeCodeCache::X86Emit_SHLDIMR(x86Reg regDest, x86MemPtr ptrType, uint8 s
 
 }
 
-void NativeCodeCache::X86Emit_SHLDRMR(x86Reg regDest, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SHLDRMR(const x86Reg regDest, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3208,7 +3222,7 @@ void NativeCodeCache::X86Emit_SHLDRMR(x86Reg regDest, x86MemPtr ptrType, uint32 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07),(base & 0x07),index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_SHRDIRR(x86Reg regDest, x86Reg regSrc, uint8 shiftCount)
+void NativeCodeCache::X86Emit_SHRDIRR(const x86Reg regDest, const x86Reg regSrc, uint8 shiftCount)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3222,7 +3236,7 @@ void NativeCodeCache::X86Emit_SHRDIRR(x86Reg regDest, x86Reg regSrc, uint8 shift
 
 }
 
-void NativeCodeCache::X86Emit_SHRDRRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_SHRDRRR(const x86Reg regDest, const x86Reg regSrc)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3234,7 +3248,7 @@ void NativeCodeCache::X86Emit_SHRDRRR(x86Reg regDest, x86Reg regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regSrc & 0x07),(regDest & 0x07));
 }
 
-void NativeCodeCache::X86Emit_SHRDIMR(x86Reg regDest, x86MemPtr ptrType, uint8 shiftCount, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SHRDIMR(const x86Reg regDest, const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3248,7 +3262,7 @@ void NativeCodeCache::X86Emit_SHRDIMR(x86Reg regDest, x86MemPtr ptrType, uint8 s
 
 }
 
-void NativeCodeCache::X86Emit_SHRDRMR(x86Reg regDest, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_SHRDRMR(const x86Reg regDest, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_eax)
   {
@@ -3260,7 +3274,7 @@ void NativeCodeCache::X86Emit_SHRDRMR(x86Reg regDest, x86MemPtr ptrType, uint32 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07),(base & 0x07),index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_MOVZXRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_MOVZXRR(const x86Reg regDest, const uint32 regSrc)
 {
   uint8 opcode = 0xB6;
 
@@ -3277,7 +3291,7 @@ void NativeCodeCache::X86Emit_MOVZXRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_MOVZXMR(x86Reg regDest, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_MOVZXMR(const x86Reg regDest, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   uint8 opcode = 0xB6;
 
@@ -3294,7 +3308,7 @@ void NativeCodeCache::X86Emit_MOVZXMR(x86Reg regDest, x86MemPtr ptrType, uint32 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07),base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_MOVSXRR(x86Reg regDest, uint32 regSrc)
+void NativeCodeCache::X86Emit_MOVSXRR(const x86Reg regDest, const uint32 regSrc)
 {
   uint8 opcode = 0xBE;
 
@@ -3311,7 +3325,7 @@ void NativeCodeCache::X86Emit_MOVSXRR(x86Reg regDest, uint32 regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_MOVSXMR(x86Reg regDest, x86MemPtr ptrType, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_MOVSXMR(const x86Reg regDest, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   uint8 opcode = 0xBE;
 
@@ -3328,7 +3342,7 @@ void NativeCodeCache::X86Emit_MOVSXMR(x86Reg regDest, x86MemPtr ptrType, uint32 
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base ,index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_PANDRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_PANDRR(const x86Reg regDest, const x86Reg regSrc)
 {
   if(regDest < x86Reg_xmm0)
   {
@@ -3346,7 +3360,7 @@ void NativeCodeCache::X86Emit_PANDRR(x86Reg regDest, x86Reg regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_PANDMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_PANDMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_xmm0)
   {
@@ -3364,7 +3378,7 @@ void NativeCodeCache::X86Emit_PANDMR(x86Reg regDest, uint32 base, x86IndexReg in
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07),base,index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_PANDRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_PANDRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regSrc < x86Reg_xmm0)
   {
@@ -3382,7 +3396,7 @@ void NativeCodeCache::X86Emit_PANDRM(x86Reg regSrc, uint32 base, x86IndexReg ind
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regSrc & 0x07),base,index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_PANDBRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_PANDBRR(const x86Reg regDest, const x86Reg regSrc)
 {
   if(regDest < x86Reg_xmm0)
   {
@@ -3400,7 +3414,7 @@ void NativeCodeCache::X86Emit_PANDBRR(x86Reg regDest, x86Reg regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_PANDNMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_PANDNMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_xmm0)
   {
@@ -3418,7 +3432,7 @@ void NativeCodeCache::X86Emit_PANDNMR(x86Reg regDest, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07),base,index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_PANDNRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_PANDNRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regSrc < x86Reg_xmm0)
   {
@@ -3436,7 +3450,7 @@ void NativeCodeCache::X86Emit_PANDNRM(x86Reg regSrc, uint32 base, x86IndexReg in
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regSrc & 0x07),base,index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_PSUBDRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_PSUBDRR(const x86Reg regDest, const x86Reg regSrc)
 {
   if(regDest < x86Reg_xmm0)
   {
@@ -3454,7 +3468,7 @@ void NativeCodeCache::X86Emit_PSUBDRR(x86Reg regDest, x86Reg regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_PSUBDMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_PSUBDMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_xmm0)
   {
@@ -3472,7 +3486,7 @@ void NativeCodeCache::X86Emit_PSUBDMR(x86Reg regDest, uint32 base, x86IndexReg i
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_PSUBDRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_PSUBDRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regSrc < x86Reg_xmm0)
   {
@@ -3490,7 +3504,7 @@ void NativeCodeCache::X86Emit_PSUBDRM(x86Reg regSrc, uint32 base, x86IndexReg in
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regSrc & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_PADDRR(x86Reg regDest, x86Reg regSrc)
+void NativeCodeCache::X86Emit_PADDRR(const x86Reg regDest, const x86Reg regSrc)
 {
   if(regDest < x86Reg_xmm0)
   {
@@ -3508,7 +3522,7 @@ void NativeCodeCache::X86Emit_PADDRR(x86Reg regDest, x86Reg regSrc)
   X86Emit_ModRegRM(x86ModType_reg,(x86ModReg)(regDest & 0x07),(regSrc & 0x07));
 }
 
-void NativeCodeCache::X86Emit_PADDMR(x86Reg regDest, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_PADDMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regDest < x86Reg_xmm0)
   {
@@ -3526,7 +3540,7 @@ void NativeCodeCache::X86Emit_PADDMR(x86Reg regDest, uint32 base, x86IndexReg in
   X86Emit_ModRegRM(x86ModType_mem,(x86ModReg)(regDest & 0x07), base, index, scale, disp);
 }
 
-void NativeCodeCache::X86Emit_PADDRM(x86Reg regSrc, uint32 base, x86IndexReg index, x86ScaleVal scale, int32 disp)
+void NativeCodeCache::X86Emit_PADDRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regSrc < x86Reg_xmm0)
   {

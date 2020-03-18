@@ -12,7 +12,9 @@
 extern NuonEnvironment nuonEnv;
 extern NativeEmitHandler emitHandlers[];
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
 static FILE *blockFile;
+#endif
 
 #define NOP_IBYTE_LENGTH (2)
 
@@ -136,13 +138,17 @@ SuperBlock::SuperBlock(MPE * const mpe)
   numInstructions = 0;
   numPackets = 0;
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   blockFile = nullptr;
+#endif
 }
 
 SuperBlock::~SuperBlock()
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
   if(blockFile)
     fclose(blockFile);
+#endif
 }
 
 static void GetFlagString(const uint32 flags, char *buffer)
@@ -389,18 +395,14 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
     codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr_dword,(uint32)&(codeCache.emitVars.mpe->pcexec));
 
     if(codeCache.emitVars.bSaveRegs || codeCache.emitVars.bUsesMMX)
-    {
       codeCache.X86Emit_EMMS();
-    }
 
     if(numInstructions > 0)
-    {
       codeCache.X86Emit_POPAD();
-    }
 
     codeCache.X86Emit_RETN();
     const uint32 emittedBytes = (uint32)(codeCache.GetEmitPointer() - entryPoint);
-    codeCache.ReleaseBuffer((NativeCodeCacheEntryPoint)entryPoint,startAddress,exitAddress,emittedBytes,packetsProcessed,numLiveInstructions,compileType,nextDelayCounter,4);
+    codeCache.ReleaseBuffer((NativeCodeCacheEntryPoint)entryPoint, startAddress, exitAddress, emittedBytes, packetsProcessed, numLiveInstructions, compileType, nextDelayCounter,4);
     return codeCache.IsBeyondThreshold();
   }
 
@@ -497,6 +499,7 @@ void SuperBlock::PerformConstantPropagation()
   }
 }
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
 void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size)
 {
   if(!blockFile)
@@ -517,7 +520,7 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
   fprintf(blockFile,"Instruction Count: %li\n",numInstructions);
   fprintf(blockFile,"Packet Count: %li\n",packetsProcessed);
   fprintf(blockFile,"Code Size: %lu bytes\n",size);
-  fprintf(blockFile,"Code Cache Usage: %lu bytes\n",pMPE->nativeCodeCache->GetUsedCodeBufferSize());
+  fprintf(blockFile,"Code Cache Usage: %lu bytes\n",pMPE->nativeCodeCache.GetUsedCodeBufferSize());
   if(compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE)
   {
     fprintf(blockFile,"Compile Type: IL single\n\n");
@@ -599,13 +602,14 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
   fprintf(blockFile,"****************************************\n\n");
   fflush(blockFile);
 }
+#endif
 
 void SuperBlock::AddPacketToList(InstructionCacheEntry &packet, const uint32 index)
 {
   packets[index].pcexec = packet.pcexec;
   packets[index].pcroute = packet.pcroute;
-  packets[index].pcfetchnext = packet.pcfetchnext;
-  packets[index].instructionCount = packet.nuanceCount; 
+  //packets[index].pcfetchnext = packet.pcfetchnext;
+  //packets[index].instructionCount = packet.nuanceCount; 
   packets[index].flags = packet.packetInfo;
 
   uint32 comboScalarInDep = 0;
@@ -918,20 +922,22 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
 
           if(!(packet.packetInfo & PACKETINFO_BRANCH_NOP))
           {
-            InstructionCacheEntry packetDelaySlot1, packetDelaySlot2;
+            InstructionCacheEntry packetDelaySlot1;
             //Delayed branch with explicit delay slot instructions
             packetDelaySlot1.pcexec = packetAddress;
             pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(*pMPE,packetAddress,false),packetDelaySlot1, decodeOptions);
             packetAddress = packetDelaySlot1.pcroute;
+
+            InstructionCacheEntry packetDelaySlot2;
             packetDelaySlot2.pcexec = packetAddress;
             pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(*pMPE,packetAddress,false),packetDelaySlot2, decodeOptions);
+            packetAddress = packetDelaySlot2.pcroute;
+
             packet.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
             packetDelaySlot1.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
             packetDelaySlot2.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
 
-            packetAddress = packetDelaySlot2.pcroute;
-
-            if(((packetDelaySlot1.packetInfo|packetDelaySlot2.packetInfo) & (PACKETINFO_MEMORY_IO|PACKETINFO_MEMORY_INDIRECT|PACKETINFO_ECU|PACKETINFO_NEVERCOMPILE)))
+            if(((packetDelaySlot1.packetInfo | packetDelaySlot2.packetInfo) & (PACKETINFO_MEMORY_IO|PACKETINFO_MEMORY_INDIRECT|PACKETINFO_ECU|PACKETINFO_NEVERCOMPILE)))
             {
               //Packet contains non-compilable instruction: don't add it to the list and stop adding packets
               //Don't modify the current value of the delay counter

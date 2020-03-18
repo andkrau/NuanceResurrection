@@ -768,16 +768,15 @@ FILE *logfile = NULL;
 void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr)
 {
   const uint32 numCacheEntries[] = {4096,2048,2048,262144};
-  const uint32 numTLBEntries[] = {4096,2048,2048,98304};
+  //const uint32 numTLBEntries[] = {4096,2048,2048,98304};
   const uint32 overlayLengths[] = {8192,4096,4096,4096};
 
   numInterpreterCacheFlushes = 0;
   numNativeCodeCacheFlushes = 0;
   numNonCompilablePackets = 0;
   mpeIndex = index;
-  bStrictMemoryDependencyPolicy = true;
   InitMPELocalMemory();
-  nativeCodeCache = new NativeCodeCache(5UL*1024UL*1024UL, numTLBEntries[mpeIndex & 0x03]);
+  //nativeCodeCache = new NativeCodeCache(5UL*1024UL*1024UL/*, numTLBEntries[mpeIndex & 0x03]*/);
   instructionCache = new InstructionCache(numCacheEntries[mpeIndex & 0x03]);
   overlayManager.SetOverlayLength(overlayLengths[mpeIndex]);
   bInvalidateInstructionCaches = false;
@@ -786,7 +785,7 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
 
   interpretNextPacket = 0;
 
-  nativeCodeCache->SetEmitVars(this, nativeCodeCache);
+  nativeCodeCache.SetEmitVars(this);
 
   if(mpeIndex == LOG_MPE_INDEX)
   {      
@@ -834,7 +833,7 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
 
 MPE::~MPE()
 {
-  delete nativeCodeCache;
+  //delete nativeCodeCache;
   delete instructionCache;
 
   if(mpeIndex == LOG_MPE_INDEX)
@@ -862,7 +861,7 @@ void MPE::Reset()
   icachectl &= ~0xF0000000;
 
   instructionCache->Invalidate();
-  nativeCodeCache->Flush();
+  nativeCodeCache.Flush();
 
   invalidateRegionStart = MPE_IRAM_BASE;
   invalidateRegionEnd = MPE_IRAM_BASE + OVERLAY_SIZE - 1;
@@ -1846,11 +1845,11 @@ void MPE::UpdateInvalidateRegion(const uint32 start, const uint32 length)
 {
   const uint32 end = (start + length - 1);
 
-  invalidateRegionStart = (((start < invalidateRegionStart) || !invalidateRegionStart) ? start : invalidateRegionStart);
-  invalidateRegionEnd = ((end > invalidateRegionEnd) ? end : invalidateRegionEnd);
+  if(start < invalidateRegionStart) invalidateRegionStart = start;
+  if(end > invalidateRegionEnd) invalidateRegionEnd = end;
 
-  interpreterInvalidateRegionStart = (((start < interpreterInvalidateRegionStart) || !interpreterInvalidateRegionStart) ? start : interpreterInvalidateRegionStart);
-  interpreterInvalidateRegionEnd = ((end > interpreterInvalidateRegionEnd) ? end : interpreterInvalidateRegionEnd);
+  if(start < interpreterInvalidateRegionStart) interpreterInvalidateRegionStart = start;
+  if(end > interpreterInvalidateRegionEnd) interpreterInvalidateRegionEnd = end;
 }
 
 bool MPE::FetchDecodeExecute()
@@ -1944,9 +1943,9 @@ bool MPE::FetchDecodeExecute()
           //The overlay manager assigned a previously used overlay ID so invalidate the code cache entries
           //associated with the overlay address range
           numNativeCodeCacheFlushes++;
-          nativeCodeCache->FlushRegion(invalidateRegionStart | overlayMask, invalidateRegionEnd | overlayMask);
+          nativeCodeCache.FlushRegion(invalidateRegionStart | overlayMask, invalidateRegionEnd | overlayMask);
         }
-//ResetInvalidateRegion:
+
         //Reset the IRAM invalidation indicators
         invalidateRegionStart = 0xFFFFFFFFUL;
         invalidateRegionEnd = 0x00000000UL;
@@ -1962,13 +1961,12 @@ bool MPE::FetchDecodeExecute()
       if(bInvalidateInstructionCaches)
       {
         bInvalidateInstructionCaches = false;
-        instructionCache->Invalidate();
-        numInterpreterCacheFlushes++;
+        InvalidateICache();
         if((mpeIndex == 0) || (mpeIndex == 3))
         {
           numNativeCodeCacheFlushes++;
-          nativeCodeCache->FlushRegion(MAIN_BUS_BASE, MAIN_BUS_BASE + MAIN_BUS_SIZE - 1);
-          nativeCodeCache->FlushRegion(SYSTEM_BUS_BASE, SYSTEM_BUS_BASE + SYSTEM_BUS_SIZE - 1);
+          nativeCodeCache.FlushRegion(MAIN_BUS_BASE, MAIN_BUS_BASE + MAIN_BUS_SIZE - 1);
+          nativeCodeCache.FlushRegion(SYSTEM_BUS_BASE, SYSTEM_BUS_BASE + SYSTEM_BUS_SIZE - 1);
         }
       }
     }
@@ -1981,7 +1979,7 @@ bool MPE::FetchDecodeExecute()
     const bool only_find_icache_entry = (ecuSkipCounter | interpretNextPacket) != 0;
     if(!only_find_icache_entry)
     {
-      pNativeCodeCacheEntry = nativeCodeCache->pageMap.FindEntry(pcexecLookupValue);
+      pNativeCodeCacheEntry = nativeCodeCache.pageMap.FindEntry(pcexecLookupValue);
       if(pNativeCodeCacheEntry && (pNativeCodeCacheEntry->virtualAddress == pcexecLookupValue))
       {
         nativeCodeCacheEntryPoint = pNativeCodeCacheEntry->entryPoint;
@@ -2006,10 +2004,10 @@ bool MPE::FetchDecodeExecute()
 //check_compile_threshhold:
         if(!(pInstructionCacheEntry->packetInfo & (PACKETINFO_COMPILED | PACKETINFO_NEVERCOMPILE)) && (pInstructionCacheEntry->frequencyCount >= COMPILE_THRESHOLD))
         {
-          if(nativeCodeCache->IsBeyondThreshold())
+          if(nativeCodeCache.IsBeyondThreshold())
           {
             numNativeCodeCacheFlushes++;
-            nativeCodeCache->Flush();
+            nativeCodeCache.Flush();
             instructionCache->ClearCompiledStates();
           }
 
@@ -2017,9 +2015,10 @@ bool MPE::FetchDecodeExecute()
           nativeCodeCacheEntryPoint = CompileNativeCodeBlock(pcexecLookupValue, COMPILE_TYPE, bError);
           if(!bError)
           {
-            pNativeCodeCacheEntry = nativeCodeCache->pageMap.FindEntry(pcexecLookupValue);
+            pNativeCodeCacheEntry = nativeCodeCache.pageMap.FindEntry(pcexecLookupValue);
             assert(pNativeCodeCacheEntry && pNativeCodeCacheEntry->virtualAddress == pcexecLookupValue);
 
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
             if(nuonEnv.compilerOptions.bDumpBlocks)
             {
               //if(pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
@@ -2028,7 +2027,7 @@ bool MPE::FetchDecodeExecute()
                 superBlock.PrintBlockToFile(pNativeCodeCacheEntry->compileType, pNativeCodeCacheEntry->codeSize);
               }
             }
-
+#endif
             pInstructionCacheEntry->packetInfo |= PACKETINFO_COMPILED;
           }
           else
@@ -2041,7 +2040,7 @@ bool MPE::FetchDecodeExecute()
             else if(nativeCodeCacheEntryPoint == 0)
             {
               numNativeCodeCacheFlushes++;
-              nativeCodeCache->Flush();
+              nativeCodeCache.Flush();
               instructionCache->ClearCompiledStates();
             }
 
@@ -2099,11 +2098,11 @@ bool MPE::FetchDecodeExecute()
 
       cycleCounter += pNativeCodeCacheEntry->numPackets;
 
-      pNativeCodeCacheEntry->accessCount++;
-      if(pNativeCodeCacheEntry->accessCount == 0) // overflow?
-        pNativeCodeCacheEntry->accessCount = ~0;
+      //pNativeCodeCacheEntry->accessCount++;
+      //if(pNativeCodeCacheEntry->accessCount == 0) // overflow?
+      //  pNativeCodeCacheEntry->accessCount = ~0;
 
-      prevPcexec = pcexec;
+      //prevPcexec = pcexec;
       if((pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK) || (pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE))
       {
         const uint32 nInstructions = pNativeCodeCacheEntry->numInstructions;
@@ -2145,7 +2144,7 @@ bool MPE::FetchDecodeExecute()
       {
         cycleCounter++;
 
-        prevPcexec = pcexec;
+        //prevPcexec = pcexec;
         pcroute = pInstructionCacheEntry->pcroute;
         pcexec = pcroute;
         ExecuteNuances(*pInstructionCacheEntry);
@@ -2325,7 +2324,7 @@ uint8 MPE::DecodeSingleInstruction(const uint8 *const iPtr, InstructionCacheEntr
 
 NativeCodeCacheEntryPoint MPE::CompileNativeCodeBlock(const uint32 pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket)
 {
-  return superBlock.CompileBlock(pcexec, *nativeCodeCache, compileType, bSinglePacket, bError);
+  return superBlock.CompileBlock(pcexec, nativeCodeCache, compileType, bSinglePacket, bError);
 }
 
 void MPE::PrintInstructionCachePacket(char *buffer, const InstructionCacheEntry &entry)
@@ -2365,6 +2364,6 @@ void MPE::PrintInstructionCachePacket(char *buffer, const uint32 address)
 void MPE::ExecuteSingleStep()
 {
   InvalidateICacheRegion(pcexec, pcexec);
-  nativeCodeCache->FlushRegion(pcexec, pcexec);
+  nativeCodeCache.FlushRegion(pcexec, pcexec);
   FetchDecodeExecute();
 }
