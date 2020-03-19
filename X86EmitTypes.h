@@ -160,7 +160,7 @@ enum x86MemPtr
 #define x86ModReg_xmm6 x86ModReg_esi
 #define x86ModReg_xmm7 x86ModReg_edi
 
-enum x86BaseReg
+enum class x86BaseReg
 {
   x86BaseReg_eax = 0,
   x86BaseReg_ecx,
@@ -172,10 +172,10 @@ enum x86BaseReg
   x86BaseReg_edi,
 };
 
-#define x86BaseReg_sib x86BaseReg_esp
-#define x86BaseReg_sdword x86BaseReg_ebp
+#define x86BaseReg_sib x86BaseReg::x86BaseReg_esp
+#define x86BaseReg_sdword x86BaseReg::x86BaseReg_ebp
 
-enum x86IndexReg
+enum class x86IndexReg
 {
   x86IndexReg_eax = 0,
   x86IndexReg_ecx,
@@ -184,15 +184,15 @@ enum x86IndexReg
   x86IndexReg_none,
   x86IndexReg_ebp,
   x86IndexReg_esi,
-  x86IndexReg_edi,
+  x86IndexReg_edi
 };
 
-enum x86ScaleVal
+enum class x86ScaleVal
 {
   x86Scale_1 = 0,
   x86Scale_2,
   x86Scale_4,
-  x86Scale_8,
+  x86Scale_8
 };
 
 #endif

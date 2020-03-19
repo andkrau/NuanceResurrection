@@ -467,21 +467,21 @@ ConfigTokenType NuonEnvironment::ReadConfigLine(FILE *file, char *buf)
   char firstChar;
 
   if(feof(file))
-    return CONFIG_EOF;
+    return ConfigTokenType::CONFIG_EOF;
 
   fscanf(file,"%s",buf);
   firstChar = buf[0];
 
   if(firstChar == CONFIG_COMMENT_CHAR)
-    return CONFIG_COMMENT;
+    return ConfigTokenType::CONFIG_COMMENT;
   else if(firstChar == CONFIG_VARIABLE_START_CHAR)
-    return CONFIG_VARIABLE_START;
+    return ConfigTokenType::CONFIG_VARIABLE_START;
   else if(firstChar == CONFIG_VARIABLE_FINISH_CHAR)
-    return CONFIG_VARIABLE_FINISH;
+    return ConfigTokenType::CONFIG_VARIABLE_FINISH;
   else if((firstChar == '<') || (firstChar == '>') || (firstChar == '"'))
-    return CONFIG_RESERVED;
+    return ConfigTokenType::CONFIG_RESERVED;
   else
-    return CONFIG_STRING;
+    return ConfigTokenType::CONFIG_STRING;
 }
 
 bool NuonEnvironment::LoadConfigFile(const char * const fileName)
@@ -501,7 +501,7 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
     {
       case CONFIG_COMMENT_CHAR:
         break;
-      case CONFIG_VARIABLE_START:
+      case ConfigTokenType::CONFIG_VARIABLE_START:
         if(_strnicmp(&line[1],"DVDBase]",sizeof("DVDBase]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);

@@ -7,14 +7,14 @@
 #define MAX_PATCH_LABELS (64)
 #define MAX_PATCH_ENTRIES (64)
 
-enum PatchType
+enum class PatchType
 {
   PatchType_Rel8 = 0,
   PatchType_Rel16,
   PatchType_Rel32,
   PatchType_Rel64,
   PatchType_Abs32,
-  PatchType_Abs64,
+  PatchType_Abs64
 };
 
 struct PatchInfo

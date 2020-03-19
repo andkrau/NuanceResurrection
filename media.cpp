@@ -20,8 +20,8 @@ MediaDevInfo DeviceInfo[] = {
   {0,0,0,0,0,0},
   {0,0,0,0,0,0},
   {0,0,0,0,0,0},
-  {MEDIA_BOOT_DEVICE,0,BLOCK_SIZE_DVD,0,0,DATA_RATE_DVD},
-  {MEDIA_BOOT_DEVICE,0,BLOCK_SIZE_DVD,0,0,DATA_RATE_DVD}};
+  {(int32)eMedia::MEDIA_BOOT_DEVICE,0,BLOCK_SIZE_DVD,0,0,DATA_RATE_DVD},
+  {(int32)eMedia::MEDIA_BOOT_DEVICE,0,BLOCK_SIZE_DVD,0,0,DATA_RATE_DVD}};
 
 void MediaShutdownMPE(MPE &mpe)
 {
@@ -152,7 +152,7 @@ void MediaOpen(MPE &mpe)
   const uint32 mode = mpe.regs[2];
   int32 handle = 0;
 
-  if((device == MEDIA_BOOT_DEVICE) || (device == MEDIA_DVD))
+  if(((eMedia)device == eMedia::MEDIA_BOOT_DEVICE) || ((eMedia)device == eMedia::MEDIA_DVD))
   {
     handle = FindFirstFreeHandle();
 
@@ -254,7 +254,7 @@ void MediaRead(MPE &mpe)
 
   if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD))
   {
-    if(fileNameArray[handle] && buffer && (fileModeArray[handle] != MEDIA_WRITE))
+    if(fileNameArray[handle] && buffer && ((eMedia)fileModeArray[handle] != eMedia::MEDIA_WRITE))
     {
       FILE* inFile = fopen(fileNameArray[handle],"rb");
       if(inFile)
@@ -291,7 +291,7 @@ void MediaWrite(MPE &mpe)
 
   if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD))
   {
-    if(fileNameArray[handle] && buffer && (fileModeArray[handle] != MEDIA_READ))
+    if(fileNameArray[handle] && buffer && ((eMedia)fileModeArray[handle] != eMedia::MEDIA_READ))
     {
       //try to open the existing file for read/write without erasing the contents
       FILE* outFile = fopen(fileNameArray[handle],"r+b");
@@ -342,29 +342,29 @@ void MediaIoctl(MPE &mpe)
     {
       switch(ctl)
       {
-        case MEDIA_IOCTL_SET_MODE:
+        case eMedia::MEDIA_IOCTL_SET_MODE:
           break;
-        case MEDIA_IOCTL_GET_MODE:
+        case eMedia::MEDIA_IOCTL_GET_MODE:
           break;
-        case MEDIA_IOCTL_EJECT:
+        case eMedia::MEDIA_IOCTL_EJECT:
           break;
-        case MEDIA_IOCTL_RETRACT:
+        case eMedia::MEDIA_IOCTL_RETRACT:
           break;
-        case MEDIA_IOCTL_FLUSH:
+        case eMedia::MEDIA_IOCTL_FLUSH:
           break;
-        case MEDIA_IOCTL_GET_DRIVETYPE:
+        case eMedia::MEDIA_IOCTL_GET_DRIVETYPE:
           //return kTypeDvdSingle for now, but should really allow the user to declare the disk type
           mpe.regs[0] = kTypeDVDSingle;
           break;
-        case MEDIA_IOCTL_READ_BCA:
+        case eMedia::MEDIA_IOCTL_READ_BCA:
           break;
-        case MEDIA_IOCTL_GET_START:
+        case eMedia::MEDIA_IOCTL_GET_START:
           break;
-        case MEDIA_IOCTL_SET_START:
+        case eMedia::MEDIA_IOCTL_SET_START:
           break;
-        case MEDIA_IOCTL_SET_END:
+        case eMedia::MEDIA_IOCTL_SET_END:
           break;
-        case MEDIA_IOCTL_GET_PHYSICAL:
+        case eMedia::MEDIA_IOCTL_GET_PHYSICAL:
           if(value)
           {
             uint32* const ptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,value);
@@ -377,13 +377,13 @@ void MediaIoctl(MPE &mpe)
           //return DVD layer 0 (should this be zero-based or one-based?)
           mpe.regs[0] = 0;
           break;
-        case MEDIA_IOCTL_OVERWRITE:
+        case eMedia::MEDIA_IOCTL_OVERWRITE:
           break;
-        case MEDIA_IOCTL_ERASE:
+        case eMedia::MEDIA_IOCTL_ERASE:
           break;
-        case MEDIA_IOCTL_SIZE:
+        case eMedia::MEDIA_IOCTL_SIZE:
           break;
-        case MEDIA_IOCTL_CDDATA_OFFSET:
+        case eMedia::MEDIA_IOCTL_CDDATA_OFFSET:
           break;
         default:
           mpe.regs[0] = -1;

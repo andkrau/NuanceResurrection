@@ -19,7 +19,7 @@ void EmitConditionCheck(EmitterVariables * const vars, const uint32 condition, c
   const x86BaseReg ccRegReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax,ccRegReadBaseReg,x86IndexReg_none,x86Scale_1,ccRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax,ccRegReadBaseReg,x86IndexReg::x86IndexReg_none,x86ScaleVal::x86Scale_1,ccRegDisp);
 
   switch(condition)
   {
@@ -317,7 +317,7 @@ void Emit_JMPAlwaysIndirect(EmitterVariables * const vars, const Nuance &nuance)
     vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr, X86_CC_NZ, l_skip_ecu);
   }
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
 
@@ -342,7 +342,7 @@ void Emit_JMPAlwaysIndirect_NOP(EmitterVariables * const vars, const Nuance &nua
     vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr, X86_CC_NZ, l_skip_ecu);
   }
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   Emit_ExitBlock(vars);
@@ -371,7 +371,7 @@ void Emit_JMPConditionalIndirect(EmitterVariables * const vars, const Nuance &nu
 
   EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
 
@@ -399,7 +399,7 @@ void Emit_JMPConditionalIndirect_NOP(EmitterVariables * const vars, const Nuance
 
   EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   Emit_ExitBlock(vars);
@@ -425,7 +425,7 @@ void Emit_JSRAlways(EmitterVariables * const vars, const Nuance &nuance)
     vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr, X86_CC_NZ, l_skip_ecu);
   }
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(address, x86MemPtr_dword, (uint32)&(vars->mpe->pcfetchnext));
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCFETCHNEXT], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCFETCHNEXT], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
 
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_skip_ecu, vars->mpe->nativeCodeCache.GetEmitPointer());
@@ -449,7 +449,7 @@ void Emit_JSRAlways_NOP(EmitterVariables * const vars, const Nuance &nuance)
     vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr, X86_CC_NZ, l_skip_ecu);
   }
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(address, x86MemPtr_dword, (uint32)&(vars->mpe->pcfetchnext));
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCROUTE], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCROUTE], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   Emit_ExitBlock(vars);
 
@@ -477,7 +477,7 @@ void Emit_JSRConditional(EmitterVariables * const vars, const Nuance &nuance)
   EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(address, x86MemPtr_dword, (uint32)&(vars->mpe->pcfetchnext));
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCFETCHNEXT], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCFETCHNEXT], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
 
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_skip_ecu, vars->mpe->nativeCodeCache.GetEmitPointer());
@@ -504,7 +504,7 @@ void Emit_JSRConditional_NOP(EmitterVariables * const vars, const Nuance &nuance
   EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(address, x86MemPtr_dword, (uint32)&(vars->mpe->pcfetchnext));
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCROUTE], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCROUTE], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   Emit_ExitBlock(vars);
 
@@ -531,9 +531,9 @@ void Emit_JSRAlwaysIndirect(EmitterVariables * const vars, const Nuance &nuance)
     vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr, X86_CC_NZ, l_skip_ecu);
   }
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCFETCHNEXT], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCFETCHNEXT], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
 
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_skip_ecu, vars->mpe->nativeCodeCache.GetEmitPointer());
@@ -559,9 +559,9 @@ void Emit_JSRAlwaysIndirect_NOP(EmitterVariables * const vars, const Nuance &nua
     vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr, X86_CC_NZ, l_skip_ecu);
   }
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCROUTE], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCROUTE], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   Emit_ExitBlock(vars);
 
@@ -591,9 +591,9 @@ void Emit_JSRConditionalIndirect(EmitterVariables * const vars, const Nuance &nu
 
   EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCFETCHNEXT], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCFETCHNEXT], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
 
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_skip_ecu, vars->mpe->nativeCodeCache.GetEmitPointer());
@@ -622,9 +622,9 @@ void Emit_JSRConditionalIndirect_NOP(EmitterVariables * const vars, const Nuance
 
   EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg_none, x86Scale_1, src1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCROUTE], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_ECU_PCROUTE], x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   Emit_ExitBlock(vars);
 
@@ -648,7 +648,7 @@ void Emit_RTSAlways(EmitterVariables * const vars, const Nuance &nuance)
     vars->mpe->nativeCodeCache.X86Emit_TESTRR(x86Reg_eax, x86Reg_eax);
     vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr, X86_CC_NZ, l_skip_ecu);
   }
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzRegReadBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
 
@@ -672,7 +672,7 @@ void Emit_RTSAlways_NOP(EmitterVariables * const vars, const Nuance &nuance)
     vars->mpe->nativeCodeCache.X86Emit_TESTRR(x86Reg_eax, x86Reg_eax);
     vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr, X86_CC_NZ, l_skip_ecu);
   }
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzRegReadBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   Emit_ExitBlock(vars);
@@ -700,7 +700,7 @@ void Emit_RTSConditional(EmitterVariables * const vars, const Nuance &nuance)
   }
   EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzRegReadBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
 
@@ -727,7 +727,7 @@ void Emit_RTSConditional_NOP(EmitterVariables * const vars, const Nuance &nuance
   }
   EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzRegReadBaseReg, x86IndexReg_none, x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   Emit_ExitBlock(vars);
@@ -758,7 +758,7 @@ void Emit_RTI1Conditional(EmitterVariables * const vars, const Nuance &nuance)
     EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   }
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzi1RegReadBaseReg, x86IndexReg_none, x86Scale_1, rzi1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzi1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   vars->mpe->nativeCodeCache.X86Emit_ANDIM(~(1UL << 1), x86MemPtr_dword, (uint32)&(vars->mpe->intctl));
@@ -788,7 +788,7 @@ void Emit_RTI1Conditional_NOP(EmitterVariables * const vars, const Nuance &nuanc
     EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   }
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzi1RegReadBaseReg, x86IndexReg_none, x86Scale_1, rzi1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzi1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   vars->mpe->nativeCodeCache.X86Emit_ANDIM(~(1UL << 1), x86MemPtr_dword, (uint32)&(vars->mpe->intctl));
@@ -820,7 +820,7 @@ void Emit_RTI2Conditional(EmitterVariables * const vars, const Nuance &nuance)
     EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   }
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzi2RegReadBaseReg, x86IndexReg_none, x86Scale_1, rzi2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzi2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi2RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   vars->mpe->nativeCodeCache.X86Emit_ANDIM(~(1UL << 5), x86MemPtr_dword, (uint32)&(vars->mpe->intctl));
@@ -850,7 +850,7 @@ void Emit_RTI2Conditional_NOP(EmitterVariables * const vars, const Nuance &nuanc
     EmitConditionCheck(vars, nuance.fields[FIELD_ECU_CONDITION], l_skip_ecu, l_condition_true);
   }
   vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_condition_true, vars->mpe->nativeCodeCache.GetEmitPointer());
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzi2RegReadBaseReg, x86IndexReg_none, x86Scale_1, rzi2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg_eax, rzi2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi2RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg_eax, (uint32)&(vars->mpe->pcfetchnext));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr_dword, (uint32)&(vars->mpe->ecuSkipCounter));
   vars->mpe->nativeCodeCache.X86Emit_ANDIM(~(1UL << 5), x86MemPtr_dword, (uint32)&(vars->mpe->intctl));
