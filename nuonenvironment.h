@@ -11,7 +11,7 @@
 #include "video.h"
 #include "FlashEEPROM.h"
 
-enum ConfigTokenType
+enum class ConfigTokenType
 {
   CONFIG_EOF,
   CONFIG_UNKNOWN,

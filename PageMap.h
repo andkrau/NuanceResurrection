@@ -4,7 +4,7 @@
 #include "basetypes.h"
 
 typedef void (* NativeCodeCacheEntryPoint)(void);
-enum SuperBlockCompileType;
+enum class SuperBlockCompileType;
 
 struct NativeCodeCacheEntry
 {

@@ -7,22 +7,22 @@ void PatchManager::ApplyPatches()
   {
     switch(patchData[i].patchType)
     {
-      case PatchType_Rel8:
+      case PatchType::PatchType_Rel8:
         *((uint8 *)(patchData[i].patchPtr)) = (uint8)(labelPointers[patchData[i].destLabel] - patchData[i].basePtr);
         break;
-      case PatchType_Rel16:
+      case PatchType::PatchType_Rel16:
         *((uint16 *)(patchData[i].patchPtr)) = (uint16)(labelPointers[patchData[i].destLabel] - patchData[i].basePtr);
         break;
-      case PatchType_Rel32:
+      case PatchType::PatchType_Rel32:
         *((uint32 *)(patchData[i].patchPtr)) = (uint32)(labelPointers[patchData[i].destLabel] - patchData[i].basePtr);
         break;
-      case PatchType_Rel64:
+      case PatchType::PatchType_Rel64:
         //*((uint64 *)(patchData[i].patchPtr)) = (uint64)(labelPointers[patchData[i].destLabel] - patchData[i].basePtr);
         break;
-      case PatchType_Abs32:
+      case PatchType::PatchType_Abs32:
         *((uint32 *)(patchData[i].patchPtr)) = (uint32)(labelPointers[patchData[i].destLabel]); //!! 64bit prob?
         break;
-      case PatchType_Abs64:
+      case PatchType::PatchType_Abs64:
         //*((uint64 *)(patchData[i].patchPtr)) = (uint32)(labelPointers[patchData[i].destLabel]);
         break;
     }

@@ -254,17 +254,17 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
   codeCache.emitVars.bUsesMMX = false;
 
   if(!bAllowBlockCompile)
-    compileType = SUPERBLOCKCOMPILETYPE_IL_SINGLE;
-  else if(compileType != SUPERBLOCKCOMPILETYPE_IL_SINGLE)
+    compileType = SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE;
+  else if(compileType != SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE)
   {
     if(!bCanEmitNativeCode)
-      compileType = SUPERBLOCKCOMPILETYPE_IL_BLOCK;
+      compileType = SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK;
   }
 
   uint32 numLiveInstructions = 0;
   InstructionEntry* pInstruction = instructions;
 
-  if((compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE) || (compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK))
+  if((compileType == SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE) || (compileType == SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK))
   {
     uint8 * const entryPoint = codeCache.GetEmitPointer();
     Nuance* ptrEmitNuance = (Nuance *)entryPoint;
@@ -328,7 +328,7 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
     codeCache.ReleaseBuffer((NativeCodeCacheEntryPoint)entryPoint, startAddress, exitAddress, emittedBytes, packetsProcessed, numLiveInstructions, compileType, nextDelayCounter,4);
     return codeCache.IsBeyondThreshold();
   }
-  else if(compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
+  else if(compileType == SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
   {
     uint8 * const entryPoint = codeCache.GetEmitPointer();
     codeCache.emitVars.pInstructionEntry = pInstruction;
@@ -419,7 +419,7 @@ NativeCodeCacheEntryPoint SuperBlock::CompileBlock(const uint32 address, NativeC
   bError = false;
   constants.bConstantPropagated = false;
 
-  bAllowBlockCompile = (compileType != SUPERBLOCKCOMPILETYPE_IL_SINGLE);
+  bAllowBlockCompile = (compileType != SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE);
 
   //Step 1, fetch the block (or superblock)
   //int32 fetchSuperBlockResult; //!! never used
@@ -521,15 +521,15 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
   fprintf(blockFile,"Packet Count: %li\n",packetsProcessed);
   fprintf(blockFile,"Code Size: %lu bytes\n",size);
   fprintf(blockFile,"Code Cache Usage: %lu bytes\n",pMPE->nativeCodeCache.GetUsedCodeBufferSize());
-  if(compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE)
+  if(compileType == SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE)
   {
     fprintf(blockFile,"Compile Type: IL single\n\n");
   }
-  else if(compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK)
+  else if(compileType == SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK)
   {
     fprintf(blockFile,"Compile Type: IL block\n\n");
   }
-  else if(compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
+  else if(compileType == SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
   {
     fprintf(blockFile,"Compile Type: Native block\n\n");
   }

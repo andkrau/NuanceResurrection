@@ -28,24 +28,24 @@ struct EmitterVariables
 
 inline x86BaseReg GetScalarRegReadBaseReg(const EmitterVariables* const vars, const uint32 regIndex)
 {
-  return (vars->scalarRegDep & SCALAR_REG_DEPENDENCY_MASK(regIndex)) ? x86BaseReg_edi : x86BaseReg_esi;
+  return (vars->scalarRegDep & SCALAR_REG_DEPENDENCY_MASK(regIndex)) ? x86BaseReg::x86BaseReg_edi : x86BaseReg::x86BaseReg_esi;
 }
 
 inline x86BaseReg GetScalarRegWriteBaseReg(const EmitterVariables* const vars, const uint32 regIndex)
 {
-  return x86BaseReg_esi;
+  return x86BaseReg::x86BaseReg_esi;
 }
 
 inline x86BaseReg GetMiscRegReadBaseReg(const EmitterVariables * const vars, const uint32 regIndex)
 {
   const uint32 mask = !regIndex ? DEPENDENCY_FLAG_ALLFLAGS : MISC_REG_DEPENDENCY_MASK(regIndex - 1);
 
-  return (vars->miscRegDep & mask) ? x86BaseReg_edi : x86BaseReg_esi;
+  return (vars->miscRegDep & mask) ? x86BaseReg::x86BaseReg_edi : x86BaseReg::x86BaseReg_esi;
 }
 
 inline x86BaseReg GetMiscRegWriteBaseReg(const EmitterVariables * const vars, const uint32 regIndex)
 {
-  return x86BaseReg_esi;
+  return x86BaseReg::x86BaseReg_esi;
 }
 
 inline int32 GetMiscRegEmitDisp(const EmitterVariables * const vars, const uint32 regIndex)

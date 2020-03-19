@@ -4,8 +4,8 @@
 #include "NativeCodeCache.h"
 #include "PageMap.h"
 
-#define x86Emit_MRM(mod,reg,rm) (*pEmitLoc++ = (((mod) << 6) | ((reg) << 3) | (rm)))
-#define x86Emit_SIB(base, scale, index) (*pEmitLoc++ = (((scale) << 6) | ((index) << 3) | (base)))
+#define x86Emit_MRM(mod,reg,rm) (*pEmitLoc++ = (((mod) << 6) | ((reg) << 3) | (uint32)(rm)))
+#define x86Emit_SIB(base, scale, index) (*pEmitLoc++ = (((uint32)(scale) << 6) | ((uint32)(index) << 3) | (base)))
 
 
 NativeCodeCache::NativeCodeCache()
@@ -117,7 +117,7 @@ void NativeCodeCache::X86Emit_ModRegRM(const x86ModType modType, const x86ModReg
     }
     else
     {
-      if(index != x86IndexReg_none)
+      if(index != x86IndexReg::x86IndexReg_none)
       {
         if(!disp)
         {
@@ -148,7 +148,7 @@ void NativeCodeCache::X86Emit_ModRegRM(const x86ModType modType, const x86ModReg
       else
       {
         //[base + disp] or [base]
-        if(!disp && (base != x86BaseReg_ebp))
+        if(!disp && ((x86BaseReg)base != x86BaseReg::x86BaseReg_ebp))
         {
           //[base]
           x86Emit_MRM(x86ModType_mem, regSpare, base);
@@ -1081,7 +1081,7 @@ void NativeCodeCache::X86Emit_JCC_Label(PatchManager &patchMgr, const int8 condi
 {
   if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr.AddPatch(pEmitLoc + 2, PatchType_Rel32, pEmitLoc + 6, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 2, PatchType::PatchType_Rel32, pEmitLoc + 6, labelIndex);
     *pEmitLoc++ = 0x0F;
     *pEmitLoc++ = 0x80 + conditionCode;
     *((int32 *)pEmitLoc) = 0;
@@ -1403,7 +1403,7 @@ void NativeCodeCache::X86Emit_JMPI_Label(PatchManager &patchMgr, uint32 labelInd
 {
   if(labelIndex >= patchMgr.numPatches)
   {
-    patchMgr.AddPatch(pEmitLoc + 1, PatchType_Rel32, pEmitLoc + 5, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 1, PatchType::PatchType_Rel32, pEmitLoc + 5, labelIndex);
     *pEmitLoc++ = 0xE9;
     *((int32 *)pEmitLoc) = 0;
     pEmitLoc += sizeof(int32);
@@ -1924,7 +1924,7 @@ void NativeCodeCache::X86Emit_LOOPNE_Label(PatchManager &patchMgr, uint32 labelI
 {
   if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr.AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 1, PatchType::PatchType_Rel8, pEmitLoc + 2, labelIndex);
     *pEmitLoc++ = 0xE2;
     *pEmitLoc++ = 0;
   }
@@ -1946,7 +1946,7 @@ void NativeCodeCache::X86Emit_LOOPE_Label(PatchManager &patchMgr, uint32 labelIn
 {
   if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr.AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 1, PatchType::PatchType_Rel8, pEmitLoc + 2, labelIndex);
     *pEmitLoc++ = 0xE0;
     *pEmitLoc++ = 0;
   }
@@ -1968,7 +1968,7 @@ void NativeCodeCache::X86Emit_LOOP_Label(PatchManager &patchMgr, uint32 labelInd
 {
   if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr.AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 1, PatchType::PatchType_Rel8, pEmitLoc + 2, labelIndex);
     *pEmitLoc++ = 0xE2;
     *pEmitLoc++ = 0;
   }
@@ -1992,7 +1992,7 @@ void NativeCodeCache::X86Emit_JCXZ_Label(PatchManager &patchMgr, uint32 labelInd
 {
   if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr.AddPatch(pEmitLoc + 2, PatchType_Rel8, pEmitLoc + 3, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 2, PatchType::PatchType_Rel8, pEmitLoc + 3, labelIndex);
     *pEmitLoc++ = 0x67;
     *pEmitLoc++ = 0xE3;
     *pEmitLoc++ = 0;
@@ -2015,7 +2015,7 @@ void NativeCodeCache::X86Emit_JECXZ_Label(PatchManager &patchMgr, uint32 labelIn
 {
   if(labelIndex >= patchMgr.numLabels)
   {
-    patchMgr.AddPatch(pEmitLoc + 1, PatchType_Rel8, pEmitLoc + 2, labelIndex);
+    patchMgr.AddPatch(pEmitLoc + 1, PatchType::PatchType_Rel8, pEmitLoc + 2, labelIndex);
     *pEmitLoc++ = 0xE3;
     *pEmitLoc++ = 0;
   }

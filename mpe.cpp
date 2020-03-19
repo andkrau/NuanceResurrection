@@ -2021,8 +2021,8 @@ bool MPE::FetchDecodeExecute()
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
             if(nuonEnv.compilerOptions.bDumpBlocks)
             {
-              //if(pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
-              //if(pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK)
+              //if(pNativeCodeCacheEntry->compileType == SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK)
+              //if(pNativeCodeCacheEntry->compileType == SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK)
               {
                 superBlock.PrintBlockToFile(pNativeCodeCacheEntry->compileType, pNativeCodeCacheEntry->codeSize);
               }
@@ -2103,7 +2103,7 @@ bool MPE::FetchDecodeExecute()
       //  pNativeCodeCacheEntry->accessCount = ~0;
 
       //prevPcexec = pcexec;
-      if((pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_BLOCK) || (pNativeCodeCacheEntry->compileType == SUPERBLOCKCOMPILETYPE_IL_SINGLE))
+      if((pNativeCodeCacheEntry->compileType == SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK) || (pNativeCodeCacheEntry->compileType == SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE))
       {
         const uint32 nInstructions = pNativeCodeCacheEntry->numInstructions;
         const Nuance* pNuance = (Nuance *)nativeCodeCacheEntryPoint;

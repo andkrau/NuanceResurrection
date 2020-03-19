@@ -20,7 +20,7 @@
 #define EEPROM_STATE_BUS_CYCLE_5 (5)
 #define EEPROM_STATE_BUS_CYCLE_6 (6)
 
-enum eFlashMode
+enum class eFlashMode
 {
   FlashMode_Read,
   FlashMode_CFI,
@@ -28,7 +28,7 @@ enum eFlashMode
   FlashMode_Program,
   FlashMode_ProductID,
   FlashMode_Erase,
-  FlashMode_Error,
+  FlashMode_Error
 };
 
 class FlashEEPROM
@@ -58,8 +58,8 @@ public:
 
   void Reset()
   {
-    mode = FlashMode_Read;
-    errorMode = FlashMode_Read;
+    mode = eFlashMode::FlashMode_Read;
+    errorMode = eFlashMode::FlashMode_Read;
     state = EEPROM_STATE_READ;
     errorState = EEPROM_STATE_READ;
     for(uint32 i = 0; i < DEFAULT_NUM_SECTORS; i++)
