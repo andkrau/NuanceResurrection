@@ -21,7 +21,7 @@
 #define X86_CC_E X86_CC_Z
 #define X86_CC_NE X86_CC_NZ
 
-enum x86Reg
+enum class x86Reg
 {
   x86Reg_al = 0,
   x86Reg_cl,
@@ -93,10 +93,10 @@ enum x86Reg
   x86Reg_dr4,
   x86Reg_dr5,
   x86Reg_dr6,
-  x86Reg_dr7,
+  x86Reg_dr7
 };
 
-enum x86ModReg
+enum class x86ModReg
 {
   x86ModReg_eax = 0,
   x86ModReg_ecx,
@@ -105,60 +105,60 @@ enum x86ModReg
   x86ModReg_esp,
   x86ModReg_ebp,
   x86ModReg_esi,
-  x86ModReg_edi,  
+  x86ModReg_edi
 };
 
-enum x86ModType
+enum class x86ModType
 {
   x86ModType_mem = 0,
   x86ModType_mem_disp8 = 1,
   x86ModType_mem_disp32 = 2,
-  x86ModType_reg = 3,
+  x86ModType_reg = 3
 };
 
-enum x86MemPtr
+enum class x86MemPtr
 {
   x86MemPtr_byte = 0,
   x86MemPtr_word = 1,
   x86MemPtr_dword = 2,
-  x86MemPtr_qword = 3,
+  x86MemPtr_qword = 3
 };
 
-#define x86ModReg_al x86ModReg_eax
-#define x86ModReg_cl x86ModReg_ecx
-#define x86ModReg_dl x86ModReg_edx
-#define x86ModReg_bl x86ModReg_ebx
-#define x86ModReg_ah x86ModReg_esp
-#define x86ModReg_ch x86ModReg_ebp
-#define x86ModReg_dh x86ModReg_esi
-#define x86ModReg_bh x86ModReg_edi
+#define x86ModReg_al x86ModReg::x86ModReg_eax
+#define x86ModReg_cl x86ModReg::x86ModReg_ecx
+#define x86ModReg_dl x86ModReg::x86ModReg_edx
+#define x86ModReg_bl x86ModReg::x86ModReg_ebx
+#define x86ModReg_ah x86ModReg::x86ModReg_esp
+#define x86ModReg_ch x86ModReg::x86ModReg_ebp
+#define x86ModReg_dh x86ModReg::x86ModReg_esi
+#define x86ModReg_bh x86ModReg::x86ModReg_edi
 
-#define x86ModReg_ax x86ModReg_eax
-#define x86ModReg_cx x86ModReg_ecx
-#define x86ModReg_dx x86ModReg_edx
-#define x86ModReg_bx x86ModReg_ebx
-#define x86ModReg_sp x86ModReg_esp
-#define x86ModReg_bp x86ModReg_ebp
-#define x86ModReg_si x86ModReg_esi
-#define x86ModReg_di x86ModReg_edi
+#define x86ModReg_ax x86ModReg::x86ModReg_eax
+#define x86ModReg_cx x86ModReg::x86ModReg_ecx
+#define x86ModReg_dx x86ModReg::x86ModReg_edx
+#define x86ModReg_bx x86ModReg::x86ModReg_ebx
+#define x86ModReg_sp x86ModReg::x86ModReg_esp
+#define x86ModReg_bp x86ModReg::x86ModReg_ebp
+#define x86ModReg_si x86ModReg::x86ModReg_esi
+#define x86ModReg_di x86ModReg::x86ModReg_edi
 
-#define x86ModReg_mm0 x86ModReg_eax
-#define x86ModReg_mm1 x86ModReg_ecx
-#define x86ModReg_mm2 x86ModReg_edx
-#define x86ModReg_mm3 x86ModReg_ebx
-#define x86ModReg_mm4 x86ModReg_esp
-#define x86ModReg_mm5 x86ModReg_ebp
-#define x86ModReg_mm6 x86ModReg_esi
-#define x86ModReg_mm7 x86ModReg_edi
+#define x86ModReg_mm0 x86ModReg::x86ModReg_eax
+#define x86ModReg_mm1 x86ModReg::x86ModReg_ecx
+#define x86ModReg_mm2 x86ModReg::x86ModReg_edx
+#define x86ModReg_mm3 x86ModReg::x86ModReg_ebx
+#define x86ModReg_mm4 x86ModReg::x86ModReg_esp
+#define x86ModReg_mm5 x86ModReg::x86ModReg_ebp
+#define x86ModReg_mm6 x86ModReg::x86ModReg_esi
+#define x86ModReg_mm7 x86ModReg::x86ModReg_edi
 
-#define x86ModReg_xmm0 x86ModReg_eax
-#define x86ModReg_xmm1 x86ModReg_ecx
-#define x86ModReg_xmm2 x86ModReg_edx
-#define x86ModReg_xmm3 x86ModReg_ebx
-#define x86ModReg_xmm4 x86ModReg_esp
-#define x86ModReg_xmm5 x86ModReg_ebp
-#define x86ModReg_xmm6 x86ModReg_esi
-#define x86ModReg_xmm7 x86ModReg_edi
+#define x86ModReg_xmm0 x86ModReg::x86ModReg_eax
+#define x86ModReg_xmm1 x86ModReg::x86ModReg_ecx
+#define x86ModReg_xmm2 x86ModReg::x86ModReg_edx
+#define x86ModReg_xmm3 x86ModReg::x86ModReg_ebx
+#define x86ModReg_xmm4 x86ModReg::x86ModReg_esp
+#define x86ModReg_xmm5 x86ModReg::x86ModReg_ebp
+#define x86ModReg_xmm6 x86ModReg::x86ModReg_esi
+#define x86ModReg_xmm7 x86ModReg::x86ModReg_edi
 
 enum class x86BaseReg
 {

@@ -336,11 +336,11 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
     if(numInstructions > 0)
     {
       codeCache.X86Emit_PUSHAD();
-      codeCache.X86Emit_MOVIR((uint32)&(codeCache.emitVars.mpe->cc), x86Reg_esi);
-      codeCache.X86Emit_MOVIR((uint32)&(codeCache.emitVars.mpe->tempCC), x86Reg_edi);
+      codeCache.X86Emit_MOVIR((uint32)&(codeCache.emitVars.mpe->cc), x86Reg::x86Reg_esi);
+      codeCache.X86Emit_MOVIR((uint32)&(codeCache.emitVars.mpe->tempCC), x86Reg::x86Reg_edi);
       if(bContainsBranch)
       {
-        codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr_dword, (uint32)&(codeCache.emitVars.mpe->pcfetchnext));
+        codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr::x86MemPtr_dword, (uint32)&(codeCache.emitVars.mpe->pcfetchnext));
       }
     }
 
@@ -392,7 +392,7 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
       pInstruction++;
     }
 
-    codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr_dword,(uint32)&(codeCache.emitVars.mpe->pcexec));
+    codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr::x86MemPtr_dword,(uint32)&(codeCache.emitVars.mpe->pcexec));
 
     if(codeCache.emitVars.bSaveRegs || codeCache.emitVars.bUsesMMX)
       codeCache.X86Emit_EMMS();
