@@ -37,4 +37,5 @@ private:
   bool bVertexShaderCodeLoaded;
   bool bFragmentShaderCodeLoaded;
 };
+
 #endif

@@ -31,4 +31,5 @@ class SuperBlockConstants;
 
 typedef void (* PropagateConstantsHandler)(SuperBlockConstants &);
 typedef void PropagateConstantsHandlerProto(SuperBlockConstants &);
+
 #endif

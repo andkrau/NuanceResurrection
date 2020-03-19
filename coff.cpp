@@ -7,8 +7,8 @@
 
 extern NuonEnvironment nuonEnv;
 
-#define bswap32(n) (((n & 0xFF) << 24) | ((n & 0xFF00) << 8) | ((n & 0xFF0000) >> 8) | (n >> 24))
-#define bswap16(n) ((n << 8) | ((n >> 8) & 0xFF))
+#define bswap32(n) _byteswap_ulong(n)
+#define bswap16(n) _byteswap_ushort(n)
 
 struct FILHDR
 {
@@ -37,20 +37,16 @@ struct SCNHDR
 
 bool MPE::LoadCoffFile(const char * const filename, bool bSetEntryPoint, int handle)
 {
-  uint32 entryPoint;
-  FILHDR coffhdr;
-  SCNHDR sectionhdr;
-  int start_offset;
-
   if(handle == -1)
   {
     handle = _open(filename,O_RDONLY|O_BINARY,0);
   }
 
-  start_offset = _tell(handle);
+  const int start_offset = _tell(handle);
 
   if(handle >= 0)
   {
+    FILHDR coffhdr;
     _read(handle, &coffhdr, sizeof(FILHDR));
     coffhdr.f_magic = bswap16(coffhdr.f_magic);
     coffhdr.f_nscns = bswap16(coffhdr.f_nscns);
@@ -65,12 +61,14 @@ bool MPE::LoadCoffFile(const char * const filename, bool bSetEntryPoint, int han
       return false;
 
     //read the entry point, which is the first four bytes of the optional header
+    uint32 entryPoint;
     _read(handle, &entryPoint, 4);
     entryPoint = bswap32(entryPoint);
     //skip past the remainder of the optional header
     _lseek(handle, (coffhdr.f_opthdr - 4), SEEK_CUR);
     while(coffhdr.f_nscns > 0)
     {
+      SCNHDR sectionhdr;
       _read(handle, &sectionhdr, sizeof(SCNHDR));
       sectionhdr.s_paddr = bswap32(sectionhdr.s_paddr);
       sectionhdr.s_vaddr = bswap32(sectionhdr.s_vaddr);

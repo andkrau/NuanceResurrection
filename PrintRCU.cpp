@@ -19,7 +19,7 @@ const char *GetIndexRegister(uint32 which)
   }
 }
 
-uint32 Print_DEC(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_DEC(char *buffer, Nuance &nuance, const bool bNewline)
 {
   uint32 bufinc = 0;
 
@@ -59,7 +59,7 @@ uint32 Print_DEC(char *buffer, Nuance &nuance, bool bNewline)
   return bufinc;
 }
 
-uint32 Print_ADDRImmediate(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_ADDRImmediate(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   uint32 bufinc = 0;
@@ -71,7 +71,7 @@ uint32 Print_ADDRImmediate(char *buffer, Nuance &nuance, bool bNewline)
   return bufinc + Print_DEC(buffer,nuance,bNewline);
 }
 
-uint32 Print_ADDRScalar(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_ADDRScalar(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   uint32 bufinc = 0;
@@ -83,7 +83,7 @@ uint32 Print_ADDRScalar(char *buffer, Nuance &nuance, bool bNewline)
   return bufinc + Print_DEC(buffer,nuance,bNewline);
 }
 
-uint32 Print_MVRImmediate(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_MVRImmediate(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   uint32 bufinc = 0;
@@ -95,7 +95,7 @@ uint32 Print_MVRImmediate(char *buffer, Nuance &nuance, bool bNewline)
   return bufinc + Print_DEC(buffer,nuance,bNewline);
 }
 
-uint32 Print_MVRScalar(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_MVRScalar(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   uint32 bufinc = 0;
@@ -107,7 +107,7 @@ uint32 Print_MVRScalar(char *buffer, Nuance &nuance, bool bNewline)
   return bufinc + Print_DEC(buffer,nuance,bNewline);
 }
 
-uint32 Print_Range(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_Range(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   uint32 bufinc = 0;
@@ -119,7 +119,7 @@ uint32 Print_Range(char *buffer, Nuance &nuance, bool bNewline)
   return bufinc + Print_DEC(buffer,nuance,bNewline);
 }
 
-uint32 Print_Modulo(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_Modulo(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   uint32 bufinc = 0;

@@ -51,11 +51,9 @@ struct stat
 };
 */
 
-int fdesc;
+static int fileDescriptors[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
 
-int fileDescriptors[16] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
-
-uint32 ConvertFlags(uint32 nuonFlags)
+static uint32 ConvertFlags(uint32 nuonFlags)
 {
   uint32 result = nuonFlags & (_O_RDONLY|_O_WRONLY|O_RDWR|_O_APPEND);
 
@@ -79,11 +77,9 @@ uint32 ConvertFlags(uint32 nuonFlags)
   return (result | O_BINARY) & ~O_TEXT;
 }
 
-int FindFileDescriptorIndex(int fd)
+static int FindFileDescriptorIndex(int fd)
 {
-  uint32 i = 0;
-
-  for(i = 0; i < 16; i++)
+  for(uint32 i = 0; i < 16; i++)
   {
     if(fileDescriptors[i] == fd)
     {
@@ -94,7 +90,7 @@ int FindFileDescriptorIndex(int fd)
   return -1;
 }
 
-uint32 ConvertIFMT(uint32 hostIFMT)
+static uint32 ConvertIFMT(uint32 hostIFMT)
 {
   uint32 result = 0;
 
@@ -127,23 +123,7 @@ uint32 ConvertIFMT(uint32 hostIFMT)
   return result;
 }
 
-bool IsValidFileDescriptor(int fd)
-{
-  if(fd < 3)
-  {
-    for(uint32 i = fd - 3; i < 16; i++)
-    {
-      if(fileDescriptors[i] == fd)
-      {
-        return true;
-      }
-    }
-  }
-
-  return false;  
-}
-
-void ConvertSeparatorCharacters(char *pathname)
+static void ConvertSeparatorCharacters(char *pathname)
 {
   if(pathname)
   {
@@ -207,7 +187,6 @@ Error:
     SwapScalarBytes(pErr);
     mpe.regs[0] = -1;
   }
-  
 }
 
 void FileClose(MPE &mpe)

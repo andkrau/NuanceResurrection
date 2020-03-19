@@ -3,7 +3,7 @@
 #include <string.h>
 #include "InstructionCache.h"
 
-uint32 Print_PacketStart(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_PacketStart(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"PacketStart");
@@ -11,7 +11,7 @@ uint32 Print_PacketStart(char *buffer, Nuance &nuance, bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_PacketEnd(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_PacketEnd(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"PacketEnd");
@@ -19,7 +19,7 @@ uint32 Print_PacketEnd(char *buffer, Nuance &nuance, bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_CheckECUSkipCounter(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_CheckECUSkipCounter(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"CheckECUSkipCounter");
@@ -27,7 +27,7 @@ uint32 Print_CheckECUSkipCounter(char *buffer, Nuance &nuance, bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_SaveFlags(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_SaveFlags(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"SaveFlags");
@@ -35,7 +35,7 @@ uint32 Print_SaveFlags(char *buffer, Nuance &nuance, bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_SaveRegs(char *buffer, Nuance &nuance, bool bNewline)
+uint32 Print_SaveRegs(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"SaveRegs");
