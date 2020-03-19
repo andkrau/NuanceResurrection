@@ -7,6 +7,7 @@
 #include <intrin.h>
 
 #ifdef LITTLE_ENDIAN
+
 __forceinline void SwapWordBytes(uint16 * const toswap)
 {
 #if 0 // old __fastcall dependent code
@@ -85,13 +86,15 @@ __forceinline void SwapVectorBytes(uint32 * const toswap)
   toswap[2] = _byteswap_ulong(toswap[2]);
   toswap[3] = _byteswap_ulong(toswap[3]);
 #endif
-
 }
+
 #else
+
 #define SwapWordBytes(x) 
 #define SwapScalarBytes(x) 
 #define SwapShortVectorBytes(x) 
 #define SwapVectorBytes(x) 
+
 #endif
 
 #endif

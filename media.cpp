@@ -340,7 +340,7 @@ void MediaIoctl(MPE &mpe)
 
     if(fileNameArray[handle])
     {
-      switch(ctl)
+      switch((eMedia)ctl)
       {
         case eMedia::MEDIA_IOCTL_SET_MODE:
           break;

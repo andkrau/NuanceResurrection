@@ -1,6 +1,6 @@
 #ifndef joystickH
 #define joystickH
-//---------------------------------------------------------------------------
+
 #include "basetypes.h"
 #include "mpe.h"
 

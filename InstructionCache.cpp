@@ -1,13 +1,8 @@
 #include "basetypes.h"
 #include "InstructionCache.h"
 
-InstructionCache::InstructionCache(const uint32 desiredEntries)
+InstructionCache::InstructionCache(const uint32 desiredEntries) : numEntries(!desiredEntries ? DEFAULT_NUM_CACHE_ENTRIES : desiredEntries)
 {
-  numEntries = desiredEntries;
-
-  if(!numEntries)
-    numEntries = DEFAULT_NUM_CACHE_ENTRIES;
-
   validBitmap = new uint32[(numEntries/32) + 1];
   // init_array((uint8*)validBitmap, ((numEntries / 32) + 1)*sizeof(uint32)); // not needed as Invalidate is called below
   cacheEntries = new InstructionCacheEntry[numEntries];

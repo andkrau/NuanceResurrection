@@ -90,8 +90,8 @@ public:
   void X86Emit_Group1MR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex);
   void X86Emit_Group1IR(const int32 imm, const x86Reg regDest, const uint8 groupIndex);
   void X86Emit_Group1IM(const int32 imm, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex);
-  void X86Emit_Group2IR(const x86Reg regDest, uint8 shiftCount, const uint8 groupIndex);
-  void X86Emit_Group2IM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex);
+  void X86Emit_Group2IR(const x86Reg regDest, const uint8 shiftCount, const uint8 groupIndex);
+  void X86Emit_Group2IM(const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex);
   void X86Emit_Group2RR(const x86Reg regDest, const uint8 groupIndex);
   void X86Emit_Group2RM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex);
   
@@ -110,7 +110,7 @@ public:
   void X86Emit_ORRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   void X86Emit_ORRM(const x86Reg regSrc, const x86BaseReg base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0)
   {
-      X86Emit_ORRM(regSrc, (uint32)base, index, scale, disp);
+    X86Emit_ORRM(regSrc, (uint32)base, index, scale, disp);
   }
   void X86Emit_ORMR(const x86Reg regDest, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   void X86Emit_ORMR(const x86Reg regDest, const x86BaseReg base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0)
@@ -224,7 +224,7 @@ public:
   void X86Emit_OUTSW();
   void X86Emit_OUTSD();
   void X86Emit_JCC(uint8 *pTarget, const int8 conditionCode);
-  void X86Emit_JCC_Label(PatchManager &patchMgr, const int8 conditionCode, uint32 labelIndex);
+  void X86Emit_JCC_Label(PatchManager &patchMgr, const int8 conditionCode, const uint32 labelIndex);
   void X86Emit_JO(uint8 *pTarget);
   void X86Emit_JNO(uint8 *pTarget);
   void X86Emit_JB(uint8 *pTarget);
@@ -257,7 +257,7 @@ public:
   void X86Emit_CDQ();
   void X86Emit_CALLI(uint32 offset, uint16 seg);
   void X86Emit_JMPI(uint8 *target, uint16 seg);
-  void X86Emit_JMPI_Label(PatchManager &patchMgr, uint32 labelIndex);
+  void X86Emit_JMPI_Label(PatchManager &patchMgr, const uint32 labelIndex);
   void X86Emit_WAIT();
   void X86Emit_PUSHFW();
   void X86Emit_PUSHFD();
@@ -293,34 +293,34 @@ public:
   void X86Emit_SCASB();
   void X86Emit_SCASW();
   void X86Emit_SCASD();
-  void X86Emit_ROLIR(const x86Reg regDest, uint8 shiftCount);
-  void X86Emit_RORIR(const x86Reg regDest, uint8 shiftCount);
-  void X86Emit_RCLIR(const x86Reg regDest, uint8 shiftCount);
-  void X86Emit_RCRIR(const x86Reg regDest, uint8 shiftCount);
-  void X86Emit_SHLIR(const x86Reg regDest, uint8 shiftCount);
-  void X86Emit_SHLDIRR(const x86Reg regDest, const x86Reg regSrc, uint8 shiftCount);
-  void X86Emit_SHLDIMR(const x86Reg regDest, const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_ROLIR(const x86Reg regDest, const uint8 shiftCount);
+  void X86Emit_RORIR(const x86Reg regDest, const uint8 shiftCount);
+  void X86Emit_RCLIR(const x86Reg regDest, const uint8 shiftCount);
+  void X86Emit_RCRIR(const x86Reg regDest, const uint8 shiftCount);
+  void X86Emit_SHLIR(const x86Reg regDest, const uint8 shiftCount);
+  void X86Emit_SHLDIRR(const x86Reg regDest, const x86Reg regSrc, const uint8 shiftCount);
+  void X86Emit_SHLDIMR(const x86Reg regDest, const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   void X86Emit_SHLDRRR(const x86Reg regDest, const x86Reg regSrc);
-  //void X86Emit_SHLDIRM(const x86Reg regSrc, const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  //void X86Emit_SHLDIRM(const x86Reg regSrc, const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   //void X86Emit_SHLDRRM(const x86Reg regSrc, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
-  void X86Emit_SHRDIRR(const x86Reg regDest, const x86Reg regSrc, uint8 shiftCount);
-  void X86Emit_SHRDIMR(const x86Reg regDest, const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp = 0);
+  void X86Emit_SHRDIRR(const x86Reg regDest, const x86Reg regSrc, const uint8 shiftCount);
+  void X86Emit_SHRDIMR(const x86Reg regDest, const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp = 0);
   void X86Emit_SHRDRRR(const x86Reg regDest, const x86Reg regSrc);
-  //void X86Emit_SHRDIRM(const x86Reg regSrc, const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  //void X86Emit_SHRDIRM(const x86Reg regSrc, const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   //void X86Emit_SHRDRRM(const x86Reg regSrc, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   void X86Emit_SHLDRMR(const x86Reg regDest, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   void X86Emit_SHRDRMR(const x86Reg regDest, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp);
-  void X86Emit_SHRIR(const x86Reg regDest, uint8 shiftCount);
-  void X86Emit_SALIR(const x86Reg regDest, uint8 shiftCount);
-  void X86Emit_SARIR(const x86Reg regDest, uint8 shiftCount);
-  void X86Emit_ROLIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
-  void X86Emit_RORIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
-  void X86Emit_RCLIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
-  void X86Emit_RCRIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
-  void X86Emit_SHLIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
-  void X86Emit_SHRIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
-  void X86Emit_SALIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
-  void X86Emit_SARIM(const x86MemPtr ptrType, uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_SHRIR(const x86Reg regDest, const uint8 shiftCount);
+  void X86Emit_SALIR(const x86Reg regDest, const uint8 shiftCount);
+  void X86Emit_SARIR(const x86Reg regDest, const uint8 shiftCount);
+  void X86Emit_ROLIM(const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_RORIM(const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_RCLIM(const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_RCRIM(const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_SHLIM(const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_SHRIM(const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_SALIM(const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_SARIM(const x86MemPtr ptrType, const uint8 shiftCount, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
 
   void X86Emit_ROLRM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   void X86Emit_RORRM(const x86MemPtr ptrType, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
@@ -368,19 +368,19 @@ public:
   void X86Emit_ESC6();
   void X86Emit_ESC7();
   void X86Emit_LOOPNE(uint8 *pTarget);
-  void X86Emit_LOOPNE_Label(PatchManager &patchMgr, uint32 labelIndex);
+  void X86Emit_LOOPNE_Label(PatchManager &patchMgr, const uint32 labelIndex);
   #define X86Emit_LOOPNZ X86Emit_LOOPNE
   #define X86Emit_LOOPNZ_Label X86Emit_LOOPNE_Label
   void X86Emit_LOOPE(uint8 *pTarget);
-  void X86Emit_LOOPE_Label(PatchManager &patchMgr, uint32 labelIndex);
+  void X86Emit_LOOPE_Label(PatchManager &patchMgr, const uint32 labelIndex);
   #define X86Emit_LOOPZ X86Emit_LOOPE
   #define X86Emit_LOOPZ_Label X86Emit_LOOPZ_Label
   void X86Emit_LOOP(uint8 *pTarget);
-  void X86Emit_LOOP_Label(PatchManager &patchMgr, uint32 labelIndex);
+  void X86Emit_LOOP_Label(PatchManager &patchMgr, const uint32 labelIndex);
   void X86Emit_JCXZ(uint8 *pTarget);
-  void X86Emit_JCXZ_Label(PatchManager &patchMgr, uint32 labelIndex);
+  void X86Emit_JCXZ_Label(PatchManager &patchMgr, const uint32 labelIndex);
   void X86Emit_JECXZ(uint8 *pTarget);
-  void X86Emit_JECXZ_Label(PatchManager &patchMgr, uint32 labelIndex);
+  void X86Emit_JECXZ_Label(PatchManager &patchMgr, const uint32 labelIndex);
   void X86Emit_INI(const x86Reg regDest, uint8 port);
   void X86Emit_OUTI(const x86Reg regDest, uint8 data);
   void X86Emit_INR(const x86Reg regDest);

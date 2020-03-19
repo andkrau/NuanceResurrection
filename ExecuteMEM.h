@@ -24,6 +24,7 @@ void LoadPixelZAbsolute(void);
 void StorePixelAbsolute(void);
 void StorePixelZAbsolute(void);
 void GetBilinearAddress(void);
+
 NuanceHandlerProto Execute_Mirror;
 NuanceHandlerProto Execute_MV_SImmediate;
 NuanceHandlerProto Execute_MV_SScalar;
@@ -91,4 +92,5 @@ NuanceHandlerProto Execute_StorePixelZBilinearUV;
 NuanceHandlerProto Execute_StorePixelZBilinearXY;
 NuanceHandlerProto Execute_StoreScalarControlRegisterImmediate;
 NuanceHandlerProto Execute_StoreScalarImmediate;
+
 #endif
