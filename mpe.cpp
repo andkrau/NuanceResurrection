@@ -774,10 +774,11 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
   numInterpreterCacheFlushes = 0;
   numNativeCodeCacheFlushes = 0;
   numNonCompilablePackets = 0;
+  assert(index < 4);
   mpeIndex = index;
   InitMPELocalMemory();
-  //nativeCodeCache = new NativeCodeCache(5UL*1024UL*1024UL/*, numTLBEntries[mpeIndex & 0x03]*/);
-  instructionCache = new InstructionCache(numCacheEntries[mpeIndex & 0x03]);
+  //nativeCodeCache = new NativeCodeCache(5UL*1024UL*1024UL/*, numTLBEntries[mpeIndex]*/);
+  instructionCache = new InstructionCache(numCacheEntries[mpeIndex]);
   overlayManager.SetOverlayLength(overlayLengths[mpeIndex]);
   bInvalidateInstructionCaches = false;
   bInvalidateInterpreterCache = false;
@@ -2111,7 +2112,7 @@ bool MPE::FetchDecodeExecute()
 
         for(uint32 i = 0; i < nInstructions; i++)
         {
-          (nuanceHandlers[pNuance->fields[0]])(*this,pICacheEntryRegs,*pNuance);
+          (nuanceHandlers[pNuance->fields[0]])(*this,nuances_use_tempreg_union ? tempreg_union : reg_union,*pNuance);
           pNuance++;
 
           if(bInterpretedBranchTaken) // Execute_CheckECUSkipCounter can set this

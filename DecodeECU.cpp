@@ -201,7 +201,7 @@ void MPE::DecodeInstruction_ECU16(const uint8 * const iPtr, InstructionCacheEntr
       switch((*(iPtr + 1) & 0x07) >> 1)
       {
         case 0:
-          entry->miscInputDependencies[SLOT_ECU] = (flagDependencies[field_3E0] | DEPENDENCY_MASK_RZ);
+          entry->miscInputDependencies[SLOT_ECU] = flagDependencies[field_3E0] | DEPENDENCY_MASK_RZ;
 
           if(field_3E0 == ECU_CONDITION_T)
           {

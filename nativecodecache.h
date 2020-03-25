@@ -493,10 +493,20 @@ public:
   {
     X86Emit_MOVQRM(regSrc, (uint32)base, index, scale, disp);
   }
+  void X86Emit_MOVDQURM(const x86Reg regSrc, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_MOVDQURM(const x86Reg regSrc, const x86BaseReg base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0)
+  {
+    X86Emit_MOVDQURM(regSrc, (uint32)base, index, scale, disp);
+  }
   void X86Emit_MOVQMR(const x86Reg regDest, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   void X86Emit_MOVQMR(const x86Reg regDest, const x86BaseReg base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0)
   {
     X86Emit_MOVQMR(regDest, (uint32)base, index, scale, disp);
+  }
+  void X86Emit_MOVDQUMR(const x86Reg regDest, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_MOVDQUMR(const x86Reg regDest, const x86BaseReg base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0)
+  {
+    X86Emit_MOVDQUMR(regDest, (uint32)base, index, scale, disp);
   }
 
   void X86Emit_PANDRR(const x86Reg regDest, const x86Reg regSrc);

@@ -1,6 +1,8 @@
 #ifndef BASETYPES_H
 #define BASETYPES_H
 
+#include <xmmintrin.h>
+
 #define ENABLE_ASSERTS
 #define ENABLE_EMULATION_MESSAGEBOXES // also enables "DumpCompiledBlocks" config file option
 
@@ -15,6 +17,7 @@ typedef unsigned __int8 uint8;
 typedef unsigned __int16 uint16;
 typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
+typedef __m128 uint128;
 typedef unsigned char uchar;
 typedef signed char schar;
 
