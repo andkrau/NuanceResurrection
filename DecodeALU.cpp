@@ -347,7 +347,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           //add Si, >>#m, Sk
           entry->packetInfo |= addFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = (((int32)(field_1F << 27)) >> 27);
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->scalarOutputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);

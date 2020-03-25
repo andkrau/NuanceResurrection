@@ -105,11 +105,8 @@ void Emit_MV_V(EmitterVariables * const vars, const Nuance &nuance)
 
   if((src1RegReadBaseReg_0 == src1RegReadBaseReg_1) && (src1RegReadBaseReg_2 == src1RegReadBaseReg_3) && (src1RegReadBaseReg_0 == src1RegReadBaseReg_2))
   {
-    vars->mpe->nativeCodeCache.X86Emit_MOVQMR(x86Reg::x86Reg_mm0, src1RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
-    vars->mpe->nativeCodeCache.X86Emit_MOVQMR(x86Reg::x86Reg_mm1, src1RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp+8);
-    vars->mpe->nativeCodeCache.X86Emit_MOVQRM(x86Reg::x86Reg_mm0, src1RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
-    vars->mpe->nativeCodeCache.X86Emit_MOVQRM(x86Reg::x86Reg_mm1, src1RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
-    vars->bUsesMMX = true;
+    vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src1RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
+    vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   }
   else
   {

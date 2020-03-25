@@ -24,8 +24,8 @@ void MPE::DecodeInstruction_MUL16(const uint8 * const iPtr, InstructionCacheEntr
     entry->packetInfo |= mulsvFlags;
     entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_HANDLER)] = Handler_MUL_SVVectorShiftSvshift;
     entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC1)] = field_1F & 0x1C;
-    entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC2)] = (field_3E0 & 0x1C);
-    entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_DEST)] = (field_3E0 & 0x1C);
+    entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC2)] = field_3E0 & 0x1C;
+    entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_DEST)] = field_3E0 & 0x1C;
     entry->scalarInputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_3E0 & 0x1C) | VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1C);
     entry->miscInputDependencies[SLOT_MUL] = DEPENDENCY_MASK_SVSHIFT;
     entry->scalarOutputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_3E0 & 0x1C);

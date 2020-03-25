@@ -22,8 +22,6 @@ struct EmitterVariables
   uint32 miscRegOutDep;
 
   bool bCheckECUSkipCounter;
-  bool bSaveRegs;
-  bool bUsesMMX;
 };
 
 inline x86BaseReg GetScalarRegReadBaseReg(const EmitterVariables* const vars, const uint32 regIndex)

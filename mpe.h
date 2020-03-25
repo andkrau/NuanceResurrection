@@ -356,6 +356,7 @@ public:
   bool bInvalidateInterpreterCache;
   bool bInvalidateInstructionCaches;
   bool bInterpretedBranchTaken;
+  bool nuances_use_tempreg_union; // steers which pointer to 48 MPE Regs is used, either reg_union or tempreg_union, which is then passed to the Nuances
 
   uint32 numInterpreterCacheFlushes;
   uint32 numNativeCodeCacheFlushes;
@@ -363,8 +364,6 @@ public:
   //uint32 mpeStartAddress;
   //uint32 mpeEndAddress;
   uint32 mpeIndex;
-
-  uint32* pICacheEntryRegs; // pointer to 48 MPE Regs, always points to either reg_union or tempreg_union, which is then passed to the Nuances
 
   InstructionCache *instructionCache;
   SuperBlock superBlock;

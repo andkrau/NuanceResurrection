@@ -347,6 +347,7 @@ uint32 Print_LoadVectorAbsolute(char *buffer, Nuance &nuance, const bool bNewlin
   sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
+
 uint32 Print_LoadVectorControlRegisterAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];

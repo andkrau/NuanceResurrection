@@ -666,22 +666,18 @@ void Execute_DOTPVectorShiftImmediate(MPE &mpe, const uint32 pRegs[48], const Nu
   const int32 src1 = nuance.fields[FIELD_MUL_SRC1];
   const int32 src2 = nuance.fields[FIELD_MUL_SRC2];
   const int32 dest = nuance.fields[FIELD_MUL_DEST];
-  int32 src1_vector[4];
-  int32 products[4];
 
-  src1_vector[0] = ((int32)(pRegs[src1 + 0])) >> 16;
-  src1_vector[1] = ((int32)(pRegs[src1 + 1])) >> 16;
-  src1_vector[2] = ((int32)(pRegs[src1 + 2])) >> 16;
-  src1_vector[3] = ((int32)(pRegs[src1 + 3])) >> 16;
+  const int32 src1_vector[4] = {
+    ((int32)(pRegs[src1 + 0])) >> 16,
+    ((int32)(pRegs[src1 + 1])) >> 16,
+    ((int32)(pRegs[src1 + 2])) >> 16,
+    ((int32)(pRegs[src1 + 3])) >> 16};
 
-  products[0] =
-    (src1_vector[0] * (((int32)(pRegs[src2 + 0])) >> 16));
-  products[1] =
-    (src1_vector[1] * (((int32)(pRegs[src2 + 1])) >> 16));
-  products[2] =
-    (src1_vector[2] * (((int32)(pRegs[src2 + 2])) >> 16));
-  products[3] =
-    (src1_vector[3] * (((int32)(pRegs[src2 + 3])) >> 16));
+  const int32 products[4] = {
+    (src1_vector[0] * (((int32)(pRegs[src2 + 0])) >> 16)),
+    (src1_vector[1] * (((int32)(pRegs[src2 + 1])) >> 16)),
+    (src1_vector[2] * (((int32)(pRegs[src2 + 2])) >> 16)),
+    (src1_vector[3] * (((int32)(pRegs[src2 + 3])) >> 16))};
 
   mpe.regs[dest] = (products[0] + products[1] + products[2] + products[3]) << shiftTable[shiftVal];
 }
@@ -692,22 +688,18 @@ void Execute_DOTPVectorShiftSvshift(MPE &mpe, const uint32 pRegs[48], const Nuan
   const int32 src1 = nuance.fields[FIELD_MUL_SRC1];
   const int32 src2 = nuance.fields[FIELD_MUL_SRC2];
   const int32 dest = nuance.fields[FIELD_MUL_DEST];
-  int32 src1_vector[4];
-  int32 products[4];
 
-  src1_vector[0] = ((int32)(pRegs[src1 + 0])) >> 16;
-  src1_vector[1] = ((int32)(pRegs[src1 + 1])) >> 16;
-  src1_vector[2] = ((int32)(pRegs[src1 + 2])) >> 16;
-  src1_vector[3] = ((int32)(pRegs[src1 + 3])) >> 16;
+  const int32 src1_vector[4] = {
+    ((int32)(pRegs[src1 + 0])) >> 16,
+    ((int32)(pRegs[src1 + 1])) >> 16,
+    ((int32)(pRegs[src1 + 2])) >> 16,
+    ((int32)(pRegs[src1 + 3])) >> 16};
 
-  products[0] =
-    (src1_vector[0] * (((int32)(pRegs[src2 + 0])) >> 16));
-  products[1] =
-    (src1_vector[1] * (((int32)(pRegs[src2 + 1])) >> 16));
-  products[2] =
-    (src1_vector[2] * (((int32)(pRegs[src2 + 2])) >> 16));
-  products[3] =
-    (src1_vector[3] * (((int32)(pRegs[src2 + 3])) >> 16));
+  const int32 products[4] = {
+    (src1_vector[0] * (((int32)(pRegs[src2 + 0])) >> 16)),
+    (src1_vector[1] * (((int32)(pRegs[src2 + 1])) >> 16)),
+    (src1_vector[2] * (((int32)(pRegs[src2 + 2])) >> 16)),
+    (src1_vector[3] * (((int32)(pRegs[src2 + 3])) >> 16))};
 
   mpe.regs[dest] = (products[0] + products[1] + products[2] + products[3]) << shiftTable[shiftVal];
 }

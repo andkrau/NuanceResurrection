@@ -249,9 +249,7 @@ extern NuancePrintHandler printHandlers[];
 
 bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, const bool bContainsBranch)
 {
-  codeCache.emitVars.bSaveRegs = false;
   codeCache.emitVars.bCheckECUSkipCounter = false;
-  codeCache.emitVars.bUsesMMX = false;
 
   if(!bAllowBlockCompile)
     compileType = SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE;
@@ -294,10 +292,6 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
             ptrEmitNuance->fields[0] = Handler_SaveRegs;
             ptrEmitNuance->fields[1] = pInstruction->scalarOpDependencies;
             ptrEmitNuance->fields[2] = pInstruction->miscOpDependencies;
-            if(pInstruction->scalarOpDependencies | (pInstruction->miscOpDependencies & ~DEPENDENCY_FLAG_ALLFLAGS))
-            {
-              codeCache.emitVars.bSaveRegs = true;
-            }
           }
           else
           {
@@ -376,10 +370,6 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
 
             pInstruction->instruction.fields[1] = pInstruction->scalarOpDependencies;
             pInstruction->instruction.fields[2] = pInstruction->miscOpDependencies;
-            if(pInstruction->scalarOpDependencies | (pInstruction->miscOpDependencies & ~DEPENDENCY_FLAG_ALLFLAGS))
-            {
-              codeCache.emitVars.bSaveRegs = true;
-            }
           }
           else
           {
@@ -393,9 +383,6 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
     }
 
     codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr::x86MemPtr_dword,(uint32)&(codeCache.emitVars.mpe->pcexec));
-
-    if(codeCache.emitVars.bSaveRegs || codeCache.emitVars.bUsesMMX)
-      codeCache.X86Emit_EMMS();
 
     if(numInstructions > 0)
       codeCache.X86Emit_POPAD();

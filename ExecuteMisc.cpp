@@ -18,13 +18,13 @@ void Execute_CheckECUSkipCounter(MPE &mpe, const uint32 pRegs[48], const Nuance 
 void Execute_SaveFlags(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
   mpe.tempCC = mpe.cc;
-  mpe.pICacheEntryRegs = mpe.reg_union;
+  mpe.nuances_use_tempreg_union = false;
 }
 
 void Execute_SaveRegs(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
   memcpy(mpe.tempreg_union,mpe.reg_union,sizeof(uint32)*48);
-  mpe.pICacheEntryRegs = mpe.tempreg_union;
+  mpe.nuances_use_tempreg_union = true;
 }
 
 void Execute_StoreScalarRegisterConstant(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
