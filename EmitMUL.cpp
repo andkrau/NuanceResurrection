@@ -2013,7 +2013,7 @@ void Emit_DOTPScalarShiftSvshift(EmitterVariables * const vars, const Nuance &nu
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, src2RegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, src2RegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+8);
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, src2RegReadBaseReg_3, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+8);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, src2RegReadBaseReg_3, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+12);
   vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_ebp, 16);
   vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_eax, 16);
   vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_ebx, 16);

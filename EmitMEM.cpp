@@ -1715,7 +1715,6 @@ void Emit_StoreVectorBilinearXY(EmitterVariables * const vars, const Nuance &nua
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, x86BaseReg::x86BaseReg_eax, x86IndexReg::x86IndexReg_ebx, x86ScaleVal::x86Scale_1, 8);
   vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, x86BaseReg::x86BaseReg_eax, x86IndexReg::x86IndexReg_ebx, x86ScaleVal::x86Scale_1, 12);
-  vars->mpe->nativeCodeCache.patchMgr.ApplyPatches();
 }
 
 void Emit_StoreVectorBilinearUV(EmitterVariables * const vars, const Nuance &nuance)
