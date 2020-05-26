@@ -24,7 +24,7 @@ GLWindow::GLWindow()
   resizeHandler = 0;
 
   clientWidth = VIDEO_WIDTH; // native res
-  clientHeight = 480;
+  clientHeight = VIDEO_HEIGHT;
   fullScreenWidth = 1920; // fullscreen res, only used if bFullScreen is set to true in ctor!
   fullScreenHeight = 1080;
 

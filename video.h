@@ -5,8 +5,7 @@
 #include "mpe.h"
 #include "external\glew-2.1.0\include\GL\glew.h"
 
-#define ALLOCATED_TEXTURE_WIDTH VIDEO_WIDTH
-#define ALLOCATED_TEXTURE_HEIGHT (480)
+#define NUON_VIDEO_SYSTEM 1 // 0 PAL, 1 NTSC
 
 struct vidTexInfo
 {
@@ -80,6 +79,19 @@ struct VidChannel
 
 #define VIDEO_MODE_NTSC	(1)
 #define VIDEO_MODE_PAL (2)
+
+#if NUON_VIDEO_SYSTEM == 0
+#define VIDEO_MODE VIDEO_MODE_PAL
+#define VIDEO_HZ 50
+#define VIDEO_HEIGHT VIDEO_HEIGHT_PAL
+#else
+#define VIDEO_MODE VIDEO_MODE_NTSC
+#define VIDEO_HZ 60
+#define VIDEO_HEIGHT VIDEO_HEIGHT_NTSC
+#endif
+
+#define ALLOCATED_TEXTURE_WIDTH VIDEO_WIDTH
+#define ALLOCATED_TEXTURE_HEIGHT VIDEO_HEIGHT
 
 void VidConfig(MPE &mpe);
 void VidQueryConfig(MPE &mpe);

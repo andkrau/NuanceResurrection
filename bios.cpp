@@ -633,17 +633,17 @@ void InitBios(MPE &mpe)
   memset(&structMainChannel,0,sizeof(VidChannel));
   structMainChannel.base = 0x40000000;
   structMainChannel.src_width = VIDEO_WIDTH;
-  structMainChannel.src_height = 480;
+  structMainChannel.src_height = VIDEO_HEIGHT;
   structMainChannel.dest_width = VIDEO_WIDTH;
-  structMainChannel.dest_height = 480;
+  structMainChannel.dest_height = VIDEO_HEIGHT;
   structMainChannel.dmaflags = (4 << 4);
 
   memset(&structOverlayChannel,0,sizeof(VidChannel));
   structOverlayChannel.base = 0x40000000;
   structOverlayChannel.src_width = VIDEO_WIDTH;
-  structOverlayChannel.src_height = 480;
+  structOverlayChannel.src_height = VIDEO_HEIGHT;
   structOverlayChannel.dest_width = VIDEO_WIDTH;
-  structOverlayChannel.dest_height = 480;
+  structOverlayChannel.dest_height = VIDEO_HEIGHT;
   structOverlayChannel.dmaflags = (4 << 4);
   structOverlayChannel.alpha = 0xFF;
 
@@ -658,7 +658,7 @@ void InitBios(MPE &mpe)
   MediaInitMPE(0);
 
   //TIMER INITIALIZATION
-  TimerInit(2,16000); // triggers video int at ~1000/16=~60Hz
+  TimerInit(2,1000*1000/VIDEO_HZ); // triggers video int at ~50 or 60Hz
 }
 
 void KPrintf(MPE &mpe)

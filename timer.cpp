@@ -42,7 +42,7 @@ void CALLBACK SysTimer1Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32
   nuonEnv.ScheduleInterrupt(INT_SYSTIMER1);
 }
 
-// this one is set by InitBios for mpe[3] at ~60Hz
+// this one is set by InitBios for mpe[3] at ~50 or 60Hz
 #ifdef USE_QUEUE_TIMERS
 void CALLBACK SysTimer2Callback(void* lpParameter, BOOLEAN TimerOrWaitFired)
 #else
@@ -242,7 +242,7 @@ void TimerInit(const uint32 whichTimer, const uint32 rate)
   }
   else
   {
-    assert(rate/1000 == 16); // check if this was set (only by us) to the ~60Hz to trigger video interrupts at that pace
+    assert(rate/1000 == 1000/VIDEO_HZ); // check if this was set (only by us) to the ~50 or 60Hz to trigger video interrupts at that pace
 #ifdef USE_QUEUE_TIMERS
     if(hSysTimer2)
     {
