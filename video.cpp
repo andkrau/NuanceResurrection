@@ -145,6 +145,8 @@ void UpdateTextureStates(void)
   pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
   uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "mainIs16bit");
   glUniform1f(uniformLoc, (pixType == 2) ? 1.0f : 0.0f);
+  uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "resy");
+  glUniform1f(uniformLoc, VIDEO_HEIGHT);
 
   glActiveTexture(mainTextureUnit);
 
@@ -845,7 +847,7 @@ void VidQueryConfig(MPE &mpe)
   SwapWordBytes((uint16 *)&displayStruct->screen_aspect_x);
   SwapWordBytes((uint16 *)&displayStruct->screen_aspect_y);
 
-  mpe.regs[0] = VIDEO_MODE_NTSC;
+  mpe.regs[0] = VIDEO_MODE;
 }
 
 void VidConfig(MPE &mpe)
@@ -863,7 +865,7 @@ void VidConfig(MPE &mpe)
     SwapScalarBytes((uint32 *)&maindisplay.bordcolor);
 
     maindisplay.dispwidth = VIDEO_WIDTH;
-    maindisplay.dispheight = 480;
+    maindisplay.dispheight = VIDEO_HEIGHT;
     maindisplay.fps = 0;
     maindisplay.progressive = -1;
   }
@@ -1096,7 +1098,6 @@ void VidConfig(MPE &mpe)
       = *((uint32 *)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
   }
 
-  bCanDisplayVideo = true;
   UpdateBufferLengths();
 
   if(bUpdateOpenGLData || (channelState != channelStatePrev))
@@ -1104,6 +1105,8 @@ void VidConfig(MPE &mpe)
     videoTexInfo.bUpdateDisplayList = true;
     UpdateTextureStates();
   }
+
+  bCanDisplayVideo = true;
 
   mpe.regs[0] = 1;
 }
@@ -1118,7 +1121,7 @@ void VidSetup(MPE &mpe)
 
   structMainDisplay.bordcolor = 0x10808000; //Black
   structMainDisplay.dispwidth = VIDEO_WIDTH;
-  structMainDisplay.dispheight = 480;
+  structMainDisplay.dispheight = VIDEO_HEIGHT;
   structMainDisplay.fps = 0;
   structMainDisplay.progressive = 0;
 
@@ -1138,7 +1141,7 @@ void VidSetup(MPE &mpe)
 
   structMainChannel.dmaflags = dmaFlags;
   structMainChannel.dest_width = VIDEO_WIDTH;
-  structMainChannel.dest_height = 480;
+  structMainChannel.dest_height = VIDEO_HEIGHT;
   structMainChannel.src_width = sourceWidth;
   structMainChannel.src_height = sourceHeight;
   structMainChannel.clut_select = 0;
@@ -1200,7 +1203,6 @@ void VidSetup(MPE &mpe)
 
   mpe.regs[0] = 1;
 
-  bCanDisplayVideo = true;
   UpdateBufferLengths();
 
   bool bUpdateOpenGLData = false;
@@ -1232,12 +1234,14 @@ void VidSetup(MPE &mpe)
     *((uint32 *)&nuonEnv.systemBusDRAM[LAST_VIDEO_CONFIG_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK])
       = *((uint32 *)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
   }
+
+  bCanDisplayVideo = true;
 }
 
 void VidSync(MPE& mpe) // should wait (as seen by the app) for mpe.regs[0] fields (= mpe.regs[0] * 1/60 or 1/50 second), if 0 or -1 just return internal field counter, -2 is internal only
 {
 #ifdef SUPPORT_VSYNC_WAITING
-  // only wait for the amount of requested fields if emulation is running faster than time that should have passed from each vsync to vsync? (i.e. if we can match ~60 fps or better currently)
+  // only wait for the amount of requested fields if emulation is running faster than time that should have passed from each vsync to vsync? (i.e. if we can match ~50 or 60 fps or better currently)
   // otherwise subtract time that we are behind from the fields that should be waited for
   static long long counter = -1;
   _LARGE_INTEGER curr_counter;
@@ -1247,7 +1251,7 @@ void VidSync(MPE& mpe) // should wait (as seen by the app) for mpe.regs[0] field
     QueryPerformanceCounter(&curr_counter);
     if (counter != -1) // we were already here before and have a valid counter?
     {
-      const uint32 delta = (uint32)((double)((curr_counter.QuadPart - counter) * 1000) / (double)(tickFrequency.QuadPart * 16)); // 16 ~= matching the target 60Hz
+      const uint32 delta = (uint32)((double)((curr_counter.QuadPart - counter) * 1000) / (double)(tickFrequency.QuadPart * (1000./VIDEO_HZ))); // ~= matching the target 50 or 60Hz
       mpe.regs[0] -= delta; // steal the already waited (through too slow emulation) fields from the requested fields to be able to catch up
     }
   }

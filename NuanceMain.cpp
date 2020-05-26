@@ -890,16 +890,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       //nuonEnv.videoDisplayCycleCount += nuonEnv.mpe[3].cycleCounter;
       //ProcessCycleBasedEvents();
 
-      //if(nuonEnv.videoDisplayCycleCount >= (54000000/60))
+      //if(nuonEnv.videoDisplayCycleCount >= (54000000/VIDEO_HZ))
       //{
-
-      //  IncrementVideoFieldCounter(); //!! for now all done in timer.cpp, also would need to do nuonEnv.TriggerVideoInterrupt(); here then??
-      //  nuonEnv.videoDisplayCycleCount -= (54000000/60);
+      //  IncrementVideoFieldCounter(); //!! for now done in timer, also need to do nuonEnv.TriggerVideoInterrupt(); here then??
+      //  nuonEnv.videoDisplayCycleCount -= (54000000/VIDEO_HZ);
       //  nuonEnv.videoDisplayCycleCount = 0;
       //}
     }
 
-    if(nuonEnv.trigger_render_video) // set by the ~60Hz timer.cpp routine
+    if(nuonEnv.trigger_render_video) // set by the ~50 or 60Hz timer.cpp routine
     {
       InvalidateRect(display.hWnd, NULL, FALSE);
       //UpdateWindow(display.hWnd);

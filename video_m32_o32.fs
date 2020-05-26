@@ -29,6 +29,8 @@ uniform sampler2D LUTSampler;
 uniform float structOverlayChannelAlpha;
 uniform float mainIs16bit;
 
+uniform float resy;
+
 const vec3 preBias = vec3(16.0/255.0,16.0/255.0,16.0/255.0);
 const vec2 chromianceBias = vec2(0.5,0.5);
 const vec3 expansion = vec3(255.0/219.0,255.0/224.0,255.0/224.0);
@@ -38,7 +40,7 @@ void main()
 {
 vec4 bilerp[4];
 
-vec2 mainuv_org = gl_TexCoord[0].st*vec2(720.,480.)-0.499; // 0.499 because of precision problems if src width/height is rather small (Space Invaders XL)
+vec2 mainuv_org = gl_TexCoord[0].st*vec2(720.,resy)-0.499; //!! 0.499 because of precision problems if src width/height is rather small (Space Invaders XL)
 for(int i = 0; i < 4; ++i)
 {
   vec2 mainuv = mainuv_org;
@@ -46,7 +48,7 @@ for(int i = 0; i < 4; ++i)
     mainuv.x += 1.;
   if(i > 1)
     mainuv.y += 1.;
-  mainuv *= vec2(0.0013888889,0.0020833334); //= 1./720 1./480
+  mainuv *= vec2(0.0013888889,1./resy); // 1./720
 
   vec4 mainColor;
   if(mainIs16bit != 0.)
@@ -74,7 +76,7 @@ vec4 mainColor
              + bilerp[2]*((1.-bilerpw.x)*    bilerpw.y)
              + bilerp[3]*(    bilerpw.x *    bilerpw.y);
 
-vec2 overlayuv_org = gl_TexCoord[1].st*vec2(720.,480.)-0.499; // 0.499 because of precision problems if src width/height is rather small (Space Invaders XL)
+vec2 overlayuv_org = gl_TexCoord[1].st*vec2(720.,resy)-0.499; //!! 0.499 because of precision problems if src width/height is rather small (Space Invaders XL)
 for(int i = 0; i < 4; ++i)
 {
   vec2 overlayuv = overlayuv_org;
@@ -82,7 +84,7 @@ for(int i = 0; i < 4; ++i)
     overlayuv.x += 1.;
   if(i > 1)
     overlayuv.y += 1.;
-  overlayuv *= vec2(0.0013888889,0.0020833334); //= 1./720 1./480
+  overlayuv *= vec2(0.0013888889,1./resy); // 1./720
 
   vec4 overlayColor;
   if(structOverlayChannelAlpha >= 0.)
