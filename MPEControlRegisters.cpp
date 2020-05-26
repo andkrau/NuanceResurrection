@@ -491,20 +491,20 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       {
         //other bus DMA is enabled so do it!
         const uint32 * const dmacmd = (uint32 *)(&dtrom[odmacptr & MPE_VALID_MEMORY_MASK]);
-        uint32 dmaflags = *dmacmd;
-        uint32 baseaddr = *(dmacmd + 1);
-        uint32 intaddr = *(dmacmd + 2);
+        uint32 dmaflags = dmacmd[0];
+        uint32 baseaddr = dmacmd[1];
+        uint32 intaddr = dmacmd[2];
         SwapScalarBytes(&dmaflags);
         SwapScalarBytes(&baseaddr);
         SwapScalarBytes(&intaddr);
         //clear all bits except bits 13, 16 - 23, and 28
         dmaflags &= ((1UL << 28) | (0xFFUL << 16) | (1UL << 13));
-        if(((baseaddr >= 0x20700000) && (baseaddr < 0x30000000)) || ((intaddr >= 0x20700000) && (intaddr < 0x30000000)))
-        {
+        //if(((baseaddr >= 0x20700000) && (baseaddr < 0x30000000)) || ((intaddr >= 0x20700000) && (intaddr < 0x30000000)))
+        //{
           //!! assert??
           //dmacmd = 0;
           //return;
-        }
+        //}
 
         DMALinear(*this,dmaflags,baseaddr,intaddr);
       }
@@ -574,9 +574,9 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       nuonEnv.GetPointerToMemory(*this,data & 0xFFFFFFF0);
 do_mdmacmd: // for batch commands
       const uint32* const dmacmd = (uint32 *)(&dtrom[mdmacptr & MPE_VALID_MEMORY_MASK]);
-      uint32 dmaflags = *dmacmd;
-      uint32 baseaddr = *(dmacmd + 1);
-      uint32 intaddr = *(dmacmd + 2);
+      uint32 dmaflags = dmacmd[0];
+      uint32 baseaddr = dmacmd[1];
+      uint32 intaddr = dmacmd[2];
       SwapScalarBytes(&dmaflags);
       SwapScalarBytes(&baseaddr);
       SwapScalarBytes(&intaddr);
@@ -639,8 +639,8 @@ do_mdmacmd: // for batch commands
         {
           //bilinear pixel DMA
           const uint32 xptr = intaddr;
-          uint32 yptr = *(dmacmd + 3);
-          intaddr = *(dmacmd + 4);
+          uint32 yptr = dmacmd[3];
+          intaddr = dmacmd[4];
           SwapScalarBytes(&yptr);
           SwapScalarBytes(&intaddr);
           DMABiLinear(*this,dmaflags,baseaddr,xptr,yptr,intaddr);

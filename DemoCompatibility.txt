@@ -3,9 +3,12 @@ Demo Compatibility:
 This list details the emulator compatibility level with homebrew applications
 and the Nuon SDK demos.
 
+Doom
+----
+Playable.
+
 SDK Demo Compatibility
 ----------------------
-
 Outline-Text/Truetype: full compatibility
 Outline-Text/Txdemo: full compatibility
 Slide-Show: Runs but doesn't display anything.
@@ -14,4 +17,3 @@ Terminal-Emulator/Hello World: Full compatibility
 Terminal-Emulator/Sky: Full compatibility
 Video/Safearea: Full compatibility
 Video/Screensaver: Full compatibility
-
