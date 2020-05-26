@@ -619,7 +619,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
   const bool bDirect = flags & (1UL << 27);
   const bool bDup = (flags & (3UL << 26));
         uint32 length = (flags >> 16) & 0xFF; //Only 1-127 is valid according to docs but field is 8 bits
-  const bool bRead = flags & (1 << 13);
+  const bool bRead = flags & (1UL << 13);
 
   void* intMemory, * baseMemory;
   uint32 directValue;
@@ -1459,7 +1459,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       else
       {
         //Dup but not Direct: read scalar from memory, no need to swap
-        directValue = *(uint32 *)intMemory;
+        directValue = *((uint32 *)intMemory);
 #ifndef LITTLE_ENDIAN
         if(wordsize == 1)
         {
@@ -1708,14 +1708,14 @@ void DMADo(MPE &mpe)
     {
       //other bus DMA is enabled so do it!
       const uint32* const cmdptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,cmdBlock);
-      uint32 dmaflags = *cmdptr;
-      uint32 baseaddr = *(cmdptr + 1);
-      uint32 intaddr = *(cmdptr + 2);
+      uint32 dmaflags = cmdptr[0];
+      uint32 baseaddr = cmdptr[1];
+      uint32 intaddr = cmdptr[2];
       SwapScalarBytes(&dmaflags);
       SwapScalarBytes(&baseaddr);
       SwapScalarBytes(&intaddr);
       //clear all bits except bits 13, 16 - 23, and 28
-      dmaflags &= ((1UL << 13) | (0xFFUL << 16) | (1 << 28));
+      dmaflags &= ((1UL << 13) | (0xFFUL << 16) | (1UL << 28));
       DMALinear(mpe,dmaflags,baseaddr,intaddr);
     }
   }
@@ -1726,9 +1726,9 @@ void DMADo(MPE &mpe)
 
     while(true) {
     const uint32* const cmdptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,cmdBlock,false);
-    uint32 dmaflags = *cmdptr;
-    uint32 baseaddr = *(cmdptr + 1);
-    uint32 intaddr = *(cmdptr + 2);
+    uint32 dmaflags = cmdptr[0];
+    uint32 baseaddr = cmdptr[1];
+    uint32 intaddr = cmdptr[2];
     SwapScalarBytes(&dmaflags);
     SwapScalarBytes(&baseaddr);
     SwapScalarBytes(&intaddr);
@@ -1743,8 +1743,8 @@ void DMADo(MPE &mpe)
       {
         //bilinear pixel DMA
         const uint32 xptr = intaddr;
-        uint32 yptr = *(cmdptr + 3);
-        intaddr = *(cmdptr + 4);
+        uint32 yptr = cmdptr[3];
+        intaddr = cmdptr[4];
         SwapScalarBytes(&yptr);
         SwapScalarBytes(&intaddr);
         DMABiLinear(mpe,dmaflags,baseaddr,xptr,yptr,intaddr);

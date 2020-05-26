@@ -118,7 +118,7 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
   {
     //if zcompare = 7 then then mpe pixel type is 16-bit without Z and the stride shift value is 0
     //if zcompare != 7 then the mpe pixel type is 16+16Z and the stride shift value is 1
-    srcAStep = 1 << srcStrideShift;
+    srcAStep = 1u << srcStrideShift;
     srcBStep = xsize << srcStrideShift;
   }
 

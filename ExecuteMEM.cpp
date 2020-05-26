@@ -558,7 +558,7 @@ void LoadPixelAbsolute(void)
     case 0x5:
     {
       //16
-      uint32 pixelData32 = *((uint32 *)memPtr);
+      uint32 pixelData32 = *((uint32*)memPtr);
       SwapScalarBytes(&pixelData32);
       regs[0] = (pixelData32 >> 2) & (0xFCUL << 22);
       regs[1] = (pixelData32 << 4) & (0xF8UL << 22);
@@ -584,11 +584,11 @@ void LoadPixelAbsolute(void)
     case 0x6:
     {
       //32 bit or 32+32Z (both behave the same for LD_P)
-      uint32 pixelData32 = *((uint32 *)memPtr);
+      uint32 pixelData32 = *((uint32*)memPtr);
       SwapScalarBytes(&pixelData32);
-      regs[0] = ((pixelData32 >> 2)) & (0xFFUL << 22);
-      regs[1] = ((pixelData32 << 6)) & (0xFFUL << 22);
-      regs[2] = ((pixelData32 << 14)) & (0xFFUL << 22);
+      regs[0] = (pixelData32 >> 2) & (0xFFUL << 22);
+      regs[1] = (pixelData32 << 6) & (0xFFUL << 22);
+      regs[2] = (pixelData32 << 14) & (0xFFUL << 22);
 
       if(bChnorm)
       {
@@ -644,7 +644,7 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
     case 0x5:
     {
       //16
-      uint32 pixelData32 = *((uint32 *)memPtr);
+      uint32 pixelData32 = *((uint32*)memPtr);
       SwapScalarBytes(&pixelData32);
       mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFCUL << 22);
       mpe.regs[dest+1] = (pixelData32 << 4) & (0xF8UL << 22);
@@ -671,11 +671,11 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
     case 0x6:
     {
       //32 bit or 32+32Z (both behave the same for LD_P)
-      uint32 pixelData32 = *((uint32 *)memPtr);
+      uint32 pixelData32 = *((uint32*)memPtr);
       SwapScalarBytes(&pixelData32);
-      mpe.regs[dest  ] = ((pixelData32 >> 2)) & (0xFFUL << 22);
-      mpe.regs[dest+1] = ((pixelData32 << 6)) & (0xFFUL << 22);
-      mpe.regs[dest+2] = ((pixelData32 << 14)) & (0xFFUL << 22);
+      mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFFUL << 22);
+      mpe.regs[dest+1] = (pixelData32 << 6) & (0xFFUL << 22);
+      mpe.regs[dest+2] = (pixelData32 << 14) & (0xFFUL << 22);
 
       if(bChnorm)
       {
@@ -707,7 +707,7 @@ void LoadPixelZAbsolute(void)
     case 0x2:
     {
       //16
-      uint32 pixelData32 = *((uint32 *)memPtr);
+      uint32 pixelData32 = *((uint32*)memPtr);
       SwapScalarBytes(&pixelData32);
       regs[0] = (pixelData32 >> 2) & (0xFCUL << 22);
       regs[1] = (pixelData32 << 4) & (0xF8UL << 22);
@@ -724,7 +724,7 @@ void LoadPixelZAbsolute(void)
     case 0x5:
     {
       //16+16Z
-      uint32 pixelData32 = *((uint32 *)memPtr);
+      uint32 pixelData32 = *((uint32*)memPtr);
       SwapScalarBytes(&pixelData32);
       regs[0] = (pixelData32 >> 2) & (0xFCUL << 22);
       regs[1] = (pixelData32 << 4) & (0xF8UL << 22);
@@ -745,7 +745,7 @@ void LoadPixelZAbsolute(void)
     case 0x4:
     {
       //32 bit
-      uint32 pixelData32 = *((uint32 *)memPtr);
+      uint32 pixelData32 = *((uint32*)memPtr);
       SwapScalarBytes(&pixelData32);
       regs[0] = (pixelData32 >> 2) & (0xFFUL << 22);
       regs[1] = (pixelData32 << 6) & (0xFFUL << 22);
@@ -762,8 +762,8 @@ void LoadPixelZAbsolute(void)
     }
     case 0x6:
     {
-      uint32 pixelData32 = *((uint32 *)memPtr);
-      uint32 zData32 = *(((uint32 *)memPtr) + 1);
+      uint32 pixelData32 = *((uint32*)memPtr);
+      uint32 zData32 = *(((uint32*)memPtr) + 1);
       SwapScalarBytes(&pixelData32);
       SwapScalarBytes(&zData32);
       regs[0] = (pixelData32 >> 2) & (0xFFUL << 22);
@@ -816,7 +816,7 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     case 0x2:
     {
       //16
-      uint32 pixelData32 = *((uint32 *)memPtr);
+      uint32 pixelData32 = *((uint32*)memPtr);
       SwapScalarBytes(&pixelData32);
       mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFCUL << 22);
       mpe.regs[dest+1] = (pixelData32 << 4) & (0xF8UL << 22);
@@ -833,7 +833,7 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     case 0x5:
     {
       //16+16Z
-      uint32 pixelData32 = *((uint32 *)memPtr);
+      uint32 pixelData32 = *((uint32*)memPtr);
       SwapScalarBytes(&pixelData32);
       mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFCUL << 22);
       mpe.regs[dest+1] = (pixelData32 << 4) & (0xF8UL << 22);
@@ -854,9 +854,8 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     case 0x4:
     {
       //32 bit
-      uint32 pixelData32 = *((uint32 *)memPtr);
+      uint32 pixelData32 = *((uint32*)memPtr);
       SwapScalarBytes(&pixelData32);
-
       mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFFUL << 22);
       mpe.regs[dest+1] = (pixelData32 << 6) & (0xFFUL << 22);
       mpe.regs[dest+2] = (pixelData32 << 14) & (0xFFUL << 22);
@@ -872,8 +871,8 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     }
     case 0x6:
     {
-      uint32 pixelData32 = *((uint32 *)memPtr);
-      uint32 zData32 = *(((uint32 *)memPtr) + 1);
+      uint32 pixelData32 = *((uint32*)memPtr);
+      uint32 zData32 = *(((uint32*)memPtr) + 1);
       SwapScalarBytes(&pixelData32);
       SwapScalarBytes(&zData32);
       mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFFUL << 22);
@@ -1299,7 +1298,7 @@ void StorePixelAbsolute(void)
   const uint32 control = bilinearAddressInfo.control;
   const uint32 * const regs = bilinearAddressInfo.pRegs;
 
-  void * const memPtr = (void *)bilinearAddressInfo.pPixelData;
+  void * const memPtr = bilinearAddressInfo.pPixelData;
 
   const uint32 pixType = BilinearInfo_XYType(control);
   const bool bChnorm = BilinearInfo_XYChnorm(control);
@@ -1419,7 +1418,7 @@ void StorePixelZAbsolute(void)
   const uint32 control = bilinearAddressInfo.control;
   const uint32 * const regs = bilinearAddressInfo.pRegs;
 
-  void * const memPtr = (void *)bilinearAddressInfo.pPixelData;
+  void * const memPtr = bilinearAddressInfo.pPixelData;
 
   const uint32 pixType = BilinearInfo_XYType(control);
   const bool bChnorm = BilinearInfo_XYChnorm(control);
