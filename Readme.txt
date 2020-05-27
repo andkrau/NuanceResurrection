@@ -1,6 +1,6 @@
-Nuance 0.5.0
+Nuance 0.6.0
 Copyright 2002 - 2007 Mike Perry
-Continued using the released source by Carsten Wächter in 2020
+Continued using the released source by Carsten Wächter (toxie^ainc) in 2020
 NUON is a trademark of Genesis Microchip, Inc.
 
 License Agreement
@@ -159,15 +159,17 @@ For more information on the implementation details of the compiler, please read 
 The configuration entries applicable to dynamic compilation are:
 
 [DynamicCompiler]
-  Enabled/Disabled: forces interpretation when disabled
+  Enabled/Disabled: forces (slower) interpretation when disabled, recommended: Enabled
 
 [CompilerConstantPropagation]
   Enabled/Disabled: toggles constant propagation phase that is performed after fetching
   the block instructions
+  NOTE: Still buggy, recommended: Disabled
 
 [CompilerDeadCodeElimination]
   Enabled/Disabled: toggles dead code elimination phase that is performed after constant
   propagation
+  NOTE: Still buggy, recommended: Disabled
 
 [DumpCompiledBlocks]
   Enabled/Disabled: toggles file dump of blocks that are compiled during execution.  When
@@ -177,12 +179,14 @@ The configuration entries applicable to dynamic compilation are:
   grow beyond 500 megabytes or even wrap around the maximum file sise of 4 GB.  There are
   not too many text editors that will successfully open a file greater than 400 MB and so
   if a dump file grows this large it is not recommended to open it else the chances of
-  locking up your system is high.
+  locking up your system is high, recommended: Disabled
 
 [T3KCompilerHack]
   Enable/Disabled: toggles a compiler hack that avoids errors in T3K that occur even without
   optimization enabled.  The penalty is an increase in non-compilable instructions and less
   chance for constant propagation.
+  NOTE: This does not seem to be needed nowadays anymore, but i left it in for now, lets see, recommended: Disabled
+        (so please use the recommendation in GameCompatibility.txt instead)
 
 Flash ROM Support
 =================
@@ -208,10 +212,12 @@ elimination is extremely buggy.  Some programs will appear to be working smoothl
 to freeze unexpectedly later on.  Play around with compiler options to determine the best
 setting for a particular program.  The T3KCompilerHack option must be enabled in order for
 T3K to avoid crashing during level selection, even if compiler optimizations are disabled.
+NOTE: This hack does not seem to work anymore on nowadays systems, so please use the
+recommendation in GameCompatibility.txt instead
 
 Pixel shader issues:
 
-The current pixel shader only fully supports pixel mode 2 (16-bit, no Z-buffer) & 4 (32-bit, no Z-buffer).  
+The current pixel shader only fully supports pixel mode 2 (16-bit, no Z-buffer) & 4 (32-bit, no Z-buffer).
 Others partially fall back to the CPU.
 
 Speed issues:
@@ -381,12 +387,13 @@ Z: switch between controller 0 and controller 1
 
 History
 =======
+5/30/2020, version 0.6.0:
 Fix corrupted gfx in (at least) T3K
-Fix wrong DMAs in Ballistic and Merlin Racing (so that these display mostly correct now)
+Fix wrong DMAs in Ballistic and Merlin Racing (so that these display mostly (always?) correct now)
 (Mostly) fix distorted sound
 Optimizations all over the place (memory usage and performance)
 Always enable Pixel Shaders and fully support pixel mode 2 for more performance
-Remove fields per second and always update video settings in the 'nuance.cfg'
+Remove fields-per-second and always-update-video settings in the 'nuance.cfg'
 Support Nuons VSyncing mechanism if a PC is emulating 'too fast'
 Resolve a lot of hangs during gameplay, although this can still happen in some demanding situations (especially on low end PCs)
 Fix fullscreen toggle (via F1/ESC)
@@ -394,7 +401,7 @@ Rudimentary support for x64/64bit compiles, needs to force-disable dynamic compi
 Enable Reshade support by using double buffering
 
 5/30/2007, version 0.5.0:
-  Fixed tons of compiler bugs.  Fixed TimeToSleep routine, allowing Snake to work again.  
+  Fixed tons of compiler bugs.  Fixed TimeToSleep routine, allowing Snake to work again.
 Added compiler support for all remaining instructions including delayed branches.  Implemented
 syscall interface.  Added SetISRExitHook BIOS call.  Fixed problem with minibios MPE hanging when
 audio library initialized prior to sprite library.  Added functionality required to support
