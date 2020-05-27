@@ -761,7 +761,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
               entry->packetInfo |= storeControlRegisterFlags;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StoreVectorControlRegisterAbsolute;
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] += MPE_CTRL_BASE;
-              //the only vector control registers are commxmit and commrecv, both of which can cause exceptions
+              //the only vector control registers are commxmit and commrecv, both of which can cause exceptions, thus never compile
               entry->packetInfo |= PACKETINFO_NEVERCOMPILE;
               return;
           }
@@ -890,7 +890,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StoreVectorBilinearUV;
               entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F0000);
               entry->miscInputDependencies[SLOT_MEM] = DEPENDENCY_MASK_UVCTL | DEPENDENCY_MASK_RU | DEPENDENCY_MASK_RV;
-              entry->packetInfo |= PACKETINFO_NEVERCOMPILE;
+              //entry->packetInfo |= PACKETINFO_NEVERCOMPILE; //!! why was this needed, all games seem to work/look okay
               break;
             case 0x03:
               //st_v Vj, (xy)
@@ -898,7 +898,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
               entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StoreVectorBilinearXY;
               entry->scalarInputDependencies[SLOT_MEM] = VECTOR_REG_DEPENDENCY_MASK(field_1F0000);
               entry->miscInputDependencies[SLOT_MEM] = DEPENDENCY_MASK_XYCTL | DEPENDENCY_MASK_RX | DEPENDENCY_MASK_RY;
-              entry->packetInfo |= PACKETINFO_NEVERCOMPILE;
+              //entry->packetInfo |= PACKETINFO_NEVERCOMPILE; //!! why was this needed, all games seem to work/look okay
               break;
             case 0x04:
               //st_p Vj, (Si)

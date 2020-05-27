@@ -66,13 +66,13 @@ void Emit_StoreScalarRegisterConstant(EmitterVariables * const vars, const Nuanc
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
   const int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
   const uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];
-  const uint32 flagValues = (nuance.fields[FIELD_CONSTANT_FLAGVALUES] & flagMask);
+  const uint32 flagValues = (nuance.fields[FIELD_CONSTANT_FLAGVALUES] /*& flagMask*/); //see below
 
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_CONSTANT_VALUE], x86MemPtr::x86MemPtr_dword, destRegWriteBaseReg,x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   if(flagMask)
   {
     //If any of the flags represented by the mask are to be set to 0, clear all of the flags first
-    if(~flagValues)
+    if((~flagMask) != 0xFFFFFFFF) //was (~flagValues)
     {
       vars->mpe->nativeCodeCache.X86Emit_ANDIM(~flagMask, x86MemPtr::x86MemPtr_dword, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
     }
@@ -93,7 +93,7 @@ void Emit_StoreMiscRegisterConstant(EmitterVariables * const vars, const Nuance 
   const int32 destRegDisp = GetMiscRegEmitDisp(vars,destRegIndex+1);
   const int32 ccDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
   const uint32 flagMask = nuance.fields[FIELD_CONSTANT_FLAGMASK];
-  const uint32 flagValues = (nuance.fields[FIELD_CONSTANT_FLAGVALUES] & flagMask);
+  const uint32 flagValues = (nuance.fields[FIELD_CONSTANT_FLAGVALUES] /*& flagMask*/); //see below
 
   if(destRegIndex != CONSTANT_REG_DISCARD)
   {
@@ -117,13 +117,16 @@ void Emit_StoreMiscRegisterConstant(EmitterVariables * const vars, const Nuance 
       case CONSTANT_REG_SVSHIFT:
         vars->mpe->nativeCodeCache.X86Emit_MOVIM(nuance.fields[FIELD_CONSTANT_VALUE], x86MemPtr::x86MemPtr_dword, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
         break;
+      default:
+        assert(false);
+        break;
     }
   }
   
   if(flagMask)
   {
     //If any of the flags represented by the mask are to be set to 0, clear all of the flags first
-    if(~flagValues)
+    if((~flagMask) != 0xFFFFFFFF) //was (~flagValues)
     {
       vars->mpe->nativeCodeCache.X86Emit_ANDIM(~flagMask, x86MemPtr::x86MemPtr_dword, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
     }
