@@ -1,6 +1,6 @@
 Nuance 0.6.0
 Copyright 2002 - 2007 Mike Perry
-Continued using the released source by Carsten Wächter (toxie^ainc) in 2020
+Continued using the released source in honour of the original author by Carsten Wächter (toxie^ainc) in 2020
 NUON is a trademark of Genesis Microchip, Inc.
 
 License Agreement
@@ -387,7 +387,7 @@ Z: switch between controller 0 and controller 1
 
 History
 =======
-5/30/2020, version 0.6.0:
+5/28/2020, version 0.6.0:
 Fix corrupted gfx in (at least) T3K
 Fix wrong DMAs in Ballistic and Merlin Racing (so that these display mostly (always?) correct now)
 (Mostly) fix distorted sound
