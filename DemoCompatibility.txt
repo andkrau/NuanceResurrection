@@ -7,7 +7,44 @@ Doom
 ----
 Playable.
 
-SDK Demo Compatibility
+PacMan
+------
+Playable.
+
+Decaying Orbit
+--------------
+Playable.
+
+Breakout
+--------
+Playable.
+
+KillMinds
+---------
+Playable.
+
+Ambient Monsters
+----------------
+Hangs.
+
+Bomb
+----
+Playable.
+
+Seashell's Sea Adventure
+------------------------
+Playable.
+
+Snake
+-----
+Hangs.
+
+Yaroze Classics
+---------------
+"Crashes".
+
+
+SDK Demo Compatibility (NOT UP-TO-DATE WITH 0.6.0!)
 ----------------------
 Outline-Text/Truetype: full compatibility
 Outline-Text/Txdemo: full compatibility

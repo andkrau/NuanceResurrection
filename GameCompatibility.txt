@@ -22,7 +22,7 @@ Tempest 3000
 ------------
 Playable, BUT
 1) hangs most of the time when starting a game from certain levels (level 1 as prominent example).
-   WORKAROUND enter options->music test first and play some different musics
+   WORKAROUND enter options->music test first and play some different musics (or disable AudioInterrupts in nuance.cfg :/ )
 2) hangs (only if dynamic compilation enabled) on entering level select
    WORKAROUND after(!) doing 1), enter options->vector test first
 also music does not loop correctly.
