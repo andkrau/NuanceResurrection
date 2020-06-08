@@ -219,9 +219,6 @@
     <ClCompile Include="video.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\MurmurHash3.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CriticalSection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -446,9 +443,6 @@
     <ClInclude Include="PresentationEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\MurmurHash3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="external\fmod-3.75\api\inc\fmod.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -456,6 +450,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\glew-2.1.0\include\GL\wglew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\xxh3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\xxhash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
