@@ -8,7 +8,7 @@ Compatibility Level:
 
 Space Invaders XL
 -----------------
-Playable.
+Playable, BUT rarely hangs in Battle Mode.
 
 The Next Tetris
 -----------------

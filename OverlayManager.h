@@ -2,7 +2,9 @@
 #define OVERLAYMANAGER_H
 
 #include "basetypes.h"
-#include "external\MurmurHash3.h"
+//#include "external\MurmurHash3.h"
+#define XXH_INLINE_ALL
+#include "external\xxh3.h"
 
 class OverlayManager
 {
@@ -58,7 +60,7 @@ public:
   {
     bInvalidate = false;
 
-    const uint32 hash = Hash(buffer);
+    const uint64 hash = Hash(buffer);
 
     for(uint32 i = 0; i < numOverlays; i++)
     {
@@ -91,11 +93,12 @@ public:
   }
 
 private:
-  uint32 Hash(const uint32* data) const
+  uint64 Hash(const uint32* data) const
   {
-    uint32 result;
-    MurmurHash3_x86_32((void*)data, overlayLength * 4, 0xdeadbeef, &result); //!! overkill to use this HQ hash?? // can be 4k or 8k * 4 bytes of data!!!
-    return (result == 0) ? 1 : result; // remove 0, as this is used for init'ing the tables
+    const uint64 result
+    //MurmurHash3_x86_32((void*)data, overlayLength * 4, 0xdeadbeef, &result);
+    = XXH3_64bits((void*)data, overlayLength * 4);
+    return (result == 0) ? 1 : result; // must remove 0, as this is used for init'ing the tables
 
     /*const uint32 * const e = data + overlayLength;
 
@@ -119,8 +122,8 @@ private:
   uint32 currentOverlayIndex;
   //uint32 crctab[256];
   uint32 replaceOverlayCounter;
-  uint32 overlayHash[128];
   uint32 overlayLength;
+  uint64 overlayHash[128];
 };
 
 #endif

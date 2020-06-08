@@ -87,7 +87,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -100,6 +100,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>None</DebugInformationFormat>
       <FloatingPointExceptions>false</FloatingPointExceptions>
+      <ControlFlowGuard>false</ControlFlowGuard>
     </ClCompile>
     <Link>
       <AdditionalDependencies>external\glew-2.1.0\lib\Release\Win32\glew32.lib;user32.lib;winmm.lib;external\fmod-3.75\api\lib\fmodvc.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -199,7 +200,6 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Full</Optimization>
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StreamingSIMDExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
-    <ClCompile Include="external\MurmurHash3.cpp" />
     <ClCompile Include="file.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Full</Optimization>
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StreamingSIMDExtensions</EnableEnhancedInstructionSet>
@@ -346,7 +346,8 @@
     <ClInclude Include="external\fmod-3.75\api\inc\fmod.h" />
     <ClInclude Include="external\glew-2.1.0\include\GL\glew.h" />
     <ClInclude Include="external\glew-2.1.0\include\GL\wglew.h" />
-    <ClInclude Include="external\MurmurHash3.h" />
+    <ClInclude Include="external\xxh3.h" />
+    <ClInclude Include="external\xxhash.h" />
     <ClInclude Include="file.h" />
     <ClInclude Include="FlashEEPROM.h" />
     <ClInclude Include="GLWindow.h" />
