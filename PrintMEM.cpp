@@ -206,21 +206,21 @@ const char *GetControlRegister(uint32 which)
   }
 }
 
-uint32 Print_Mirror(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_Mirror(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"mirror r%lu, r%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
   sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
-uint32 Print_MV_SImmediate(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_MV_SImmediate(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"mv_s #$%8.8lX, r%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
   sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
-uint32 Print_MV_SScalar(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_MV_SScalar(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"mv_s r%lu, r%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
@@ -228,7 +228,7 @@ uint32 Print_MV_SScalar(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_MV_V(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_MV_V(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"mv_v v%lu, v%lu",nuance.fields[FIELD_MEM_FROM] >> 2,nuance.fields[FIELD_MEM_TO] >> 2);
@@ -236,7 +236,7 @@ uint32 Print_MV_V(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_PopVector(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_PopVector(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"pop v%lu",nuance.fields[FIELD_MEM_TO] >> 2);
@@ -244,7 +244,7 @@ uint32 Print_PopVector(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_PopVectorRz(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_PopVectorRz(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"pop v%lu, rz",nuance.fields[FIELD_MEM_TO] >> 2);
@@ -252,7 +252,7 @@ uint32 Print_PopVectorRz(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_PopScalarRzi1(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_PopScalarRzi1(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"pop r%lu, cc, rz, rzi1",nuance.fields[FIELD_MEM_TO]);
@@ -260,7 +260,7 @@ uint32 Print_PopScalarRzi1(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_PopScalarRzi2(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_PopScalarRzi2(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"pop r%lu, cc, rz, rzi2",nuance.fields[FIELD_MEM_TO]);
@@ -268,7 +268,7 @@ uint32 Print_PopScalarRzi2(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_PushVector(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_PushVector(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"push v%lu",nuance.fields[FIELD_MEM_FROM] >> 2);
@@ -276,7 +276,7 @@ uint32 Print_PushVector(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_PushVectorRz(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_PushVectorRz(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"push v%lu, rz",nuance.fields[FIELD_MEM_FROM] >> 2);
@@ -284,7 +284,7 @@ uint32 Print_PushVectorRz(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_PushScalarRzi1(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_PushScalarRzi1(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"push r%lu, cc, rz, rzi1",nuance.fields[FIELD_MEM_FROM]);
@@ -292,7 +292,7 @@ uint32 Print_PushScalarRzi1(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_PushScalarRzi2(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_PushScalarRzi2(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"push r%lu, cc, rz, rzi2",nuance.fields[FIELD_MEM_FROM]);
@@ -300,7 +300,7 @@ uint32 Print_PushScalarRzi2(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadScalarControlRegisterAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadScalarControlRegisterAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_s %s, r%lu",GetControlRegister(nuance.fields[FIELD_MEM_FROM] - MPE_CTRL_BASE),nuance.fields[FIELD_MEM_TO]);
@@ -308,7 +308,7 @@ uint32 Print_LoadScalarControlRegisterAbsolute(char *buffer, Nuance &nuance, con
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadByteAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadByteAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_b $%8.8lX, r%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
@@ -316,7 +316,7 @@ uint32 Print_LoadByteAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadWordAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadWordAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_w $%8.8lX, r%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
@@ -324,7 +324,7 @@ uint32 Print_LoadWordAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadScalarAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadScalarAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_s $%8.8lX, r%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
@@ -332,7 +332,7 @@ uint32 Print_LoadScalarAbsolute(char *buffer, Nuance &nuance, const bool bNewlin
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadScalarLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadScalarLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_s (r%lu), r%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
@@ -340,7 +340,7 @@ uint32 Print_LoadScalarLinear(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadVectorAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadVectorAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_v $%8.8lX, v%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO] >> 2);
@@ -348,7 +348,7 @@ uint32 Print_LoadVectorAbsolute(char *buffer, Nuance &nuance, const bool bNewlin
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadVectorControlRegisterAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadVectorControlRegisterAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_v %s, v%lu",GetControlRegister(nuance.fields[FIELD_MEM_FROM] - MPE_CTRL_BASE),nuance.fields[FIELD_MEM_TO] >> 2);
@@ -356,7 +356,7 @@ uint32 Print_LoadVectorControlRegisterAbsolute(char *buffer, Nuance &nuance, con
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadPixelAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadPixelAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_p $%8.8lX, v%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO] >> 2);
@@ -364,7 +364,7 @@ uint32 Print_LoadPixelAbsolute(char *buffer, Nuance &nuance, const bool bNewline
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadPixelZAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadPixelZAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_pz $%8.8lX, v%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO] >> 2);
@@ -372,7 +372,7 @@ uint32 Print_LoadPixelZAbsolute(char *buffer, Nuance &nuance, const bool bNewlin
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadByteLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadByteLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_b (r%lu), r%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
@@ -380,7 +380,7 @@ uint32 Print_LoadByteLinear(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadByteBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadByteBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_b (uv), r%lu",nuance.fields[FIELD_MEM_TO]);
@@ -388,7 +388,7 @@ uint32 Print_LoadByteBilinearUV(char *buffer, Nuance &nuance, const bool bNewlin
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadByteBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadByteBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_b (xy), r%lu",nuance.fields[FIELD_MEM_TO]);
@@ -396,7 +396,7 @@ uint32 Print_LoadByteBilinearXY(char *buffer, Nuance &nuance, const bool bNewlin
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadWordLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadWordLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_w (r%lu), r%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
@@ -404,7 +404,7 @@ uint32 Print_LoadWordLinear(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadWordBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadWordBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_w (uv), r%lu",nuance.fields[FIELD_MEM_TO]);
@@ -412,7 +412,7 @@ uint32 Print_LoadWordBilinearUV(char *buffer, Nuance &nuance, const bool bNewlin
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadWordBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadWordBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_w (xy), r%lu",nuance.fields[FIELD_MEM_TO]);
@@ -420,14 +420,14 @@ uint32 Print_LoadWordBilinearXY(char *buffer, Nuance &nuance, const bool bNewlin
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadScalarBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadScalarBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_s (uv), r%lu",nuance.fields[FIELD_MEM_TO]);
   sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
-uint32 Print_LoadScalarBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadScalarBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_s (xy), r%lu",nuance.fields[FIELD_MEM_TO]);
@@ -435,7 +435,7 @@ uint32 Print_LoadScalarBilinearXY(char *buffer, Nuance &nuance, const bool bNewl
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadShortVectorAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadShortVectorAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_sv $%8.8lX, v%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO] >> 2);
@@ -443,7 +443,7 @@ uint32 Print_LoadShortVectorAbsolute(char *buffer, Nuance &nuance, const bool bN
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadShortVectorLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadShortVectorLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_sv (r%lu), v%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO] >> 2);
@@ -451,7 +451,7 @@ uint32 Print_LoadShortVectorLinear(char *buffer, Nuance &nuance, const bool bNew
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadShortVectorBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadShortVectorBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_sv (uv), v%lu",nuance.fields[FIELD_MEM_TO] >> 2);
@@ -459,7 +459,7 @@ uint32 Print_LoadShortVectorBilinearUV(char *buffer, Nuance &nuance, const bool 
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadShortVectorBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadShortVectorBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_sv (xy), v%lu",nuance.fields[FIELD_MEM_TO] >> 2);
@@ -467,7 +467,7 @@ uint32 Print_LoadShortVectorBilinearXY(char *buffer, Nuance &nuance, const bool 
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadVectorLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadVectorLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_v (r%lu), v%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO] >> 2);
@@ -475,7 +475,7 @@ uint32 Print_LoadVectorLinear(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadVectorBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadVectorBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_v (uv), v%lu",nuance.fields[FIELD_MEM_TO] >> 2);
@@ -483,7 +483,7 @@ uint32 Print_LoadVectorBilinearUV(char *buffer, Nuance &nuance, const bool bNewl
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadVectorBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadVectorBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_v (xy), v%lu",nuance.fields[FIELD_MEM_TO] >> 2);
@@ -491,7 +491,7 @@ uint32 Print_LoadVectorBilinearXY(char *buffer, Nuance &nuance, const bool bNewl
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadPixelLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadPixelLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_p (r%lu), v%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO] >> 2);
@@ -499,7 +499,7 @@ uint32 Print_LoadPixelLinear(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadPixelBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadPixelBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_p (uv), v%lu",nuance.fields[FIELD_MEM_TO] >> 2);
@@ -507,7 +507,7 @@ uint32 Print_LoadPixelBilinearUV(char *buffer, Nuance &nuance, const bool bNewli
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadPixelBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadPixelBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_p (xy), v%lu",nuance.fields[FIELD_MEM_TO] >> 2);
@@ -515,7 +515,7 @@ uint32 Print_LoadPixelBilinearXY(char *buffer, Nuance &nuance, const bool bNewli
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadPixelZLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadPixelZLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_pz (r%lu), v%lu",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO] >> 2);
@@ -523,7 +523,7 @@ uint32 Print_LoadPixelZLinear(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadPixelZBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadPixelZBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_pz (uv), v%lu",nuance.fields[FIELD_MEM_TO] >> 2);
@@ -531,7 +531,7 @@ uint32 Print_LoadPixelZBilinearUV(char *buffer, Nuance &nuance, const bool bNewl
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_LoadPixelZBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_LoadPixelZBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"ld_pz (xy), v%lu",nuance.fields[FIELD_MEM_TO] >> 2);
@@ -539,7 +539,7 @@ uint32 Print_LoadPixelZBilinearXY(char *buffer, Nuance &nuance, const bool bNewl
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreScalarImmediate(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreScalarImmediate(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_s #$%8.8lX, $%8.8lX",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
@@ -547,7 +547,7 @@ uint32 Print_StoreScalarImmediate(char *buffer, Nuance &nuance, const bool bNewl
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreScalarAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreScalarAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_s r%lu, $%8.8lX",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
@@ -555,7 +555,7 @@ uint32 Print_StoreScalarAbsolute(char *buffer, Nuance &nuance, const bool bNewli
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreScalarControlRegisterImmediate(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreScalarControlRegisterImmediate(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_s #$%8.8lX, %s",nuance.fields[FIELD_MEM_FROM],GetControlRegister(nuance.fields[FIELD_MEM_TO] - MPE_CTRL_BASE));
@@ -563,7 +563,7 @@ uint32 Print_StoreScalarControlRegisterImmediate(char *buffer, Nuance &nuance, c
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreScalarLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreScalarLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_s r%lu, (r%lu)",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO]);
@@ -571,7 +571,7 @@ uint32 Print_StoreScalarLinear(char *buffer, Nuance &nuance, const bool bNewline
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreScalarBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreScalarBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_s r%lu, (uv)",nuance.fields[FIELD_MEM_TO]);
@@ -579,7 +579,7 @@ uint32 Print_StoreScalarBilinearUV(char *buffer, Nuance &nuance, const bool bNew
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreScalarBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreScalarBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_s r%lu, (xy)",nuance.fields[FIELD_MEM_TO]);
@@ -587,7 +587,7 @@ uint32 Print_StoreScalarBilinearXY(char *buffer, Nuance &nuance, const bool bNew
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreScalarControlRegisterAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreScalarControlRegisterAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_s r%lu, %s",nuance.fields[FIELD_MEM_FROM],GetControlRegister(nuance.fields[FIELD_MEM_TO] - MPE_CTRL_BASE));
@@ -595,7 +595,7 @@ uint32 Print_StoreScalarControlRegisterAbsolute(char *buffer, Nuance &nuance, co
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreVectorControlRegisterAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreVectorControlRegisterAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_v v%lu, %s",nuance.fields[FIELD_MEM_FROM] >> 2,GetControlRegister(nuance.fields[FIELD_MEM_TO] - MPE_CTRL_BASE));
@@ -603,7 +603,7 @@ uint32 Print_StoreVectorControlRegisterAbsolute(char *buffer, Nuance &nuance, co
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StorePixelAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StorePixelAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_p v%lu, $%8.8lX",nuance.fields[FIELD_MEM_FROM] >> 2,nuance.fields[FIELD_MEM_TO]);
@@ -611,7 +611,7 @@ uint32 Print_StorePixelAbsolute(char *buffer, Nuance &nuance, const bool bNewlin
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StorePixelZAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StorePixelZAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_pz v%lu, $%8.8lX",nuance.fields[FIELD_MEM_FROM] >> 2,nuance.fields[FIELD_MEM_TO]);
@@ -619,7 +619,7 @@ uint32 Print_StorePixelZAbsolute(char *buffer, Nuance &nuance, const bool bNewli
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreShortVectorAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreShortVectorAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_sv v%lu, $%8.8lX",nuance.fields[FIELD_MEM_FROM] >> 2,nuance.fields[FIELD_MEM_TO]);
@@ -627,7 +627,7 @@ uint32 Print_StoreShortVectorAbsolute(char *buffer, Nuance &nuance, const bool b
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreShortVectorLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreShortVectorLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_sv v%lu, (r%lu)",nuance.fields[FIELD_MEM_FROM] >> 2,nuance.fields[FIELD_MEM_TO]);
@@ -635,7 +635,7 @@ uint32 Print_StoreShortVectorLinear(char *buffer, Nuance &nuance, const bool bNe
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreShortVectorBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreShortVectorBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_sv v%lu, (uv)",nuance.fields[FIELD_MEM_FROM] >> 2);
@@ -643,7 +643,7 @@ uint32 Print_StoreShortVectorBilinearUV(char *buffer, Nuance &nuance, const bool
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreShortVectorBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreShortVectorBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_sv v%lu, (xy)",nuance.fields[FIELD_MEM_FROM] >> 2);
@@ -651,7 +651,7 @@ uint32 Print_StoreShortVectorBilinearXY(char *buffer, Nuance &nuance, const bool
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreVectorAbsolute(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreVectorAbsolute(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_v v%lu, $%8.8lX",nuance.fields[FIELD_MEM_FROM] >> 2,nuance.fields[FIELD_MEM_TO]);
@@ -659,7 +659,7 @@ uint32 Print_StoreVectorAbsolute(char *buffer, Nuance &nuance, const bool bNewli
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreVectorLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreVectorLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_v v%lu, (r%lu)",nuance.fields[FIELD_MEM_FROM] >> 2,nuance.fields[FIELD_MEM_TO]);
@@ -667,7 +667,7 @@ uint32 Print_StoreVectorLinear(char *buffer, Nuance &nuance, const bool bNewline
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreVectorBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreVectorBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_v v%lu, (uv)",nuance.fields[FIELD_MEM_FROM] >> 2);
@@ -675,7 +675,7 @@ uint32 Print_StoreVectorBilinearUV(char *buffer, Nuance &nuance, const bool bNew
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreVectorBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreVectorBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_v v%lu, (xy)",nuance.fields[FIELD_MEM_FROM] >> 2);
@@ -683,7 +683,7 @@ uint32 Print_StoreVectorBilinearXY(char *buffer, Nuance &nuance, const bool bNew
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StorePixelLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StorePixelLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_p v%lu, (r%lu)",nuance.fields[FIELD_MEM_FROM] >> 2,nuance.fields[FIELD_MEM_TO]);
@@ -691,7 +691,7 @@ uint32 Print_StorePixelLinear(char *buffer, Nuance &nuance, const bool bNewline)
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StorePixelBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StorePixelBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_p v%lu, (uv)",nuance.fields[FIELD_MEM_FROM] >> 2);
@@ -699,7 +699,7 @@ uint32 Print_StorePixelBilinearUV(char *buffer, Nuance &nuance, const bool bNewl
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StorePixelBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StorePixelBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_p v%lu, (xy)",nuance.fields[FIELD_MEM_FROM] >> 2);
@@ -707,7 +707,7 @@ uint32 Print_StorePixelBilinearXY(char *buffer, Nuance &nuance, const bool bNewl
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StorePixelZLinear(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StorePixelZLinear(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_pz v%lu, (r%lu)",nuance.fields[FIELD_MEM_FROM] >> 2,nuance.fields[FIELD_MEM_TO]);
@@ -715,7 +715,7 @@ uint32 Print_StorePixelZLinear(char *buffer, Nuance &nuance, const bool bNewline
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StorePixelZBilinearUV(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StorePixelZBilinearUV(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_pz v%lu, (uv)",nuance.fields[FIELD_MEM_FROM] >> 2);
@@ -723,7 +723,7 @@ uint32 Print_StorePixelZBilinearUV(char *buffer, Nuance &nuance, const bool bNew
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StorePixelZBilinearXY(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StorePixelZBilinearXY(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"st_pz v%lu, (xy)",nuance.fields[FIELD_MEM_FROM] >> 2);
@@ -731,7 +731,7 @@ uint32 Print_StorePixelZBilinearXY(char *buffer, Nuance &nuance, const bool bNew
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
 
-uint32 Print_StoreScalarRegisterConstant(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreScalarRegisterConstant(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   sprintf(tempStr,"stsc r%lu, $%lX, $%lX $%lX",
@@ -790,7 +790,7 @@ const char *GetMiscConstantRegister(uint32 which)
   }
 }
 
-uint32 Print_StoreMiscRegisterConstant(char *buffer, Nuance &nuance, const bool bNewline)
+uint32 Print_StoreMiscRegisterConstant(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
   if(nuance.fields[FIELD_CONSTANT_ADDRESS] != CONSTANT_REG_DISCARD)

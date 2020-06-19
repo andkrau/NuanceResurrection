@@ -224,8 +224,8 @@ bit ECU instructions and TestConditionCode.
 
 typedef void (* NuanceHandler)(MPE &, const uint32 pRegs[48], const Nuance &);
 typedef void NuanceHandlerProto(MPE &, const uint32 pRegs[48], const Nuance &);
-typedef uint32 (* NuancePrintHandler)(char *, Nuance &, bool);
-typedef uint32 NuancePrintHandlerProto(char *, Nuance &, bool);
+typedef uint32 (* NuancePrintHandler)(char *, const Nuance &, bool);
+typedef uint32 NuancePrintHandlerProto(char *, const Nuance &, bool);
 typedef void (* NativeEmitHandler)(EmitterVariables * const, const Nuance &);
 typedef void NativeEmitHandlerProto(EmitterVariables * const, const Nuance &);
 typedef void (* NativeCodeBlockFunction)();
