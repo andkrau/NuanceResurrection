@@ -85,9 +85,9 @@ void PropagateConstants_SUBMImmediateReverse(SuperBlockConstants &constants)
 }
 void PropagateConstants_SUBM(SuperBlockConstants &constants)
 {
-  uint32 src1Index = constants.nuance->fields[FIELD_MUL_SRC1];
-  uint32 src2Index  = constants.nuance->fields[FIELD_MUL_SRC2];
-  uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 src1Index = constants.nuance->fields[FIELD_MUL_SRC1];
+  const uint32 src2Index  = constants.nuance->fields[FIELD_MUL_SRC2];
+  const uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
 
   if((src1Index == src2Index) && ALLOW_MUL_PROPAGATION)
   {
@@ -210,9 +210,9 @@ void PropagateConstants_MULImmediateShiftLeftImmediate(SuperBlockConstants &cons
 }
 void PropagateConstants_MULScalarShiftRightImmediate(SuperBlockConstants &constants)
 {
-  uint32 src1Index = constants.nuance->fields[FIELD_MUL_SRC1];
-  uint32 src2Index = constants.nuance->fields[FIELD_MUL_SRC2];
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 src1Index = constants.nuance->fields[FIELD_MUL_SRC1];
+  const uint32 src2Index = constants.nuance->fields[FIELD_MUL_SRC2];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsScalarRegisterConstant(src1Index) && ALLOW_MUL_PROPAGATION)
   {
@@ -231,9 +231,9 @@ void PropagateConstants_MULScalarShiftRightImmediate(SuperBlockConstants &consta
 }
 void PropagateConstants_MULScalarShiftLeftImmediate(SuperBlockConstants &constants)
 {
-  uint32 src1Index = constants.nuance->fields[FIELD_MUL_SRC1];
-  uint32 src2Index = constants.nuance->fields[FIELD_MUL_SRC2];
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 src1Index = constants.nuance->fields[FIELD_MUL_SRC1];
+  const uint32 src2Index = constants.nuance->fields[FIELD_MUL_SRC2];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsScalarRegisterConstant(src1Index) && ALLOW_MUL_PROPAGATION)
   {
@@ -361,9 +361,9 @@ void PropagateConstants_MULImmediateShiftScalar(SuperBlockConstants &constants)
 }
 void PropagateConstants_MULScalarShiftScalar(SuperBlockConstants &constants)
 {
-  uint32 src1Index  = constants.nuance->fields[FIELD_MUL_SRC1];
-  uint32 src2Index  = constants.nuance->fields[FIELD_MUL_SRC2];
-  uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 src1Index  = constants.nuance->fields[FIELD_MUL_SRC1];
+  const uint32 src2Index  = constants.nuance->fields[FIELD_MUL_SRC2];
+  const uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsScalarRegisterConstant(src1Index) && ALLOW_MUL_PROPAGATION)
   {
@@ -383,16 +383,16 @@ void PropagateConstants_MULScalarShiftScalar(SuperBlockConstants &constants)
 
 void PropagateConstants_MUL_SVImmediateShiftImmediate(SuperBlockConstants &constants)
 {
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
   constants.ClearVectorRegisterConstant(destIndex);
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MUL_OK;
 }
 
 void PropagateConstants_MUL_SVScalarShiftImmediate(SuperBlockConstants &constants)
 {
-  uint32 src1Index = constants.nuance->fields[FIELD_MUL_SRC1];
-  uint32 src2Index = constants.nuance->fields[FIELD_MUL_SRC2];
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 src1Index = constants.nuance->fields[FIELD_MUL_SRC1];
+  const uint32 src2Index = constants.nuance->fields[FIELD_MUL_SRC2];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsScalarRegisterConstant(src1Index) && ALLOW_MUL_PROPAGATION)
   {
@@ -427,13 +427,13 @@ void PropagateConstants_MUL_SVScalarShiftSvshift(SuperBlockConstants &constants)
 
 void PropagateConstants_MUL_SVRuShiftImmediate(SuperBlockConstants &constants)
 {
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
   constants.ClearVectorRegisterConstant(destIndex);
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MUL_OK;
 }
 void PropagateConstants_MUL_SVRuShiftSvshift(SuperBlockConstants &constants)
 {
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsMiscRegisterConstant(CONSTANT_REG_SVSHIFT) && ALLOW_MUL_PROPAGATION)
   {
@@ -450,13 +450,13 @@ void PropagateConstants_MUL_SVRuShiftSvshift(SuperBlockConstants &constants)
 }
 void PropagateConstants_MUL_SVRvShiftImmediate(SuperBlockConstants &constants)
 {
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
   constants.ClearVectorRegisterConstant(destIndex);
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MUL_OK;
 }
 void PropagateConstants_MUL_SVRvShiftSvshift(SuperBlockConstants &constants)
 {
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsMiscRegisterConstant(CONSTANT_REG_SVSHIFT) && ALLOW_MUL_PROPAGATION)
   {
@@ -479,7 +479,7 @@ void PropagateConstants_MUL_SVVectorShiftImmediate(SuperBlockConstants &constant
 }
 void PropagateConstants_MUL_SVVectorShiftSvshift(SuperBlockConstants &constants)
 {
-  uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsMiscRegisterConstant(CONSTANT_REG_SVSHIFT) && ALLOW_MUL_PROPAGATION)
   {
@@ -497,15 +497,15 @@ void PropagateConstants_MUL_SVVectorShiftSvshift(SuperBlockConstants &constants)
 
 void PropagateConstants_MUL_PImmediateShiftImmediate(SuperBlockConstants &constants)
 {
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
   constants.ClearPixelRegisterConstant(destIndex);
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MUL_OK;
 }
 void PropagateConstants_MUL_PScalarShiftImmediate(SuperBlockConstants &constants)
 {
-  uint32 src1Index = constants.nuance->fields[FIELD_MUL_SRC1];
-  uint32 src2Index = constants.nuance->fields[FIELD_MUL_SRC2];
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 src1Index = constants.nuance->fields[FIELD_MUL_SRC1];
+  const uint32 src2Index = constants.nuance->fields[FIELD_MUL_SRC2];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsScalarRegisterConstant(src1Index) && ALLOW_MUL_PROPAGATION)
   {
@@ -523,7 +523,7 @@ void PropagateConstants_MUL_PScalarShiftImmediate(SuperBlockConstants &constants
 }
 void PropagateConstants_MUL_PScalarShiftSvshift(SuperBlockConstants &constants)
 {
-  uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsMiscRegisterConstant(CONSTANT_REG_SVSHIFT) && ALLOW_MUL_PROPAGATION)
   {
@@ -540,13 +540,13 @@ void PropagateConstants_MUL_PScalarShiftSvshift(SuperBlockConstants &constants)
 }
 void PropagateConstants_MUL_PRuShiftImmediate(SuperBlockConstants &constants)
 {
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
   constants.ClearPixelRegisterConstant(destIndex);
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MUL_OK;
 }
 void PropagateConstants_MUL_PRuShiftSvshift(SuperBlockConstants &constants)
 {
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsMiscRegisterConstant(CONSTANT_REG_SVSHIFT) && ALLOW_MUL_PROPAGATION)
   {
@@ -563,13 +563,13 @@ void PropagateConstants_MUL_PRuShiftSvshift(SuperBlockConstants &constants)
 }
 void PropagateConstants_MUL_PRvShiftImmediate(SuperBlockConstants &constants)
 {
-  uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
   constants.ClearPixelRegisterConstant(destIndex);
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MUL_OK;
 }
 void PropagateConstants_MUL_PRvShiftSvshift(SuperBlockConstants &constants)
 {
-  uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsMiscRegisterConstant(CONSTANT_REG_SVSHIFT) && ALLOW_MUL_PROPAGATION)
   {
@@ -586,13 +586,13 @@ void PropagateConstants_MUL_PRvShiftSvshift(SuperBlockConstants &constants)
 }
 void PropagateConstants_MUL_PVectorShiftImmediate(SuperBlockConstants &constants)
 {
-  uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
   constants.ClearPixelRegisterConstant(destIndex);
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MUL_OK;
 }
 void PropagateConstants_MUL_PVectorShiftSvshift(SuperBlockConstants &constants)
 {
-  uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex  = constants.nuance->fields[FIELD_MUL_DEST];
 
   if(constants.IsMiscRegisterConstant(CONSTANT_REG_SVSHIFT) && ALLOW_MUL_PROPAGATION)
   {
