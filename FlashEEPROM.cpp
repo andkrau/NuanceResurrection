@@ -173,6 +173,7 @@ void FlashEEPROM::WriteData(uint32 address, uint32 data1)
         }
       }
     }
+    break;
     case eFlashMode::FlashMode_Error:
     case eFlashMode::FlashMode_SinglePulseProgram:
       assert(!"not implemented");

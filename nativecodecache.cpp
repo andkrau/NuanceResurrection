@@ -1023,13 +1023,12 @@ void NativeCodeCache::X86Emit_INSB()
 
 void NativeCodeCache::X86Emit_INSW()
 {
-  *pEmitLoc++ = 0x66;
-  *pEmitLoc++ = 0x6C;
+  *pEmitLoc++ = 0x6D;
 }
 
 void NativeCodeCache::X86Emit_INSD()
 {
-  *pEmitLoc++ = 0x6C;
+  *pEmitLoc++ = 0x6D;
 }
 
 void NativeCodeCache::X86Emit_OUTSB()
@@ -1039,13 +1038,12 @@ void NativeCodeCache::X86Emit_OUTSB()
 
 void NativeCodeCache::X86Emit_OUTSW()
 {
-  *pEmitLoc++ = 0x66;
-  *pEmitLoc++ = 0x6E;
+  *pEmitLoc++ = 0x6F;
 }
 
 void NativeCodeCache::X86Emit_OUTSD()
 {
-  *pEmitLoc++ = 0x6E;
+  *pEmitLoc++ = 0x6F;
 }
 
 void NativeCodeCache::X86Emit_FEMMS()
@@ -1079,7 +1077,7 @@ void NativeCodeCache::X86Emit_JCC(uint8 *pTarget, const int8 conditionCode)
   }
 }
 
-void NativeCodeCache::X86Emit_JCC_Label(PatchManager &patchMgr, const int8 conditionCode, const uint32 labelIndex)
+void NativeCodeCache::X86Emit_JCC_Label(PatchManager &patchMgr, const int8 conditionCode, const uint32 labelIndex) //!! patchMgr dupe
 {
   if(labelIndex >= patchMgr.numLabels)
   {
@@ -1401,7 +1399,7 @@ void NativeCodeCache::X86Emit_JMPI(uint8 *target, uint16 seg)
   }
 }
 
-void NativeCodeCache::X86Emit_JMPI_Label(PatchManager &patchMgr, const uint32 labelIndex)
+void NativeCodeCache::X86Emit_JMPI_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
 {
   if(labelIndex >= patchMgr.numPatches)
   {
@@ -1584,7 +1582,6 @@ void NativeCodeCache::X86Emit_LODSB()
 
 void NativeCodeCache::X86Emit_LODSW()
 {
-  *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0xAD;
 }
 
@@ -1595,12 +1592,11 @@ void NativeCodeCache::X86Emit_LODSD()
 
 void NativeCodeCache::X86Emit_SCASB()
 {
-  *pEmitLoc++ = 0xAD;
+  *pEmitLoc++ = 0xAE;
 }
 
 void NativeCodeCache::X86Emit_SCASW()
 {
-  *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0xAF;
 }
 
@@ -1922,17 +1918,17 @@ void NativeCodeCache::X86Emit_LOOPNE(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_LOOPNE_Label(PatchManager &patchMgr, const uint32 labelIndex)
+void NativeCodeCache::X86Emit_LOOPNE_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
 {
   if(labelIndex >= patchMgr.numLabels)
   {
     patchMgr.AddPatch(pEmitLoc + 1, PatchType::PatchType_Rel8, pEmitLoc + 2, labelIndex);
-    *pEmitLoc++ = 0xE2;
+    *pEmitLoc++ = 0xE0;
     *pEmitLoc++ = 0;
   }
   else
   {
-    X86Emit_LOOP(patchMgr.GetLabelPointer(labelIndex));
+    X86Emit_LOOPNE(patchMgr.GetLabelPointer(labelIndex));
   }
 }
 
@@ -1940,16 +1936,16 @@ void NativeCodeCache::X86Emit_LOOPE(uint8 *pTarget)
 {
   int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
-  *pEmitLoc++ = 0xE0;
+  *pEmitLoc++ = 0xE1;
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_LOOPE_Label(PatchManager &patchMgr, const uint32 labelIndex)
+void NativeCodeCache::X86Emit_LOOPE_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
 {
   if(labelIndex >= patchMgr.numLabels)
   {
     patchMgr.AddPatch(pEmitLoc + 1, PatchType::PatchType_Rel8, pEmitLoc + 2, labelIndex);
-    *pEmitLoc++ = 0xE0;
+    *pEmitLoc++ = 0xE1;
     *pEmitLoc++ = 0;
   }
   else
@@ -1966,7 +1962,7 @@ void NativeCodeCache::X86Emit_LOOP(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_LOOP_Label(PatchManager &patchMgr, const uint32 labelIndex)
+void NativeCodeCache::X86Emit_LOOP_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
 {
   if(labelIndex >= patchMgr.numLabels)
   {
@@ -1990,7 +1986,7 @@ void NativeCodeCache::X86Emit_JCXZ(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_JCXZ_Label(PatchManager &patchMgr, const uint32 labelIndex)
+void NativeCodeCache::X86Emit_JCXZ_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
 {
   if(labelIndex >= patchMgr.numLabels)
   {
@@ -2001,7 +1997,7 @@ void NativeCodeCache::X86Emit_JCXZ_Label(PatchManager &patchMgr, const uint32 la
   }
   else
   {
-    X86Emit_LOOP(patchMgr.GetLabelPointer(labelIndex));
+    X86Emit_JCXZ(patchMgr.GetLabelPointer(labelIndex));
   }
 }
 
@@ -2013,7 +2009,7 @@ void NativeCodeCache::X86Emit_JECXZ(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_JECXZ_Label(PatchManager &patchMgr, const uint32 labelIndex)
+void NativeCodeCache::X86Emit_JECXZ_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
 {
   if(labelIndex >= patchMgr.numLabels)
   {

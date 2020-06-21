@@ -365,7 +365,7 @@ void InitTextures(void)
 
 void IncrementVideoFieldCounter(void)
 {
-  if(nuonEnv.systemBusDRAM)
+  //if(nuonEnv.systemBusDRAM)
   {
     uint32 fieldCounter = *((uint32 *)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
     SwapScalarBytes(&fieldCounter);
@@ -1091,7 +1091,7 @@ void VidConfig(MPE &mpe)
     bUpdateOpenGLData |= (structOverlayChannel.vfilter != structOverlayChannelPrev.vfilter);*/
   }
 
-  if(nuonEnv.systemBusDRAM)
+  //if(nuonEnv.systemBusDRAM)
   {
     //Set the video config field counter to the current video field counter value
     *((uint32 *)&nuonEnv.systemBusDRAM[LAST_VIDEO_CONFIG_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK])
@@ -1228,7 +1228,7 @@ void VidSetup(MPE &mpe)
     UpdateTextureStates();
   }
 
-  if(nuonEnv.systemBusDRAM)
+  //if(nuonEnv.systemBusDRAM)
   {
     //Set the video config field counter to the current video field counter value
     *((uint32 *)&nuonEnv.systemBusDRAM[LAST_VIDEO_CONFIG_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK])
@@ -1384,7 +1384,7 @@ void VidChangeBase(MPE &mpe)
     }
   }
 
-  if(nuonEnv.systemBusDRAM)
+  //if(nuonEnv.systemBusDRAM)
   {
     //Set the video config field counter to the current video field counter value
     *((uint32 *)&nuonEnv.systemBusDRAM[LAST_VIDEO_CONFIG_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK])
@@ -1431,7 +1431,7 @@ void VidChangeScroll(MPE &mpe)
     UpdateTextureStates();
   }
 
-  if(nuonEnv.systemBusDRAM)
+  //if(nuonEnv.systemBusDRAM)
   {
     //Set the video config field counter to the current video field counter value
     *((uint32 *)&nuonEnv.systemBusDRAM[LAST_VIDEO_CONFIG_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK])
