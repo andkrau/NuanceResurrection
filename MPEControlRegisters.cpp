@@ -747,6 +747,7 @@ do_mdmacmd: // for batch commands
           return;
       }
     }
+    break;
     default:
       //no special handling: write control register contents verbatim
       *(&mpectl + (address >> 4)) = data;

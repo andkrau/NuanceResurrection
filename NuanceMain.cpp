@@ -164,27 +164,27 @@ void UpdateStatusWindowDisplay()
   else
   {
     char buf[1024];
-    sprintf(buf,"Interpreter cache flushes: (%d, %d, %d, %d)\n",
+    sprintf(buf,"Interpreter cache flushes: (%u, %u, %u, %u)\n",
       nuonEnv.mpe[0].numInterpreterCacheFlushes,
       nuonEnv.mpe[1].numInterpreterCacheFlushes,
       nuonEnv.mpe[2].numInterpreterCacheFlushes,
       nuonEnv.mpe[3].numInterpreterCacheFlushes);
     SendMessage(reStatus,WM_SETTEXT,NULL,LPARAM(buf));
-    sprintf(buf,"Native code cache flushes: (%d, %d, %d, %d)\n",
+    sprintf(buf,"Native code cache flushes: (%u, %u, %u, %u)\n",
       nuonEnv.mpe[0].numNativeCodeCacheFlushes,
       nuonEnv.mpe[1].numNativeCodeCacheFlushes,
       nuonEnv.mpe[2].numNativeCodeCacheFlushes,
       nuonEnv.mpe[3].numNativeCodeCacheFlushes);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"Non-compilable packets: (%d, %d, %d, %d)\n",
+    sprintf(buf,"Non-compilable packets: (%u, %u, %u, %u)\n",
       nuonEnv.mpe[0].numNonCompilablePackets,
       nuonEnv.mpe[1].numNonCompilablePackets,
       nuonEnv.mpe[2].numNonCompilablePackets,
       nuonEnv.mpe[3].numNonCompilablePackets);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"Overlays in use: (%d, %d, %d, %d)\n",
+    sprintf(buf,"Overlays in use: (%u, %u, %u, %u)\n",
       nuonEnv.mpe[0].overlayManager.GetOverlaysInUse(),
       nuonEnv.mpe[1].overlayManager.GetOverlaysInUse(),
       nuonEnv.mpe[2].overlayManager.GetOverlaysInUse(),

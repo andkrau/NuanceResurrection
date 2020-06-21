@@ -374,7 +374,7 @@ public:
   void X86Emit_LOOPE(uint8 *pTarget);
   void X86Emit_LOOPE_Label(PatchManager &patchMgr, const uint32 labelIndex);
   #define X86Emit_LOOPZ X86Emit_LOOPE
-  #define X86Emit_LOOPZ_Label X86Emit_LOOPZ_Label
+  #define X86Emit_LOOPZ_Label X86Emit_LOOPE_Label
   void X86Emit_LOOP(uint8 *pTarget);
   void X86Emit_LOOP_Label(PatchManager &patchMgr, const uint32 labelIndex);
   void X86Emit_JCXZ(uint8 *pTarget);

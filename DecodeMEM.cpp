@@ -469,6 +469,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
         }
       }
     }
+    break;
     case 0x4:
     {
       //load
@@ -813,6 +814,7 @@ void MPE::DecodeInstruction_MEM32(const uint8 * const iPtr, InstructionCacheEntr
         }
       }
     }
+    break;
     case 0xC:
       //store
       entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] = field_1F0000;

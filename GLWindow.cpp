@@ -83,13 +83,13 @@ void GLWindow::ToggleFullscreen()
   PostMessage(hWnd, WM_TOGGLEFULLSCREEN, 0, 0);
 }
 
-bool GLWindow::ChangeScreenResolution(int width, int height)
+bool GLWindow::ChangeScreenResolution(int _width, int _height)
 {
   DEVMODE dmScreenSettings;
   ZeroMemory(&dmScreenSettings, sizeof(DEVMODE));
   dmScreenSettings.dmSize	= sizeof(DEVMODE);
-  dmScreenSettings.dmPelsWidth = width;
-  dmScreenSettings.dmPelsHeight = height;
+  dmScreenSettings.dmPelsWidth = _width;
+  dmScreenSettings.dmPelsHeight = _height;
   dmScreenSettings.dmBitsPerPel = 32;
   dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
   if(ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
@@ -612,7 +612,7 @@ bool GLWindow::Create()
     return true;
   }
   
-  threadHandle = CreateThread(NULL,0,GLWindow::GLWindowMain,this,0,&threadID);
+  threadHandle = CreateThread(NULL,0,GLWindow::GLWindowMain,this,0,&threadID); //!! _beginthreadex
  
   if(!threadHandle)
   {
@@ -660,7 +660,7 @@ DWORD WINAPI GLWindow::GLWindowMain(void *param)
   GLWindow * const glWindow = (GLWindow *)param;
 
   if(!glWindow->RegisterWindowClass())
-    return false;
+    return 0;
 
   if(glWindow->CreateWindowGL())
   {
@@ -689,7 +689,7 @@ DWORD WINAPI GLWindow::GLWindowMain(void *param)
     }
   }
   else
-    return false;
+    return 0;
 
-  return true;
+  return 1;
 }

@@ -162,6 +162,7 @@ void NuonEnvironment::SetAudioVolume(uint32 volume)
   }
 }
 
+//!! use mpeIndex instead of mpe?
 void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, const bool bCheckAddress)
 {
   if(address < MAIN_BUS_BASE)
@@ -172,7 +173,7 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, 
       if((address < MPE_ADDR_SPACE_BASE) || (address >= MPE1_ADDR_BASE))
       {
         char textBuf[1024];
-        sprintf(textBuf,"MPE%d Illegal Memory Address Operand (MAIN) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+        sprintf(textBuf,"MPE%u Illegal Memory Address Operand (MAIN) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
           mpe.mpeIndex,
           address,
           this->mpe[0].pcexec,
@@ -194,7 +195,7 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, 
       if((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK)))
       {
         char textBuf[1024];
-        sprintf(textBuf,"MPE%d Illegal Memory Address Operand (SYSTEM) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+        sprintf(textBuf,"MPE%u Illegal Memory Address Operand (SYSTEM) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
           mpe.mpeIndex,
           address,
           this->mpe[0].pcexec,
@@ -216,7 +217,7 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, 
       if((address > (SYSTEM_BUS_BASE + SYSTEM_BUS_VALID_MEMORY_MASK)))
       {
         char textBuf[1024];
-        sprintf(textBuf,"MPE%d Illegal Memory Address Operand (ROM_BIOS) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+        sprintf(textBuf,"MPE%u Illegal Memory Address Operand (ROM_BIOS) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
           mpe.mpeIndex,
           address,
           this->mpe[0].pcexec,

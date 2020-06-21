@@ -165,7 +165,7 @@ uint32 Print_MUL_SVRvShiftImmediate(char *buffer, const Nuance &nuance, const bo
 uint32 Print_MUL_SVRvShiftSvshift(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
-  sprintf(tempStr,"mul_sv ru, v%lu, >>svshift, v%lu",nuance.fields[FIELD_MUL_SRC2] >> 2,nuance.fields[FIELD_MUL_DEST] >> 2);
+  sprintf(tempStr,"mul_sv rv, v%lu, >>svshift, v%lu",nuance.fields[FIELD_MUL_SRC2] >> 2,nuance.fields[FIELD_MUL_DEST] >> 2);
   sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }
@@ -237,7 +237,7 @@ uint32 Print_MUL_PRvShiftImmediate(char *buffer, const Nuance &nuance, const boo
 uint32 Print_MUL_PRvShiftSvshift(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
-  sprintf(tempStr,"mul_p ru, v%lu, >>svshift, v%lu",nuance.fields[FIELD_MUL_SRC2] >> 2,nuance.fields[FIELD_MUL_DEST] >> 2);
+  sprintf(tempStr,"mul_p rv, v%lu, >>svshift, v%lu",nuance.fields[FIELD_MUL_SRC2] >> 2,nuance.fields[FIELD_MUL_DEST] >> 2);
   sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
   return strlen(tempStr) + (bNewline ? 1 : 0);
 }

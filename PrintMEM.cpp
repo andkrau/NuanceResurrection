@@ -57,7 +57,7 @@ const char *GetControlRegister(uint32 which)
     case 0x200:
       return "rx";
     case 0x210:
-      return "rx";
+      return "ry";
     case 0x220:
       return "xyrange";
     case 0x230:
@@ -157,7 +157,7 @@ const char *GetControlRegister(uint32 which)
     case 0x600:
       return "mdmactl";
     case 0x610:
-      return "mdmactl";
+      return "mdmacptr";
     case 0x7E0:
       return "comminfo";
     case 0x7F0:
