@@ -162,8 +162,7 @@ void NuonEnvironment::SetAudioVolume(uint32 volume)
   }
 }
 
-//!! use mpeIndex instead of mpe?
-void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, const bool bCheckAddress)
+void *NuonEnvironment::GetPointerToMemory(const MPE &_mpe, const uint32 address, const bool bCheckAddress)
 {
   if(address < MAIN_BUS_BASE)
   {
@@ -174,18 +173,18 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, 
       {
         char textBuf[1024];
         sprintf(textBuf,"MPE%u Illegal Memory Address Operand (MAIN) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
-          mpe.mpeIndex,
+          _mpe.mpeIndex,
           address,
-          this->mpe[0].pcexec,
-          this->mpe[1].pcexec,
-          this->mpe[2].pcexec,
-          this->mpe[3].pcexec);
+          mpe[0].pcexec,
+          mpe[1].pcexec,
+          mpe[2].pcexec,
+          mpe[3].pcexec);
 
         MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
       }
     }
 #endif
-    return (void *)(((uint8 *)mpe.dtrom) + (address & MPE_VALID_MEMORY_MASK));
+    return (void *)(((uint8 *)_mpe.dtrom) + (address & MPE_VALID_MEMORY_MASK));
   }
   else if(address < SYSTEM_BUS_BASE)
   {
@@ -196,12 +195,12 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, 
       {
         char textBuf[1024];
         sprintf(textBuf,"MPE%u Illegal Memory Address Operand (SYSTEM) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
-          mpe.mpeIndex,
+          _mpe.mpeIndex,
           address,
-          this->mpe[0].pcexec,
-          this->mpe[1].pcexec,
-          this->mpe[2].pcexec,
-          this->mpe[3].pcexec);
+          mpe[0].pcexec,
+          mpe[1].pcexec,
+          mpe[2].pcexec,
+          mpe[3].pcexec);
 
         MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
       }
@@ -218,12 +217,12 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &mpe, const uint32 address, 
       {
         char textBuf[1024];
         sprintf(textBuf,"MPE%u Illegal Memory Address Operand (ROM_BIOS) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
-          mpe.mpeIndex,
+          _mpe.mpeIndex,
           address,
-          this->mpe[0].pcexec,
-          this->mpe[1].pcexec,
-          this->mpe[2].pcexec,
-          this->mpe[3].pcexec);
+          mpe[0].pcexec,
+          mpe[1].pcexec,
+          mpe[2].pcexec,
+          mpe[3].pcexec);
 
         MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
       }
@@ -463,14 +462,14 @@ void NuonEnvironment::SetDVDBaseFromFileName(const char * const filename)
   }
 }
 
-ConfigTokenType NuonEnvironment::ReadConfigLine(FILE *file, char *buf)
+ConfigTokenType NuonEnvironment::ReadConfigLine(FILE *file, char buf[1025])
 {
   char firstChar;
 
   if(feof(file))
     return ConfigTokenType::CONFIG_EOF;
 
-  fscanf(file,"%s",buf);
+  fscanf_s(file,"%s",buf,1025);
   firstChar = buf[0];
 
   if(firstChar == CONFIG_COMMENT_CHAR)

@@ -7,6 +7,9 @@
 #include "NuonEnvironment.h"
 
 extern NuonEnvironment nuonEnv;
+#ifdef LOG_COMM
+extern FILE* commLogFile;
+#endif
 
 uint32 MPE::ReadControlRegister(const uint32 address, const uint32 entrypRegs[48])
 {
@@ -146,46 +149,22 @@ uint32 MPE::ReadControlRegister(const uint32 address, const uint32 entrypRegs[48
       return mdmacptr & 0x207FFFF0UL;
     case 0x7E:
       //comminfo
-      return comminfo & ((0xFFUL << 16) | 0xFFUL);
+      return comminfo & ((0xFFUL << 16) | 0xFFUL); // matches with doc
     case 0x7F:
       //commctl
-      return commctl & ~((0x3FUL << 24) | (0xFUL << 8));
+      return commctl & ((0x3UL << 30) | (0xFFFUL << 12) | 0xFFUL); // matches with doc
     case 0x80:
     {
-      switch(address & 0x0F)
-      {
-        //scalar commxmit register
-        case 0x00:
-          return commxmit0;
-        case 0x04:
-          return commxmit1;
-        case 0x08:
-          return commxmit2;
-        case 0x0C:
-          return commxmit3;
-        default:
-          return 0;
-      }
+      //scalar commxmit register
+      return commxmit[(address & 0x0F)>>2];
     }
     case 0x81:
     {
-      switch(address & 0x0F)
-      {
-        //scalar commrecv register
-        case 0x00:
-          return commrecv0;
-        case 0x04:
-          return commrecv1;
-        case 0x08:
-          return commrecv2;
-        case 0x0C:
-          //commrecv3: reading this register clears recv
-          //buffer full bit in commctl
-          commctl &= ~COMM_RECV_BUFFER_FULL_BIT;
-          return commrecv3;
-        default:
-          return 0;
-      }
+      if((address & 0x0F)==0x0C)
+        //commrecv3: reading this register clears recv buffer full bit in commctl
+        commctl &= ~COMM_RECV_BUFFER_FULL_BIT;
+      //scalar commrecv register
+      return commrecv[(address & 0x0F)>>2];
     }
     case 0xFF:
     {
@@ -220,7 +199,6 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
     case 0x0:
     {
       //Conditionally clear all bits according to their associated bit clear bit
-
       const uint32 prevGoState = mpectl & MPECTRL_MPEGO;
       const uint32 clearBits = data &
         (MPECTRL_MPEGOCLR | 
@@ -691,37 +669,27 @@ do_mdmacmd: // for batch commands
       return;
     }
     case 0x7E:
-      //comminfo: only lower 8 bits are writable
+      //comminfo: only lower 8 bits are writable // matches with doc
       comminfo &= (~0xFFUL);
       comminfo |= (data & 0xFFUL);
       return;
     case 0x7F:
       //commctl:
-      commctl &= ~((1UL << 30) | (0x3FFFUL));
+      commctl &= ~((1UL << 30) | (0x30FFUL)); // matches with doc now //!! was 0x3FFFUL, though only here!
       commctl |= (data & ((1UL << 30) | 0x30FFUL));
       return;
     case 0x80:
     {
-      //commxmit: scalar write
-      switch(address & 0x0F)
+      if((address & 0x0F)==0x0C)
       {
-        case 0x00:
-          commxmit0 = data;
-          return;
-        case 0x04:
-          commxmit1 = data;
-          return;
-        case 0x08:
-          commxmit2 = data;
-          return;
-        case 0x0C:
-          //commxmit3: trigger comm bus xmit request
-          commxmit3 = data;
-          commctl &= ~(COMM_XMIT_FAILED_BIT);
-          commctl |= COMM_XMIT_BUFFER_FULL_BIT;
-          nuonEnv.pendingCommRequests++;
-          return;
+        //commxmit3: also triggers comm bus xmit request
+        commctl &= ~(COMM_XMIT_FAILED_BIT);
+        commctl |= COMM_XMIT_BUFFER_FULL_BIT;
+        nuonEnv.pendingCommRequests++;
       }
+      //commxmit: scalar write
+      commxmit[(address & 0x0F)>>2] = data;
+      return;
     }
     case 0x81:
       //commrecv: read only

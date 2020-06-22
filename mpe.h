@@ -319,14 +319,8 @@ public:
   uint32 mdmacptr;
   uint32 comminfo;
   uint32 commctl;
-  uint32 commxmit0;
-  uint32 commxmit1;
-  uint32 commxmit2;
-  uint32 commxmit3;
-  uint32 commrecv0;
-  uint32 commrecv1;
-  uint32 commrecv2;
-  uint32 commrecv3;
+  uint32 commxmit[4];
+  uint32 commrecv[4];
   uint32 configa;
   uint32 configb;
   uint32 dcachectl;

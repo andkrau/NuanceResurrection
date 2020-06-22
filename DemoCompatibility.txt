@@ -5,11 +5,12 @@ and the Nuon SDK demos.
 
 Doom
 ----
-Playable.
+Aries3:   Close to perfect.
+Original: Hangs.
 
 PacMan
 ------
-Playable.
+Close to perfect.
 
 Decaying Orbit
 --------------
@@ -43,11 +44,15 @@ Yaroze Classics
 ---------------
 "Crashes".
 
+Same Game
+---------
+Playable.
+
 
 SDK Demo Compatibility (NOT UP-TO-DATE WITH 0.6.0!)
 ----------------------
-Outline-Text/Truetype: full compatibility
-Outline-Text/Txdemo: full compatibility
+Outline-Text/Truetype: Full compatibility
+Outline-Text/Txdemo: Full compatibility
 Slide-Show: Runs but doesn't display anything.
 Sprites/VMBalls4: Full compatibility
 Terminal-Emulator/Hello World: Full compatibility
