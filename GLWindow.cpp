@@ -612,7 +612,7 @@ bool GLWindow::Create()
     return true;
   }
   
-  threadHandle = CreateThread(NULL,0,GLWindow::GLWindowMain,this,0,&threadID); //!! _beginthreadex
+  threadHandle = _beginthreadex(NULL,0,GLWindow::GLWindowMain,this,0,&threadID);
  
   if(!threadHandle)
   {
@@ -655,7 +655,7 @@ void GLWindow::MessagePump()
   }
 }
 
-DWORD WINAPI GLWindow::GLWindowMain(void *param)
+unsigned WINAPI GLWindow::GLWindowMain(void *param)
 {
   GLWindow * const glWindow = (GLWindow *)param;
 
