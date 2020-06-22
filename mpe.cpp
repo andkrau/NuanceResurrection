@@ -39,12 +39,8 @@
 
 #define LOG_MPE_INDEX (1)
 
-#ifdef LOG_PROGRAM_FLOW
-#define LOG_STUFF
-#else 
-#ifdef LOG_BIOS_CALLS
-#define LOG_STUFF
-#endif
+#if defined(LOG_PROGRAM_FLOW) || defined(LOG_BIOS_CALLS)
+ #define LOG_STUFF
 #endif
 
 extern NuonEnvironment nuonEnv;
@@ -762,7 +758,7 @@ NativeEmitHandler emitHandlers[] =
 };
 
 #ifdef LOG_STUFF
-FILE *logfile = NULL;
+static FILE *logfile = NULL;
 #endif
 
 void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr)
@@ -896,14 +892,14 @@ void MPE::Reset()
   odmactl = 1UL << 5;
   //set bus priority for MDMA transfers to 3 and clear all other bits
   mdmactl = 3UL << 5;
-  commxmit0 = 0;
-  commxmit1 = 0;
-  commxmit2 = 0;
-  commxmit3 = 0;
-  commrecv0 = 0;
-  commrecv1 = 0;
-  commrecv2 = 0;
-  commrecv3 = 0;
+  commxmit[0] = 0;
+  commxmit[1] = 0;
+  commxmit[2] = 0;
+  commxmit[3] = 0;
+  commrecv[0] = 0;
+  commrecv[1] = 0;
+  commrecv[2] = 0;
+  commrecv[3] = 0;
   acshift = 0;
   svshift = 0;
   commctl = 0;
@@ -1835,7 +1831,7 @@ void MPE::ScheduleInstructionQuartet(InstructionCacheEntry &destEntry, const uin
   destEntry.CopyInstructionData(baseSlot + destSlotMEM[minIndex], srcEntry, SLOT_MEM);
 }
 
-void LogMemoryLocation(FILE *outFile, char *varname, uint32 address, MPE &mpe)
+void LogMemoryLocation(FILE *outFile, const char * const varname, const uint32 address, const MPE &mpe)
 {
   uint32 value = *((uint32 *)nuonEnv.GetPointerToMemory(mpe,address));
   SwapScalarBytes(&value);
@@ -2085,7 +2081,7 @@ bool MPE::FetchDecodeExecute()
     //StopPerformanceTimer();
     //double timeDelta = GetTimeDeltaMs();
 
-#ifdef LOG_STUFF
+#ifdef LOG_PROGRAM_FLOW
     if(LOG_MPE_INDEX == mpeIndex)
     {
       fprintf(logfile,"pcexec: %8.8x\n",pcexec);
@@ -2193,8 +2189,8 @@ bool MPE::FetchDecodeExecute()
                 fprintf(logfile,"PE CALL: $%8.8lX\n",pcfetchnext);
                 fflush(logfile);
 #else
-                //fprintf(logfile,"PE CALL: %s ($%8.8lX): V0 = [$%lX,$%lX,$%lX,%lX], R4 = %lX, R5 = %lX\n",BiosRoutineNames[(pcfetchnext >> 3) & 0x3FFF],pcfetchnext,regs[0],regs[1],regs[2],regs[3],regs[4],regs[5]);
-                fprintf(logfile,"PE CALL: %s ($%8.8lX)n",BiosRoutineNames[(pcfetchnext >> 3) & 0x3FFF],pcfetchnext,regs[0],regs[1],regs[2],regs[3],regs[4],regs[5]);
+                fprintf(logfile,"PE CALL: %s ($%8.8lX): V0 = [$%lX,$%lX,$%lX,%lX], R4 = %lX, R5 = %lX\n",BiosRoutineNames[(pcfetchnext >> 3) & 0x3FFF],pcfetchnext,regs[0],regs[1],regs[2],regs[3],regs[4],regs[5]);
+                //fprintf(logfile,"PE CALL: %s ($%8.8lX)\n",BiosRoutineNames[(pcfetchnext >> 3) & 0x3FFF],pcfetchnext,regs[0],regs[1],regs[2],regs[3],regs[4],regs[5]);
                 fflush(logfile);
 #endif
               }

@@ -135,7 +135,7 @@ public:
   CompilerOptions compilerOptions;
 
 private:
-  ConfigTokenType ReadConfigLine(FILE *file, char *buf);
+  ConfigTokenType ReadConfigLine(FILE *file, char buf[1025]);
   bool LoadConfigFile(const char * const fileName);
 
   char *dvdBase;

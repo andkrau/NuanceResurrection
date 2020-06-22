@@ -97,16 +97,16 @@ void UpdateStatusWindowDisplay()
     char buf[1024];
     sprintf(buf,"Pending Comm Requests = %lu\n",nuonEnv.pendingCommRequests);
     SendMessage(reStatus,WM_SETTEXT,NULL,LPARAM(buf));
-    sprintf(buf,"MPE0 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[0].commctl,nuonEnv.mpe[0].commxmit0,nuonEnv.mpe[0].commrecv0,nuonEnv.mpe[0].comminfo);
+    sprintf(buf,"MPE0 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[0].commctl,nuonEnv.mpe[0].commxmit[0],nuonEnv.mpe[0].commrecv[0],nuonEnv.mpe[0].comminfo);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"MPE1 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[1].commctl,nuonEnv.mpe[1].commxmit0,nuonEnv.mpe[1].commrecv0,nuonEnv.mpe[1].comminfo);
+    sprintf(buf,"MPE1 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[1].commctl,nuonEnv.mpe[1].commxmit[0],nuonEnv.mpe[1].commrecv[0],nuonEnv.mpe[1].comminfo);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"MPE2 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[2].commctl,nuonEnv.mpe[2].commxmit0,nuonEnv.mpe[2].commrecv0,nuonEnv.mpe[2].comminfo);
+    sprintf(buf,"MPE2 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[2].commctl,nuonEnv.mpe[2].commxmit[0],nuonEnv.mpe[2].commrecv[0],nuonEnv.mpe[2].comminfo);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
-    sprintf(buf,"MPE3 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[3].commctl,nuonEnv.mpe[3].commxmit0,nuonEnv.mpe[3].commrecv0,nuonEnv.mpe[3].comminfo);
+    sprintf(buf,"MPE3 commctl = $%8.8lx, commxmit0 = $%lx, commrecv0 = $%lx, comminfo = $%lx\n",nuonEnv.mpe[3].commctl,nuonEnv.mpe[3].commxmit[0],nuonEnv.mpe[3].commrecv[0],nuonEnv.mpe[3].comminfo);
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
   }
