@@ -52,11 +52,11 @@ private:
   void CleanUp();
   bool ChangeScreenResolution(int width, int height);
 
-  static DWORD WINAPI GLWindowMain(void *glWindow);
+  static unsigned WINAPI GLWindowMain(void *glWindow);
   static LRESULT CALLBACK GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-  HANDLE threadHandle;
-  DWORD threadID;
+  uintptr_t threadHandle;
+  unsigned int threadID;
 
   uint32 windowStyle, windowExtendedStyle;
   uint32 fullScreenWindowStyle, fullScreenWindowExtendedStyle;
