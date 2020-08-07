@@ -1,7 +1,7 @@
 #include "basetypes.h"
 
 #include <stdio.h>
-#include <string.h>
+#include <string>
 #include <windows.h>
 #include <commdlg.h>
 #include "external\glew-2.1.0\include\GL\glew.h"
@@ -21,6 +21,7 @@
 #include "joystick.h"
 #include "video.h"
 #include "ExecuteMEM.h"
+#include "timer.h"
 
 NuonEnvironment nuonEnv;
 char **pArgs = 0;
@@ -862,8 +863,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     while(PeekMessage(&msg,hStatusDlg,0,0,PM_REMOVE))
       IsDialogMessage(hStatusDlg,&msg);
 
+    uint64 cycles = 0;
     while(bRun && !nuonEnv.trigger_render_video)
     {
+      cycles++;
+
       for(int i = 3; i >= 0; --i)
         nuonEnv.mpe[i].FetchDecodeExecute(); // execute a single cycle
 
@@ -903,6 +907,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     if(nuonEnv.trigger_render_video) // set by the ~50 or 60Hz timer.cpp routine
     {
+      static uint64 old_time = 0;
+
+      static uint64 old_acc_time = 0;
+      static string acc_kcs;
+      static uint64 acc_cycles = 0;
+      acc_cycles += cycles;
+
+      const uint64 new_time = useconds_since_start();
+      if (new_time-old_acc_time > 2000000) // update averaged cycles every 2 secs
+      {
+        acc_kcs = std::to_string((int)(acc_cycles*1000/(double)(new_time-old_acc_time)));
+        acc_cycles = 0;
+        old_acc_time = new_time;
+      }
+      const string title = "Nuance (F1 to toggle fullscreen) - "
+          + acc_kcs + " " + std::to_string((int)(cycles*1000/(double)(new_time-old_time))) + " Kc/s - "
+          + std::to_string((int)(1000000./(double)(new_time-old_time))) + "fps";
+      if(old_time != 0 && !display.bFullScreen)
+        SetWindowText(display.hWnd,title.c_str());
+      old_time = new_time;
+
+      //
+
       InvalidateRect(display.hWnd, NULL, FALSE);
       //UpdateWindow(display.hWnd);
       nuonEnv.trigger_render_video = false;

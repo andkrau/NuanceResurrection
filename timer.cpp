@@ -150,18 +150,31 @@ void TimeOfDay(MPE &mpe)
   }
 }
 
-void TimeElapsed(MPE &mpe)
+uint64 useconds_since_start()
 {
-  uint64 seconds, useconds, mseconds;
-
   if(bHighPerformanceTimerAvailable)
   {
     _LARGE_INTEGER counter;  
     QueryPerformanceCounter((_LARGE_INTEGER *)&counter);
 
     const unsigned long long cur_tick = (unsigned long long)(counter.QuadPart - ticksAtBootTime.QuadPart);
-    useconds = ((unsigned long long)tickFrequency.QuadPart < 100000000ull) ? (cur_tick * 1000000ull / (unsigned long long)tickFrequency.QuadPart)
+    return ((unsigned long long)tickFrequency.QuadPart < 100000000ull) ? (cur_tick * 1000000ull / (unsigned long long)tickFrequency.QuadPart)
         : (cur_tick * 1000ull / ((unsigned long long)tickFrequency.QuadPart / 1000ull));
+  }
+  else
+  {
+    assert(!"No QueryPerformanceCounter");
+    return 0;
+  }
+}
+
+void TimeElapsed(MPE &mpe)
+{
+  uint64 seconds, useconds, mseconds;
+
+  if(bHighPerformanceTimerAvailable)
+  {
+    useconds = useconds_since_start();
 
     seconds = useconds / 1000000;
     mseconds = useconds / 1000;
