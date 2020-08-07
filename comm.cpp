@@ -43,10 +43,8 @@ void DoCommBusController(void)
 
   const uint32 target = nuonEnv.mpe[currentTransmitID].commctl & COMM_TARGET_ID_BITS;
 
-  if(target < 64) // target is a MPE?
+  if(target < 4) // target is a MPE?
   {
-    assert(target < 4);
-
     if(!(nuonEnv.mpe[target].commctl & (COMM_DISABLED_BITS | COMM_RECV_BUFFER_FULL_BIT)))
     {
       nuonEnv.mpe[currentTransmitID].commctl &= ~(COMM_XMIT_BUFFER_FULL_BIT);
@@ -108,7 +106,14 @@ void DoCommBusController(void)
     nuonEnv.mpe[currentTransmitID].commctl &= (~COMM_XMIT_BUFFER_FULL_BIT);
     nuonEnv.mpe[currentTransmitID].TriggerInterrupt(INT_COMMXMIT);
 
-    if(target == COMM_ID_AUDIO)
+    if (target < 64) // target is a MPE? (on future HW)
+    {
+        // Ballistic triggers this case on the title screen
+#ifdef LOG_COMM
+        fprintf(commLogFile,"Comm invalid MPE target: MPE%ld->MPE%ld\n",currentTransmitID,target);
+#endif
+    }
+    else if(target == COMM_ID_AUDIO)
     {
       //audio target
       uint32 cmdValue = nuonEnv.mpe[currentTransmitID].commxmit[0];
