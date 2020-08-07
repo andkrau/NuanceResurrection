@@ -3,6 +3,8 @@
 
 #include "basetypes.h"
 
+void init_supported_CPU_extensions();
+
 __forceinline uint32 OnesCount(const uint32 x)
 {
     return __popcnt(x);
