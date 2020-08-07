@@ -8,7 +8,7 @@ Compatibility Level:
 
 Space Invaders XL
 -----------------
-Playable, BUT rarely hangs in Battle Mode.
+Playable, BUT rarely hangs in Battle Mode and Time Attack.
 
 The Next Tetris
 -----------------
@@ -16,7 +16,8 @@ Playable, distorted music.
 
 Merlin Racing
 -------------
-Playable, BUT hangs most of the time on/shortly after race start.
+Playable, BUT hangs most of the time on/shortly after race start. Also some screen corruption when
+watching the Adventure intro.
 
 Tempest 3000
 ------------
@@ -29,7 +30,7 @@ also music does not loop correctly.
 
 Ballistic
 ---------
-Playable.
+Close to perfect.
 
 Freefall 3050 AD
 ----------------

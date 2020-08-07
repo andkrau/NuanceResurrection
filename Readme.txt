@@ -387,6 +387,10 @@ Z: switch between controller 0 and controller 1
 
 History
 =======
+version 0.6.1:
+Optimizations
+Fix some more opcode implementations
+
 5/28/2020, version 0.6.0:
 Fix corrupted gfx in (at least) T3K
 Fix wrong DMAs in Ballistic and Merlin Racing (so that these display mostly (always?) correct now)

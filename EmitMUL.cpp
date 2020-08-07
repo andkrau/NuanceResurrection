@@ -187,16 +187,16 @@ mulscalarshiftacshift_exit:
   
   vars->mpe->nativeCodeCache.X86Emit_IMULRR(x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_TESTIR(0x40,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr,X86_CC_Z,l_pos);
+  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_Z,l_pos);
   vars->mpe->nativeCodeCache.X86Emit_NEGR(x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_ADDIR(128,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_neg);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_neg);
   //l_pos:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_pos,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_pos);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(32,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr,X86_CC_NL,l_posge32);
+  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NL,l_posge32);
   //l_poslt32:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_poslt32,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_poslt32);
   vars->mpe->nativeCodeCache.X86Emit_SHRDRRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
   if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
   {
@@ -210,9 +210,9 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_edx);
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_exit);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
   //l_posge32:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_posge32,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_posge32);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SUBIR(32, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_SARRR(x86Reg::x86Reg_eax);
@@ -221,9 +221,9 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_ebp);
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_exit);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
   //l_neg:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_neg,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_neg);
   vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_eax);
@@ -243,7 +243,7 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
   //l_exit:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_exit,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_exit);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   
   //Patch forward branch offsets
@@ -301,10 +301,10 @@ void Emit_MULScalarShiftRightImmediate(EmitterVariables * const vars, const Nuan
   vars->mpe->nativeCodeCache.X86Emit_IMULMR(x86MemPtr::x86MemPtr_dword, src2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
   if(nuance.fields[FIELD_MUL_INFO] < 32)
   {
-    vars->mpe->nativeCodeCache.X86Emit_SHRDIRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx, nuance.fields[FIELD_MUL_INFO]);
+    vars->mpe->nativeCodeCache.X86Emit_SHRDIRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx, (uint8)nuance.fields[FIELD_MUL_INFO]);
     if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
     {
-      vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_edx, nuance.fields[FIELD_MUL_INFO]);
+      vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_edx, (uint8)nuance.fields[FIELD_MUL_INFO]);
       vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ecx);
       vars->mpe->nativeCodeCache.X86Emit_TESTIR(0x80000000, x86Reg::x86Reg_eax);
       vars->mpe->nativeCodeCache.X86Emit_MOVIR(1, x86Reg::x86Reg_ebx);
@@ -323,7 +323,7 @@ void Emit_MULScalarShiftRightImmediate(EmitterVariables * const vars, const Nuan
   else
   {
     vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
-    vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_eax, nuance.fields[FIELD_MUL_INFO] - 32);
+    vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_eax, (uint8)(nuance.fields[FIELD_MUL_INFO] - 32));
     vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   }
 }
@@ -399,8 +399,8 @@ void Emit_MULScalarShiftLeftImmediate(EmitterVariables * const vars, const Nuanc
   {
     if(nuance.fields[FIELD_MUL_INFO] != 0)
     {
-      vars->mpe->nativeCodeCache.X86Emit_SHLDIRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_eax, nuance.fields[FIELD_MUL_INFO]);
-      vars->mpe->nativeCodeCache.X86Emit_SHLIR(x86Reg::x86Reg_eax, nuance.fields[FIELD_MUL_INFO]);
+      vars->mpe->nativeCodeCache.X86Emit_SHLDIRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_eax, (uint8)nuance.fields[FIELD_MUL_INFO]);
+      vars->mpe->nativeCodeCache.X86Emit_SHLIR(x86Reg::x86Reg_eax, (uint8)nuance.fields[FIELD_MUL_INFO]);
     }
 
     if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
@@ -506,16 +506,16 @@ mulscalarshiftacshift_exit:
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, acshiftReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, acshiftDisp);
   vars->mpe->nativeCodeCache.X86Emit_IMULMR(x86MemPtr::x86MemPtr_dword, src2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_TESTIR(0x40,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr,X86_CC_Z,l_pos);
+  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_Z,l_pos);
   vars->mpe->nativeCodeCache.X86Emit_NEGR(x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_ADDIR(128,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_neg);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_neg);
   //l_pos:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_pos,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_pos);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(32,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr,X86_CC_NL,l_posge32);
+  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NL,l_posge32);
   //l_poslt32:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_poslt32,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_poslt32);
   vars->mpe->nativeCodeCache.X86Emit_SHRDRRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
   if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
   {
@@ -529,9 +529,9 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_edx);
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_exit);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
   //l_posge32:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_posge32,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_posge32);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SUBIR(32, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_SARRR(x86Reg::x86Reg_eax);
@@ -542,9 +542,9 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_eax);
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_exit);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
   //l_neg:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_neg,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_neg);
   vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_eax);
@@ -563,7 +563,7 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
   //l_exit:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_exit,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_exit);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   
   //Patch forward branch offsets
@@ -663,16 +663,16 @@ mulscalarshiftacshift_exit:
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, shiftRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, shiftRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_IMULMR(x86MemPtr::x86MemPtr_dword, src2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_TESTIR(0x40,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr,X86_CC_Z,l_pos);
+  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_Z,l_pos);
   vars->mpe->nativeCodeCache.X86Emit_NEGR(x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_ADDIR(128,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_neg);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_neg);
   //l_pos:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_pos,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_pos);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(32,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr,X86_CC_NL,l_posge32);
+  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NL,l_posge32);
   //l_poslt32:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_poslt32,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_poslt32);
   vars->mpe->nativeCodeCache.X86Emit_SHRDRRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
   if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
   {
@@ -686,9 +686,9 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_edx);
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_exit);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
   //l_posge32:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_posge32,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_posge32);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SUBIR(32, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_SARRR(x86Reg::x86Reg_eax);
@@ -699,9 +699,9 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_eax);
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_exit);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
   //l_neg:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_neg,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_neg);
   vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_eax);
@@ -720,7 +720,7 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
   //l_exit:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_exit,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_exit);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   
   //Patch forward branch offsets
@@ -820,16 +820,16 @@ mulscalarshiftacshift_exit:
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, shiftRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, shiftRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_IMULMR(x86MemPtr::x86MemPtr_dword, src2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_TESTIR(0x40,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr,X86_CC_Z,l_pos);
+  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_Z,l_pos);
   vars->mpe->nativeCodeCache.X86Emit_NEGR(x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_ADDIR(128,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_neg);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_neg);
   //l_pos:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_pos,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_pos);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(32,x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr,X86_CC_NL,l_posge32);
+  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NL,l_posge32);
   //l_poslt32:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_poslt32,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_poslt32);
   vars->mpe->nativeCodeCache.X86Emit_SHRDRRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
   if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
   {
@@ -843,9 +843,9 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_edx);
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_exit);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
   //l_posge32:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_posge32,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_posge32);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SUBIR(32, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_SARRR(x86Reg::x86Reg_eax);
@@ -856,9 +856,9 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_eax);
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_exit);
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
   //l_neg:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_neg,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_neg);
   vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_eax);
@@ -877,7 +877,7 @@ mulscalarshiftacshift_exit:
     vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
   //l_exit:
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_exit,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_exit);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   
   //Patch forward branch offsets
@@ -933,10 +933,10 @@ void Emit_MULImmediateShiftRightImmediate(EmitterVariables * const vars, const N
   vars->mpe->nativeCodeCache.X86Emit_IMULMR(x86MemPtr::x86MemPtr_dword, src2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
   if(nuance.fields[FIELD_MUL_INFO] < 32)
   {
-    vars->mpe->nativeCodeCache.X86Emit_SHRDIRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx, nuance.fields[FIELD_MUL_INFO]);
+    vars->mpe->nativeCodeCache.X86Emit_SHRDIRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx, (uint8)nuance.fields[FIELD_MUL_INFO]);
     if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
     {
-      vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_edx, nuance.fields[FIELD_MUL_INFO]);
+      vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_edx, (uint8)nuance.fields[FIELD_MUL_INFO]);
       vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ecx);
       vars->mpe->nativeCodeCache.X86Emit_TESTIR(0x80000000, x86Reg::x86Reg_eax);
       vars->mpe->nativeCodeCache.X86Emit_MOVIR(1, x86Reg::x86Reg_ebx);
@@ -955,7 +955,7 @@ void Emit_MULImmediateShiftRightImmediate(EmitterVariables * const vars, const N
   else
   {
     vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
-    vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_eax, nuance.fields[FIELD_MUL_INFO] - 32);
+    vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_eax, (uint8)(nuance.fields[FIELD_MUL_INFO] - 32));
     vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   }
 }
@@ -1028,8 +1028,8 @@ void Emit_MULImmediateShiftLeftImmediate(EmitterVariables * const vars, const Nu
   {
     if(nuance.fields[FIELD_MUL_INFO] != 0)
     {
-      vars->mpe->nativeCodeCache.X86Emit_SHLDIRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_eax, nuance.fields[FIELD_MUL_INFO]);
-      vars->mpe->nativeCodeCache.X86Emit_SHLIR(x86Reg::x86Reg_eax, nuance.fields[FIELD_MUL_INFO]);
+      vars->mpe->nativeCodeCache.X86Emit_SHLDIRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_eax, (uint8)nuance.fields[FIELD_MUL_INFO]);
+      vars->mpe->nativeCodeCache.X86Emit_SHLIR(x86Reg::x86Reg_eax, (uint8)nuance.fields[FIELD_MUL_INFO]);
     }
 
     if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
@@ -1060,7 +1060,7 @@ void Emit_MUL_SVImmediateShiftImmediate(EmitterVariables * const vars, const Nua
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   const int32 scalar = ((int32)(nuance.fields[FIELD_MUL_SRC1])) >> 16;
-  const int32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
+  const uint32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
 
 /*
   mov ebp, scalar
@@ -1089,6 +1089,20 @@ void Emit_MUL_SVImmediateShiftImmediate(EmitterVariables * const vars, const Nua
   mov [src2+12], edx
 */
 
+  if ((src2RegReadBaseReg_0 == src2RegReadBaseReg_1) && (src2RegReadBaseReg_2 == src2RegReadBaseReg_3) && (src2RegReadBaseReg_0 == src2RegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_PSRADIR(x86Reg::x86Reg_xmm0, 16);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR(scalar, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PMULLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  if(shift > 0)
+    vars->mpe->nativeCodeCache.X86Emit_PSLDIR(x86Reg::x86Reg_xmm0, shift);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, src2RegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, src2RegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+8);
@@ -1112,6 +1126,7 @@ void Emit_MUL_SVImmediateShiftImmediate(EmitterVariables * const vars, const Nua
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
+  }
 }
 
 void Emit_MUL_SVScalarShiftImmediate(EmitterVariables * const vars, const Nuance &nuance)
@@ -1129,9 +1144,24 @@ void Emit_MUL_SVScalarShiftImmediate(EmitterVariables * const vars, const Nuance
   const int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
-  const int32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
+  const uint32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebp, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
+
+  if ((src2RegReadBaseReg_0 == src2RegReadBaseReg_1) && (src2RegReadBaseReg_2 == src2RegReadBaseReg_3) && (src2RegReadBaseReg_0 == src2RegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_ebp, 16);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_PSRADIR(x86Reg::x86Reg_xmm0, 16);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PMULLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  if(shift > 0)
+      vars->mpe->nativeCodeCache.X86Emit_PSLDIR(x86Reg::x86Reg_xmm0, shift);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, src2RegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, src2RegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+8);
@@ -1156,6 +1186,7 @@ void Emit_MUL_SVScalarShiftImmediate(EmitterVariables * const vars, const Nuance
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
+  }
 }
 
 void Emit_MUL_SVScalarShiftSvshift(EmitterVariables * const vars, const Nuance &nuance)
@@ -1176,6 +1207,27 @@ void Emit_MUL_SVScalarShiftSvshift(EmitterVariables * const vars, const Nuance &
   const int32 svshiftDisp = GetMiscRegEmitDisp(vars,REGINDEX_SVSHIFT);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebp, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
+
+  if ((src2RegReadBaseReg_0 == src2RegReadBaseReg_1) && (src2RegReadBaseReg_2 == src2RegReadBaseReg_3) && (src2RegReadBaseReg_0 == src2RegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_ebp, 16);
+  vars->mpe->nativeCodeCache.X86Emit_PSRADIR(x86Reg::x86Reg_xmm0, 16);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PMULLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, svshiftReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, svshiftDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR(16, x86Reg::x86Reg_esi);
+  vars->mpe->nativeCodeCache.X86Emit_SHRRR(x86Reg::x86Reg_esi); // shifts by cl
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(~0x04, x86Reg::x86Reg_esi);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_esi);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PSLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)&(vars->mpe->cc), x86Reg::x86Reg_esi);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, src2RegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, src2RegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+8);
@@ -1203,6 +1255,7 @@ void Emit_MUL_SVScalarShiftSvshift(EmitterVariables * const vars, const Nuance &
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)&(vars->mpe->cc), x86Reg::x86Reg_esi);
+  }
 }
 
 void Emit_MUL_SVRuShiftImmediate(EmitterVariables * const vars, const Nuance &nuance)
@@ -1223,9 +1276,10 @@ void Emit_MUL_SVRuShiftImmediate(EmitterVariables * const vars, const Nuance &nu
 
   const int32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
 
- //scalar = (int32)(entry.pIndexRegs[REG_U] >> (2 + BilinearInfo_XYMipmap(*entry.pUvctl))) & 0x3FFFUL;
+  //scalar = (int32)(entry.pIndexRegs[REG_U] >> (2 + BilinearInfo_XYMipmap(*entry.pUvctl))) & 0x3FFFUL;
 
   //ebp = ((int32)ru) >> (2 + ((uvctl >> 24) & 0x07UL)) & 0x3FFFUL)
+
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebp, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlDisp);
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ecx, 24);
@@ -1234,6 +1288,19 @@ void Emit_MUL_SVRuShiftImmediate(EmitterVariables * const vars, const Nuance &nu
   vars->mpe->nativeCodeCache.X86Emit_SARRR(x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x3FFFUL, x86Reg::x86Reg_ebp);
 
+  if ((src2RegReadBaseReg_0 == src2RegReadBaseReg_1) && (src2RegReadBaseReg_2 == src2RegReadBaseReg_3) && (src2RegReadBaseReg_0 == src2RegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_PSRADIR(x86Reg::x86Reg_xmm0, 16);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PMULLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  if(shift > 0)
+      vars->mpe->nativeCodeCache.X86Emit_PSLDIR(x86Reg::x86Reg_xmm0, shift);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, src2RegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, src2RegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+8);
@@ -1257,6 +1324,7 @@ void Emit_MUL_SVRuShiftImmediate(EmitterVariables * const vars, const Nuance &nu
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
+  }
 }
 
 void Emit_MUL_SVRuShiftSvshift(EmitterVariables * const vars, const Nuance &nuance)
@@ -1278,6 +1346,7 @@ void Emit_MUL_SVRuShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   //ebp = (int32)ru >> ((2 + ((uvctl >> 24) & 0x07UL)) & 0x3FFFUL)
+
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebp, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlDisp);
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ecx, 24);
@@ -1286,6 +1355,25 @@ void Emit_MUL_SVRuShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_SARRR(x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x3FFFUL, x86Reg::x86Reg_ebp);
 
+  if ((src2RegReadBaseReg_0 == src2RegReadBaseReg_1) && (src2RegReadBaseReg_2 == src2RegReadBaseReg_3) && (src2RegReadBaseReg_0 == src2RegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_PSRADIR(x86Reg::x86Reg_xmm0, 16);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PMULLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, svshiftReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, svshiftDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR(16, x86Reg::x86Reg_esi);
+  vars->mpe->nativeCodeCache.X86Emit_SHRRR(x86Reg::x86Reg_esi);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(~0x04, x86Reg::x86Reg_esi);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_esi);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PSLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)&(vars->mpe->cc), x86Reg::x86Reg_esi);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, src2RegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, src2RegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+8);
@@ -1312,6 +1400,7 @@ void Emit_MUL_SVRuShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)&(vars->mpe->cc), x86Reg::x86Reg_esi);
+  }
 }
 
 void Emit_MUL_SVRvShiftImmediate(EmitterVariables * const vars, const Nuance &nuance)
@@ -1333,6 +1422,7 @@ void Emit_MUL_SVRvShiftImmediate(EmitterVariables * const vars, const Nuance &nu
   const int32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
 
   //ebp = (int32)rv >> ((2 + ((uvctl >> 24) & 0x07UL)) & 0x3FFFUL)
+
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebp, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlDisp);
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ecx, 24);
@@ -1341,6 +1431,19 @@ void Emit_MUL_SVRvShiftImmediate(EmitterVariables * const vars, const Nuance &nu
   vars->mpe->nativeCodeCache.X86Emit_SARRR(x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x3FFFUL, x86Reg::x86Reg_ebp);
 
+  if ((src2RegReadBaseReg_0 == src2RegReadBaseReg_1) && (src2RegReadBaseReg_2 == src2RegReadBaseReg_3) && (src2RegReadBaseReg_0 == src2RegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_PSRADIR(x86Reg::x86Reg_xmm0, 16);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PMULLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  if(shift > 0)
+      vars->mpe->nativeCodeCache.X86Emit_PSLDIR(x86Reg::x86Reg_xmm0, shift);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, src2RegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, src2RegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+8);
@@ -1364,6 +1467,7 @@ void Emit_MUL_SVRvShiftImmediate(EmitterVariables * const vars, const Nuance &nu
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
+  }
 }
 
 void Emit_MUL_SVRvShiftSvshift(EmitterVariables * const vars, const Nuance &nuance)
@@ -1385,6 +1489,7 @@ void Emit_MUL_SVRvShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   //ebp = (int32)rv >> ((2 + ((uvctl >> 24) & 0x07UL)) & 0x3FFFUL)
+
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebp, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlDisp);
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ecx, 24);
@@ -1393,6 +1498,25 @@ void Emit_MUL_SVRvShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_SARRR(x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x3FFFUL, x86Reg::x86Reg_ebp);
 
+  if ((src2RegReadBaseReg_0 == src2RegReadBaseReg_1) && (src2RegReadBaseReg_2 == src2RegReadBaseReg_3) && (src2RegReadBaseReg_0 == src2RegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_PSRADIR(x86Reg::x86Reg_xmm0, 16);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PMULLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, svshiftReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, svshiftDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR(16, x86Reg::x86Reg_esi);
+  vars->mpe->nativeCodeCache.X86Emit_SHRRR(x86Reg::x86Reg_esi);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(~0x04, x86Reg::x86Reg_esi);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_esi);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PSLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)&(vars->mpe->cc), x86Reg::x86Reg_esi);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, src2RegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, src2RegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+8);
@@ -1419,6 +1543,7 @@ void Emit_MUL_SVRvShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)&(vars->mpe->cc), x86Reg::x86Reg_esi);
+  }
 }
 
 void Emit_MUL_SVVectorShiftImmediate(EmitterVariables * const vars, const Nuance &nuance)
@@ -1966,9 +2091,27 @@ void Emit_DOTPScalarShiftImmediate(EmitterVariables * const vars, const Nuance &
   const int32 src2RegDisp = GetScalarRegEmitDisp(vars,src2RegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
-  const int32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
+  const uint32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebp, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
+
+  if ((src2RegReadBaseReg_0 == src2RegReadBaseReg_1) && (src2RegReadBaseReg_2 == src2RegReadBaseReg_3) && (src2RegReadBaseReg_0 == src2RegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_ebp, 16);
+  vars->mpe->nativeCodeCache.X86Emit_PSRADIR(x86Reg::x86Reg_xmm0, 16);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PMULLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_PHADDDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0);
+  vars->mpe->nativeCodeCache.X86Emit_PHADDDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR2(x86Reg::x86Reg_eax, x86Reg::x86Reg_xmm0);
+  if(shift > 0)
+    vars->mpe->nativeCodeCache.X86Emit_SHLIR(x86Reg::x86Reg_eax, shift);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+0);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, src2RegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, src2RegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+8);
@@ -1990,6 +2133,7 @@ void Emit_DOTPScalarShiftImmediate(EmitterVariables * const vars, const Nuance &
     vars->mpe->nativeCodeCache.X86Emit_SHLIR(x86Reg::x86Reg_eax, shift);
   }
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+0);
+  }
 }
 
 void Emit_DOTPScalarShiftSvshift(EmitterVariables * const vars, const Nuance &nuance)
@@ -2010,6 +2154,21 @@ void Emit_DOTPScalarShiftSvshift(EmitterVariables * const vars, const Nuance &nu
   const int32 svshiftDisp = GetMiscRegEmitDisp(vars,REGINDEX_SVSHIFT);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebp, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
+
+  if ((src2RegReadBaseReg_0 == src2RegReadBaseReg_1) && (src2RegReadBaseReg_2 == src2RegReadBaseReg_3) && (src2RegReadBaseReg_0 == src2RegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_ebp, 16);
+  vars->mpe->nativeCodeCache.X86Emit_PSRADIR(x86Reg::x86Reg_xmm0, 16);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_PMULLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_PHADDDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0);
+  vars->mpe->nativeCodeCache.X86Emit_PHADDDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRR2(x86Reg::x86Reg_eax, x86Reg::x86Reg_xmm0);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, src2RegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, src2RegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp+8);
@@ -2026,6 +2185,8 @@ void Emit_DOTPScalarShiftSvshift(EmitterVariables * const vars, const Nuance &nu
   vars->mpe->nativeCodeCache.X86Emit_ADDRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_ADDRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_ADDRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_ecx);
+  }
+
   vars->mpe->nativeCodeCache.X86Emit_MOVIR(16, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, svshiftReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, svshiftDisp);
   vars->mpe->nativeCodeCache.X86Emit_SHRRR(x86Reg::x86Reg_ebp);
