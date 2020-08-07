@@ -359,6 +359,14 @@ public:
   //uint32 mpeEndAddress;
   uint32 mpeIndex;
 
+  // these are only used to communicate data into the GetBilinearAddress and _LoadPixelAbsolute,_LoadPixelZAbsolute,_StorePixelAbsolute,_StorePixelZAbsolute calls, but never back to anything else
+  uint32* ba_regs;
+  uint32 ba_control;
+  uint32 ba_x;
+  uint32 ba_y;
+  // this one is used to pass data from GetBilinearAddress into the single 4bit case in _LoadPixelAbsolute, but never back to anything else
+  uint32 ba_mipped_xoffset; // note that only the lowest bit is used in _LoadPixelAbsolute later-on
+
   InstructionCache *instructionCache;
   SuperBlock superBlock;
   NativeCodeCache nativeCodeCache;
@@ -400,15 +408,33 @@ public:
    
     if(!(entry.packetInfo & PACKETINFO_NOP))
     {
+      //!! move parallelization here?!
       if(entry.packetInfo & PACKETINFO_DEPENDENCY_PRESENT)
         memcpy(tempreg_union, reg_union, sizeof(uint32) * 48);
       else
         tempCC = cc;
    
+      //static uint64 nuanceHandlersCount[224] = {};
+      //static uint64 counter = 0;
+      //static uint64 oldcounter = 0;
+
       for(uint32 i = 0; i < entry.nuanceCount; i++)
       {
+        //nuanceHandlersCount[entry.handlers[i]]++;
+        //counter++;
+
         (nuanceHandlers[entry.handlers[i]])(*this,entry.pRegs,(Nuance &)(entry.nuances[FIXED_FIELD(i,0)]));
       }
+
+      /*if (counter > oldcounter + 8000000)
+      {
+          FILE* f = fopen("op_stats.txt", "a");
+          for (uint32 i = 0; i < 224; ++i)
+              fprintf(f, "%3u %llu %s\n", i, nuanceHandlersCount[i], nuanceHandlersNames[i]);
+          fprintf(f, "\n\n");
+          fclose(f);
+          oldcounter = counter;
+      }*/
     }
   }
 
@@ -427,7 +453,7 @@ public:
 
   bool TestConditionCode(const uint32 whichCondition) const;
   
-  MPE() : superBlock(SuperBlock(this)) {}
+  MPE() : superBlock(SuperBlock(this)) {} //!! meh
   void Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr);
   ~MPE();
 
@@ -464,7 +490,7 @@ public:
   {
     const uint32 tmp = tempCC;
     memcpy(tempreg_union,reg_union,sizeof(uint32)*48);
-    tempCC = tmp; //!! this was what happened with the old code, but was this intended??
+    tempCC = tmp; //!! ?? this was what happened with the old code, but was this intended??
   }
 
   uint32 ReadControlRegister(const uint32 address, const uint32 entrypRegs[48]);

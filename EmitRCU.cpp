@@ -299,7 +299,7 @@ void Emit_RangeOnly(EmitterVariables * const vars, const Nuance &nuance)
   //eax = rcu_range, ebx = rcu_src, ecx = rcu_src & 0xFFFF0000
   
   vars->mpe->nativeCodeCache.X86Emit_CMPRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_eax);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr,X86_CC_L,l_testmodmi);
+  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_L,l_testmodmi);
 
   vars->mpe->nativeCodeCache.X86Emit_SUBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
 
@@ -308,11 +308,11 @@ void Emit_RangeOnly(EmitterVariables * const vars, const Nuance &nuance)
     vars->mpe->nativeCodeCache.X86Emit_ORIM(CC_MODGE, x86MemPtr::x86MemPtr_dword, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
 
-  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(vars->mpe->nativeCodeCache.patchMgr,l_exit);
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_testmodmi,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_testmodmi);
   //compare rcu_src to zero
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(0,x86Reg::x86Reg_ebx);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(vars->mpe->nativeCodeCache.patchMgr,X86_CC_NL,l_exit);
+  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NL,l_exit);
 
   vars->mpe->nativeCodeCache.X86Emit_ADDRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
 
@@ -321,7 +321,7 @@ void Emit_RangeOnly(EmitterVariables * const vars, const Nuance &nuance)
     vars->mpe->nativeCodeCache.X86Emit_ORIM(CC_MODMI, x86MemPtr::x86MemPtr_dword, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
 
-  vars->mpe->nativeCodeCache.patchMgr.SetLabelPointer(l_exit,vars->mpe->nativeCodeCache.GetEmitPointer());
+  vars->mpe->nativeCodeCache.SetLabelPointer(l_exit);
   vars->mpe->nativeCodeCache.patchMgr.ApplyPatches();
 
   //ebx = modulo_writeback

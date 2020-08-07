@@ -9,10 +9,13 @@
 #define XTILEMASK (~(0xFFFF0000UL << (16 - BilinearInfo_XTile(control))))
 #define YTILEMASK (~(0xFFFF0000UL << (16 - BilinearInfo_YTile(control))))
 
-#define MIP(mip_me) (((uint32)(mip_me)) >> BilinearInfo_XYMipmap(control))
-#define SIGNMIP(mip_me) (((int32)(mip_me)) >> BilinearInfo_XYMipmap(control))
+#define MIP(mip_me)     (((uint32)(mip_me)) >> BilinearInfo_XYMipmap(control))
+#define SIGNMIP(mip_me) ((( int32)(mip_me)) >> BilinearInfo_XYMipmap(control))
 
-static const int32 pixel_type_width[16] = {
+#define MIP16(mip_me)     (((uint32)(mip_me)) >> (BilinearInfo_XYMipmap(control)|16))
+#define SIGNMIP16(mip_me) ((( int32)(mip_me)) >> (BilinearInfo_XYMipmap(control)|16))
+
+static const int8 pixel_type_width[16] = {
 -2,//Type 0: MPEG Pixel (macroblock size of 16 bytes)
 -1,//Type 1: 4 bit (must be accessed in groups of four)
 1, //Type 2: 16 bit
@@ -32,14 +35,13 @@ static const int32 pixel_type_width[16] = {
 
 extern NuonEnvironment nuonEnv;
 
-static uint32 mipped_xoffset = 0;
-structBilinearAddressInfo bilinearAddressInfo;
-
 static uint16 mirrorLookup[65536];
 
 static uint8 satColY[1024];
-static uint8 satColCrCb[1024];
-static uint8 satColCrCbChnorm[1024];
+static uint8 satColCrCb[2048]; // last 1024 are for Chnorm
+
+static uint8 satColY16[1024];
+static uint8 satColCrCb16[2048]; // last 1024 are for Chnorm
 
 void GenerateMirrorLookupTable()
 {
@@ -78,7 +80,7 @@ void GenerateMirrorLookupTable()
 
 inline void SaturateColorComponentsOrg(uint32 &Y, uint32 &Cr, uint32 &Cb, const bool bChnorm)
 {
-  uint32 YLookup[] = {(Y >> (16 + 13 - 7)) & 0xFFUL,0xFFUL,0xFFUL,0xFFUL}; //!! was X,FF,0,0 before
+  const uint32 YLookup[4] = {(Y >> (16 + 13 - 7)) & 0xFFUL,0xFFUL,0xFFUL,0xFFUL}; //!! was X,FF,0,0 before
   Y = YLookup[Y >> (16 + 14)];
 
   switch(Cr >> (16+14))
@@ -150,28 +152,37 @@ inline void SaturateColorComponentsOrg(uint32 &Y, uint32 &Cr, uint32 &Cb, const 
   }
 }
 
-inline void SaturateColorComponents(uint32& Y, uint32& Cr, uint32& Cb, const bool bChnorm)
+__forceinline void SaturateColorComponents32bit(uint32& Y, uint32& Cr, uint32& Cb, const uint32 ChnormOffset)
 {
   /*uint32 Y2 = Y;
   uint32 Cr2 = Cr;
   uint32 Cb2 = Cb;
   SaturateColorComponentsOrg(Y2, Cr2, Cb2, bChnorm);*/
 
-  Y = satColY[Y >> 22];
-  if (bChnorm)
-  {
-    Cr = satColCrCbChnorm[Cr >> 22];
-    Cb = satColCrCbChnorm[Cb >> 22];
-  }
-  else
-  {
-    Cr = satColCrCb[Cr >> 22];
-    Cb = satColCrCb[Cb >> 22];
-  }
+  Y  = satColY[Y >> 22];
+  Cr = satColCrCb[(Cr >> 22) + ChnormOffset];
+  Cb = satColCrCb[(Cb >> 22) + ChnormOffset];
 
   /*assert(Y2 == Y);
   assert(Cr2 == Cr);
   assert(Cb2 == Cb);*/
+}
+
+__forceinline uint16 SaturateColorComponents16bitSwapped(uint32 Y, uint32 Cr, uint32 Cb, const uint32 ChnormOffset)
+{
+  Y  = satColY16[Y >> 22];
+  Cr = satColCrCb16[(Cr >> 22) + ChnormOffset];
+  Cb = satColCrCb16[(Cb >> 22) + ChnormOffset];
+
+#ifdef LITTLE_ENDIAN
+  uint16 pixelData16 = (Cr << 5) | Cb;
+  SwapWordBytes(&pixelData16);
+  pixelData16 |= Y;
+#else
+  uint16 pixelData16 = (Y << 8) | (Cr << 5) | Cb;
+  SwapWordBytes(&pixelData16);
+#endif
+  return pixelData16;
 }
 
 void GenerateSaturateColorTables()
@@ -182,60 +193,62 @@ void GenerateSaturateColorTables()
     uint32 Cr = i << 22;
     uint32 Cb = i << 22;
     SaturateColorComponentsOrg(Y, Cr, Cb, true);
-    satColCrCbChnorm[i] = Cr;
+    satColCrCb[i+1024] = Cr; // Chnorm variant
+    satColCrCb16[i+1024] = (Cr & 0xF8) >> 3; // Chnorm variant
+
     Y  = i << 22;
     Cr = i << 22;
     Cb = i << 22;
     SaturateColorComponentsOrg(Y, Cr, Cb, false);
     satColY[i] = Y;
     satColCrCb[i] = Cr;
+    satColY16[i] = Y & 0xFC;
+    satColCrCb16[i] = (Cr & 0xF8) >> 3;
   }
 }
 
-inline void CalculateBilinearAddress(const MPE &mpe, uint32 * const pOffsetAddress, const uint32 control, uint32 x, uint32 y)
+inline void CalculateBilinearAddress(MPE &mpe, uint32 * const pOffsetAddress, const uint32 control, uint32 x, uint32 y)
 {
-  if(BilinearInfo_XRev(control))
-    x = (x&0xFFFF0000u) | mirrorLookup[x&0xFFFFu];
+  //if(BilinearInfo_XRev(control)) // not needed? as code below always shifts lower 16bits away
+  //  x = (x&0xFFFF0000u) | mirrorLookup[x&0xFFFFu];
 
-  if(BilinearInfo_YRev(control))
-    y = (y&0xFFFF0000u) | mirrorLookup[y&0xFFFFu];
+  //if(BilinearInfo_YRev(control)) // not needed? as code below always shifts lower 16bits away
+  //  y = (y&0xFFFF0000u) | mirrorLookup[y&0xFFFFu];
 
-  //*pOffsetAddress = (((MIP(y) & SIGNMIP(YTILEMASK)) >> 16) * MIP(bi->xy_width) + ((MIP(x) & SIGNMIP(XTILEMASK)) >> 16));
-  //mipped_xoffset = ((MIP(x) & SIGNMIP(XTILEMASK)) >> 16);
-  //*pOffsetAddress = (((MIP(y) & SIGNMIP(YTILEMASK)) >> 16) * MIP(BilinearInfo_XYWidth(control)) + mipped_xoffset);
-  mipped_xoffset = (MIP(x) & SIGNMIP(XTILEMASK)) >> 16;
-  *pOffsetAddress = (((MIP(y) & SIGNMIP(YTILEMASK)) >> 16) * MIP(BilinearInfo_XYWidth(control)) + mipped_xoffset);
+  mpe.ba_mipped_xoffset = MIP16(x) & SIGNMIP16(XTILEMASK);
+  *pOffsetAddress = (MIP16(y) & SIGNMIP16(YTILEMASK)) * MIP(BilinearInfo_XYWidth(control)) + mpe.ba_mipped_xoffset;
 }
 
-void GetBilinearAddress()
+// leave __fastcall here as it needs to pass in the mpe data block
+uint32 __fastcall GetBilinearAddress(MPE * const __restrict mpe, const uint32 control)
 {
-  const uint32 control = bilinearAddressInfo.control;
-  const int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width,control);
+  const int8 pixwidth = BilinearInfo_PixelWidth(pixel_type_width,control);
 
-  if(BilinearInfo_XRev(control))
-    bilinearAddressInfo.x = (bilinearAddressInfo.x&0xFFFF0000u) | mirrorLookup[bilinearAddressInfo.x&0xFFFFu];
-
-  if(BilinearInfo_YRev(control))
-    bilinearAddressInfo.y = (bilinearAddressInfo.y&0xFFFF0000u) | mirrorLookup[bilinearAddressInfo.y&0xFFFFu];
-
-  //*pOffsetAddress = (((MIP(y) & SIGNMIP(YTILEMASK)) >> 16) * MIP(bi->xy_width) + ((MIP(x) & SIGNMIP(XTILEMASK)) >> 16));
-  //bilinearAddressInfo.mipped_xoffset = ((MIP(x) & SIGNMIP(XTILEMASK)) >> 16);
-  //*pOffsetAddress = (((MIP(y) & SIGNMIP(YTILEMASK)) >> 16) * MIP(BilinearInfo_XYWidth(control)) + bilinearAddressInfo.mipped_xoffset);
-  bilinearAddressInfo.mipped_xoffset = (MIP((bilinearAddressInfo.x)) & SIGNMIP(XTILEMASK)) >> 16;
-  uint32 address = (((MIP((bilinearAddressInfo.y)) & SIGNMIP(YTILEMASK)) >> 16) * MIP(BilinearInfo_XYWidth(control)) + bilinearAddressInfo.mipped_xoffset);
-
-  if(pixwidth >= 0)
-  {
-    //Everything but 4-bit pixels and MPEG
-    address <<= pixel_type_width[(control >> 20) & 0x0FUL];
-  }
+  if (mpe->ba_x == 0) // quick computation possible?
+    mpe->ba_mipped_xoffset = 0;
   else
   {
-    //4-bit pixels
-    address >>= 1;
+    uint32 x = mpe->ba_x;
+    //if(BilinearInfo_XRev(control)) // not needed? as code below always shifts lower 16bits away
+    //  x = (x&0xFFFF0000u) | mirrorLookup[x&0xFFFFu];
+
+    mpe->ba_mipped_xoffset = MIP16(x) & SIGNMIP16(XTILEMASK);
   }
 
-  bilinearAddressInfo.offset_address = (bilinearAddressInfo.base & 0xFFFFFFFCu) + address;
+  uint32 offset;
+  if(mpe->ba_y == 0) // quick computation possible?
+    offset = mpe->ba_mipped_xoffset;
+  else
+  {
+    uint32 y = mpe->ba_y;
+    //if(BilinearInfo_YRev(control)) // not needed? as code below always shifts lower 16bits away
+    //  y = (y&0xFFFF0000u) | mirrorLookup[y&0xFFFFu];
+
+    offset = (MIP16(y) & SIGNMIP16(YTILEMASK)) * MIP(BilinearInfo_XYWidth(control)) + mpe->ba_mipped_xoffset;
+  }
+
+  return (pixwidth >= 0) ? (offset << pixwidth) : //Everything but 4-bit pixels and MPEG
+                           (offset >> 1); //4-bit pixels
 }
 
 void Execute_Mirror(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
@@ -529,11 +542,11 @@ void Execute_LoadVectorControlRegisterAbsolute(MPE &mpe, const uint32 pRegs[48],
   mpe.regs[dest + 3] = mpe.ReadControlRegister(address + 12 - MPE_CTRL_BASE, pRegs);
 }
 
-void LoadPixelAbsolute(void)
+// leave __fastcall here as it needs to pass in the mpe data block
+void __fastcall _LoadPixelAbsolute(const MPE* const __restrict mpe, const void* const __restrict memPtr)
 {
-  const uint32 control = bilinearAddressInfo.control;
-  const void* const memPtr = bilinearAddressInfo.pPixelData;
-  uint32* const regs = bilinearAddressInfo.pRegs;
+  const uint32 control = mpe->ba_control;
+  uint32* const regs = mpe->ba_regs;
   const uint32 pixType = BilinearInfo_XYType(control);
   const bool bChnorm = BilinearInfo_XYChnorm(control);
 
@@ -548,8 +561,8 @@ void LoadPixelAbsolute(void)
       //The initial xoffset is guaranteed to start at the first pixel of a group of four.  
       //This means that for even values of X, the pixel bits to be extracted are always [7:4]
       //and for odd values of X, the pixel bits to be extracted are [3:0]
-      const uint32 pixelData32 = (*((uint8 *)memPtr) >> (4 - ((bilinearAddressInfo.mipped_xoffset & 1) << 2))) & 0x0FUL;
-      regs[0] = (bilinearAddressInfo.clutBase & 0xFFFFFFC0UL) | (pixelData32 << 2);
+      const uint32 pixelData32 = (*((uint8 *)memPtr) >> (4 - ((mpe->ba_mipped_xoffset & 1) << 2))) & 0x0FUL;
+      regs[0] = (mpe->clutbase & 0xFFFFFFC0UL) | (pixelData32 << 2);
       regs[1] = 0;
       regs[2] = 0;
       return;
@@ -557,25 +570,26 @@ void LoadPixelAbsolute(void)
     case 0x2:
     case 0x5:
     {
-      //16
-      uint32 pixelData32 = *((uint32*)memPtr);
-      SwapScalarBytes(&pixelData32);
-      regs[0] = (pixelData32 >> 2) & (0xFCUL << 22);
-      regs[1] = (pixelData32 << 4) & (0xF8UL << 22);
-      regs[2] = (pixelData32 << 9) & (0xF8UL << 22);
+      //16+16Z
+      uint16 pixelData16 = *((uint16*)memPtr);
+      SwapWordBytes(&pixelData16);
+      regs[0] = ((uint32)pixelData16 << 14) & (0xFCUL << 22);
+      regs[1] = ((uint32)pixelData16 << 20) & (0xF8UL << 22);
+      regs[2] = ((uint32)pixelData16 << 25) & (0xF8UL << 22);
 
       if(bChnorm)
       {
         regs[1] = (regs[1] - 0x20000000UL) & 0xFE000000UL;
         regs[2] = (regs[2] - 0x20000000UL) & 0xFE000000UL;
       }
+
       return;
     }
     case 0x3:
     {
       //8 bit
       const uint32 pixelData32 = *((uint8 *)memPtr);
-      regs[0] = (bilinearAddressInfo.clutBase & 0xFFFFFC00UL) | (pixelData32 << 2);
+      regs[0] = (mpe->clutbase & 0xFFFFFC00UL) | (pixelData32 << 2);
       regs[1] = 0;
       regs[2] = 0;
       return;
@@ -585,16 +599,23 @@ void LoadPixelAbsolute(void)
     {
       //32 bit or 32+32Z (both behave the same for LD_P)
       uint32 pixelData32 = *((uint32*)memPtr);
+#ifdef LITTLE_ENDIAN
+      regs[0] = (pixelData32 << 22) & (0xFFUL << 22);
+      regs[1] = (pixelData32 << 14) & (0xFFUL << 22);
+      regs[2] = (pixelData32 <<  6) & (0xFFUL << 22);
+#else
       SwapScalarBytes(&pixelData32);
-      regs[0] = (pixelData32 >> 2) & (0xFFUL << 22);
-      regs[1] = (pixelData32 << 6) & (0xFFUL << 22);
+      regs[0] = (pixelData32 >>  2) & (0xFFUL << 22);
+      regs[1] = (pixelData32 <<  6) & (0xFFUL << 22);
       regs[2] = (pixelData32 << 14) & (0xFFUL << 22);
+#endif
 
       if(bChnorm)
       {
         regs[1] = (regs[1] - 0x20000000UL) & 0xFFC00000UL;
         regs[2] = (regs[2] - 0x20000000UL) & 0xFFC00000UL;
       }
+
       return;
     }
   }
@@ -634,7 +655,7 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
       //The initial xoffset is guaranteed to start at the first pixel of a group of four.  
       //This means that for even values of X, the pixel bits to be extracted are always [7:4]
       //and for odd values of X, the pixel bits to be extracted are [3:0]
-      const uint32 pixelData32 = (*((uint8 *)memPtr) >> (4 - ((mipped_xoffset & 1) << 2))) & 0x0FUL;
+      const uint32 pixelData32 = (*((uint8 *)memPtr) >> (4 - ((mpe.ba_mipped_xoffset & 1) << 2))) & 0x0FUL;
       mpe.regs[dest  ] = (mpe.clutbase & 0xFFFFFFC0UL) | (pixelData32 << 2);
       mpe.regs[dest+1] = 0;
       mpe.regs[dest+2] = 0;
@@ -643,12 +664,12 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
     case 0x2:
     case 0x5:
     {
-      //16
-      uint32 pixelData32 = *((uint32*)memPtr);
-      SwapScalarBytes(&pixelData32);
-      mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFCUL << 22);
-      mpe.regs[dest+1] = (pixelData32 << 4) & (0xF8UL << 22);
-      mpe.regs[dest+2] = (pixelData32 << 9) & (0xF8UL << 22);
+      //16+16Z
+      uint16 pixelData16 = *((uint16*)memPtr);
+      SwapWordBytes(&pixelData16);
+      mpe.regs[dest  ] = ((uint32)pixelData16 << 14) & (0xFCUL << 22);
+      mpe.regs[dest+1] = ((uint32)pixelData16 << 20) & (0xF8UL << 22);
+      mpe.regs[dest+2] = ((uint32)pixelData16 << 25) & (0xF8UL << 22);
 
       if(bChnorm)
       {
@@ -672,10 +693,16 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
     {
       //32 bit or 32+32Z (both behave the same for LD_P)
       uint32 pixelData32 = *((uint32*)memPtr);
+#ifdef LITTLE_ENDIAN
+      mpe.regs[dest  ] = (pixelData32 << 22) & (0xFFUL << 22);
+      mpe.regs[dest+1] = (pixelData32 << 14) & (0xFFUL << 22);
+      mpe.regs[dest+2] = (pixelData32 <<  6) & (0xFFUL << 22);
+#else
       SwapScalarBytes(&pixelData32);
-      mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFFUL << 22);
-      mpe.regs[dest+1] = (pixelData32 << 6) & (0xFFUL << 22);
+      mpe.regs[dest  ] = (pixelData32 >>  2) & (0xFFUL << 22);
+      mpe.regs[dest+1] = (pixelData32 <<  6) & (0xFFUL << 22);
       mpe.regs[dest+2] = (pixelData32 << 14) & (0xFFUL << 22);
+#endif
 
       if(bChnorm)
       {
@@ -688,11 +715,11 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
   }
 }
 
-void LoadPixelZAbsolute(void)
+// leave __fastcall here as it needs to pass in the mpe data block
+void __fastcall _LoadPixelZAbsolute(const MPE* const __restrict mpe, const void* const __restrict memPtr)
 {
-  const uint32 control = bilinearAddressInfo.control;
-  const void* const memPtr = bilinearAddressInfo.pPixelData;
-  uint32* const regs = bilinearAddressInfo.pRegs;
+  const uint32 control = mpe->ba_control;
+  uint32* const regs = mpe->ba_regs;
   const uint32 pixType = BilinearInfo_XYType(control);
   const bool bChnorm = BilinearInfo_XYChnorm(control);
 
@@ -707,11 +734,11 @@ void LoadPixelZAbsolute(void)
     case 0x2:
     {
       //16
-      uint32 pixelData32 = *((uint32*)memPtr);
-      SwapScalarBytes(&pixelData32);
-      regs[0] = (pixelData32 >> 2) & (0xFCUL << 22);
-      regs[1] = (pixelData32 << 4) & (0xF8UL << 22);
-      regs[2] = (pixelData32 << 9) & (0xF8UL << 22);
+      uint16 pixelData16 = *((uint16*)memPtr);
+      SwapWordBytes(&pixelData16);
+      regs[0] = ((uint32)pixelData16 << 14) & (0xFCUL << 22);
+      regs[1] = ((uint32)pixelData16 << 20) & (0xF8UL << 22);
+      regs[2] = ((uint32)pixelData16 << 25) & (0xF8UL << 22);
 
       if(bChnorm)
       {
@@ -746,11 +773,18 @@ void LoadPixelZAbsolute(void)
     {
       //32 bit
       uint32 pixelData32 = *((uint32*)memPtr);
+#ifdef LITTLE_ENDIAN
+      regs[0] = (pixelData32 << 22) & (0xFFUL << 22);
+      regs[1] = (pixelData32 << 14) & (0xFFUL << 22);
+      regs[2] = (pixelData32 <<  6) & (0xFFUL << 22);
+      regs[3] = pixelData32 & 0xFF000000u;
+#else
       SwapScalarBytes(&pixelData32);
-      regs[0] = (pixelData32 >> 2) & (0xFFUL << 22);
-      regs[1] = (pixelData32 << 6) & (0xFFUL << 22);
+      regs[0] = (pixelData32 >>  2) & (0xFFUL << 22);
+      regs[1] = (pixelData32 <<  6) & (0xFFUL << 22);
       regs[2] = (pixelData32 << 14) & (0xFFUL << 22);
       regs[3] = (pixelData32 << 24);
+#endif
 
       if(bChnorm)
       {
@@ -762,13 +796,20 @@ void LoadPixelZAbsolute(void)
     }
     case 0x6:
     {
-      uint32 pixelData32 = *((uint32*)memPtr);
-      uint32 zData32 = *(((uint32*)memPtr) + 1);
-      SwapScalarBytes(&pixelData32);
+      //32 + 32Z
+      uint32 pixelData32 = ((uint32*)memPtr)[0];
+      uint32 zData32     = ((uint32*)memPtr)[1];
       SwapScalarBytes(&zData32);
-      regs[0] = (pixelData32 >> 2) & (0xFFUL << 22);
-      regs[1] = (pixelData32 << 6) & (0xFFUL << 22);
+#ifdef LITTLE_ENDIAN
+      regs[0] = (pixelData32 << 22) & (0xFFUL << 22);
+      regs[1] = (pixelData32 << 14) & (0xFFUL << 22);
+      regs[2] = (pixelData32 <<  6) & (0xFFUL << 22);
+#else
+      SwapScalarBytes(&pixelData32);
+      regs[0] = (pixelData32 >>  2) & (0xFFUL << 22);
+      regs[1] = (pixelData32 <<  6) & (0xFFUL << 22);
       regs[2] = (pixelData32 << 14) & (0xFFUL << 22);
+#endif
       regs[3] = zData32;
 
       if(bChnorm)
@@ -816,11 +857,11 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     case 0x2:
     {
       //16
-      uint32 pixelData32 = *((uint32*)memPtr);
-      SwapScalarBytes(&pixelData32);
-      mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFCUL << 22);
-      mpe.regs[dest+1] = (pixelData32 << 4) & (0xF8UL << 22);
-      mpe.regs[dest+2] = (pixelData32 << 9) & (0xF8UL << 22);
+      uint16 pixelData16 = *((uint16*)memPtr);
+      SwapWordBytes(&pixelData16);
+      mpe.regs[dest  ] = ((uint32)pixelData16 << 14) & (0xFCUL << 22);
+      mpe.regs[dest+1] = ((uint32)pixelData16 << 20) & (0xF8UL << 22);
+      mpe.regs[dest+2] = ((uint32)pixelData16 << 25) & (0xF8UL << 22);
 
       if(bChnorm)
       {
@@ -855,11 +896,18 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     {
       //32 bit
       uint32 pixelData32 = *((uint32*)memPtr);
+#ifdef LITTLE_ENDIAN
+      mpe.regs[dest  ] = (pixelData32 << 22) & (0xFFUL << 22);
+      mpe.regs[dest+1] = (pixelData32 << 14) & (0xFFUL << 22);
+      mpe.regs[dest+2] = (pixelData32 <<  6) & (0xFFUL << 22);
+      mpe.regs[dest+3] = pixelData32 & 0xFF000000u;
+#else
       SwapScalarBytes(&pixelData32);
-      mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFFUL << 22);
-      mpe.regs[dest+1] = (pixelData32 << 6) & (0xFFUL << 22);
+      mpe.regs[dest  ] = (pixelData32 >>  2) & (0xFFUL << 22);
+      mpe.regs[dest+1] = (pixelData32 <<  6) & (0xFFUL << 22);
       mpe.regs[dest+2] = (pixelData32 << 14) & (0xFFUL << 22);
       mpe.regs[dest+3] = (pixelData32 << 24);
+#endif
 
       if(bChnorm)
       {
@@ -871,13 +919,20 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     }
     case 0x6:
     {
-      uint32 pixelData32 = *((uint32*)memPtr);
-      uint32 zData32 = *(((uint32*)memPtr) + 1);
-      SwapScalarBytes(&pixelData32);
+      //32 + 32Z
+      uint32 pixelData32 = ((uint32*)memPtr)[0];
+      uint32 zData32     = ((uint32*)memPtr)[1];
       SwapScalarBytes(&zData32);
-      mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFFUL << 22);
-      mpe.regs[dest+1] = (pixelData32 << 6) & (0xFFUL << 22);
+#ifdef LITTLE_ENDIAN
+      mpe.regs[dest  ] = (pixelData32 << 22) & (0xFFUL << 22);
+      mpe.regs[dest+1] = (pixelData32 << 14) & (0xFFUL << 22);
+      mpe.regs[dest+2] = (pixelData32 <<  6) & (0xFFUL << 22);
+#else
+      SwapScalarBytes(&pixelData32);
+      mpe.regs[dest  ] = (pixelData32 >>  2) & (0xFFUL << 22);
+      mpe.regs[dest+1] = (pixelData32 <<  6) & (0xFFUL << 22);
       mpe.regs[dest+2] = (pixelData32 << 14) & (0xFFUL << 22);
+#endif
       mpe.regs[dest+3] = zData32;
 
       if(bChnorm)
@@ -902,7 +957,7 @@ void Execute_LoadByteBilinearUV(MPE &mpe, const uint32 pRegs[48], const Nuance &
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[UVC_REG],pRegs[INDEX_REG+REG_U],pRegs[INDEX_REG+REG_V]);
-  address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[UVC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.uvbase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[UVC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (size_t)Execute_LoadByteAbsolute;
   newNuance.fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(mpe,address);
@@ -915,7 +970,7 @@ void Execute_LoadByteBilinearXY(MPE &mpe, const uint32 pRegs[48], const Nuance &
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[XYC_REG],pRegs[INDEX_REG+REG_X],pRegs[INDEX_REG+REG_Y]);
-  address = (mpe.xybase & 0xFFFFFFC) + (address << pixel_type_width[(pRegs[XYC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.xybase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[XYC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (size_t)Execute_LoadByteAbsolute;
   newNuance.fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(mpe,address);
@@ -930,8 +985,8 @@ void Execute_LoadWordLinear(MPE &mpe, const uint32 pRegs[48], const Nuance &nuan
   const uint32 address = pRegs[nuance.fields[FIELD_MEM_FROM]];
 
   const uint8* const memPtr = (uint8 *)(nuonEnv.GetPointerToMemory(mpe,address & 0xFFFFFFFE));
-  uint32 data = ((uint32)(*memPtr)) << 24;
-  data |= ((uint32)(*(memPtr + 1))) << 16;
+  uint32 data = ((uint32)memPtr[0]) << 24;
+  data |= ((uint32)memPtr[1]) << 16;
 
   mpe.regs[dest] = data;
 }
@@ -940,7 +995,7 @@ void Execute_LoadWordBilinearUV(MPE &mpe, const uint32 pRegs[48], const Nuance &
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[UVC_REG],pRegs[INDEX_REG+REG_U],pRegs[INDEX_REG+REG_V]);
-  address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[UVC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.uvbase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[UVC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (size_t)Execute_LoadWordAbsolute;
   newNuance.fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(mpe,address);
@@ -953,7 +1008,7 @@ void Execute_LoadWordBilinearXY(MPE &mpe, const uint32 pRegs[48], const Nuance &
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[XYC_REG],pRegs[INDEX_REG+REG_X],pRegs[INDEX_REG+REG_Y]);
-  address = (mpe.xybase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[XYC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.xybase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[XYC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (size_t)Execute_LoadWordAbsolute;
   newNuance.fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(mpe,address);
@@ -966,7 +1021,7 @@ void Execute_LoadScalarBilinearUV(MPE &mpe, const uint32 pRegs[48], const Nuance
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[UVC_REG],pRegs[INDEX_REG+REG_U],pRegs[INDEX_REG+REG_V]);
-  address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[UVC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.uvbase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[UVC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (size_t)Execute_LoadScalarAbsolute;
   newNuance.fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(mpe,address);
@@ -979,7 +1034,7 @@ void Execute_LoadScalarBilinearXY(MPE &mpe, const uint32 pRegs[48], const Nuance
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[XYC_REG],pRegs[INDEX_REG+REG_X],pRegs[INDEX_REG+REG_Y]);
-  address = (mpe.xybase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[XYC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.xybase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[XYC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (size_t)Execute_LoadScalarAbsolute;
   newNuance.fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(mpe,address);
@@ -1036,7 +1091,7 @@ void Execute_LoadShortVectorBilinearUV(MPE &mpe, const uint32 pRegs[48], const N
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[UVC_REG],pRegs[INDEX_REG+REG_U],pRegs[INDEX_REG+REG_V]);
-  address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[UVC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.uvbase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[UVC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (size_t)Execute_LoadShortVectorAbsolute;
   newNuance.fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(mpe,address);
@@ -1049,7 +1104,7 @@ void Execute_LoadShortVectorBilinearXY(MPE &mpe, const uint32 pRegs[48], const N
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[XYC_REG],pRegs[INDEX_REG+REG_X],pRegs[INDEX_REG+REG_Y]);
-  address = (mpe.xybase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[XYC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.xybase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[XYC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (size_t)Execute_LoadShortVectorAbsolute;
   newNuance.fields[FIELD_MEM_POINTER] = (size_t)mpe.GetPointerToMemoryBank(address);
@@ -1085,7 +1140,7 @@ void Execute_LoadVectorBilinearUV(MPE &mpe, const uint32 pRegs[48], const Nuance
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[UVC_REG],pRegs[INDEX_REG+REG_U],pRegs[INDEX_REG+REG_V]);
-  address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[UVC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.uvbase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[UVC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (size_t)Execute_LoadVectorAbsolute;
   newNuance.fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(mpe,address);
@@ -1098,7 +1153,7 @@ void Execute_LoadVectorBilinearXY(MPE &mpe, const uint32 pRegs[48], const Nuance
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[XYC_REG],pRegs[INDEX_REG+REG_X],pRegs[INDEX_REG+REG_Y]);
-  address = (mpe.xybase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[XYC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.xybase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[XYC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_HANDLER] = (size_t)Execute_LoadVectorAbsolute;
   newNuance.fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(mpe,address);
@@ -1123,7 +1178,7 @@ void Execute_LoadPixelBilinearUV(MPE &mpe, const uint32 pRegs[48], const Nuance 
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[UVC_REG],pRegs[INDEX_REG+REG_U],pRegs[INDEX_REG+REG_V]);
-  const int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width, pRegs[UVC_REG]);
+  const int8 pixwidth = BilinearInfo_PixelWidth(pixel_type_width, pRegs[UVC_REG]);
   if(pixwidth >= 0)
   {
     address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixwidth);
@@ -1145,7 +1200,7 @@ void Execute_LoadPixelBilinearXY(MPE &mpe, const uint32 pRegs[48], const Nuance 
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[XYC_REG],pRegs[INDEX_REG+REG_X],pRegs[INDEX_REG+REG_Y]);
-  const int32 pixwidth = BilinearInfo_PixelWidth(pixel_type_width, pRegs[XYC_REG]);
+  const int8 pixwidth = BilinearInfo_PixelWidth(pixel_type_width, pRegs[XYC_REG]);
   if(pixwidth >= 0)
   {
     address = (mpe.xybase & 0xFFFFFFFC) + (address << pixwidth);
@@ -1247,7 +1302,7 @@ void Execute_StoreScalarBilinearUV(MPE &mpe, const uint32 pRegs[48], const Nuanc
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[UVC_REG],pRegs[INDEX_REG+REG_U],pRegs[INDEX_REG+REG_V]);
-  address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[UVC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.uvbase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width,pRegs[UVC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_UV;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
@@ -1260,7 +1315,7 @@ void Execute_StoreScalarBilinearXY(MPE &mpe, const uint32 pRegs[48], const Nuanc
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[XYC_REG],pRegs[INDEX_REG+REG_X],pRegs[INDEX_REG+REG_Y]);
-  address = (mpe.xybase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[XYC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.xybase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width,pRegs[XYC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_XY;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
@@ -1287,21 +1342,19 @@ void Execute_StoreVectorControlRegisterAbsolute(MPE &mpe, const uint32 pRegs[48]
   const uint32 address = nuance.fields[FIELD_MEM_TO];
   const uint32 * const srcPtr = &(pRegs[nuance.fields[FIELD_MEM_FROM]]);
 
-  mpe.WriteControlRegister(address - MPE_CTRL_BASE, srcPtr[0]);
-  mpe.WriteControlRegister(address + 4 - MPE_CTRL_BASE, srcPtr[1]);
-  mpe.WriteControlRegister(address + 8 - MPE_CTRL_BASE, srcPtr[2]);
+  mpe.WriteControlRegister(address      - MPE_CTRL_BASE, srcPtr[0]);
+  mpe.WriteControlRegister(address + 4  - MPE_CTRL_BASE, srcPtr[1]);
+  mpe.WriteControlRegister(address + 8  - MPE_CTRL_BASE, srcPtr[2]);
   mpe.WriteControlRegister(address + 12 - MPE_CTRL_BASE, srcPtr[3]);
 }
 
-void StorePixelAbsolute(void)
+// leave __fastcall here as it needs to pass in the mpe data block
+void __fastcall _StorePixelAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr)
 {
-  const uint32 control = bilinearAddressInfo.control;
-  const uint32 * const regs = bilinearAddressInfo.pRegs;
-
-  void * const memPtr = bilinearAddressInfo.pPixelData;
-
+  const uint32 control = mpe->ba_control;
+  const uint32 * const regs = mpe->ba_regs;
   const uint32 pixType = BilinearInfo_XYType(control);
-  const bool bChnorm = BilinearInfo_XYChnorm(control);
+  const uint32 ChnormOffset = BilinearInfo_XYChnorm(control) ? 1024 : 0;
 
   switch(pixType)
   {
@@ -1315,14 +1368,7 @@ void StorePixelAbsolute(void)
     case 0x5:
     {
       //16 bit
-      uint32 y32  = regs[0];
-      uint32 cr32 = regs[1];
-      uint32 cb32 = regs[2];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
-
-      uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
-      SwapWordBytes(&pixelData16);
-      *((uint16 *)memPtr) = pixelData16;
+      *((uint16 *)memPtr) = SaturateColorComponents16bitSwapped(regs[0], regs[1], regs[2], ChnormOffset);
       return;
     }
     case 0x3:
@@ -1335,12 +1381,16 @@ void StorePixelAbsolute(void)
       uint32 y32  = regs[0];
       uint32 cr32 = regs[1];
       uint32 cb32 = regs[2];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
+      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
 
       uint32 pixelData32 = *((uint32*)memPtr);
+#ifdef LITTLE_ENDIAN
+      pixelData32 = y32 | (cr32 << 8) | (cb32 << 16) | (pixelData32 & 0xFF000000u);
+#else
       SwapScalarBytes(&pixelData32);
       pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (pixelData32 & 0xFF);
       SwapScalarBytes(&pixelData32);
+#endif
       *((uint32 *)memPtr) = pixelData32;
     }
   }
@@ -1353,21 +1403,21 @@ void Execute_StorePixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
   void * const memPtr = (void *)(nuonEnv.GetPointerToMemory(mpe,address));
 
   uint32 pixType;
-  bool bChnorm;
+  uint32 ChnormOffset;
   if(nuance.fields[FIELD_MEM_INFO] & MEM_INFO_BILINEAR_UV)
   {
     pixType = BilinearInfo_XYType(pRegs[UVC_REG]);
-    bChnorm = BilinearInfo_XYChnorm(pRegs[UVC_REG]);
+    ChnormOffset = BilinearInfo_XYChnorm(pRegs[UVC_REG]) ? 1024 : 0;
   }
   else if(nuance.fields[FIELD_MEM_INFO] & MEM_INFO_BILINEAR_XY)
   {
     pixType = BilinearInfo_XYType(pRegs[XYC_REG]);
-    bChnorm = BilinearInfo_XYChnorm(pRegs[XYC_REG]);
+    ChnormOffset = BilinearInfo_XYChnorm(pRegs[XYC_REG]) ? 1024 : 0;
   }
   else
   {
     pixType = BilinearInfo_XYType(mpe.linpixctl);
-    bChnorm = BilinearInfo_XYChnorm(mpe.linpixctl);
+    ChnormOffset = BilinearInfo_XYChnorm(mpe.linpixctl) ? 1024 : 0;
   }
 
   switch(pixType)
@@ -1382,14 +1432,7 @@ void Execute_StorePixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     case 0x5:
     {
       //16 bit
-      uint32 y32  = pRegs[src  ];
-      uint32 cr32 = pRegs[src+1];
-      uint32 cb32 = pRegs[src+2];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
-
-      uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
-      SwapWordBytes(&pixelData16);
-      *((uint16 *)memPtr) = pixelData16;
+      *((uint16 *)memPtr) = SaturateColorComponents16bitSwapped(pRegs[src], pRegs[src+1], pRegs[src+2], ChnormOffset);
       return;
     }
     case 0x3:
@@ -1402,26 +1445,28 @@ void Execute_StorePixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
       uint32 y32  = pRegs[src  ];
       uint32 cr32 = pRegs[src+1];
       uint32 cb32 = pRegs[src+2];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
+      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
 
       uint32 pixelData32 = *((uint32*)memPtr);
+#ifdef LITTLE_ENDIAN
+      pixelData32 = y32 | (cr32 << 8) | (cb32 << 16) | (pixelData32 & 0xFF000000u);
+#else
       SwapScalarBytes(&pixelData32);
       pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (pixelData32 & 0xFF);
       SwapScalarBytes(&pixelData32);
+#endif
       *((uint32 *)memPtr) = pixelData32;
     }
   }
 }
 
-void StorePixelZAbsolute(void)
+// leave __fastcall here as it needs to pass in the mpe data block
+void __fastcall _StorePixelZAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr)
 {
-  const uint32 control = bilinearAddressInfo.control;
-  const uint32 * const regs = bilinearAddressInfo.pRegs;
-
-  void * const memPtr = bilinearAddressInfo.pPixelData;
-
+  const uint32 control = mpe->ba_control;
+  const uint32 * const regs = mpe->ba_regs;
   const uint32 pixType = BilinearInfo_XYType(control);
-  const bool bChnorm = BilinearInfo_XYChnorm(control);
+  const uint32 ChnormOffset = BilinearInfo_XYChnorm(control) ? 1024 : 0;
 
   switch(pixType)
   {
@@ -1434,30 +1479,16 @@ void StorePixelZAbsolute(void)
     case 0x2:
     {
       //16 bit
-      uint32 y32  = regs[0];
-      uint32 cr32 = regs[1];
-      uint32 cb32 = regs[2];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
-
-      uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
-      SwapWordBytes(&pixelData16);
-      *((uint16 *)memPtr) = pixelData16;
+      *((uint16 *)memPtr) = SaturateColorComponents16bitSwapped(regs[0], regs[1], regs[2], ChnormOffset);
       return;
     }
     case 0x5:
     {
-      //16 bit
-      uint32 y32  = regs[0];
-      uint32 cr32 = regs[1];
-      uint32 cb32 = regs[2];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
-
-      uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
-      SwapWordBytes(&pixelData16);
+      //16 bit + 16bitZ
       uint16 z16 = regs[3] >> 16;
       SwapWordBytes(&z16);
-      *((uint16 *)memPtr) = pixelData16;
-      *((uint16 *)memPtr + 1) = z16;
+      ((uint16 *)memPtr)[0] = SaturateColorComponents16bitSwapped(regs[0], regs[1], regs[2], ChnormOffset);
+      ((uint16 *)memPtr)[1] = z16;
       return;
     }
     case 0x3:
@@ -1469,10 +1500,14 @@ void StorePixelZAbsolute(void)
       uint32 y32  = regs[0];
       uint32 cr32 = regs[1];
       uint32 cb32 = regs[2];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
+      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
 
+#ifdef LITTLE_ENDIAN
+      const uint32 pixelData32 = y32 | (cr32 << 8) | (cb32 << 16) | (regs[3] & 0xFF000000u);
+#else
       uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (regs[3] >> 24);
       SwapScalarBytes(&pixelData32);
+#endif
       *((uint32 *)memPtr) = pixelData32;
       return;
     }
@@ -1482,11 +1517,15 @@ void StorePixelZAbsolute(void)
       uint32 y32  = regs[0];
       uint32 cr32 = regs[1];
       uint32 cb32 = regs[2];
-      //uint32 z32 = pRegs[src+3];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
+      //uint32 z32 = Regs[3];
+      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
 
+#ifdef LITTLE_ENDIAN
+      const uint32 pixelData32 = y32 | (cr32 << 8) | (cb32 << 16);
+#else
       uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8);
       SwapScalarBytes(&pixelData32);
+#endif
       //SwapScalarBytes(&z32);
       *((uint32 *)memPtr) = pixelData32;
       //*(((uint32 *)memPtr) + 1) = z32;
@@ -1505,21 +1544,21 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance 
   void * const memPtr = (void *)(nuonEnv.GetPointerToMemory(mpe,address));
 
   uint32 pixType;
-  bool bChnorm;
+  uint32 ChnormOffset;
   if(nuance.fields[FIELD_MEM_INFO] & MEM_INFO_BILINEAR_UV)
   {
     pixType = BilinearInfo_XYType(pRegs[UVC_REG]);
-    bChnorm = BilinearInfo_XYChnorm(pRegs[UVC_REG]);
+    ChnormOffset = BilinearInfo_XYChnorm(pRegs[UVC_REG]) ? 1024 : 0;
   }
   else if(nuance.fields[FIELD_MEM_INFO] & MEM_INFO_BILINEAR_XY)
   {
     pixType = BilinearInfo_XYType(pRegs[XYC_REG]);
-    bChnorm = BilinearInfo_XYChnorm(pRegs[XYC_REG]);
+    ChnormOffset = BilinearInfo_XYChnorm(pRegs[XYC_REG]) ? 1024 : 0;
   }
   else
   {
     pixType = BilinearInfo_XYType(mpe.linpixctl);
-    bChnorm = BilinearInfo_XYChnorm(mpe.linpixctl);
+    ChnormOffset = BilinearInfo_XYChnorm(mpe.linpixctl) ? 1024 : 0;
   }
 
   switch(pixType)
@@ -1533,30 +1572,16 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance 
     case 0x2:
     {
       //16 bit
-      uint32 y32  = pRegs[src  ];
-      uint32 cr32 = pRegs[src+1];
-      uint32 cb32 = pRegs[src+2];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
-
-      uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
-      SwapWordBytes(&pixelData16);
-      *((uint16 *)memPtr) = pixelData16;
+      *((uint16 *)memPtr) = SaturateColorComponents16bitSwapped(pRegs[src], pRegs[src+1], pRegs[src+2], ChnormOffset);
       return;
     }
     case 0x5:
     {
-      //16 bit
-      uint32 y32  = pRegs[src  ];
-      uint32 cr32 = pRegs[src+1];
-      uint32 cb32 = pRegs[src+2];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
-
-      uint16 pixelData16 = ((y32 & 0xFC) << (15-7)) | ((cr32 & 0xF8) << (9-7)) | ((cb32 & 0xF8) >> 3);
-      SwapWordBytes(&pixelData16);
+      //16 bit+16bitZ
       uint16 z16 = pRegs[src+3] >> 16;
       SwapWordBytes(&z16);
-      *((uint16 *)memPtr) = pixelData16;
-      *((uint16 *)memPtr + 1) = z16;
+      ((uint16 *)memPtr)[0] = SaturateColorComponents16bitSwapped(pRegs[src], pRegs[src+1], pRegs[src+2], ChnormOffset);
+      ((uint16 *)memPtr)[1] = z16;
       return;
     }
     case 0x3:
@@ -1568,10 +1593,14 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance 
       uint32 y32  = pRegs[src  ];
       uint32 cr32 = pRegs[src+1];
       uint32 cb32 = pRegs[src+2];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
+      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
 
+#ifdef LITTLE_ENDIAN
+      const uint32 pixelData32 = y32 | (cr32 << 8) | (cb32 << 16) | (pRegs[src+3] & 0xFF000000u);
+#else
       uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (pRegs[src+3] >> 24);
       SwapScalarBytes(&pixelData32);
+#endif
       *((uint32 *)memPtr) = pixelData32;
       return;
     }
@@ -1582,10 +1611,14 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance 
       uint32 cr32 = pRegs[src+1];
       uint32 cb32 = pRegs[src+2];
       //uint32 z32 = pRegs[src+3];
-      SaturateColorComponents(y32, cr32, cb32, bChnorm);
+      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
 
+#ifdef LITTLE_ENDIAN
+      const uint32 pixelData32 = y32 | (cr32 << 8) | (cb32 << 16);
+#else
       uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8);
       SwapScalarBytes(&pixelData32);
+#endif
       //SwapScalarBytes(&z32);
       *((uint32 *)memPtr) = pixelData32;
       //*(((uint32 *)memPtr) + 1) = z32;
@@ -1622,7 +1655,7 @@ void Execute_StoreShortVectorBilinearUV(MPE &mpe, const uint32 pRegs[48], const 
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[UVC_REG],pRegs[INDEX_REG+REG_U],pRegs[INDEX_REG+REG_V]);
-  address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[UVC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.uvbase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[UVC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_UV;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
@@ -1635,7 +1668,7 @@ void Execute_StoreShortVectorBilinearXY(MPE &mpe, const uint32 pRegs[48], const 
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[XYC_REG],pRegs[INDEX_REG+REG_X],pRegs[INDEX_REG+REG_Y]);
-  address = (mpe.xybase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[XYC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.xybase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[XYC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_XY;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
@@ -1689,7 +1722,7 @@ void Execute_StoreVectorBilinearUV(MPE &mpe, const uint32 pRegs[48], const Nuanc
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[UVC_REG],pRegs[INDEX_REG+REG_U],pRegs[INDEX_REG+REG_V]);
-  address = (mpe.uvbase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[UVC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.uvbase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[UVC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_UV;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];
@@ -1702,7 +1735,7 @@ void Execute_StoreVectorBilinearXY(MPE &mpe, const uint32 pRegs[48], const Nuanc
 {
   uint32 address;
   CalculateBilinearAddress(mpe,&address,pRegs[XYC_REG],pRegs[INDEX_REG+REG_X],pRegs[INDEX_REG+REG_Y]);
-  address = (mpe.xybase & 0xFFFFFFFC) + (address << pixel_type_width[(pRegs[XYC_REG] >> 20) & 0x0FUL]);
+  address = (mpe.xybase & 0xFFFFFFFC) + (address << BilinearInfo_PixelWidth(pixel_type_width, pRegs[XYC_REG]));
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_BILINEAR_XY;
   newNuance.fields[FIELD_MEM_FROM] = nuance.fields[FIELD_MEM_FROM];

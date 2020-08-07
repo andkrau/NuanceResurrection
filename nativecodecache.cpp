@@ -1077,7 +1077,7 @@ void NativeCodeCache::X86Emit_JCC(uint8 *pTarget, const int8 conditionCode)
   }
 }
 
-void NativeCodeCache::X86Emit_JCC_Label(PatchManager &patchMgr, const int8 conditionCode, const uint32 labelIndex) //!! patchMgr dupe
+void NativeCodeCache::X86Emit_JCC_Label(const int8 conditionCode, const uint32 labelIndex)
 {
   if(labelIndex >= patchMgr.numLabels)
   {
@@ -1399,7 +1399,7 @@ void NativeCodeCache::X86Emit_JMPI(uint8 *target, uint16 seg)
   }
 }
 
-void NativeCodeCache::X86Emit_JMPI_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
+void NativeCodeCache::X86Emit_JMPI_Label(const uint32 labelIndex)
 {
   if(labelIndex >= patchMgr.numPatches)
   {
@@ -1918,7 +1918,7 @@ void NativeCodeCache::X86Emit_LOOPNE(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_LOOPNE_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
+void NativeCodeCache::X86Emit_LOOPNE_Label(const uint32 labelIndex)
 {
   if(labelIndex >= patchMgr.numLabels)
   {
@@ -1940,7 +1940,7 @@ void NativeCodeCache::X86Emit_LOOPE(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_LOOPE_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
+void NativeCodeCache::X86Emit_LOOPE_Label(const uint32 labelIndex)
 {
   if(labelIndex >= patchMgr.numLabels)
   {
@@ -1962,7 +1962,7 @@ void NativeCodeCache::X86Emit_LOOP(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_LOOP_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
+void NativeCodeCache::X86Emit_LOOP_Label(const uint32 labelIndex)
 {
   if(labelIndex >= patchMgr.numLabels)
   {
@@ -1986,7 +1986,7 @@ void NativeCodeCache::X86Emit_JCXZ(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_JCXZ_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
+void NativeCodeCache::X86Emit_JCXZ_Label(const uint32 labelIndex)
 {
   if(labelIndex >= patchMgr.numLabels)
   {
@@ -2009,7 +2009,7 @@ void NativeCodeCache::X86Emit_JECXZ(uint8 *pTarget)
   *pEmitLoc++ = (int8)pOffset;
 }
 
-void NativeCodeCache::X86Emit_JECXZ_Label(PatchManager &patchMgr, const uint32 labelIndex) //!! patchMgr dupe
+void NativeCodeCache::X86Emit_JECXZ_Label(const uint32 labelIndex)
 {
   if(labelIndex >= patchMgr.numLabels)
   {
@@ -3160,6 +3160,16 @@ void NativeCodeCache::X86Emit_MOVDQUMR(const x86Reg regDest, const uint32 base, 
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)((uint32)regDest & 0x07),base,index, scale, disp);
 }
 
+void NativeCodeCache::X86Emit_MOVDQAMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
+{
+  //SSE2
+  *pEmitLoc++ = 0x66;
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0x6F;
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)((uint32)regDest & 0x07),base,index, scale, disp);
+}
+
 void NativeCodeCache::X86Emit_MOVQRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
   if(regSrc < x86Reg::x86Reg_xmm0)
@@ -3182,6 +3192,16 @@ void NativeCodeCache::X86Emit_MOVDQURM(const x86Reg regSrc, const uint32 base, c
 {
   //SSE2
   *pEmitLoc++ = 0xF3;
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0x7F;
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)((uint32)regSrc & 0x07),base,index, scale, disp);
+}
+
+void NativeCodeCache::X86Emit_MOVDQARM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
+{
+  //SSE2
+  *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x7F;
 
@@ -3358,6 +3378,244 @@ void NativeCodeCache::X86Emit_MOVSXMR(const x86Reg regDest, const x86MemPtr ptrT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = opcode;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)((uint32)regDest & 0x07), base ,index, scale, disp);
+}
+
+void NativeCodeCache::X86Emit_PSRADRR(const x86Reg regDest, const x86Reg regSrc)
+{
+  if(regDest < x86Reg::x86Reg_xmm0)
+  {
+    //MMX
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0xE2;
+  }
+  else
+  {
+    //SSE2
+    *pEmitLoc++ = 0x66;
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0xE2;
+  }
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+}
+
+void NativeCodeCache::X86Emit_PSRADIR(const x86Reg regDest, const uint8 shiftCount)
+{
+  if(regDest < x86Reg::x86Reg_xmm0)
+  {
+    //MMX
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0x72;
+  }
+  else
+  {
+    //SSE2
+    *pEmitLoc++ = 0x66;
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0x72;
+  }
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)4,((uint32)regDest & 0x07));
+  *pEmitLoc++ = shiftCount;
+}
+
+void NativeCodeCache::X86Emit_PSRLDRR(const x86Reg regDest, const x86Reg regSrc)
+{
+  if(regDest < x86Reg::x86Reg_xmm0)
+  {
+    //MMX
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0xD2;
+  }
+  else
+  {
+    //SSE2
+    *pEmitLoc++ = 0x66;
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0xD2;
+  }
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+}
+
+void NativeCodeCache::X86Emit_PSRLDIR(const x86Reg regDest, const uint8 shiftCount)
+{
+  if(regDest < x86Reg::x86Reg_xmm0)
+  {
+    //MMX
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0x72;
+  }
+  else
+  {
+    //SSE2
+    *pEmitLoc++ = 0x66;
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0x72;
+  }
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)regDest & 0x07));
+  *pEmitLoc++ = shiftCount;
+}
+
+void NativeCodeCache::X86Emit_PSLDRR(const x86Reg regDest, const x86Reg regSrc)
+{
+  if(regDest < x86Reg::x86Reg_xmm0)
+  {
+    //MMX
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0xF2;
+  }
+  else
+  {
+    //SSE2
+    *pEmitLoc++ = 0x66;
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0xF2;
+  }
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+}
+
+void NativeCodeCache::X86Emit_PSLDIR(const x86Reg regDest, const uint8 shiftCount)
+{
+  if(regDest < x86Reg::x86Reg_xmm0)
+  {
+    //MMX
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0x72;
+  }
+  else
+  {
+    //SSE2
+    *pEmitLoc++ = 0x66;
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0x72;
+  }
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)6,((uint32)regDest & 0x07));
+  *pEmitLoc++ = shiftCount;
+}
+
+void NativeCodeCache::X86Emit_PMULLDRR(const x86Reg regDest, const x86Reg regSrc)
+{
+  //SSE4.1
+  *pEmitLoc++ = 0x66;
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0x38;
+  *pEmitLoc++ = 0x40;
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+}
+
+void NativeCodeCache::X86Emit_PHADDDRR(const x86Reg regDest, const x86Reg regSrc)
+{
+  //SSSE3
+  *pEmitLoc++ = 0x66;
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0x38;
+  *pEmitLoc++ = 0x02;
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+}
+
+void NativeCodeCache::X86Emit_PSHUFBRR(const x86Reg regDest, const x86Reg regSrc)
+{
+  //SSSE3
+  *pEmitLoc++ = 0x66;
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0x38;
+  *pEmitLoc++ = 0x00;
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+}
+
+void NativeCodeCache::X86Emit_DPPSRR(const x86Reg regDest, const x86Reg regSrc, const uint8 mask)
+{
+  //SSE4.1
+  *pEmitLoc++ = 0x66;
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0x3A;
+  *pEmitLoc++ = 0x40;
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+  *pEmitLoc++ = mask;
+}
+
+void NativeCodeCache::X86Emit_MOVDRR(const x86Reg regDest, const x86Reg regSrc)
+{
+  if(regDest < x86Reg::x86Reg_xmm0)
+  {
+    //MMX
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0x6E;
+  }
+  else
+  {
+    //SSE2
+    *pEmitLoc++ = 0x66;
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0x6E;
+  }
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+}
+
+void NativeCodeCache::X86Emit_MOVDRR2(const x86Reg regDest, const x86Reg regSrc)
+{
+  if(regSrc < x86Reg::x86Reg_xmm0)
+  {
+    //MMX
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0x7E;
+  }
+  else
+  {
+    //SSE2
+    *pEmitLoc++ = 0x66;
+    *pEmitLoc++ = 0x0F;
+    *pEmitLoc++ = 0x7E;
+  }
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+}
+
+void NativeCodeCache::X86Emit_MOVSSMR(const x86Reg regDest, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
+{
+  //SSE
+  *pEmitLoc++ = 0xF3;
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0x10;
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)((uint32)regDest & 0x07),base,index, scale, disp);
+}
+
+void NativeCodeCache::X86Emit_UNPCKLRR(const x86Reg regDest, const x86Reg regSrc)
+{
+  //SSE
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0x14;
+
+  //SSE2
+  /**pEmitLoc++ = 0x66;
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0x62;*/
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+}
+
+void NativeCodeCache::X86Emit_MOVLHRR(const x86Reg regDest, const x86Reg regSrc)
+{
+  //SSE
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0x16;
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+}
+
+void NativeCodeCache::X86Emit_SHUFIR(const x86Reg regDest, const x86Reg regSrc, const uint8 shiftCount)
+{
+  //SSE
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0xC6;
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)((uint32)regDest & 0x07),((uint32)regSrc & 0x07));
+  *pEmitLoc++ = shiftCount;
 }
 
 void NativeCodeCache::X86Emit_PANDRR(const x86Reg regDest, const x86Reg regSrc)

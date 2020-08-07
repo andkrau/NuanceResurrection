@@ -591,7 +591,7 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
 }
 #endif
 
-void SuperBlock::AddPacketToList(InstructionCacheEntry &packet, const uint32 index)
+void SuperBlock::AddPacketToList(const InstructionCacheEntry &packet, const uint32 index)
 {
   packets[index].pcexec = packet.pcexec;
   packets[index].pcroute = packet.pcroute;

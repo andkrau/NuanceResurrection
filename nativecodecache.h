@@ -84,6 +84,11 @@ public:
     emitVars.mpe = mpe;
   }
 
+  void SetLabelPointer(const uint32 labelIndex)
+  {
+    patchMgr.SetLabelPointer(labelIndex,GetEmitPointer());
+  }
+
   void X86Emit_ModRegRM(const x86ModType, const x86ModReg modReg, const uint32 baseReg, const x86IndexReg = x86IndexReg::x86IndexReg_none, const x86ScaleVal = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   void X86Emit_Group1RR(const x86Reg regDest, const x86Reg regSrc, const uint8 groupIndex);
   void X86Emit_Group1RM(const x86Reg regSrc, const uint32 base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex);
@@ -224,7 +229,7 @@ public:
   void X86Emit_OUTSW();
   void X86Emit_OUTSD();
   void X86Emit_JCC(uint8 *pTarget, const int8 conditionCode);
-  void X86Emit_JCC_Label(PatchManager &patchMgr, const int8 conditionCode, const uint32 labelIndex);
+  void X86Emit_JCC_Label(const int8 conditionCode, const uint32 labelIndex);
   void X86Emit_JO(uint8 *pTarget);
   void X86Emit_JNO(uint8 *pTarget);
   void X86Emit_JB(uint8 *pTarget);
@@ -257,7 +262,7 @@ public:
   void X86Emit_CDQ();
   void X86Emit_CALLI(uint32 offset, uint16 seg);
   void X86Emit_JMPI(uint8 *target, uint16 seg);
-  void X86Emit_JMPI_Label(PatchManager &patchMgr, const uint32 labelIndex);
+  void X86Emit_JMPI_Label(const uint32 labelIndex);
   void X86Emit_WAIT();
   void X86Emit_PUSHFW();
   void X86Emit_PUSHFD();
@@ -368,19 +373,19 @@ public:
   void X86Emit_ESC6();
   void X86Emit_ESC7();
   void X86Emit_LOOPNE(uint8 *pTarget);
-  void X86Emit_LOOPNE_Label(PatchManager &patchMgr, const uint32 labelIndex);
+  void X86Emit_LOOPNE_Label(const uint32 labelIndex);
   #define X86Emit_LOOPNZ X86Emit_LOOPNE
   #define X86Emit_LOOPNZ_Label X86Emit_LOOPNE_Label
   void X86Emit_LOOPE(uint8 *pTarget);
-  void X86Emit_LOOPE_Label(PatchManager &patchMgr, const uint32 labelIndex);
+  void X86Emit_LOOPE_Label(const uint32 labelIndex);
   #define X86Emit_LOOPZ X86Emit_LOOPE
   #define X86Emit_LOOPZ_Label X86Emit_LOOPE_Label
   void X86Emit_LOOP(uint8 *pTarget);
-  void X86Emit_LOOP_Label(PatchManager &patchMgr, const uint32 labelIndex);
+  void X86Emit_LOOP_Label(const uint32 labelIndex);
   void X86Emit_JCXZ(uint8 *pTarget);
-  void X86Emit_JCXZ_Label(PatchManager &patchMgr, const uint32 labelIndex);
+  void X86Emit_JCXZ_Label(const uint32 labelIndex);
   void X86Emit_JECXZ(uint8 *pTarget);
-  void X86Emit_JECXZ_Label(PatchManager &patchMgr, const uint32 labelIndex);
+  void X86Emit_JECXZ_Label(const uint32 labelIndex);
   void X86Emit_INI(const x86Reg regDest, uint8 port);
   void X86Emit_OUTI(const x86Reg regDest, uint8 data);
   void X86Emit_INR(const x86Reg regDest);
@@ -487,6 +492,33 @@ public:
   void X86Emit_MOVSXMR(const x86Reg regDest, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   void X86Emit_MOVZXMR(const x86Reg regDest, const x86MemPtr ptrType, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
 
+  void X86Emit_PSRADRR(const x86Reg regDest, const x86Reg regSrc);
+  void X86Emit_PSRADIR(const x86Reg regDest, const uint8 shiftCount);
+  void X86Emit_PSRLDRR(const x86Reg regDest, const x86Reg regSrc);
+  void X86Emit_PSRLDIR(const x86Reg regDest, const uint8 shiftCount);
+  void X86Emit_PSLDRR(const x86Reg regDest, const x86Reg regSrc);
+  void X86Emit_PSLDIR(const x86Reg regDest, const uint8 shiftCount);
+  void X86Emit_PMULLDRR(const x86Reg regDest, const x86Reg regSrc);
+
+  void X86Emit_PHADDDRR(const x86Reg regDest, const x86Reg regSrc);
+
+  void X86Emit_PSHUFBRR(const x86Reg regDest, const x86Reg regSrc);
+
+  void X86Emit_DPPSRR(const x86Reg regDest, const x86Reg regSrc, const uint8 mask);
+
+  void X86Emit_MOVDRR(const x86Reg regDest, const x86Reg regSrc); // Move doubleword from r/m32 to xmm
+  void X86Emit_MOVDRR2(const x86Reg regDest, const x86Reg regSrc); // Move doubleword from xmm to r/m32
+  void X86Emit_MOVSSMR(const x86Reg regDest, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_MOVSSMR(const x86Reg regSrc, const x86BaseReg base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0)
+  {
+    X86Emit_MOVSSMR(regSrc, (uint32)base, index, scale, disp);
+  }
+
+  void X86Emit_UNPCKLRR(const x86Reg regDest, const x86Reg regSrc);
+  void X86Emit_MOVLHRR(const x86Reg regDest, const x86Reg regSrc);
+
+  void X86Emit_SHUFIR(const x86Reg regDest, const x86Reg regSrc, const uint8 shiftCount);
+
   void X86Emit_MOVQRR(const x86Reg regDest, const x86Reg regSrc);
   void X86Emit_MOVQRM(const x86Reg regSrc, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   void X86Emit_MOVQRM(const x86Reg regSrc, const x86BaseReg base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0)
@@ -498,6 +530,11 @@ public:
   {
     X86Emit_MOVDQURM(regSrc, (uint32)base, index, scale, disp);
   }
+  void X86Emit_MOVDQARM(const x86Reg regSrc, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_MOVDQARM(const x86Reg regSrc, const x86BaseReg base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0)
+  {
+    X86Emit_MOVDQARM(regSrc, (uint32)base, index, scale, disp);
+  }
   void X86Emit_MOVQMR(const x86Reg regDest, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
   void X86Emit_MOVQMR(const x86Reg regDest, const x86BaseReg base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0)
   {
@@ -507,6 +544,11 @@ public:
   void X86Emit_MOVDQUMR(const x86Reg regDest, const x86BaseReg base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0)
   {
     X86Emit_MOVDQUMR(regDest, (uint32)base, index, scale, disp);
+  }
+  void X86Emit_MOVDQAMR(const x86Reg regDest, const uint32 base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0);
+  void X86Emit_MOVDQAMR(const x86Reg regDest, const x86BaseReg base, const x86IndexReg index = x86IndexReg::x86IndexReg_none, const x86ScaleVal scale = x86ScaleVal::x86Scale_1, const int32 disp = 0)
+  {
+    X86Emit_MOVDQAMR(regDest, (uint32)base, index, scale, disp);
   }
 
   void X86Emit_PANDRR(const x86Reg regDest, const x86Reg regSrc);

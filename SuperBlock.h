@@ -54,7 +54,7 @@ public:
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
   void PrintBlockToFile(SuperBlockCompileType blockType, uint32 size);
 #endif
-  void AddPacketToList(InstructionCacheEntry &packet, const uint32 index);
+  void AddPacketToList(const InstructionCacheEntry &packet, const uint32 index);
   bool AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry * const pPacketEntry, const uint32 index, const bool bExplicitNOP = false);
   NativeCodeCacheEntryPoint CompileBlock(const uint32 address, NativeCodeCache &codeCache, const SuperBlockCompileType eCompileType, const bool bSinglePacket, bool &bError);
   bool EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, const bool bContainsBranch);

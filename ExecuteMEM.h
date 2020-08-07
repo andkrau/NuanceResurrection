@@ -3,27 +3,16 @@
 
 #include "mpe.h"
 
-struct structBilinearAddressInfo
-{
-  void *pPixelData;
-  uint32* pRegs;
-  uint32 clutBase;
-  uint32 base;
-  uint32 control;
-  uint32 x;
-  uint32 y;
-  uint32 mipped_xoffset;
-  uint32 offset_address;
-}; 
-
 void GenerateMirrorLookupTable();
 void GenerateSaturateColorTables();
 
-void LoadPixelAbsolute(void);
-void LoadPixelZAbsolute(void);
-void StorePixelAbsolute(void);
-void StorePixelZAbsolute(void);
-void GetBilinearAddress(void);
+// leave all these __fastcalls alone, as these are used by the JIT to pass data in/out via registers
+void __fastcall _LoadPixelAbsolute(const MPE* const __restrict mpe, const void* const __restrict memPtr);
+void __fastcall _LoadPixelZAbsolute(const MPE* const __restrict mpe, const void* const __restrict memPtr);
+void __fastcall _StorePixelAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr);
+void __fastcall _StorePixelZAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr);
+
+uint32 __fastcall GetBilinearAddress(MPE* const __restrict mpe, const uint32 control);
 
 NuanceHandlerProto Execute_Mirror;
 NuanceHandlerProto Execute_MV_SImmediate;
