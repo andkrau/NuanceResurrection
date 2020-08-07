@@ -17,6 +17,9 @@ struct _currenttime {
 };
 
 void InitializeTimingMethod(void);
+
+uint64 useconds_since_start();
+
 void TimeElapsed(MPE &mpe);
 void TimeOfDay(MPE &mpe);
 void TimerInit(const uint32 whichTimer, const uint32 rate);
