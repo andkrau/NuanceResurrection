@@ -9,6 +9,7 @@
 #include "NuonEnvironment.h"
 #include "X86EmitTypes.h"
 
+extern bool SSSE3_supported;
 extern NuonEnvironment nuonEnv;
 
 static const __m128i bswap_lut = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3); //_mm_setr_epi8(3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12);
@@ -761,13 +762,31 @@ void Emit_LoadVectorAbsolute(EmitterVariables * const vars, const Nuance &nuance
   const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
+  if(SSSE3_supported)
+  {
   if((srcAddress & 15) == 0)
-      vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm0, srcAddress);
+    vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm0, srcAddress);
   else
-      vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, srcAddress);
+    vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, srcAddress);
   vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm1, (uint32)&bswap_lut);
   vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
   vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  }
+  else
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcAddress);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, srcAddress+4);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, srcAddress+8);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, srcAddress+12);
+  vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
+  }
 }
 
 void Emit_LoadVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
@@ -1609,15 +1628,15 @@ void Emit_StoreVectorAbsolute(EmitterVariables * const vars, const Nuance &nuanc
   const x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
   const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
 
-  if ((srcRegReadBaseReg_0 == srcRegReadBaseReg_1) && (srcRegReadBaseReg_2 == srcRegReadBaseReg_3) && (srcRegReadBaseReg_0 == srcRegReadBaseReg_2))
+  if (SSSE3_supported && (srcRegReadBaseReg_0 == srcRegReadBaseReg_1) && (srcRegReadBaseReg_2 == srcRegReadBaseReg_3) && (srcRegReadBaseReg_0 == srcRegReadBaseReg_2))
   {
   vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, srcRegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm1, (uint32)&bswap_lut);
   vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
   if((destAddress & 15) == 0)
-      vars->mpe->nativeCodeCache.X86Emit_MOVDQARM(x86Reg::x86Reg_xmm0, destAddress);
+    vars->mpe->nativeCodeCache.X86Emit_MOVDQARM(x86Reg::x86Reg_xmm0, destAddress);
   else
-      vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destAddress);
+    vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destAddress);
   }
   else
   {

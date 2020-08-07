@@ -9,6 +9,7 @@
 #include <mutex>
 
 #include "byteswap.h"
+#include "Utility.h"
 #include "comm.h"
 //#include "CriticalSection.h"
 #include "GLWindow.h"
@@ -773,6 +774,8 @@ bool CheckForInvalidCommStatus(const MPE &mpe)
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
+  init_supported_CPU_extensions();
+
   HWND hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_SPLASH_SCREEN),NULL,SplashScreenDialogProc);
   Sleep(1000);
   ShowWindow(hDlg,FALSE);
