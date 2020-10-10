@@ -72,7 +72,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>external\glew-2.1.0\lib\Release\Win32\glew32.lib;user32.lib;winmm.lib;external\fmod-3.75\api\lib\fmodvc.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>external\glew-2.2.0\lib\Release\Win32\glew32.lib;user32.lib;winmm.lib;external\fmod-3.75\api\lib\fmodvc.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Nuance.exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)Nuance.pdb</ProgramDatabaseFile>
@@ -107,7 +107,7 @@
       <StringPooling>true</StringPooling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>external\glew-2.1.0\lib\Release\Win32\glew32.lib;user32.lib;winmm.lib;external\fmod-3.75\api\lib\fmodvc.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>external\glew-2.2.0\lib\Release\Win32\glew32.lib;user32.lib;winmm.lib;external\fmod-3.75\api\lib\fmodvc.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Nuance.exe</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>false</GenerateMapFile>
@@ -348,8 +348,8 @@
     <ClInclude Include="ExecuteMUL.h" />
     <ClInclude Include="ExecuteRCU.h" />
     <ClInclude Include="external\fmod-3.75\api\inc\fmod.h" />
-    <ClInclude Include="external\glew-2.1.0\include\GL\glew.h" />
-    <ClInclude Include="external\glew-2.1.0\include\GL\wglew.h" />
+    <ClInclude Include="external\glew-2.2.0\include\GL\glew.h" />
+    <ClInclude Include="external\glew-2.2.0\include\GL\wglew.h" />
     <ClInclude Include="external\xxh3.h" />
     <ClInclude Include="external\xxhash.h" />
     <ClInclude Include="file.h" />
