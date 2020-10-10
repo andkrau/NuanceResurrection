@@ -3,8 +3,8 @@
 #include "basetypes.h"
 #include <windows.h>
 #include <mutex>
-#include "external\glew-2.1.0\include\GL\glew.h"
-#include "external\glew-2.1.0\include\GL\wglew.h"
+#include "external\glew-2.2.0\include\GL\glew.h"
+#include "external\glew-2.2.0\include\GL\wglew.h"
 
 #include "GLWindow.h"
 #include "Bios.h"

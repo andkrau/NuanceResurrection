@@ -4,7 +4,7 @@
 #include <string>
 #include <windows.h>
 #include <commdlg.h>
-#include "external\glew-2.1.0\include\GL\glew.h"
+#include "external\glew-2.2.0\include\GL\glew.h"
 #include <GL/gl.h>
 #include <mutex>
 
