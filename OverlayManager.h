@@ -4,7 +4,7 @@
 #include "basetypes.h"
 //#include "external\MurmurHash3.h"
 #define XXH_INLINE_ALL
-#include "external\xxh3.h"
+#include "external\xxhash.h"
 
 class OverlayManager
 {
