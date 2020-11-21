@@ -418,6 +418,8 @@ NuonEnvironment::~NuonEnvironment()
 
   //Free up string memory
   delete [] dvdBase;
+
+  DeInitTimingMethod();
 }
 
 const char CONFIG_COMMENT_CHAR = ';';
