@@ -17,6 +17,7 @@ struct _currenttime {
 };
 
 void InitializeTimingMethod(void);
+void DeInitTimingMethod(void);
 
 uint64 useconds_since_start();
 
