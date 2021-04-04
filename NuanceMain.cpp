@@ -22,6 +22,7 @@
 #include "video.h"
 #include "ExecuteMEM.h"
 #include "timer.h"
+#include "Bios.h"
 
 NuonEnvironment nuonEnv;
 char **pArgs = 0;
@@ -851,6 +852,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     load4firsttime = false;
 
   nuonEnv.videoDisplayCycleCount = 0;
+  nuonEnv.MPE3wait_fieldCounter = 0;
 
   while(!bQuit)
   {
@@ -869,7 +871,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       cycles++;
 
       for(int i = 3; i >= 0; --i)
-        nuonEnv.mpe[i].FetchDecodeExecute(); // execute a single cycle
+        if(i != 3 || nuonEnv.MPE3wait_fieldCounter == 0) // is MPE3 'stuck' in the VidSync call?
+          nuonEnv.mpe[i].FetchDecodeExecute(); // execute a single cycle
 
       if(nuonEnv.pendingCommRequests)
         DoCommBusController();
@@ -890,6 +893,55 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         nuonEnv.audio_buffer_offset = (nuonEnv.nuonAudioChannelMode & ENABLE_HALF_INT) ? 0 : (nuonEnv.nuonAudioBufferSize >> 1); //!! ENABLE_HALF_INT leads to better sound in Tetris, although one would assume it should be ENABLE_WRAP_INT here
         nuonEnv.oldNuonAudioChannelMode = nuonEnv.nuonAudioChannelMode;
         nuonEnv.TriggerAudioInterrupt();
+      }
+
+      // handle the sysTimer0, sysTimer1 and vidTimer (video refresh at 50/60Hz)
+      // note that these all run at the real hostCPU time rate, NOT the actual emulated time/cycles!
+      if ((cycles % 1024) == 0) // only pull hostCPU timer from time to time, otherwise too costly
+      {
+        static uint64 last_time0 = useconds_since_start();
+        static uint64 last_time1 = useconds_since_start();
+        static uint64 last_time2 = useconds_since_start();
+        const uint64 new_time = useconds_since_start();
+
+        // sysTimer0 (BIOS, should always be 200Hz)
+        if (nuonEnv.timer_rate[0] > 0)
+        {
+        if (new_time >= last_time0 + nuonEnv.timer_rate[0])
+        {
+          nuonEnv.ScheduleInterrupt(INT_SYSTIMER0);
+          last_time0 = new_time;
+        }
+        } else last_time0 = new_time;
+
+        // sysTimer1 (User)
+        if (nuonEnv.timer_rate[1] > 0)
+        {
+        if (new_time >= last_time1 + nuonEnv.timer_rate[1])
+        {
+          nuonEnv.ScheduleInterrupt(INT_SYSTIMER1);
+          last_time1 = new_time;
+        }
+        } else last_time1 = new_time;
+
+        // vidTimer (should always be 50Hz or 60Hz)
+        if (nuonEnv.timer_rate[2] > 0)
+        {
+        if (new_time >= last_time2 + nuonEnv.timer_rate[2])
+        {
+          IncrementVideoFieldCounter();
+          nuonEnv.TriggerVideoInterrupt();
+          nuonEnv.trigger_render_video = true;
+
+          // check if the vsync that has passed allows the MPE3 now to continue (if it was blocked by VidSync)
+          uint32 fieldCounter = *((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
+          SwapScalarBytes(&fieldCounter);
+          if (fieldCounter >= nuonEnv.MPE3wait_fieldCounter)
+            nuonEnv.MPE3wait_fieldCounter = 0;
+
+          last_time2 = new_time;
+        }
+        } else last_time2 = new_time;
       }
 
       nuonEnv.TriggerScheduledInterrupts();

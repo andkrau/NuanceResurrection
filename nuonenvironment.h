@@ -134,6 +134,9 @@ public:
   uint32 GetBufferSize(uint32 channelMode);
   CompilerOptions compilerOptions;
 
+  uint32 MPE3wait_fieldCounter; // tells how many vsyncs the MPE3 emulation is stalled due to a VidSync call
+  int32 timer_rate[3]; // sysTimer0, sysTimer1 and vidTimer
+
 private:
   ConfigTokenType ReadConfigLine(FILE *file, char buf[1025]);
   bool LoadConfigFile(const char * const fileName);

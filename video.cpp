@@ -1,5 +1,3 @@
-#define SUPPORT_VSYNC_WAITING // necessary to frame limit some games that rely on vsync, and the implementation SHOULD not harm systems that are too slow/cannot match 60fps emulation, but requires more testing to be 100% sure
-
 #include "basetypes.h"
 #include <windows.h>
 #include <mutex>
@@ -1240,46 +1238,14 @@ void VidSetup(MPE &mpe)
 
 void VidSync(MPE& mpe) // should wait (as seen by the app) for mpe.regs[0] fields (= mpe.regs[0] * 1/60 or 1/50 second), if 0 or -1 just return internal field counter, -2 is internal only
 {
-#ifdef SUPPORT_VSYNC_WAITING
-  // only wait for the amount of requested fields if emulation is running faster than time that should have passed from each vsync to vsync? (i.e. if we can match ~50 or 60 fps or better currently)
-  // otherwise subtract time that we are behind from the fields that should be waited for
-  static long long counter = -1;
-  _LARGE_INTEGER curr_counter;
-  const bool update_counter = ((int)mpe.regs[0] > 0);
-  if (update_counter)
-  {
-    QueryPerformanceCounter(&curr_counter);
-    if (counter != -1) // we were already here before and have a valid counter?
-    {
-      const uint32 delta = (uint32)((double)((curr_counter.QuadPart - counter) * 1000) / (double)(tickFrequency.QuadPart * (1000./VIDEO_HZ))); // ~= matching the target 50 or 60Hz
-      mpe.regs[0] -= delta; // steal the already waited (through too slow emulation) fields from the requested fields to be able to catch up
-    }
-  }
-
-  // for now wait til the timer increases the real world field counter by the requested amount, this is less than ideal and costs cycles for 'nothing' :/
-  if((int)mpe.regs[0] > 0)
-  {
-    volatile uint32 &fieldCounter = *((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
-    uint32 newFieldCounter = fieldCounter;
-    SwapScalarBytes(&newFieldCounter);
-    newFieldCounter += (int)mpe.regs[0];
-    // active wait loop :/
-    while (true)
-    {
-      uint32 curFieldCounter = fieldCounter;
-      SwapScalarBytes(&curFieldCounter);
-      if (curFieldCounter >= newFieldCounter) break;
-    }
-
-    QueryPerformanceCounter(&curr_counter); // measure from 'end of vsync'
-  }
-
-  if (update_counter)
-    counter = curr_counter.QuadPart; // update counter to measure time when we end up here next time again
-#endif
-
   uint32 fieldCounter = *((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
   SwapScalarBytes(&fieldCounter);
+
+  if ((int)mpe.regs[0] > 0)
+  {
+    fieldCounter += (int)mpe.regs[0];             // fast forward the passed vsyncs to be able to finish up this call here
+    nuonEnv.MPE3wait_fieldCounter = fieldCounter; // but actually stall MPE3 emu in the main cycle loop
+  }
 
   mpe.regs[0] = fieldCounter;
 }
