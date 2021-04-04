@@ -11,7 +11,6 @@
 
 extern NuonEnvironment nuonEnv;
 
-bool bHighPerformanceTimerAvailable = false;
 extern _LARGE_INTEGER tickFrequency;
 _LARGE_INTEGER ticksAtBootTime;
 #ifdef USE_QUEUE_TIMERS
@@ -143,16 +142,9 @@ void InitializeTimingMethod(void)
   hSysTimer1 = 0;
   hSysTimer2 = 0;
 
-  if(QueryPerformanceFrequency((_LARGE_INTEGER *)&tickFrequency) == TRUE)
-  {
-    bHighPerformanceTimerAvailable = true;
-    QueryPerformanceCounter((_LARGE_INTEGER *)&ticksAtBootTime);
-  }
-  else
-  {
-    bHighPerformanceTimerAvailable = false;
-    ticksAtBootTime.QuadPart = time(NULL);
-  }
+  assert(QueryPerformanceFrequency((_LARGE_INTEGER *)&tickFrequency) != 0);
+
+  QueryPerformanceCounter((_LARGE_INTEGER *)&ticksAtBootTime);
 }
 
 void DeInitTimingMethod(void)
@@ -226,40 +218,20 @@ void TimeOfDay(MPE &mpe)
 
 uint64 useconds_since_start()
 {
-  if(bHighPerformanceTimerAvailable)
-  {
-    _LARGE_INTEGER counter;  
-    QueryPerformanceCounter((_LARGE_INTEGER *)&counter);
+  _LARGE_INTEGER counter;  
+  QueryPerformanceCounter((_LARGE_INTEGER *)&counter);
 
-    const unsigned long long cur_tick = (unsigned long long)(counter.QuadPart - ticksAtBootTime.QuadPart);
-    return ((unsigned long long)tickFrequency.QuadPart < 100000000ull) ? (cur_tick * 1000000ull / (unsigned long long)tickFrequency.QuadPart)
+  const unsigned long long cur_tick = (unsigned long long)(counter.QuadPart - ticksAtBootTime.QuadPart);
+  return ((unsigned long long)tickFrequency.QuadPart < 100000000ull) ? (cur_tick * 1000000ull / (unsigned long long)tickFrequency.QuadPart)
         : (cur_tick * 1000ull / ((unsigned long long)tickFrequency.QuadPart / 1000ull));
-  }
-  else
-  {
-    assert(!"No QueryPerformanceCounter");
-    return 0;
-  }
 }
 
 void TimeElapsed(MPE &mpe)
 {
-  uint64 seconds, useconds, mseconds;
-
-  if(bHighPerformanceTimerAvailable)
-  {
-    useconds = useconds_since_start();
-
-    seconds = useconds / 1000000;
-    mseconds = useconds / 1000;
-    useconds = useconds % 1000000; // returns number of microseconds elapsed within the second
-  }
-  else
-  {
-    seconds = time(NULL) - ticksAtBootTime.QuadPart;
-    mseconds = seconds*1000;
-    useconds = 0;
-  }
+  uint64 useconds = useconds_since_start();
+  const uint64 seconds = useconds / 1000000;
+  const uint64 mseconds = useconds / 1000;
+  useconds = useconds % 1000000; // returns number of microseconds elapsed within the second
 
   const uint32 ptrSecs = mpe.regs[0];
   const uint32 ptrUSecs = mpe.regs[1];
