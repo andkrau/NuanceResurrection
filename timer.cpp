@@ -142,7 +142,8 @@ void InitializeTimingMethod(void)
   hSysTimer1 = 0;
   hSysTimer2 = 0;
 
-  assert(QueryPerformanceFrequency((_LARGE_INTEGER *)&tickFrequency) != 0);
+  const bool available = (QueryPerformanceFrequency((_LARGE_INTEGER *)&tickFrequency) != 0);
+  assert(available);
 
   QueryPerformanceCounter((_LARGE_INTEGER *)&ticksAtBootTime);
 }
