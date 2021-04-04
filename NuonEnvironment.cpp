@@ -329,6 +329,10 @@ void NuonEnvironment::Init()
 
   trigger_render_video = false;
 
+  timer_rate[0] = -1;
+  timer_rate[1] = -1;
+  timer_rate[2] = -1;
+
   schedule_intsrc = 0;
 
   for(uint32 i = 0; i < 4; i++)

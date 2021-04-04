@@ -7,64 +7,10 @@
 #include "timer.h"
 #include "mpe.h"
 
-#define USE_QUEUE_TIMERS // re-test which variant is better in practice, this is at least the newer/recommended way it seems
-
 extern NuonEnvironment nuonEnv;
 
 extern _LARGE_INTEGER tickFrequency;
 _LARGE_INTEGER ticksAtBootTime;
-#ifdef USE_QUEUE_TIMERS
-HANDLE hSysTimer0;
-HANDLE hSysTimer1;
-HANDLE hSysTimer2;
-#else
-uint32 hSysTimer0;
-uint32 hSysTimer1;
-uint32 hSysTimer2;
-#endif
-
-#ifdef USE_QUEUE_TIMERS
-void CALLBACK SysTimer0Callback(void* lpParameter,BOOLEAN TimerOrWaitFired)
-#else
-void CALLBACK SysTimer0Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2)
-#endif
-{ 
-  nuonEnv.ScheduleInterrupt(INT_SYSTIMER0);
-} 
-
-#ifdef USE_QUEUE_TIMERS
-void CALLBACK SysTimer1Callback(void* lpParameter, BOOLEAN TimerOrWaitFired)
-#else
-void CALLBACK SysTimer1Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2)
-#endif
-{ 
-  nuonEnv.ScheduleInterrupt(INT_SYSTIMER1);
-}
-
-// this one is set by InitBios for mpe[3] at ~50 or 60Hz
-#ifdef USE_QUEUE_TIMERS
-void CALLBACK SysTimer2Callback(void* lpParameter, BOOLEAN TimerOrWaitFired)
-#else
-void CALLBACK SysTimer2Callback(uint32 wTimerID, uint32 msg, int32 dwUser, int32 dw1, int32 dw2)
-#endif
-{ 
-  //static uint64 cycleCounter[4] = {0,0,0,0};
-  //static uint64 max_delta[4] = {0,0,0,0};
-
-//  for(uint32 i = 0; i < 4; i++)
-//  {
-//    uint64 delta = nuonEnv.mpe[i]->cycleCounter - cycleCounter[i];
-//    if(delta > max_delta[i])
-//    {
-//      max_delta[i] = delta;
-//    }
-//    cycleCounter[i] = nuonEnv.mpe[i]->cycleCounter;
-//  }
-
-  IncrementVideoFieldCounter();
-  nuonEnv.TriggerVideoInterrupt();
-  nuonEnv.trigger_render_video = true;
-}
 
 //
 
@@ -137,10 +83,6 @@ static void restore_win_timer_resolution()
 void InitializeTimingMethod(void)
 {
   set_lowest_possible_win_timer_resolution();
-
-  hSysTimer0 = 0;
-  hSysTimer1 = 0;
-  hSysTimer2 = 0;
 
   const bool available = (QueryPerformanceFrequency((_LARGE_INTEGER *)&tickFrequency) != 0);
   assert(available);
@@ -258,70 +200,7 @@ void TimeElapsed(MPE &mpe)
 
 void TimerInit(const uint32 whichTimer, const uint32 rate)
 {
-  if(whichTimer == 0)
-  {
-#ifdef USE_QUEUE_TIMERS
-    if(hSysTimer0)
-    {
-      DeleteTimerQueueTimer(NULL, hSysTimer0, NULL);
-      CloseHandle(hSysTimer0);
-      hSysTimer0 = 0;
-    }
-    if(rate/1000 > 0)
-      CreateTimerQueueTimer(&hSysTimer0, NULL, (WAITORTIMERCALLBACK)SysTimer0Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
-#else
-    if(hSysTimer0)
-    {
-      timeKillEvent(hSysTimer0);
-      hSysTimer0 = 0;
-    }
-    if(rate/1000 > 0)
-      hSysTimer0 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer0Callback,0,TIME_PERIODIC);
-#endif
-  }
-  else if(whichTimer == 1)
-  {
-#ifdef USE_QUEUE_TIMERS
-    if(hSysTimer1)
-    {
-      DeleteTimerQueueTimer(NULL, hSysTimer1, NULL);
-      CloseHandle(hSysTimer1);
-      hSysTimer1 = 0;
-    }
-    if (rate/1000 > 0)
-      CreateTimerQueueTimer(&hSysTimer1, NULL, (WAITORTIMERCALLBACK)SysTimer1Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
-#else
-    if(hSysTimer1)
-    {
-      timeKillEvent(hSysTimer1);
-      hSysTimer1 = 0;
-    }
-    if (rate/1000 > 0)
-      hSysTimer1 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer1Callback,0,TIME_PERIODIC);
-#endif
-  }
-  else
-  {
-    assert(rate/1000 == 1000/VIDEO_HZ); // check if this was set (only by us) to the ~50 or 60Hz to trigger video interrupts at that pace
-#ifdef USE_QUEUE_TIMERS
-    if(hSysTimer2)
-    {
-      DeleteTimerQueueTimer(NULL, hSysTimer2, NULL);
-      CloseHandle(hSysTimer2);
-      hSysTimer2 = 0;
-    }
-    if (rate/1000 > 0)
-      CreateTimerQueueTimer(&hSysTimer2, NULL, (WAITORTIMERCALLBACK)SysTimer2Callback, 0, 0, rate/1000, WT_EXECUTEINTIMERTHREAD);
-#else
-    if(hSysTimer2)
-    {
-      timeKillEvent(hSysTimer2);
-      hSysTimer2 = 0;
-    }
-    if (rate/1000 > 0)
-      hSysTimer2 = timeSetEvent(rate/1000,0,(LPTIMECALLBACK)SysTimer2Callback,0,TIME_PERIODIC);
-#endif
-  }
+  nuonEnv.timer_rate[whichTimer] = rate;
 }
 
 void TimerInit(MPE &mpe)
@@ -329,8 +208,11 @@ void TimerInit(MPE &mpe)
   const int32 whichTimer = mpe.regs[0];
   const int32 rate = mpe.regs[1];
 
-  if((whichTimer < 0) || (whichTimer > 1))
+  // vidtimer (=2) is set by InitBios for mpe[3] at ~50 or 60Hz
+
+  if(whichTimer != 1) // as timer0 is reserved for BIOS and running at 200Hz according to BIOS doc, and vidtimer (=2) at refresh rate
   {
+    assert(false); //!! just to see if something calls this invalid (i.e. with 0 or 2)
     mpe.regs[0] = 0;
   }
   else

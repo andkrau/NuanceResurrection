@@ -658,6 +658,8 @@ void InitBios(MPE &mpe)
   MediaInitMPE(0);
 
   //TIMER INITIALIZATION
+  TimerInit(0,1000*1000/200);      // triggers sys0 int at 200Hz (according to BIOS doc)
+  TimerInit(1,0);
   TimerInit(2,1000*1000/VIDEO_HZ); // triggers video int at ~50 or 60Hz
 }
 
