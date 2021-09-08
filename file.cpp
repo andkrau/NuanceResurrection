@@ -141,10 +141,10 @@ static void ConvertSeparatorCharacters(char *pathname)
 
 void FileOpen(MPE &mpe)
 {
-  uint32 path = mpe.regs[0];
+  const uint32 path = mpe.regs[0];
   uint32 access = mpe.regs[1];
   uint32 mode = mpe.regs[2];
-  uint32 errnum = mpe.regs[3];
+  const uint32 errnum = mpe.regs[3];
   uint32 *pErr;
   char name[513];
 
@@ -191,8 +191,8 @@ Error:
 
 void FileClose(MPE &mpe)
 {
-  int32 fd = mpe.regs[0];
-  uint32 errnum = mpe.regs[1];
+  const int32 fd = mpe.regs[0];
+  const uint32 errnum = mpe.regs[1];
   uint32 *pErr;
 
   int result, index;
@@ -220,10 +220,10 @@ Error:
 
 void FileRead(MPE &mpe)
 {
-  uint32 fd = mpe.regs[0];
-  uint32 buf = mpe.regs[1];
-  uint32 len = mpe.regs[2];
-  uint32 errnum = mpe.regs[3];
+  const uint32 fd = mpe.regs[0];
+  const uint32 buf = mpe.regs[1];
+  const uint32 len = mpe.regs[2];
+  const uint32 errnum = mpe.regs[3];
   uint32 *pErr;
   int32 index, result;
   void *pBuf;
@@ -250,14 +250,14 @@ Error:
 
 void FileWrite(MPE &mpe)
 {
-  uint32 fd = mpe.regs[0];
-  uint32 buf = mpe.regs[1];
-  uint32 len = mpe.regs[2];
-  uint32 errnum = mpe.regs[3];
+  const uint32 fd = mpe.regs[0];
+  const uint32 buf = mpe.regs[1];
+  const uint32 len = mpe.regs[2];
+  const uint32 errnum = mpe.regs[3];
   uint32 *pErr;
   int32 index, result;
 
-  char *pBuf = (char *)nuonEnv.GetPointerToMemory(mpe,buf);
+  const char *pBuf = (char *)nuonEnv.GetPointerToMemory(mpe,buf);
 
   if((fd == NUON_FD_STDOUT) || (fd == NUON_FD_STDERR))
   {
@@ -300,12 +300,12 @@ void FileIoctl(MPE &mpe)
 
 void FileFstat(MPE &mpe)
 {
-  int32 index, result;
+  int32 /*index,*/ result;
   uint32 *pErr;
   struct _stat32 st;
-  uint32 fd = mpe.regs[0];
-  uint32 buf = mpe.regs[1];
-  uint32 errnum = mpe.regs[2];
+  const uint32 fd = mpe.regs[0];
+  const uint32 buf = mpe.regs[1];
+  const uint32 errnum = mpe.regs[2];
 
   nuon_stat *pBuf = (nuon_stat *)nuonEnv.GetPointerToMemory(mpe,buf);
 
@@ -343,7 +343,7 @@ void FileFstat(MPE &mpe)
   }
   else
   {
-    if((index = FindFileDescriptorIndex(fd)) >= 0)
+    if((/*index =*/ FindFileDescriptorIndex(fd)) >= 0)
     {
       result = _fstat32(fd, &st);
       if(result == -1)
@@ -418,14 +418,14 @@ void FileIsatty(MPE &mpe)
 
 void FileLseek(MPE &mpe)
 {
-  uint32 fd = mpe.regs[0];
-  uint32 offset = mpe.regs[1];
-  uint32 whence = mpe.regs[2];
-  uint32 errnum = mpe.regs[3];
-  int32 index, result;
+  const uint32 fd = mpe.regs[0];
+  const uint32 offset = mpe.regs[1];
+  const uint32 whence = mpe.regs[2];
+  const uint32 errnum = mpe.regs[3];
+  int32 /*index,*/ result;
   uint32 *pErr;
 
-  if((index = FindFileDescriptorIndex(fd)) >= 0)
+  if((/*index =*/ FindFileDescriptorIndex(fd)) >= 0)
   {
     result = _lseek(fd, offset, whence);
     if(result == -1)

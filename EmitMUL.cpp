@@ -5,11 +5,10 @@
 #include "NativeCodeCache.h"
 #include "PatchManager.h"
 #include "mpe.h"
-#include "SuperBlock.h"
 
 extern bool SSE41_supported;
 
-static const uint32 shiftTable[4] = {16, 8, 0, 2};
+static constexpr uint32 shiftTable[4] = {16, 8, 0, 2};
 
 void Emit_ADDM(EmitterVariables * const vars, const Nuance &nuance)
 {
@@ -94,11 +93,11 @@ void Emit_SUBMImmediateReverse(EmitterVariables * const vars, const Nuance &nuan
 
 void Emit_MULScalarShiftAcshift(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_pos = 0;
-  const uint32 l_neg = 1;
-  const uint32 l_poslt32 = 2;
-  const uint32 l_posge32 = 3;
-  const uint32 l_exit = 4;
+  constexpr uint32 l_pos = 0;
+  constexpr uint32 l_neg = 1;
+  constexpr uint32 l_poslt32 = 2;
+  constexpr uint32 l_posge32 = 3;
+  constexpr uint32 l_exit = 4;
 
   const uint32 destRegIndex = nuance.fields[FIELD_MUL_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_MUL_SRC1];
@@ -422,11 +421,11 @@ void Emit_MULScalarShiftLeftImmediate(EmitterVariables * const vars, const Nuanc
 
 void Emit_MULImmediateShiftAcshift(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_pos = 0;
-  const uint32 l_neg = 1;
-  const uint32 l_poslt32 = 2;
-  const uint32 l_posge32 = 3;
-  const uint32 l_exit = 4;
+  constexpr uint32 l_pos = 0;
+  constexpr uint32 l_neg = 1;
+  constexpr uint32 l_poslt32 = 2;
+  constexpr uint32 l_posge32 = 3;
+  constexpr uint32 l_exit = 4;
 
   const uint32 destRegIndex = nuance.fields[FIELD_MUL_DEST];
   const uint32 src2RegIndex = nuance.fields[FIELD_MUL_SRC2];
@@ -574,11 +573,11 @@ mulscalarshiftacshift_exit:
 
 void Emit_MULScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_pos = 0;
-  const uint32 l_neg = 1;
-  const uint32 l_poslt32 = 2;
-  const uint32 l_posge32 = 3;
-  const uint32 l_exit = 4;
+  constexpr uint32 l_pos = 0;
+  constexpr uint32 l_neg = 1;
+  constexpr uint32 l_poslt32 = 2;
+  constexpr uint32 l_posge32 = 3;
+  constexpr uint32 l_exit = 4;
 
   const uint32 destRegIndex = nuance.fields[FIELD_MUL_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_MUL_SRC1];
@@ -731,11 +730,11 @@ mulscalarshiftacshift_exit:
 
 void Emit_MULImmediateShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_pos = 0;
-  const uint32 l_neg = 1;
-  const uint32 l_poslt32 = 2;
-  const uint32 l_posge32 = 3;
-  const uint32 l_exit = 4;
+  constexpr uint32 l_pos = 0;
+  constexpr uint32 l_neg = 1;
+  constexpr uint32 l_poslt32 = 2;
+  constexpr uint32 l_posge32 = 3;
+  constexpr uint32 l_exit = 4;
 
   const uint32 destRegIndex = nuance.fields[FIELD_MUL_DEST];
   //const uint32 src1RegIndex = nuance.fields[FIELD_MUL_SRC1];

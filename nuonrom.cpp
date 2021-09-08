@@ -4,7 +4,6 @@
 #include <string.h>
 #include <stdio.h>
 #include "byteswap.h"
-#include "coff.h"
 #include "nuonrom.h"
 
 bool MPE::LoadNuonRomFile(const char * const filename)
@@ -13,7 +12,7 @@ bool MPE::LoadNuonRomFile(const char * const filename)
   int bytesRead;
   uint32 offset;
 
-  int handle = _open(filename,O_RDONLY|O_BINARY,0);
+  const int handle = _open(filename,O_RDONLY|O_BINARY,0);
   if(handle >= 0)
   {
 check_for_bles:

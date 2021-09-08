@@ -15,7 +15,7 @@
 #define MIP16(mip_me)     (((uint32)(mip_me)) >> (BilinearInfo_XYMipmap(control)|16))
 #define SIGNMIP16(mip_me) ((( int32)(mip_me)) >> (BilinearInfo_XYMipmap(control)|16))
 
-static const int8 pixel_type_width[16] = {
+static constexpr int8 pixel_type_width[16] = {
 -2,//Type 0: MPEG Pixel (macroblock size of 16 bytes)
 -1,//Type 1: 4 bit (must be accessed in groups of four)
 1, //Type 2: 16 bit
@@ -598,7 +598,7 @@ void __fastcall _LoadPixelAbsolute(const MPE* const __restrict mpe, const void* 
     case 0x6:
     {
       //32 bit or 32+32Z (both behave the same for LD_P)
-      uint32 pixelData32 = *((uint32*)memPtr);
+      const uint32 pixelData32 = *((uint32*)memPtr);
 #ifdef LITTLE_ENDIAN
       regs[0] = (pixelData32 << 22) & (0xFFUL << 22);
       regs[1] = (pixelData32 << 14) & (0xFFUL << 22);
@@ -692,7 +692,7 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
     case 0x6:
     {
       //32 bit or 32+32Z (both behave the same for LD_P)
-      uint32 pixelData32 = *((uint32*)memPtr);
+      const uint32 pixelData32 = *((uint32*)memPtr);
 #ifdef LITTLE_ENDIAN
       mpe.regs[dest  ] = (pixelData32 << 22) & (0xFFUL << 22);
       mpe.regs[dest+1] = (pixelData32 << 14) & (0xFFUL << 22);
@@ -797,7 +797,7 @@ void __fastcall _LoadPixelZAbsolute(const MPE* const __restrict mpe, const void*
     case 0x6:
     {
       //32 + 32Z
-      uint32 pixelData32 = ((uint32*)memPtr)[0];
+      const uint32 pixelData32 = ((uint32*)memPtr)[0];
       uint32 zData32     = ((uint32*)memPtr)[1];
       SwapScalarBytes(&zData32);
 #ifdef LITTLE_ENDIAN
@@ -920,7 +920,7 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     case 0x6:
     {
       //32 + 32Z
-      uint32 pixelData32 = ((uint32*)memPtr)[0];
+      const uint32 pixelData32 = ((uint32*)memPtr)[0];
       uint32 zData32     = ((uint32*)memPtr)[1];
       SwapScalarBytes(&zData32);
 #ifdef LITTLE_ENDIAN

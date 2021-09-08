@@ -1,4 +1,3 @@
-#include "basetypes.h"
 #include <windows.h>
 
 _LARGE_INTEGER tickFrequency, counterStart, counterEnd, dummyCounter;

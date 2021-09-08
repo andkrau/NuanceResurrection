@@ -4,7 +4,6 @@
 #include "mpe.h"
 #include "joystick.h"
 #include "NuonEnvironment.h"
-#include "NuonMemoryMap.h"
 //---------------------------------------------------------------------------
 extern NuonEnvironment nuonEnv;
 ControllerData *controller;

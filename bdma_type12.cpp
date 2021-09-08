@@ -3,7 +3,6 @@
 #include <windows.h>
 #endif
 #include "byteswap.h"
-#include "dma.h"
 #include "NuonEnvironment.h"
 #include "video.h"
 
@@ -30,17 +29,17 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
   const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
   const uint32 ypos = yinfo & 0x7FFUL;
 
-  uint32 map = 0;
+  //uint32 map = 0;
   uint32 zmap = 1;
 
   if(pixtype >= 13)
   {
-    map = pixtype - 13;
+    //map = pixtype - 13;
     zmap = 2;
   }
   else if(pixtype >= 9)
   {
-    map = pixtype - 9;
+    //map = pixtype - 9;
     zmap = 3;
   }
 
@@ -77,7 +76,7 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
   assert(((sdramBase >> 23) & 0x1FUL) < 4);
   void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
 
-  const uint32 srcOffset = 0;
+  constexpr uint32 srcOffset = 0;
   const uint32 destOffset = ypos * (uint32)xsize + xpos;
   const uint16* pSrcColor = ((uint16 *)intMemory) + (1 + srcOffset);
   uint16* const pDestColor = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * zmap + destOffset);
@@ -321,14 +320,14 @@ void BDMA_Type12_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   }
 */
 
-  const int32 destAStep = 1;
+  constexpr int32 destAStep = 1;
   const int32 destBStep = xlen;
 
-  const int32 srcAStep = 1;
+  constexpr int32 srcAStep = 1;
   const int32 srcBStep = xsize;
 
   const uint32 srcOffset = ypos * (uint32)xsize + xpos;
-  const uint32 destOffset = 0;
+  constexpr uint32 destOffset = 0;
   const uint32* const pSrc32 = ((uint32 *)pSrc) + srcOffset;
   const uint16* const pSrc16 = ((uint16 *)pSrc) + srcOffset;
   uint32* const pDest32 = ((uint32 *)pDest) + destOffset;

@@ -1,7 +1,7 @@
 #include "InstructionCache.h"
 #include "mpe.h"
 
-static const uint32 shiftTable[4] = {16, 8, 0, 2};
+static constexpr uint32 shiftTable[4] = {16, 8, 0, 2};
 
 void Execute_ADDM(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {

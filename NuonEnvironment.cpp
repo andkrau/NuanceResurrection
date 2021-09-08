@@ -6,14 +6,11 @@
 #include "audio.h"
 #include "Bios.h"
 #include "file.h"
-#include "memory.h"
 #include "mpe.h"
 #include "timer.h"
 #include "video.h"
-#include "GLWindow.h"
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
-#include "Syscall.h"
 
 extern VidDisplay structMainDisplay;
 
@@ -426,9 +423,9 @@ NuonEnvironment::~NuonEnvironment()
   DeInitTimingMethod();
 }
 
-const char CONFIG_COMMENT_CHAR = ';';
-const char CONFIG_VARIABLE_START_CHAR = '[';
-const char CONFIG_VARIABLE_FINISH_CHAR = ']';
+constexpr char CONFIG_COMMENT_CHAR = ';';
+constexpr char CONFIG_VARIABLE_START_CHAR = '[';
+constexpr char CONFIG_VARIABLE_FINISH_CHAR = ']';
 
 void ReplaceNewline(char * const line, const char replaceChar, const uint32 maxIndex)
 {
@@ -493,16 +490,14 @@ ConfigTokenType NuonEnvironment::ReadConfigLine(FILE *file, char buf[1025])
 bool NuonEnvironment::LoadConfigFile(const char * const fileName)
 {
   char line[1025];
-  FILE *configFile = 0;
-  ConfigTokenType tokenType;
 
-  configFile = fopen(fileName,"r");
+  FILE *configFile = fopen(fileName,"r");
   if(!configFile)
     return false;
 
   while(!feof(configFile))
   {
-    tokenType = ReadConfigLine(configFile,line);
+    ConfigTokenType tokenType = ReadConfigLine(configFile,line);
     switch(tokenType)
     {
       case CONFIG_COMMENT_CHAR:

@@ -83,7 +83,7 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
   if(inFile)
   {
     fseek(inFile,0,SEEK_END);
-    GLint length = ftell(inFile);
+    const GLint length = ftell(inFile);
 
     GLchar *buffer = new GLchar[length+1];
     const GLchar **pBuffer = (const GLchar **)(&buffer);
@@ -172,7 +172,7 @@ bool ShaderProgram::CompileShader(GLenum type)
 
 bool ShaderProgram::Link()
 {
-  bool bStatus = false;
+  bool bStatus;
   GLint bLinked = GL_FALSE;
 
   if(!hProgramObject || !(bVertexShaderObjectAttached || bFragmentShaderObjectAttached))
@@ -263,7 +263,7 @@ bool ShaderProgram::DetachShader(GLenum type)
 
 bool ShaderProgram::CompileAndLinkShaders()
 {
-  bool bStatus = false;
+  bool bStatus;
   GLint bLinked, bCompiled;
 
   if(!hProgramObject || !(bFragmentShaderCodeLoaded || bVertexShaderCodeLoaded))

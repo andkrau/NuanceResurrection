@@ -1,6 +1,5 @@
 #include "basetypes.h"
 #include "byteswap.h"
-#include "dma.h"
 #include "NuonEnvironment.h"
 #include "video.h"
 
@@ -73,7 +72,7 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
     srcBStep = xlen;
   }
 
-  const uint32 srcOffset = 0;
+  constexpr uint32 srcOffset = 0;
   const uint32 destOffset = ypos * (uint32)xsize + xpos;
 
   /*if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv.mainChannelUpperLimit) ||

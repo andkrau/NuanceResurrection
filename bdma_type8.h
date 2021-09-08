@@ -1,7 +1,6 @@
 #ifndef BDMA_TYPE8_H
 #define BDMA_TYPE8_H
 
-#include "basetypes.h"
 #include "dma.h"
 #include "mpe.h"
 

@@ -1,7 +1,6 @@
 #ifndef EMITRCU_H
 #define EMITRCU_H
 
-#include "basetypes.h"
 #include "mpe.h"
 
 NativeEmitHandlerProto Emit_DECRc0;

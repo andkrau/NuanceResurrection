@@ -2,10 +2,10 @@
 #define SUPERBLOCKCONSTANTS_H
 
 #include "basetypes.h"
+#include "mpe.h"
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
 #include "PropagateConstants.h"
-#include "mpe.h"
 
 #define CONSTANT_REG_RC0 (0)
 #define CONSTANT_REG_RC1 (1)

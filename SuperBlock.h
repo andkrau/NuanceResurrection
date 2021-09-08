@@ -3,7 +3,6 @@
 
 #include "basetypes.h"
 #include "InstructionCache.h"
-#include "mpe.h"
 #include "NativeCodeCache.h"
 #include "SuperBlockConstants.h"
 

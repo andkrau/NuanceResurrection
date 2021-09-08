@@ -1,7 +1,6 @@
 #include "basetypes.h"
 #include <assert.h>
 #include "byteswap.h"
-#include "dma.h"
 #include "NuonEnvironment.h"
 #include "video.h"
 
@@ -32,8 +31,8 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   const bool bCompareZ = (zcompare != 0);
 
   uint32 map;
-  if(pixtype == 12)
-    map = 2;
+  //if(pixtype == 12)
+  //  map = 2;
 
   uint32 zmap;
   if(pixtype > 12)
@@ -97,7 +96,7 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
     srcBStep = xlen;
   }
 
-  const uint32 srcOffset = 0;
+  constexpr uint32 srcOffset = 0;
   const uint32 destOffset = ypos * (uint32)xsize + xpos;
 
   /*if((GetPixBaseAddr(sdramBase,destOffset,2) >= nuonEnv.mainChannelLowerLimit) && (GetPixBaseAddr(sdramBase,destOffset,2) <= nuonEnv.mainChannelUpperLimit) ||

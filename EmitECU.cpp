@@ -1,6 +1,5 @@
 #include "basetypes.h"
 #include <stdarg.h>
-#include "byteswap.h"
 #include "EmitMisc.h"
 #include "EmitECU.h"
 #include "InstructionCache.h"
@@ -8,7 +7,7 @@
 #include "NativeCodeCache.h"
 #include "X86EmitTypes.h"
 
-void EmitConditionCheck(EmitterVariables * const vars, const uint32 condition, const uint32 conditionFalseLabel, const uint32 conditionTrueLabel)
+void EmitConditionCheck(const EmitterVariables * const vars, const uint32 condition, const uint32 conditionFalseLabel, const uint32 conditionTrueLabel)
 {
   if(condition == ECU_CONDITION_T)
   {
@@ -211,8 +210,8 @@ void EmitConditionCheck(EmitterVariables * const vars, const uint32 condition, c
 void Emit_BRAAlways(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -233,8 +232,8 @@ void Emit_BRAAlways(EmitterVariables * const vars, const Nuance &nuance)
 void Emit_BRAAlways_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -256,8 +255,8 @@ void Emit_BRAAlways_NOP(EmitterVariables * const vars, const Nuance &nuance)
 void Emit_BRAConditional(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -279,8 +278,8 @@ void Emit_BRAConditional(EmitterVariables * const vars, const Nuance &nuance)
 void Emit_BRAConditional_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -303,7 +302,7 @@ void Emit_BRAConditional_NOP(EmitterVariables * const vars, const Nuance &nuance
 void Emit_JMPAlwaysIndirect(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
+  constexpr uint32 l_skip_ecu = 0;
 
   const x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   const int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
@@ -328,7 +327,7 @@ void Emit_JMPAlwaysIndirect(EmitterVariables * const vars, const Nuance &nuance)
 void Emit_JMPAlwaysIndirect_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
+  constexpr uint32 l_skip_ecu = 0;
 
   const x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   const int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
@@ -354,8 +353,8 @@ void Emit_JMPAlwaysIndirect_NOP(EmitterVariables * const vars, const Nuance &nua
 void Emit_JMPConditionalIndirect(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   const x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   const int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
@@ -382,8 +381,8 @@ void Emit_JMPConditionalIndirect(EmitterVariables * const vars, const Nuance &nu
 void Emit_JMPConditionalIndirect_NOP(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   const x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   const int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
@@ -414,7 +413,7 @@ void Emit_JSRAlways(EmitterVariables * const vars, const Nuance &nuance)
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
+  constexpr uint32 l_skip_ecu = 0;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -438,7 +437,7 @@ void Emit_JSRAlways_NOP(EmitterVariables * const vars, const Nuance &nuance)
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
+  constexpr uint32 l_skip_ecu = 0;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -463,8 +462,8 @@ void Emit_JSRConditional(EmitterVariables * const vars, const Nuance &nuance)
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -490,8 +489,8 @@ void Emit_JSRConditional_NOP(EmitterVariables * const vars, const Nuance &nuance
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
   const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -517,7 +516,7 @@ void Emit_JSRAlwaysIndirect(EmitterVariables * const vars, const Nuance &nuance)
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
-  const uint32 l_skip_ecu = 0;
+  constexpr uint32 l_skip_ecu = 0;
 
   const x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   const int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
@@ -545,7 +544,7 @@ void Emit_JSRAlwaysIndirect_NOP(EmitterVariables * const vars, const Nuance &nua
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
-  const uint32 l_skip_ecu = 0;
+  constexpr uint32 l_skip_ecu = 0;
 
   const x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   const int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
@@ -574,8 +573,8 @@ void Emit_JSRConditionalIndirect(EmitterVariables * const vars, const Nuance &nu
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   const x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   const int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
@@ -605,8 +604,8 @@ void Emit_JSRConditionalIndirect_NOP(EmitterVariables * const vars, const Nuance
   const uint32 src1RegIndex = nuance.fields[FIELD_ECU_ADDRESS];
   const x86BaseReg rzRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   const x86BaseReg src1RegReadBaseReg = GetScalarRegReadBaseReg(vars,src1RegIndex);
   const int32 src1RegDisp = GetScalarRegEmitDisp(vars,src1RegIndex);
@@ -638,7 +637,7 @@ void Emit_RTSAlways(EmitterVariables * const vars, const Nuance &nuance)
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
   //const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
+  constexpr uint32 l_skip_ecu = 0;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -662,7 +661,7 @@ void Emit_RTSAlways_NOP(EmitterVariables * const vars, const Nuance &nuance)
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
   //const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
+  constexpr uint32 l_skip_ecu = 0;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -687,8 +686,8 @@ void Emit_RTSConditional(EmitterVariables * const vars, const Nuance &nuance)
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
   //const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -714,8 +713,8 @@ void Emit_RTSConditional_NOP(EmitterVariables * const vars, const Nuance &nuance
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
   //const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -742,8 +741,8 @@ void Emit_RTI1Conditional(EmitterVariables * const vars, const Nuance &nuance)
   const int32 rzi1RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
 
   //const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -772,8 +771,8 @@ void Emit_RTI1Conditional_NOP(EmitterVariables * const vars, const Nuance &nuanc
   const int32 rzi1RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
 
   //const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -804,8 +803,8 @@ void Emit_RTI2Conditional(EmitterVariables * const vars, const Nuance &nuance)
   const int32 rzi2RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
 
   //const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 
@@ -835,8 +834,8 @@ void Emit_RTI2Conditional_NOP(EmitterVariables * const vars, const Nuance &nuanc
   const int32 rzi2RegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
 
   //const uint32 address = nuance.fields[FIELD_ECU_ADDRESS];
-  const uint32 l_skip_ecu = 0;
-  const uint32 l_condition_true = 1;
+  constexpr uint32 l_skip_ecu = 0;
+  constexpr uint32 l_condition_true = 1;
 
   vars->mpe->nativeCodeCache.patchMgr.Reset();
 

@@ -41,7 +41,7 @@ void MediaShutdownMPE(MPE &mpe)
 
 void MediaInitMPE(const uint32 i)
 {
-  bool loadStatus = false;
+  bool loadStatus;
 
   mpeFlags[i] |= (MPE_ALLOC_BIOS | MPE_HAS_MINI_BIOS);
 
@@ -165,7 +165,7 @@ void MediaOpen(MPE &mpe)
         SwapScalarBytes(pBlockSize);
       }
 
-      char * const baseString = nuonEnv.GetDVDBase();
+      const char * const baseString = nuonEnv.GetDVDBase();
 
       //Treat iso9660 device reads as DVD device reads
       const char * name = (char *)nuonEnv.GetPointerToMemory(mpe, mpe.regs[1]);
@@ -191,7 +191,7 @@ void MediaOpen(MPE &mpe)
 
 void MediaClose(MPE &mpe)
 {
-  int32 handle = mpe.regs[0];
+  const int32 handle = mpe.regs[0];
 
   if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD))
   {
@@ -304,7 +304,7 @@ void MediaWrite(MPE &mpe)
 
       if(outFile)
       {
-        void* pBuf = nuonEnv.GetPointerToMemory(mpe,buffer);
+        const void* pBuf = nuonEnv.GetPointerToMemory(mpe,buffer);
         fseek(outFile,startblock*BLOCK_SIZE_DVD,SEEK_SET);
         const uint32 writeCount = (uint32)fwrite(pBuf,BLOCK_SIZE_DVD,blockcount,outFile);
         if(writeCount >= (blockcount - 1))
@@ -328,11 +328,11 @@ void MediaIoctl(MPE &mpe)
   const int32 handle = mpe.regs[0];
   const int32 ctl = mpe.regs[1];
   const uint32 value = mpe.regs[2];
-  char ctlStr[2];
+  //char ctlStr[2];
 
   mpe.regs[0] = -1;
-  ctlStr[0] = '0'+ctl;
-  ctlStr[1] = 0;
+  //ctlStr[0] = '0'+ctl;
+  //ctlStr[1] = 0;
 
   if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD))
   {

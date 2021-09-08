@@ -2,7 +2,6 @@
 #define FLASHEEPROM_H
 
 #include "basetypes.h"
-#include <stdio.h>
 
 //16 Mbit = 2 MByte
 #define DEFAULT_EEPROM_SIZE (2 * 1024 * 1024)

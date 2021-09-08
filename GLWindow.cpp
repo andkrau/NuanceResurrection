@@ -235,7 +235,7 @@ bool GLWindow::CreateWindowGL()
     return false;
   }
 
-  GLuint PixelFormat = ChoosePixelFormat(hDC, &pfd);
+  const GLuint PixelFormat = ChoosePixelFormat(hDC, &pfd);
   if(!PixelFormat)
   {
     LPVOID lpMsgBuf;
@@ -450,7 +450,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		}
     case WM_CREATE:
 		{
-			CREATESTRUCT *creation = (CREATESTRUCT *)(lParam);
+			const CREATESTRUCT *creation = (CREATESTRUCT *)(lParam);
 			window = (GLWindow *)(creation->lpCreateParams);
 			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)(window));
 		}
