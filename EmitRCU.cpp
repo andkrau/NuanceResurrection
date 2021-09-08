@@ -245,8 +245,8 @@ void Emit_MVRScalar(EmitterVariables * const vars, const Nuance &nuance)
 
 void Emit_RangeOnly(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_testmodmi = 0;
-  const uint32 l_exit = 1;
+  constexpr uint32 l_testmodmi = 0;
+  constexpr uint32 l_exit = 1;
 
   const uint32 srcRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_SRC];
   //const uint32 destRegIndex = REGINDEX_RX + nuance.fields[FIELD_RCU_DEST];

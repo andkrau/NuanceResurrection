@@ -1060,8 +1060,8 @@ void NativeCodeCache::X86Emit_EMMS()
 
 void NativeCodeCache::X86Emit_JCC(uint8 *pTarget, const int8 conditionCode)
 {
-  int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
-  int32 pOffsetNear = (int32)(pTarget - (pEmitLoc + 6));
+  const int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
+  const int32 pOffsetNear = (int32)(pTarget - (pEmitLoc + 6));
   
   if((pOffset >= -128) && (pOffset <= 127))
   {
@@ -1371,8 +1371,8 @@ void NativeCodeCache::X86Emit_CALLI(uint32 offset, uint16 seg)
 
 void NativeCodeCache::X86Emit_JMPI(uint8 *target, uint16 seg)
 {
-  int32 offset = (int32)(target - (pEmitLoc + 2));
-  int32 offsetNear = (int32)(target - (pEmitLoc + 5));
+  const int32 offset = (int32)(target - (pEmitLoc + 2));
+  const int32 offsetNear = (int32)(target - (pEmitLoc + 5));
 
   if(seg == 0)
   {
@@ -1912,7 +1912,7 @@ void NativeCodeCache::X86Emit_ESC7()
 
 void NativeCodeCache::X86Emit_LOOPNE(uint8 *pTarget)
 {
-  int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
+  const int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE0;
   *pEmitLoc++ = (int8)pOffset;
@@ -1934,7 +1934,7 @@ void NativeCodeCache::X86Emit_LOOPNE_Label(const uint32 labelIndex)
 
 void NativeCodeCache::X86Emit_LOOPE(uint8 *pTarget)
 {
-  int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
+  const int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE1;
   *pEmitLoc++ = (int8)pOffset;
@@ -1956,7 +1956,7 @@ void NativeCodeCache::X86Emit_LOOPE_Label(const uint32 labelIndex)
 
 void NativeCodeCache::X86Emit_LOOP(uint8 *pTarget)
 {
-  int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
+  const int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE2;
   *pEmitLoc++ = (int8)pOffset;
@@ -1978,7 +1978,7 @@ void NativeCodeCache::X86Emit_LOOP_Label(const uint32 labelIndex)
 
 void NativeCodeCache::X86Emit_JCXZ(uint8 *pTarget)
 {
-  int32 pOffset = (int32)(pTarget - (pEmitLoc + 3));
+  const int32 pOffset = (int32)(pTarget - (pEmitLoc + 3));
   
   //ADDRESS Prefix
   *pEmitLoc++ = 0x67;
@@ -2003,7 +2003,7 @@ void NativeCodeCache::X86Emit_JCXZ_Label(const uint32 labelIndex)
 
 void NativeCodeCache::X86Emit_JECXZ(uint8 *pTarget)
 {
-  int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
+  const int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE3;
   *pEmitLoc++ = (int8)pOffset;

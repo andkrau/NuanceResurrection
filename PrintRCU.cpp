@@ -28,13 +28,13 @@ uint32 Print_DEC(char *buffer, const Nuance &nuance, const bool bNewline)
     if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC1)
     {
       sprintf(buffer,"dec rc0\ndec rc1%s",bNewline ? "\n" : "");
-      const char decstr1[] = "dec rc0\ndec rc1";
+      constexpr char decstr1[] = "dec rc0\ndec rc1";
       bufinc += (strlen(decstr1) + (bNewline ? 1 : 0));
     }
     else
     {
       sprintf(buffer,"dec rc0%s",bNewline ? "\n" : "");
-      const char decstr0[] = "dec rc0\n";
+      constexpr char decstr0[] = "dec rc0\n";
       bufinc += (strlen(decstr0) + (bNewline ? 1 : 0));
     }
   }
@@ -43,7 +43,7 @@ uint32 Print_DEC(char *buffer, const Nuance &nuance, const bool bNewline)
     if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC1)
     {
       sprintf(buffer,"dec rc1%s",bNewline ? "\n" : "");
-      const char decstr1[] = "dec rc1\n";
+      constexpr char decstr1[] = "dec rc1\n";
       bufinc += (strlen(decstr1) + (bNewline ? 1 : 0));
     }
     else
@@ -62,7 +62,7 @@ uint32 Print_DEC(char *buffer, const Nuance &nuance, const bool bNewline)
 uint32 Print_ADDRImmediate(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
-  uint32 bufinc = 0;
+  uint32 bufinc;
 
   sprintf(tempStr,"addr #$%8.8lX, %s\n",nuance.fields[FIELD_RCU_SRC],GetIndexRegister(nuance.fields[FIELD_RCU_DEST]));
   sprintf(buffer,"%s",tempStr);
@@ -74,7 +74,7 @@ uint32 Print_ADDRImmediate(char *buffer, const Nuance &nuance, const bool bNewli
 uint32 Print_ADDRScalar(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
-  uint32 bufinc = 0;
+  uint32 bufinc;
 
   sprintf(tempStr,"addr r%lu, %s\n",nuance.fields[FIELD_RCU_SRC],GetIndexRegister(nuance.fields[FIELD_RCU_DEST]));
   sprintf(buffer,"%s",tempStr);
@@ -86,7 +86,7 @@ uint32 Print_ADDRScalar(char *buffer, const Nuance &nuance, const bool bNewline)
 uint32 Print_MVRImmediate(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
-  uint32 bufinc = 0;
+  uint32 bufinc;
 
   sprintf(tempStr,"mvr #$%8.8lX, %s\n",nuance.fields[FIELD_RCU_SRC],GetIndexRegister(nuance.fields[FIELD_RCU_DEST]));
   sprintf(buffer,"%s",tempStr);
@@ -98,7 +98,7 @@ uint32 Print_MVRImmediate(char *buffer, const Nuance &nuance, const bool bNewlin
 uint32 Print_MVRScalar(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
-  uint32 bufinc = 0;
+  uint32 bufinc;
 
   sprintf(tempStr,"mvr r%lu, %s\n",nuance.fields[FIELD_RCU_SRC],GetIndexRegister(nuance.fields[FIELD_RCU_DEST]));
   sprintf(buffer,"%s",tempStr);
@@ -110,7 +110,7 @@ uint32 Print_MVRScalar(char *buffer, const Nuance &nuance, const bool bNewline)
 uint32 Print_Range(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
-  uint32 bufinc = 0;
+  uint32 bufinc;
 
   sprintf(tempStr,"range %s\n",GetIndexRegister(nuance.fields[FIELD_RCU_SRC]));
   sprintf(buffer,"%s",tempStr);
@@ -122,7 +122,7 @@ uint32 Print_Range(char *buffer, const Nuance &nuance, const bool bNewline)
 uint32 Print_Modulo(char *buffer, const Nuance &nuance, const bool bNewline)
 {
   char tempStr[512];
-  uint32 bufinc = 0;
+  uint32 bufinc;
 
   sprintf(tempStr,"modulo %s\n",GetIndexRegister(nuance.fields[FIELD_RCU_SRC]));
   sprintf(buffer,"%s",tempStr);

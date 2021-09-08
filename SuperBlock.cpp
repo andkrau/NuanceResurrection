@@ -151,7 +151,7 @@ SuperBlock::~SuperBlock()
 #endif
 }
 
-static void GetFlagString(const uint32 flags, char *buffer)
+static void GetFlagString(const uint32 flags, char * const buffer)
 {
   char tempStr[128];
 
@@ -898,7 +898,7 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
           if(packet.packetInfo & PACKETINFO_BRANCH_ALWAYS)
             decodeOptions |= DECOMPRESS_OPTIONS_INHIBIT_ECU;
 
-          /*if(!IsBranchConditionCompilable(startAddress, pMPE->mpeIndex, packet.ecuConditionCode))// || (numPackets != 0))
+          /*if(!IsBranchConditionCompilable(startAddress, pMPE->mpeIndex, packet.ecuConditionCode))// || (numPackets != 0)) //!! enable?
           {
             //Packet contains non-compilable instruction: don't add it to the list and stop adding packets
             //Don't modify the current value of the delay counter

@@ -96,7 +96,7 @@ bool MPE::LoadCoffFile(const char * const filename, bool bSetEntryPoint, int han
       }
 
       //save position so we can go to the section data
-      long nextPos = _tell(handle);
+      const long nextPos = _tell(handle);
       //start_offset may not be 0 if loading a COFF image stored inside of
       //a NUONROM-DISK image
       _lseek(handle,start_offset,SEEK_SET);

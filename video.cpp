@@ -2,7 +2,6 @@
 #include <windows.h>
 #include <mutex>
 #include "external\glew-2.2.0\include\GL\glew.h"
-#include "external\glew-2.2.0\include\GL\wglew.h"
 
 #include "GLWindow.h"
 #include "Bios.h"
@@ -36,27 +35,27 @@ VidChannel structOverlayChannelPrev;
 
 #define TEXTURE_TARGET (GL_TEXTURE_2D)
 
-const GLint mainInternalTextureFormat32 = GL_RGBA8;
-const GLint mainInternalTextureFormat16 = GL_RG8;
-const GLint mainInternalTextureBPC32 = 4;
-const GLint mainInternalTextureBPC16 = 2;
-const GLint mainExternalTextureFormat32 = GL_BGRA;
-const GLint mainExternalTextureFormat16 = GL_RG;
-const GLint mainPixelType32 = GL_UNSIGNED_BYTE;
-const GLint mainPixelType16 = GL_UNSIGNED_BYTE;
-const GLint mainTextureUnit = GL_TEXTURE0;
+constexpr GLint mainInternalTextureFormat32 = GL_RGBA8;
+constexpr GLint mainInternalTextureFormat16 = GL_RG8;
+constexpr GLint mainInternalTextureBPC32 = 4;
+constexpr GLint mainInternalTextureBPC16 = 2;
+constexpr GLint mainExternalTextureFormat32 = GL_BGRA;
+constexpr GLint mainExternalTextureFormat16 = GL_RG;
+constexpr GLint mainPixelType32 = GL_UNSIGNED_BYTE;
+constexpr GLint mainPixelType16 = GL_UNSIGNED_BYTE;
+constexpr GLint mainTextureUnit = GL_TEXTURE0;
 
-const GLint osdInternalTextureFormat32 = GL_RGBA8;
-const GLint osdInternalTextureFormat16 = GL_RG8;
-const GLint osdInternalTextureBPC32 = 4;
-const GLint osdInternalTextureBPC16 = 2;
-const GLint osdExternalTextureFormat32 = GL_BGRA;
-const GLint osdExternalTextureFormat16 = GL_RG;
-const GLint osdPixelType32 = GL_UNSIGNED_BYTE;
-const GLint osdPixelType16 = GL_UNSIGNED_BYTE;
-const GLint osdTextureUnit = GL_TEXTURE1;
+constexpr GLint osdInternalTextureFormat32 = GL_RGBA8;
+constexpr GLint osdInternalTextureFormat16 = GL_RG8;
+constexpr GLint osdInternalTextureBPC32 = 4;
+constexpr GLint osdInternalTextureBPC16 = 2;
+constexpr GLint osdExternalTextureFormat32 = GL_BGRA;
+constexpr GLint osdExternalTextureFormat16 = GL_RG;
+constexpr GLint osdPixelType32 = GL_UNSIGNED_BYTE;
+constexpr GLint osdPixelType16 = GL_UNSIGNED_BYTE;
+constexpr GLint osdTextureUnit = GL_TEXTURE1;
 
-const GLint lutTextureUnit = GL_TEXTURE2;
+constexpr GLint lutTextureUnit = GL_TEXTURE2;
 
 static bool bTexturesInitialized = false;
 static bool bShadersInstalled = false;
@@ -85,7 +84,7 @@ static uint32 LUT16[256][256];
 
 static ShaderProgram shaderProgram;
 
-static const GLubyte transparencyTexture[] = {0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF};
+static constexpr GLubyte transparencyTexture[] = {0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF};
 static GLubyte borderTexture[] = {0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00};
 
 void InitializeColorSpaceTables(void)
@@ -107,7 +106,7 @@ void InitializeColorSpaceTables(void)
 void UpdateTextureStates(void)
 {
   GLint uniformLoc;
-  const GLint filterType = GL_NEAREST; // otherwise 16bit formats will be screwed! do filtering on our own in the pixel shader instead!
+  constexpr GLint filterType = GL_NEAREST; // otherwise 16bit formats will be screwed! do filtering on our own in the pixel shader instead!
 
   if(bUseSeparateThread) gfx_lock.lock();
 
@@ -403,7 +402,7 @@ void RenderVideo(const int winwidth, const int winheight)
   if(bMainChannelActive)
   {
     const uint32 pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
-    bool useCannedAlpha = false;
+    //bool useCannedAlpha = false;
     uint32 pixWidthShift;
     uint32 pixWidth;
 
@@ -425,7 +424,7 @@ void RenderVideo(const int winwidth, const int winheight)
         //16 bit
         pixWidthShift = 1;
         pixWidth = 2;
-        useCannedAlpha = true;
+        //useCannedAlpha = true;
         break;
       case 3:
         //8 bit
@@ -441,7 +440,7 @@ void RenderVideo(const int winwidth, const int winheight)
         //16 bit+16z
         pixWidthShift = 2;
         pixWidth = 4;
-        useCannedAlpha = true;
+        //useCannedAlpha = true;
         break;
       case 6:
         //32 bit+32z
@@ -790,7 +789,7 @@ render_main_buffer:
 
 void UpdateBufferLengths(void)
 {
-  static const uint32 pixTypeToPixWidth[] = { 16,2,2,2,4,4,8 };
+  static constexpr uint32 pixTypeToPixWidth[] = { 16,2,2,2,4,4,8 };
 
   if(bMainChannelActive)
   {
@@ -858,7 +857,7 @@ void VidConfig(MPE &mpe)
   VidDisplay maindisplay;
   if(display_addr)
   {
-    VidDisplay *const pMainDisplay = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe, display_addr);
+    const VidDisplay *const pMainDisplay = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe, display_addr);
     memcpy(&maindisplay,pMainDisplay,sizeof(VidDisplay));
     SwapScalarBytes((uint32 *)&maindisplay.bordcolor);
 
@@ -879,7 +878,7 @@ void VidConfig(MPE &mpe)
   VidChannel mainchannel;
   if(main)
   {
-    VidChannel * const pMainChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, main);
+    const VidChannel * const pMainChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, main);
     memcpy(&mainchannel,pMainChannel,sizeof(VidChannel));
     SwapVectorBytes((uint32 *)&mainchannel.dmaflags);
     SwapVectorBytes((uint32 *)&mainchannel.dest_width);
@@ -893,7 +892,7 @@ void VidConfig(MPE &mpe)
   VidChannel osdchannel;
   if(osd)
   {
-    VidChannel * const pOSDChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, osd);
+    const VidChannel * const pOSDChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, osd);
     memcpy(&osdchannel,pOSDChannel,sizeof(VidChannel));
     SwapVectorBytes((uint32 *)&osdchannel.dmaflags);
     SwapVectorBytes((uint32 *)&osdchannel.dest_width);

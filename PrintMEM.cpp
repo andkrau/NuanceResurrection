@@ -4,7 +4,6 @@
 #include "mpe.h"
 #include "InstructionCache.h"
 #include "NuonMemoryMap.h"
-#include "SuperBlock.h"
 
 const char *GetControlRegister(uint32 which)
 {

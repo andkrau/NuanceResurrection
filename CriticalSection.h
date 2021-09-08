@@ -1,7 +1,6 @@
 #ifndef CRITICALSECTION_H
 #define CRITICALSECTION_H
 
-#include "basetypes.h"
 #include <windows.h>
 
 class CriticalSection

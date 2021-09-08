@@ -2,7 +2,6 @@
 #define EMITMISC_H
 
 #include "basetypes.h"
-#include "PatchManager.h"
 #include "X86EmitTypes.h"
 #include "InstructionDependencies.h"
 
@@ -56,7 +55,7 @@ inline int32 GetScalarRegEmitDisp(const EmitterVariables * const vars, const uin
   return -((32 - (int32)regIndex) * ((int32)sizeof(uint32)));
 }
 
-void Emit_ExitBlock(EmitterVariables * const vars);
+void Emit_ExitBlock(const EmitterVariables * const vars);
 void Emit_NOP(EmitterVariables * const vars, const Nuance &nuance);
 void Emit_SaveRegs(EmitterVariables * const vars, const Nuance &nuance);
 void Emit_StoreMiscRegisterConstant(EmitterVariables * const vars, const Nuance &nuance);

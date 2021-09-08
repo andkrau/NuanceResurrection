@@ -4,7 +4,6 @@
 #include "Handlers.h"
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
-#include "NuonMemoryMap.h"
 
 #define absFlags 0
 #define addScalarFlags 0

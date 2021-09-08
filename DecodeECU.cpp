@@ -32,7 +32,7 @@
 #define rti2ConditionalFlags 0
 #define rti2ConditionalNOPFlags 0
 
-static const uint32 flagDependencies[32] = {
+static constexpr uint32 flagDependencies[32] = {
   //ECU_CONDITION_NE (0x00UL)
   DEPENDENCY_FLAG_Z,
   //ECU_CONDITION_C0EQ (0x01UL)

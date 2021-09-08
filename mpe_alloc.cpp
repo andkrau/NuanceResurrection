@@ -1,6 +1,5 @@
 #include "basetypes.h"
 #include "Bios.h"
-#include "comm.h"
 #include "mpe.h"
 #include "mpe_alloc.h"
 #include "NuonEnvironment.h"
@@ -10,7 +9,7 @@ extern NuonEnvironment nuonEnv;
 extern uint32 media_mpe_allocated;
 extern uint32 media_mpe;
 
-const uint32 mpeFlags_init[4] = {
+constexpr uint32 mpeFlags_init[4] = {
 (MPE_HAS_CACHES | MPE_IRAM_8K | MPE_DTRAM_8K), //MPE0
 0, //MPE1
 0, //MPE2

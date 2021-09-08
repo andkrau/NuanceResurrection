@@ -487,7 +487,7 @@ void PropagateConstants_MUL_SVRvShiftSvshift(SuperBlockConstants &constants)
 
 void PropagateConstants_MUL_SVVectorShiftImmediate(SuperBlockConstants &constants)
 {
-  uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
+  const uint32 destIndex = constants.nuance->fields[FIELD_MUL_DEST];
   constants.ClearVectorRegisterConstant(destIndex);
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MUL_OK;
 }

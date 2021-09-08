@@ -3,7 +3,6 @@
 #include <windows.h>
 #endif
 #include "byteswap.h"
-#include "dma.h"
 #include "NuonEnvironment.h"
 #include "video.h"
 
@@ -335,9 +334,9 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
   }
 */
 
-  const int32 srcAStep = 1;
+  constexpr int32 srcAStep = 1;
   const int32 srcBStep = xsize;
-  const int32 destAStep = 1;
+  constexpr int32 destAStep = 1;
   const int32 destBStep = xlen;
 
   const uint32 srcOffset = ypos * (uint32)xsize + xpos;

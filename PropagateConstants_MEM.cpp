@@ -137,7 +137,7 @@ void PropagateConstants_MV_SScalar(SuperBlockConstants &constants)
   if(constants.IsScalarRegisterConstant(srcIndex) && ALLOW_MEM_PROPAGATION)
   {
     constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_MV_SImmediate;
-    uint32 srcValue = constants.GetScalarRegisterConstant(srcIndex);
+    const uint32 srcValue = constants.GetScalarRegisterConstant(srcIndex);
     constants.nuance->fields[FIELD_MEM_FROM] = srcValue;
     constants.ClearScalarInputDependency(srcIndex);
     constants.SetScalarRegisterConstant(destIndex,srcValue);
@@ -224,7 +224,7 @@ void PropagateConstants_LoadScalarControlRegisterAbsolute(SuperBlockConstants &c
 {
   const uint32 destIndex = constants.nuance->fields[FIELD_MEM_TO]; 
   uint32 regValue;
-  bool bIsConstant = true;
+  bool bIsConstant;
 
   const uint32 regIndex = (constants.nuance->fields[FIELD_MEM_FROM] - MPE_CTRL_BASE) >> 4;
   switch(regIndex)

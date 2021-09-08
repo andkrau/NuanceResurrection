@@ -11,7 +11,7 @@ void Emit_NOP(EmitterVariables * const vars, const Nuance &nuance)
   return;
 }
 
-void Emit_ExitBlock(EmitterVariables * const vars)
+void Emit_ExitBlock(const EmitterVariables * const vars)
 {
   vars->mpe->nativeCodeCache.X86Emit_POPAD();
   vars->mpe->nativeCodeCache.X86Emit_RETN();

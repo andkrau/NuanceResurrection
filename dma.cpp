@@ -42,7 +42,7 @@ Z-data is always operated on as the DMA controller does not know which
 of the framebuffers holds the color data.
 */
 
-const BilinearDMAHandler BilinearDMAHandlers[] =
+constexpr BilinearDMAHandler BilinearDMAHandlers[] =
 {
 //Pixel Type 0: Allows Z write only of pixel type 5
 //Write
@@ -1134,7 +1134,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
         bool bCompareZ = false;
         bool bUpdateZ = false;
 
-  uint32 wordsize, pixsize;
+  uint32 wordsize/*, pixsize*/;
   switch(pixtype)
   {
     //4 bit, 8 bit, 16 bit, and 16 bit Z-field only modes
@@ -1145,7 +1145,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     case 1:
       //4 bit
       wordsize = 1;
-      pixsize = 1;
+      //pixsize = 1;
       xlen >>= 2;
       xsize >>= 2;
       xpos >>= 2;
@@ -1153,12 +1153,12 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     case 2:
       //16 bit
       wordsize = 1;
-      pixsize = 1;
+      //pixsize = 1;
       break;
     case 3:
       //8 bit
       wordsize = 1;
-      pixsize = 1;
+      //pixsize = 1;
       xlen >>= 1;
       xsize >>= 1;
       xpos >>= 1;
@@ -1166,12 +1166,12 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     //32 bit, 32 bit + 32 bit Z, and 32 bit Z-field only modes
     case 4:
       wordsize = 2;
-      pixsize = 2;
+      //pixsize = 2;
       break;
     case 5:
     {
       wordsize = 2;
-      pixsize = 1;
+      //pixsize = 1;
 
       bUpdateZ = (zcompare != 7);
       if(bUpdateZ)
@@ -1189,7 +1189,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     case 6:
     {
       wordsize = 2;
-      pixsize = 2;
+      //pixsize = 2;
 
       bUpdateZ = (zcompare != 7);
       if(bUpdateZ)
@@ -1210,12 +1210,12 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     //16 bit + 16 bit Z, single, double and triple buffer modes
     case 8:
       wordsize = 1;
-      pixsize = 1;
+      //pixsize = 1;
       break;
     case 9:
     {
       wordsize = 2;
-      pixsize = 1;
+      //pixsize = 1;
 
       bUpdateZ = (zcompare != 7);
       if(bUpdateZ)
@@ -1233,7 +1233,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     case 10:
     {
       wordsize = 2;
-      pixsize = 1;
+      //pixsize = 1;
 
       bUpdateZ = (zcompare != 7);
       if(bUpdateZ)
@@ -1251,7 +1251,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     case 11:
     {
       wordsize = 2;
-      pixsize = 1;
+      //pixsize = 1;
 
       bUpdateZ = (zcompare != 7);
       if(bUpdateZ)
@@ -1268,12 +1268,12 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     }
     case 12:
       wordsize = 1;
-      pixsize = 1;
+      //pixsize = 1;
       break;
     case 13:
     {
       wordsize = 2;
-      pixsize = 1;
+      //pixsize = 1;
 
       bUpdateZ = (zcompare != 7);
       if(bUpdateZ)
@@ -1306,7 +1306,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     }
     case 15:
       wordsize = 1;
-      pixsize = 1;
+      //pixsize = 1;
       break;
   }
 

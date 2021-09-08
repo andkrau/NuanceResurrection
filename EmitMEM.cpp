@@ -141,7 +141,7 @@ void Emit_LoadByteAbsolute(EmitterVariables * const vars, const Nuance &nuance)
 
 void Emit_LoadByteLinear(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_not_control_reg = 0;
+  constexpr uint32 l_not_control_reg = 0;
 
   const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
   const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
@@ -278,7 +278,7 @@ void Emit_LoadWordAbsolute(EmitterVariables * const vars, const Nuance &nuance)
 
 void Emit_LoadWordLinear(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_not_control_reg = 0;
+  constexpr uint32 l_not_control_reg = 0;
 
   const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
   const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
@@ -433,7 +433,7 @@ void Emit_LoadScalarControlRegisterAbsolute(EmitterVariables * const vars, const
 
 void Emit_LoadScalarLinear(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_not_control_reg = 0;
+  constexpr uint32 l_not_control_reg = 0;
 
   const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
   const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
@@ -791,7 +791,7 @@ void Emit_LoadVectorAbsolute(EmitterVariables * const vars, const Nuance &nuance
 
 void Emit_LoadVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_not_control_reg = 0;
+  constexpr uint32 l_not_control_reg = 0;
 
   const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
   const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
@@ -1300,7 +1300,7 @@ void Emit_StoreScalarAbsolute(EmitterVariables * const vars, const Nuance &nuanc
 
 void Emit_StoreScalarLinear(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_not_control_reg = 0;
+  constexpr uint32 l_not_control_reg = 0;
 
   const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
   const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];
@@ -1657,7 +1657,7 @@ void Emit_StoreVectorAbsolute(EmitterVariables * const vars, const Nuance &nuanc
 
 void Emit_StoreVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_not_control_reg = 0;
+  constexpr uint32 l_not_control_reg = 0;
 
   const uint32 destRegIndex = nuance.fields[FIELD_MEM_TO];
   const uint32 srcRegIndex = nuance.fields[FIELD_MEM_FROM];

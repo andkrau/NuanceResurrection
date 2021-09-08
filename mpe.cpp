@@ -1,7 +1,6 @@
 #include "basetypes.h"
 #include <fcntl.h>
 #include <intrin.h>
-#include <io.h>
 #include <stdio.h>
 
 #include "Bios.h"
@@ -25,7 +24,6 @@
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
 #include "OverlayManager.h"
-#include "PerformanceTimer.h"
 #include "PresentationEngine.h"
 #include "PrintECU.h"
 #include "PrintRCU.h"
@@ -763,9 +761,9 @@ static FILE *logfile = NULL;
 
 void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr)
 {
-  const uint32 numCacheEntries[] = {4096,2048,2048,262144};
-  //const uint32 numTLBEntries[] = {4096,2048,2048,98304};
-  const uint32 overlayLengths[] = {8192,4096,4096,4096};
+  constexpr uint32 numCacheEntries[] = {4096,2048,2048,262144};
+  //constexpr uint32 numTLBEntries[] = {4096,2048,2048,98304};
+  constexpr uint32 overlayLengths[] = {8192,4096,4096,4096};
 
   numInterpreterCacheFlushes = 0;
   numNativeCodeCacheFlushes = 0;
@@ -1666,9 +1664,9 @@ inline bool MPE::ChooseInstructionPairOrdering(const InstructionCacheEntry &entr
 
 void MPE::ScheduleInstructionTriplet(InstructionCacheEntry &destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3)
 {
-  static const uint32 destSlot1[6] = {0,0,1,1,2,2};
-  static const uint32 destSlot2[6] = {1,2,2,0,0,1};
-  static const uint32 destSlot3[6] = {2,1,0,2,1,0};
+  static constexpr uint32 destSlot1[6] = {0,0,1,1,2,2};
+  static constexpr uint32 destSlot2[6] = {1,2,2,0,0,1};
+  static constexpr uint32 destSlot3[6] = {2,1,0,2,1,0};
 
 /*
   After completion, scores will contain the dependency count for the following permuations:
@@ -1774,10 +1772,10 @@ void MPE::GetInstructionTripletDependencies(uint32& comboScalarDep, uint32& comb
 
 void MPE::ScheduleInstructionQuartet(InstructionCacheEntry &destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry)
 {
-  static const uint32 destSlotRCU[6] = {0,0,1,1,2,0};
-  static const uint32 destSlotALU[6] = {1,2,2,3,3,3};
-  static const uint32 destSlotMUL[6] = {2,1,0,2,1,2};
-  static const uint32 destSlotMEM[6] = {3,3,3,0,0,1};
+  static constexpr uint32 destSlotRCU[6] = {0,0,1,1,2,0};
+  static constexpr uint32 destSlotALU[6] = {1,2,2,3,3,3};
+  static constexpr uint32 destSlotMUL[6] = {2,1,0,2,1,2};
+  static constexpr uint32 destSlotMEM[6] = {3,3,3,0,0,1};
 
   uint32 tempScalarDep1 = srcEntry.scalarOutputDependencies[SLOT_RCU] | srcEntry.scalarOutputDependencies[SLOT_MUL];
   uint32 tempMiscDep1 = srcEntry.miscOutputDependencies[SLOT_RCU] | srcEntry.miscOutputDependencies[SLOT_MUL];

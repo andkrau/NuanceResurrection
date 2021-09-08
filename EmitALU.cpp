@@ -5,9 +5,8 @@
 #include "NativeCodeCache.h"
 #include "PatchManager.h"
 #include "mpe.h"
-#include "SuperBlock.h"
 
-static const uint32 sub_sv_mask[] = {0xFFFF0000UL, 0xFFFF0000UL, 0xFFFF0000UL, 0xFFFF0000UL};
+static constexpr uint32 sub_sv_mask[] = {0xFFFF0000UL, 0xFFFF0000UL, 0xFFFF0000UL, 0xFFFF0000UL};
 
 void Emit_ABS(EmitterVariables * const vars, const Nuance &nuance)
 {
@@ -838,8 +837,8 @@ void Emit_ANDImmediate(EmitterVariables * const vars, const Nuance &nuance)
 
 void Emit_ANDImmediateShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_shl = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_shl = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1Imm = nuance.fields[FIELD_ALU_SRC1];
@@ -921,8 +920,8 @@ void Emit_ANDImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
 
 void Emit_ANDScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_shl = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_shl = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
@@ -1006,8 +1005,8 @@ void Emit_ANDScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
 
 void Emit_ANDScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_rol = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_rol = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
@@ -1295,8 +1294,8 @@ void Emit_FTSTScalar(EmitterVariables * const vars, const Nuance &nuance)
 
 void Emit_FTSTImmediateShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_shl = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_shl = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1Imm = nuance.fields[FIELD_ALU_SRC1];
@@ -1373,8 +1372,8 @@ void Emit_FTSTImmediateShiftScalar(EmitterVariables * const vars, const Nuance &
 
 void Emit_FTSTScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_shl = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_shl = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
@@ -1453,8 +1452,8 @@ void Emit_FTSTScalarShiftScalar(EmitterVariables * const vars, const Nuance &nua
 
 void Emit_FTSTScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_rol = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_rol = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
@@ -1737,8 +1736,8 @@ void Emit_ORScalar(EmitterVariables * const vars, const Nuance &nuance)
 
 void Emit_ORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_shl = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_shl = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1Imm = nuance.fields[FIELD_ALU_SRC1];
@@ -1820,8 +1819,8 @@ void Emit_ORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &nu
 
 void Emit_ORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_shl = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_shl = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
@@ -1905,8 +1904,8 @@ void Emit_ORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuanc
 
 void Emit_ORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_rol = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_rol = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
@@ -2204,8 +2203,8 @@ void Emit_EORScalar(EmitterVariables * const vars, const Nuance &nuance)
 
 void Emit_EORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_shl = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_shl = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1Imm = nuance.fields[FIELD_ALU_SRC1];
@@ -2287,8 +2286,8 @@ void Emit_EORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
 
 void Emit_EORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_shl = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_shl = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
@@ -2372,8 +2371,8 @@ void Emit_EORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
 
 void Emit_EORScalarRotateScalar(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_rol = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_rol = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
@@ -3634,8 +3633,8 @@ void Emit_CMPScalarShiftRightImmediate(EmitterVariables * const vars, const Nuan
 
 void Emit_ROT(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_rol = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_rol = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
@@ -3828,8 +3827,8 @@ void Emit_ROR(EmitterVariables * const vars, const Nuance &nuance)
 
 void Emit_AS(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_asl = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_asl = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
@@ -4067,8 +4066,8 @@ void Emit_ASR(EmitterVariables * const vars, const Nuance &nuance)
 
 void Emit_LS(EmitterVariables * const vars, const Nuance &nuance)
 {
-  const uint32 l_asl = 0;
-  const uint32 l_calc_flags = 1;
+  constexpr uint32 l_asl = 0;
+  constexpr uint32 l_calc_flags = 1;
 
   const uint32 destRegIndex = nuance.fields[FIELD_ALU_DEST];
   const uint32 src1RegIndex = nuance.fields[FIELD_ALU_SRC1];
