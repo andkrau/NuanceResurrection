@@ -1,10 +1,10 @@
 #include "basetypes.h"
-#include <stdarg.h>
+#include <cstdarg>
 #include "EmitMisc.h"
 #include "EmitECU.h"
 #include "InstructionCache.h"
 #include "mpe.h"
-#include "NativeCodeCache.h"
+#include "nativecodecache.h"
 #include "X86EmitTypes.h"
 
 void EmitConditionCheck(const EmitterVariables * const vars, const uint32 condition, const uint32 conditionFalseLabel, const uint32 conditionTrueLabel)
