@@ -616,7 +616,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\NativeCodeCache.cpp"
+				RelativePath=".\nativecodecache.cpp"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -1044,7 +1044,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\NativeCodeCache.h"
+				RelativePath=".\nativecodecache.h"
 				>
 			</File>
 			<File

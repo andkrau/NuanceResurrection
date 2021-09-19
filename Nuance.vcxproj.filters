@@ -129,7 +129,7 @@
     <ClCompile Include="MPEControlRegisters.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NativeCodeCache.cpp">
+    <ClCompile Include="nativecodecache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="NuanceMain.cpp">
@@ -344,7 +344,7 @@
     <ClInclude Include="mpe_alloc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="NativeCodeCache.h">
+    <ClInclude Include="nativecodecache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NuanceRes.h">
