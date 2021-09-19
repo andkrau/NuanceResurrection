@@ -387,7 +387,7 @@ Z: switch between controller 0 and controller 1
 
 History
 =======
-version 0.6.1:
+09/19/2021 version 0.6.1:
 Optimizations
 Fix some more opcode implementations
 Improve Video- and SysTimer precision
