@@ -242,7 +242,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Full</Optimization>
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StreamingSIMDExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
-    <ClCompile Include="NativeCodeCache.cpp">
+    <ClCompile Include="nativecodecache.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Full</Optimization>
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StreamingSIMDExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
@@ -364,7 +364,7 @@
     <ClInclude Include="MemoryManager.h" />
     <ClInclude Include="mpe.h" />
     <ClInclude Include="mpe_alloc.h" />
-    <ClInclude Include="NativeCodeCache.h" />
+    <ClInclude Include="nativecodecache.h" />
     <ClInclude Include="NuanceRes.h" />
     <ClInclude Include="NuonEnvironment.h" />
     <ClInclude Include="NuonMemoryManager.h" />
