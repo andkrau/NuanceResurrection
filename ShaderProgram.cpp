@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include "ShaderProgram.h"
 #include "Windows.h"
 
@@ -172,17 +172,13 @@ bool ShaderProgram::CompileShader(GLenum type)
 
 bool ShaderProgram::Link()
 {
-  bool bStatus;
-  GLint bLinked = GL_FALSE;
-
   if(!hProgramObject || !(bVertexShaderObjectAttached || bFragmentShaderObjectAttached))
-  {
     return false;
-  }
 
   glLinkProgramARB(hProgramObject);
+  GLint bLinked = GL_FALSE;
   glGetObjectParameterivARB(hProgramObject, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
-  bStatus = bLinked;
+  const bool bStatus = bLinked;
 
   return bStatus;
 }
@@ -263,14 +259,10 @@ bool ShaderProgram::DetachShader(GLenum type)
 
 bool ShaderProgram::CompileAndLinkShaders()
 {
-  bool bStatus;
-  GLint bLinked, bCompiled;
-
   if(!hProgramObject || !(bFragmentShaderCodeLoaded || bVertexShaderCodeLoaded))
-  {
     return false;
-  }
 
+  GLint bCompiled;
   if(hFragmentShaderObject && bFragmentShaderCodeLoaded)
   {
     glCompileShaderARB(hFragmentShaderObject);
@@ -294,8 +286,9 @@ bool ShaderProgram::CompileAndLinkShaders()
   }
 
   glLinkProgramARB(hProgramObject);
+  GLint bLinked;
   glGetObjectParameterivARB(hProgramObject, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
-  bStatus = bLinked;
+  const bool bStatus = bLinked;
   if(!bLinked)
   {
     PrintInfoLog(hProgramObject,"Shader Program Link Error");

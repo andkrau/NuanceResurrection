@@ -1,7 +1,7 @@
 #include "basetypes.h"
 #include "InstructionCache.h"
 #include "mpe.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 void Execute_ABS(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {

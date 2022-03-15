@@ -31,24 +31,24 @@ public:
   void WriteFile(MPE &mpe, uint32 fd, uint32 buf, uint32 len);
   void *GetPointerToMemory(const MPE &mpe, const uint32 address, const bool bCheckAddress = true);
   void *GetPointerToSystemMemory(const uint32 address, const bool bCheckAddress = true);
-  void InitBios(void);
-  void InitAudio(void);
-  void CloseAudio(void);
+  void InitBios();
+  void InitAudio();
+  void CloseAudio();
   void MuteAudio(const bool mute);
-  void StopAudio(void);
-  void RestartAudio(void);
+  void StopAudio();
+  void RestartAudio();
   void SetAudioVolume(uint32 volume);
   void SetAudioPlaybackRate();
 
-  bool IsAudioHalfInterruptEnabled(void) const
+  bool IsAudioHalfInterruptEnabled() const
   {
     return (nuonAudioChannelMode & ENABLE_HALF_INT);
   }
-  bool IsAudioWrapInterruptEnabled(void) const
+  bool IsAudioWrapInterruptEnabled() const
   {
     return (nuonAudioChannelMode & ENABLE_WRAP_INT);
   }
-  bool IsAudioSampleInterruptEnabled(void) const
+  bool IsAudioSampleInterruptEnabled() const
   {
     return (nuonAudioChannelMode & ENABLE_SAMP_INT);
   }
@@ -58,14 +58,14 @@ public:
     return dvdBase;
   }
 
-  void TriggerAudioInterrupt(void)
+  void TriggerAudioInterrupt()
   {
     if(bAudioInterruptsEnabled)
       for(int i = 0; i < 4; ++i)
         mpe[i].TriggerInterrupt(INT_AUDIO);
   }
 
-  void TriggerVideoInterrupt(void)
+  void TriggerVideoInterrupt()
   {
     ScheduleInterrupt(INT_VIDTIMER);
   }

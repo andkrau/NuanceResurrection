@@ -12,9 +12,6 @@ ControllerData *controller;
 
 void ControllerInitialize(MPE &mpe)
 {
-  uint32 properties;
-  uint32 config;
-
   //return the last 144 bytes of the BIOS region
   mpe.regs[0] = CONTROLLER_ADDRESS;
   controller = (ControllerData *)(nuonEnv.GetPointerToMemory(mpe,CONTROLLER_ADDRESS));
@@ -31,8 +28,8 @@ void ControllerInitialize(MPE &mpe)
     controller[i].d6.quadjoyY = 0;
   }
 
-  properties = KEYBOARD_JOYSTICK_PROPERTIES;
-  config = CONTROLLER_CHANGED_BIT | properties;
+  const uint32 properties = KEYBOARD_JOYSTICK_PROPERTIES;
+  uint32 config = CONTROLLER_CHANGED_BIT | properties;
   SwapScalarBytes(&config);
   controller[1].config = config;
 }

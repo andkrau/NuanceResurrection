@@ -87,7 +87,7 @@ static ShaderProgram shaderProgram;
 static constexpr GLubyte transparencyTexture[] = {0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF,0x00,0x00,0x00,0xFF};
 static GLubyte borderTexture[] = {0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00,0x10,0x80,0x80,0x00};
 
-void InitializeColorSpaceTables(void)
+void InitializeColorSpaceTables()
 {
   for(uint32 i = 0; i < 256; i++)
     vdgCLUT[i] = 0;
@@ -103,7 +103,7 @@ void InitializeColorSpaceTables(void)
     }
 }
 
-void UpdateTextureStates(void)
+void UpdateTextureStates()
 {
   GLint uniformLoc;
   constexpr GLint filterType = GL_NEAREST; // otherwise 16bit formats will be screwed! do filtering on our own in the pixel shader instead!
@@ -149,11 +149,10 @@ void UpdateTextureStates(void)
 
   if(bMainChannelActive)
   {
-    GLfloat x0, xf, y0, yf;
-    x0 = (GLfloat)((-((double)structMainChannel.dest_xoff * (double)structMainChannel.src_width)/(double)structMainChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
-    xf = (GLfloat)(((double)(structMainDisplay.dispwidth - structMainChannel.dest_xoff) * (double)structMainChannel.src_width/(double)structMainChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
-    y0 = (GLfloat)(((double)(structMainDisplay.dispheight - structMainChannel.dest_yoff) * (double)structMainChannel.src_height/(double)structMainChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
-    yf = (GLfloat)((-((double)structMainChannel.dest_yoff * (double)structMainChannel.src_height)/(double)structMainChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
+    const GLfloat x0 = (GLfloat)((-((double)structMainChannel.dest_xoff * (double)structMainChannel.src_width)/(double)structMainChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
+    const GLfloat xf = (GLfloat)(((double)(structMainDisplay.dispwidth - structMainChannel.dest_xoff) * (double)structMainChannel.src_width/(double)structMainChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
+    const GLfloat y0 = (GLfloat)(((double)(structMainDisplay.dispheight - structMainChannel.dest_yoff) * (double)structMainChannel.src_height/(double)structMainChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
+    const GLfloat yf = (GLfloat)((-((double)structMainChannel.dest_yoff * (double)structMainChannel.src_height)/(double)structMainChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
 
     //uint8 *pBuffer = (uint8 *)mainChannelBuffer;
     //for(uint32 i = 0; i < (ALLOCATED_TEXTURE_WIDTH * ALLOCATED_TEXTURE_HEIGHT); i++)
@@ -195,11 +194,10 @@ void UpdateTextureStates(void)
 
   if(bOverlayChannelActive)
   {
-    GLfloat x0, xf, y0, yf;
-    x0 = (GLfloat)((-((double)structOverlayChannel.dest_xoff * (double)structOverlayChannel.src_width)/(double)structOverlayChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
-    xf = (GLfloat)(((double)(structMainDisplay.dispwidth - structOverlayChannel.dest_xoff) * (double)structOverlayChannel.src_width/(double)structOverlayChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
-    y0 = (GLfloat)(((double)(structMainDisplay.dispheight - structOverlayChannel.dest_yoff) * (double)structOverlayChannel.src_height/(double)structOverlayChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
-    yf = (GLfloat)((-((double)structOverlayChannel.dest_yoff * (double)structOverlayChannel.src_height)/(double)structOverlayChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
+    const GLfloat x0 = (GLfloat)((-((double)structOverlayChannel.dest_xoff * (double)structOverlayChannel.src_width)/(double)structOverlayChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
+    const GLfloat xf = (GLfloat)(((double)(structMainDisplay.dispwidth - structOverlayChannel.dest_xoff) * (double)structOverlayChannel.src_width/(double)structOverlayChannel.dest_width) * (1.0 / ALLOCATED_TEXTURE_WIDTH));
+    const GLfloat y0 = (GLfloat)(((double)(structMainDisplay.dispheight - structOverlayChannel.dest_yoff) * (double)structOverlayChannel.src_height/(double)structOverlayChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
+    const GLfloat yf = (GLfloat)((-((double)structOverlayChannel.dest_yoff * (double)structOverlayChannel.src_height)/(double)structOverlayChannel.dest_height) * (1.0 / ALLOCATED_TEXTURE_HEIGHT));
 
     videoTexInfo.osdTexCoords[0] = x0;
     videoTexInfo.osdTexCoords[1] = y0;
@@ -249,7 +247,7 @@ void UpdateTextureStates(void)
   if(bUseSeparateThread) gfx_lock.unlock();
 }
 
-void UpdateDisplayList(void)
+void UpdateDisplayList()
 {
   if(bUseSeparateThread) gfx_lock.lock();
 
@@ -321,7 +319,7 @@ void UpdateDisplayList(void)
   if(bUseSeparateThread) gfx_lock.unlock();
 }
 
-void InitTextures(void)
+void InitTextures()
 {
   videoTexInfo.borderColor[0] = (GLfloat)(borderTexture[0] / 255.0);
   videoTexInfo.borderColor[1] = (GLfloat)(borderTexture[1] / 255.0);
@@ -360,7 +358,7 @@ void InitTextures(void)
   videoTexInfo.bUpdateDisplayList = false;
 }
 
-void IncrementVideoFieldCounter(void)
+void IncrementVideoFieldCounter()
 {
   //if(nuonEnv.systemBusDRAM)
   {
@@ -787,7 +785,7 @@ render_main_buffer:
   if(bUseSeparateThread) gfx_lock.unlock();
 }
 
-void UpdateBufferLengths(void)
+void UpdateBufferLengths()
 {
   static constexpr uint32 pixTypeToPixWidth[] = { 16,2,2,2,4,4,8 };
 
@@ -1263,7 +1261,7 @@ void VidChangeBase(MPE &mpe)
 #endif
 
   if(((which == VID_CHANNEL_MAIN) && !mainChannelBuffer) ||
-    ((which == VID_CHANNEL_OSD) && !overlayChannelBuffer))
+     ((which == VID_CHANNEL_OSD) && !overlayChannelBuffer))
   {
     //Channel is not active, return 0
     mpe.regs[0] = 0;
@@ -1436,7 +1434,7 @@ void VidSetCLUTRange(MPE &mpe)
   mpe.regs[0] = (count == numColors) ? 1 : 0;
 }
 
-void VideoCleanup(void)
+void VideoCleanup()
 {
   if(bUseSeparateThread) gfx_lock.lock();
   for(uint32 i = 0; i < 4; i++)

@@ -1,7 +1,7 @@
 #include "basetypes.h"
 #include <fcntl.h>
 #include <intrin.h>
-#include <stdio.h>
+#include <cstdio>
 
 #include "Bios.h"
 #include "byteswap.h"
@@ -20,7 +20,7 @@
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
 #include "mpe.h"
-#include "NativeCodeCache.h"
+#include "nativecodecache.h"
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
 #include "OverlayManager.h"
@@ -2317,9 +2317,9 @@ uint8 MPE::DecodeSingleInstruction(const uint8 *const iPtr, InstructionCacheEntr
   return 0;
 }
 
-NativeCodeCacheEntryPoint MPE::CompileNativeCodeBlock(const uint32 pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket)
+NativeCodeCacheEntryPoint MPE::CompileNativeCodeBlock(const uint32 _pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket)
 {
-  return superBlock.CompileBlock(pcexec, nativeCodeCache, compileType, bSinglePacket, bError);
+  return superBlock.CompileBlock(_pcexec, nativeCodeCache, compileType, bSinglePacket, bError);
 }
 
 void MPE::PrintInstructionCachePacket(char *buffer, const InstructionCacheEntry &entry)

@@ -1164,8 +1164,7 @@ void Execute_LoadVectorBilinearXY(MPE &mpe, const uint32 pRegs[48], const Nuance
 
 void Execute_LoadPixelLinear(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
-  uint32 address;
-  address = pRegs[nuance.fields[FIELD_MEM_FROM]];
+  const uint32 address = pRegs[nuance.fields[FIELD_MEM_FROM]];
   Nuance newNuance;
   newNuance.fields[FIELD_MEM_INFO] = MEM_INFO_LINEAR_INDIRECT;
   newNuance.fields[FIELD_MEM_TO] = nuance.fields[FIELD_MEM_TO];

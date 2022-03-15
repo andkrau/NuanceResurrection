@@ -46,7 +46,7 @@ public:
   GLWINDOW_CALLBACK paintHandler;
 
 private:
-  void OnResize(int width, int height);
+  void OnResize(int _width, int _height);
   bool CreateWindowGL();
   bool RegisterWindowClass();
   void CleanUp();

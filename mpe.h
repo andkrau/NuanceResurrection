@@ -15,7 +15,7 @@
 
 #include "basetypes.h"
 #include "InstructionCache.h"
-#include "NativeCodeCache.h"
+#include "nativecodecache.h"
 #include "NuonMemoryMap.h"
 #include "OverlayManager.h"
 #include "Syscall.h"
@@ -385,7 +385,7 @@ public:
   void GetInstructionTripletDependencies(uint32& comboScalarDep, uint32& comboMiscDep, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
   void ScheduleInstructionTriplet(InstructionCacheEntry &destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
   void ScheduleInstructionQuartet(InstructionCacheEntry &destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry);
-  NativeCodeCacheEntryPoint CompileNativeCodeBlock(const uint32 pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket = false);
+  NativeCodeCacheEntryPoint CompileNativeCodeBlock(const uint32 _pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket = false);
   bool FetchDecodeExecute();
   void ExecuteSingleStep();
 
@@ -438,18 +438,18 @@ public:
     }
   }
 
-  uint32 GetControlRegisterInputDependencies(const uint32 address, bool &bException) const;
-  uint32 GetControlRegisterOutputDependencies(const uint32 address, bool &bException) const;
+  static uint32 GetControlRegisterInputDependencies(const uint32 address, bool &bException);
+  static uint32 GetControlRegisterOutputDependencies(const uint32 address, bool &bException);
 
-  void DecodeInstruction_RCU16(const uint8* const iPtr, InstructionCacheEntry* const entry,       uint32* const immExt);
-  void DecodeInstruction_ECU16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
-  void DecodeInstruction_ECU32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
-  void DecodeInstruction_ALU16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
-  void DecodeInstruction_ALU32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  static void DecodeInstruction_RCU16(const uint8* const iPtr, InstructionCacheEntry* const entry,       uint32* const immExt);
+  static void DecodeInstruction_ECU16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  static void DecodeInstruction_ECU32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  static void DecodeInstruction_ALU16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  static void DecodeInstruction_ALU32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void DecodeInstruction_MEM16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
   void DecodeInstruction_MEM32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
-  void DecodeInstruction_MUL16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
-  void DecodeInstruction_MUL32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  static void DecodeInstruction_MUL16(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
+  static void DecodeInstruction_MUL32(const uint8* const iPtr, InstructionCacheEntry* const entry, const uint32* const immExt);
 
   bool TestConditionCode(const uint32 whichCondition) const;
   
@@ -495,12 +495,12 @@ public:
 
   uint32 ReadControlRegister(const uint32 address, const uint32 entrypRegs[48]);
 
-  inline void Halt(void)
+  inline void Halt()
   {
     mpectl &= ~MPECTRL_MPEGO;
   }
 
-  inline void Go(void)
+  inline void Go()
   {
     mpectl |= MPECTRL_MPEGO;
   }

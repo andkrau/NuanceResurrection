@@ -35,7 +35,7 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   //  map = 2;
 
   uint32 zmap;
-  if(pixtype > 12)
+  if(pixtype >= 13)
   {
     map = pixtype - 13;
     zmap = 2;
@@ -111,7 +111,7 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   }*/
 
   //BVA = 000 (horizontal DMA, x increment, y increment)
-  const int32 destAStep = 1;
+  constexpr int32 destAStep = 1;
   const int32 destBStep = xsize;
 
   const uint32 destZOffset = xsize * structMainChannel.src_height * zmap;

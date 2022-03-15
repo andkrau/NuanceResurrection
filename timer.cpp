@@ -1,5 +1,5 @@
 #include "basetypes.h"
-#include <time.h>
+#include <ctime>
 #include <windows.h>
 #include <mmsystem.h>
 #include "byteswap.h"
@@ -97,22 +97,19 @@ void DeInitTimingMethod(void)
 
 void TimeOfDay(MPE &mpe)
 {
-  time_t currTime;
-  tm *pcTime;
-  _currenttime *nuonTime;
-  uint32 ptrNuonTime, getset;
-
-  ptrNuonTime = mpe.regs[0];
-  getset = mpe.regs[1];
+  const uint32 getset = mpe.regs[1];
 
   if(getset == 0)
   {
-    nuonTime = (_currenttime *)nuonEnv.GetPointerToMemory(mpe,ptrNuonTime,true);
+    const uint32 ptrNuonTime = mpe.regs[0];
+
+    _currenttime *nuonTime = (_currenttime *)nuonEnv.GetPointerToMemory(mpe,ptrNuonTime,true);
 
     //Get time and fill time structure
 
+    time_t currTime;
     time(&currTime);
-    pcTime = localtime(&currTime);
+    const tm* const pcTime = localtime(&currTime);
 
     nuonTime->sec = pcTime->tm_sec;
     nuonTime->min = pcTime->tm_min;
@@ -138,7 +135,7 @@ void TimeOfDay(MPE &mpe)
     //wont hurt too much if this assumption is incorrect.  This may have to
     //be taken care of differently on other platforms
 
-    if(_tzname[1] == NULL)
+    if(_tzname[1] == nullptr)
     {
       nuonTime->isdst = -1;
     }

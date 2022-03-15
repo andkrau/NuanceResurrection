@@ -87,7 +87,7 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   }*/
 
   //BVA = 000 (horizontal DMA, x increment, y increment)
-  const int32 destAStep = 1;
+  constexpr int32 destAStep = 1;
   const int32 destBStep = xsize;
   uint32 bCount = ylen;
 

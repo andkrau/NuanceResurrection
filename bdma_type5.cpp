@@ -143,7 +143,7 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
     uint32 aCount = xlen;
 
     //BVA = 000 (horizontal DMA, x increment, y increment)
-    const int32 destAStep = 1;
+    constexpr int32 destAStep = 1;
     const int32 destBStep = xsize;
 
     while(aCount--)

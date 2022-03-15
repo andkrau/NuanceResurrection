@@ -1,8 +1,8 @@
 #include "basetypes.h"
 #include <io.h>
 #include <fcntl.h>
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 #include "byteswap.h"
 #include "nuonrom.h"
 

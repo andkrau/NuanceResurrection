@@ -1,5 +1,5 @@
 #include "basetypes.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include "Handlers.h"
 #include "InstructionCache.h"
 #include "mpe.h"
@@ -2581,4 +2581,3 @@ void PropagateConstants_CMPWCScalarShiftLeftImmediate(SuperBlockConstants &const
     constants.ClearMiscRegisterConstant(CONSTANT_REG_Z);    
   }
 }
-

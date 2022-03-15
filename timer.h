@@ -16,8 +16,8 @@ struct _currenttime {
     __int32 reserved[3]; /* reserved for future expansion */
 };
 
-void InitializeTimingMethod(void);
-void DeInitTimingMethod(void);
+void InitializeTimingMethod();
+void DeInitTimingMethod();
 
 uint64 useconds_since_start();
 

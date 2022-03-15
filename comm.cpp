@@ -1,5 +1,5 @@
 #include "basetypes.h"
-#include <stdio.h>
+#include <cstdio>
 #include "byteswap.h"
 #include "mpe.h"
 #include "comm.h"
