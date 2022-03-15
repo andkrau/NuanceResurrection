@@ -1,5 +1,5 @@
 #include "basetypes.h"
-#include <stdio.h>
+#include <cstdio>
 #include "FlashEEPROM.h"
 
 void FlashEEPROM::WriteData(uint32 address, uint32 data1)
@@ -305,4 +305,3 @@ void FlashEEPROM::SaveToFile(const char * const fileName)
     fclose(outFile);
   }
 }
-

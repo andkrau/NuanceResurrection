@@ -1,10 +1,10 @@
 #include "basetypes.h"
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <errno.h>
+#include <cerrno>
 #include <fcntl.h>
 #include <io.h>
-#include <stdlib.h>
+#include <cstdlib>
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
 #include <windows.h>
 #endif

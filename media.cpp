@@ -1,5 +1,6 @@
 #include "basetypes.h"
 #include <windows.h>
+#include <string>
 #include "byteswap.h"
 #include "Bios.h"
 #include "mpe.h"
@@ -125,7 +126,7 @@ void MediaInitMPE(MPE &mpe)
   mpe.regs[0] = which;
 }
 
-char *fileNameArray[] = {"stdin","stdout","stderr",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+std::string fileNameArray[] = {"stdin","stdout","stderr","","","","","","","","","","","","","","","","",""};
 uint32 fileModeArray[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 #define FIRST_DVD_FD (3)
@@ -137,10 +138,10 @@ uint32 fileModeArray[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 #define NUON_FD_FLASH (6)
 #define NUON_FD_SBMEM (7)
 
-int FindFirstFreeHandle()
+static int FindFirstFreeHandle()
 {
   for(int i = FIRST_DVD_FD; i <= LAST_DVD_FD; i++)
-    if(!fileNameArray[i])
+    if(fileNameArray[i].empty())
       return i;
 
   return 0;
@@ -178,10 +179,8 @@ void MediaOpen(MPE &mpe)
         name = &name[5];
       }
 
-      const size_t bufLength = strlen(name)+strlen(baseString)+1;
-      fileNameArray[handle] = new char[bufLength];
-      strcpy(fileNameArray[handle],baseString);
-      strcat(fileNameArray[handle],name);
+      fileNameArray[handle] = baseString;
+      fileNameArray[handle] += name;
       fileModeArray[handle] = mode;
     }
   }
@@ -194,13 +193,7 @@ void MediaClose(MPE &mpe)
   const int32 handle = mpe.regs[0];
 
   if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD))
-  {
-    if(fileNameArray[handle])
-    {
-      delete [] fileNameArray[handle];
-      fileNameArray[handle] = 0;
-    }
-  }
+    fileNameArray[handle].clear();
 }
 
 void MediaGetDevicesAvailable(MPE &mpe)
@@ -254,9 +247,9 @@ void MediaRead(MPE &mpe)
 
   if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD))
   {
-    if(fileNameArray[handle] && buffer && ((eMedia)fileModeArray[handle] != eMedia::MEDIA_WRITE))
+    if(!fileNameArray[handle].empty() && buffer && ((eMedia)fileModeArray[handle] != eMedia::MEDIA_WRITE))
     {
-      FILE* inFile = fopen(fileNameArray[handle],"rb");
+      FILE* inFile = fopen(fileNameArray[handle].c_str(),"rb");
       if(inFile)
       {
         void* pBuf = nuonEnv.GetPointerToMemory(mpe,buffer);
@@ -291,15 +284,15 @@ void MediaWrite(MPE &mpe)
 
   if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD))
   {
-    if(fileNameArray[handle] && buffer && ((eMedia)fileModeArray[handle] != eMedia::MEDIA_READ))
+    if(!fileNameArray[handle].empty() && buffer && ((eMedia)fileModeArray[handle] != eMedia::MEDIA_READ))
     {
       //try to open the existing file for read/write without erasing the contents
-      FILE* outFile = fopen(fileNameArray[handle],"r+b");
+      FILE* outFile = fopen(fileNameArray[handle].c_str(),"r+b");
       
       if(!outFile)
       {
         //try to create the file
-        outFile = fopen(fileNameArray[handle],"w+b");
+        outFile = fopen(fileNameArray[handle].c_str(),"w+b");
       }
 
       if(outFile)
@@ -338,7 +331,7 @@ void MediaIoctl(MPE &mpe)
   {
     mpe.regs[0] = 0;
 
-    if(fileNameArray[handle])
+    if(!fileNameArray[handle].empty())
     {
       switch((eMedia)ctl)
       {

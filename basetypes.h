@@ -32,7 +32,7 @@ inline void init_nuon_mem(const uint8* const p, const size_t length) {}
 #endif
 
 #ifdef ENABLE_ASSERTS
-#include <assert.h>
+#include <cassert>
 #else
 #define assert(expression) ((void)0)
 #endif

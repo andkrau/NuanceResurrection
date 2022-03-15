@@ -1,6 +1,6 @@
 #include "basetypes.h"
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include "InstructionCache.h"
 
 const char *GetConditionCode(uint32 which)

@@ -55,7 +55,7 @@ extern char **pArgs;
 #define INIT_FLAGS FSOUND_INIT_GLOBALFOCUS
 #define DEFAULT_SAMPLE_FORMAT (FSOUND_16BITS | FSOUND_STEREO | FSOUND_SIGNED)
 
-void NuonEnvironment::InitAudio(void)
+void NuonEnvironment::InitAudio()
 {
   if(nuonAudioPlaybackRate == 0 || nuonAudioBufferSize == 0) // delay FMOD init until SetAudioPlaybackRate and AudioSetChannelMode has been called so that we can set requested rate and buffer size here (also avoids one resampling step then!)
     return;
@@ -467,13 +467,11 @@ void NuonEnvironment::SetDVDBaseFromFileName(const char * const filename)
 
 ConfigTokenType NuonEnvironment::ReadConfigLine(FILE *file, char buf[1025])
 {
-  char firstChar;
-
   if(feof(file))
     return ConfigTokenType::CONFIG_EOF;
 
   fscanf_s(file,"%s",buf,1025);
-  firstChar = buf[0];
+  const char firstChar = buf[0];
 
   if(firstChar == CONFIG_COMMENT_CHAR)
     return ConfigTokenType::CONFIG_COMMENT;
@@ -489,14 +487,13 @@ ConfigTokenType NuonEnvironment::ReadConfigLine(FILE *file, char buf[1025])
 
 bool NuonEnvironment::LoadConfigFile(const char * const fileName)
 {
-  char line[1025];
-
   FILE *configFile = fopen(fileName,"r");
   if(!configFile)
     return false;
 
   while(!feof(configFile))
   {
+    char line[1025];
     ConfigTokenType tokenType = ReadConfigLine(configFile,line);
     switch(tokenType)
     {

@@ -62,7 +62,7 @@ void GLWindow::UpdateRestoreValues()
   restoreHeight = height = windowRect.bottom - windowRect.top;
 }
 
-void GLWindow::OnResize(int width, int height)
+void GLWindow::OnResize(int _width, int _height)
 {
   RECT windowRect;
 
@@ -584,8 +584,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
 bool GLWindow::RegisterWindowClass()
 {
-  WNDCLASSEX windowClass;
-  memset(&windowClass, 0, sizeof (WNDCLASSEX));
+  WNDCLASSEX windowClass = {};
   windowClass.cbSize = sizeof (WNDCLASSEX);
   windowClass.style	= CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
   windowClass.lpfnWndProc = (WNDPROC)(GLWindowProc);

@@ -239,84 +239,57 @@ void PropagateConstants_LoadScalarControlRegisterAbsolute(SuperBlockConstants &c
       break;
     case 0x8:
       //RZ
-      bIsConstant = false;
-      if(constants.IsMiscRegisterConstant(CONSTANT_REG_RZ) && ALLOW_MEM_PROPAGATION)
-      {
-        bIsConstant = true;
+      bIsConstant = (constants.IsMiscRegisterConstant(CONSTANT_REG_RZ) && ALLOW_MEM_PROPAGATION);
+      if(bIsConstant)
         regValue = constants.GetMiscRegisterConstant(CONSTANT_REG_RZ);
-      }
       break;
     case 0x1E:
       //RC0
-      bIsConstant = false;
-      if(constants.IsMiscRegisterConstant(CONSTANT_REG_RC0) && ALLOW_MEM_PROPAGATION)
-      {
-        bIsConstant = true;
+      bIsConstant = (constants.IsMiscRegisterConstant(CONSTANT_REG_RC0) && ALLOW_MEM_PROPAGATION);
+      if(bIsConstant)
         regValue = constants.GetMiscRegisterConstant(CONSTANT_REG_RC0);
-      }
       break;
     case 0x1F:
       //RC1
-      bIsConstant = false;
-      if(constants.IsMiscRegisterConstant(CONSTANT_REG_RC1) && ALLOW_MEM_PROPAGATION)
-      {
-        bIsConstant = true;
+      bIsConstant = (constants.IsMiscRegisterConstant(CONSTANT_REG_RC1) && ALLOW_MEM_PROPAGATION);
+      if(bIsConstant)
         regValue = constants.GetMiscRegisterConstant(CONSTANT_REG_RC1);
-      }
       break;
     case 0x20:
       //RX
-      bIsConstant = false;
-      if(constants.IsMiscRegisterConstant(CONSTANT_REG_RX) && ALLOW_MEM_PROPAGATION)
-      {
-        bIsConstant = true;
+      bIsConstant = (constants.IsMiscRegisterConstant(CONSTANT_REG_RX) && ALLOW_MEM_PROPAGATION);
+      if(bIsConstant)
         regValue = constants.GetMiscRegisterConstant(CONSTANT_REG_RX);
-      }
-      break;    
+      break;
     case 0x21:
       //RY
-      bIsConstant = false;
-      if(constants.IsMiscRegisterConstant(CONSTANT_REG_RY) && ALLOW_MEM_PROPAGATION)
-      {
-        bIsConstant = true;
+      bIsConstant = (constants.IsMiscRegisterConstant(CONSTANT_REG_RY) && ALLOW_MEM_PROPAGATION);
+      if(bIsConstant)
         regValue = constants.GetMiscRegisterConstant(CONSTANT_REG_RY);
-      }
-      break;    
+      break;
     case 0x25:
       //RU
-      bIsConstant = false;
-      if(constants.IsMiscRegisterConstant(CONSTANT_REG_RU) && ALLOW_MEM_PROPAGATION)
-      {
-        bIsConstant = true;
+      bIsConstant = (constants.IsMiscRegisterConstant(CONSTANT_REG_RU) && ALLOW_MEM_PROPAGATION);
+      if(bIsConstant)
         regValue = constants.GetMiscRegisterConstant(CONSTANT_REG_RU);
-      }
-      break;    
+      break;
     case 0x26:
       //RV
-      bIsConstant = false;
-      if(constants.IsMiscRegisterConstant(CONSTANT_REG_RV) && ALLOW_MEM_PROPAGATION)
-      {
-        bIsConstant = true;
+      bIsConstant = (constants.IsMiscRegisterConstant(CONSTANT_REG_RV) && ALLOW_MEM_PROPAGATION);
+      if(bIsConstant)
         regValue = constants.GetMiscRegisterConstant(CONSTANT_REG_RV);
-      }
-      break;    
+      break;
     case 0x2C:
       //SVSHIFT
-      bIsConstant = false;
-      if(constants.IsMiscRegisterConstant(CONSTANT_REG_SVSHIFT) && ALLOW_MEM_PROPAGATION)
-      {
-        bIsConstant = true;
+      bIsConstant = (constants.IsMiscRegisterConstant(CONSTANT_REG_SVSHIFT) && ALLOW_MEM_PROPAGATION);
+      if(bIsConstant)
         regValue = constants.GetMiscRegisterConstant(CONSTANT_REG_SVSHIFT);
-      }
-      break;    
+      break;
     case 0x2D:
       //ACSHIFT
-      bIsConstant = false;
-      if(constants.IsMiscRegisterConstant(CONSTANT_REG_ACSHIFT) && ALLOW_MEM_PROPAGATION)
-      {
-        bIsConstant = true;
+      bIsConstant = (constants.IsMiscRegisterConstant(CONSTANT_REG_ACSHIFT) && ALLOW_MEM_PROPAGATION);
+      if(bIsConstant)
         regValue = ((int32)(constants.GetMiscRegisterConstant(CONSTANT_REG_ACSHIFT) << 25)) >> 25;
-      }
       break;
     case 0x30:
     case 0x31:
@@ -350,12 +323,9 @@ void PropagateConstants_LoadScalarControlRegisterAbsolute(SuperBlockConstants &c
     case 0x4D:
     case 0x4E:
     case 0x4F:
-      bIsConstant = false;
-      if(constants.IsScalarRegisterConstant(regIndex - 0x30UL) && ALLOW_MEM_PROPAGATION)
-      {
-        bIsConstant = true;
+      bIsConstant = (constants.IsScalarRegisterConstant(regIndex - 0x30UL) && ALLOW_MEM_PROPAGATION);
+      if(bIsConstant)
         regValue = constants.GetScalarRegisterConstant(regIndex - 0x30UL);
-      }
       break;
     default:
       bIsConstant = false;

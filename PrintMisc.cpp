@@ -1,6 +1,6 @@
 #include "basetypes.h"
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include "InstructionCache.h"
 
 uint32 Print_PacketStart(char *buffer, const Nuance &nuance, const bool bNewline)

@@ -101,9 +101,9 @@ void VidChangeScroll(MPE &mpe);
 void VidChangeBase(MPE &mpe);
 void VidSetBorderColor(MPE &mpe);
 void VidSetCLUTRange(MPE &mpe);
-void InitializeColorSpaceTables(void);
+void InitializeColorSpaceTables();
 void RenderVideo(int width, int height);
-void VideoCleanup(void);
-void IncrementVideoFieldCounter(void);
+void VideoCleanup();
+void IncrementVideoFieldCounter();
 
 #endif

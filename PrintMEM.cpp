@@ -1,6 +1,6 @@
 #include "basetypes.h"
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include "mpe.h"
 #include "InstructionCache.h"
 #include "NuonMemoryMap.h"

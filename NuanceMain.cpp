@@ -1,6 +1,6 @@
 #include "basetypes.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include <windows.h>
 #include <commdlg.h>
@@ -723,7 +723,7 @@ bool OnDisplayKeyUp(int16 vkey, uint32 keydata)
   return false;
 }
 
-inline void ProcessCycleBasedEvents(void)
+inline void ProcessCycleBasedEvents()
 {
   nuonEnv.audioInterruptCycleCount--;
   if(nuonEnv.audioInterruptCycleCount == 0)
