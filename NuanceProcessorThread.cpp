@@ -10,37 +10,6 @@
 extern bool bUpdateVideo;
 extern NuonEnvironment *nuonEnv;
 
-inline void ProcessCycleBasedEvents(void)
-{
-  nuonEnv->audioInterruptCycleCount--;
-  if(nuonEnv->audioInterruptCycleCount == 0)
-  {
-    if(nuonEnv->whichAudioInterrupt == 0)
-    {
-      if(nuonEnv->IsAudioHalfInterruptEnabled())
-      {
-        nuonEnv->TriggerAudioInterrupt();
-      }
-    }
-    else
-    {
-      if(nuonEnv->IsAudioWrapInterruptEnabled())
-      {
-        nuonEnv->TriggerAudioInterrupt();
-      }
-    }
-    nuonEnv->audioInterruptCycleCount = nuonEnv->cyclesPerAudioInterrupt;
-    nuonEnv->whichAudioInterrupt = 1 - nuonEnv->whichAudioInterrupt;
-  }
-
-  nuonEnv->videoDisplayCycleCount--;
-  if(nuonEnv->videoDisplayCycleCount == 0)
-  {
-    //SendMessage(videoDisplayWindow.hWnd,WM_TIMER,16,NULL);
-    nuonEnv->videoDisplayCycleCount = nuonEnv->cyclesPerVideoDisplay;
-  }
-}
-
 void NuanceProcessorThread::Execute_3()
 {
   bool bAnyRunning;
@@ -55,11 +24,6 @@ void NuanceProcessorThread::Execute_3()
     }
 
     nuonEnv->cycleCounter++;
-
-    if(nuonEnv->bUseCycleBasedTiming)
-    {
-      ProcessCycleBasedEvents();
-    }
   }
   while(bAnyRunning && !(nuonEnv->bProcessorStartStopChange));
 }
@@ -79,11 +43,6 @@ void NuanceProcessorThread::Execute_32()
     }
 
     nuonEnv->cycleCounter++;
-
-    if(nuonEnv->bUseCycleBasedTiming)
-    {
-      ProcessCycleBasedEvents();
-    }
 
     bAnyRunning =
       (nuonEnv->mpe[3]->mpectl & MPECTRL_MPEGO) ||
@@ -109,11 +68,6 @@ void NuanceProcessorThread::Execute_31()
 
     nuonEnv->cycleCounter++;
 
-    if(nuonEnv->bUseCycleBasedTiming)
-    {
-      ProcessCycleBasedEvents();
-    }
-
     bAnyRunning =
       (nuonEnv->mpe[3]->mpectl & MPECTRL_MPEGO) ||
       (nuonEnv->mpe[1]->mpectl & MPECTRL_MPEGO);
@@ -137,12 +91,6 @@ void NuanceProcessorThread::Execute_30()
     }
 
     nuonEnv->cycleCounter++;
-
-    if(nuonEnv->bUseCycleBasedTiming)
-    {
-      ProcessCycleBasedEvents();
-    }
-
 
     if(nuonEnv->cycleCounter >= (54000000/nuonEnv->vblank_frequency))
     {
@@ -173,11 +121,6 @@ void NuanceProcessorThread::Execute_320()
 
     nuonEnv->cycleCounter++;
 
-    if(nuonEnv->bUseCycleBasedTiming)
-    {
-      ProcessCycleBasedEvents();
-    }
-
     bAnyRunning =
       (nuonEnv->mpe[3]->mpectl & MPECTRL_MPEGO) ||
       (nuonEnv->mpe[0]->mpectl & MPECTRL_MPEGO) ||
@@ -202,11 +145,6 @@ void NuanceProcessorThread::Execute_321()
     }
 
     nuonEnv->cycleCounter++;
-
-    if(nuonEnv->bUseCycleBasedTiming)
-    {
-      ProcessCycleBasedEvents();
-    }
 
     bAnyRunning =
       (nuonEnv->mpe[3]->mpectl & MPECTRL_MPEGO) ||
@@ -234,11 +172,6 @@ void NuanceProcessorThread::Execute_310()
 
     nuonEnv->cycleCounter++;
 
-    if(nuonEnv->bUseCycleBasedTiming)
-    {
-      ProcessCycleBasedEvents();
-    }
-
     bAnyRunning =
       (nuonEnv->mpe[3]->mpectl & MPECTRL_MPEGO) ||
       (nuonEnv->mpe[0]->mpectl & MPECTRL_MPEGO) ||
@@ -265,11 +198,6 @@ void NuanceProcessorThread::Execute_All()
     }
 
     nuonEnv->cycleCounter++;
-
-    if(nuonEnv->bUseCycleBasedTiming)
-    {
-      ProcessCycleBasedEvents();
-    }
 
     bAnyRunning =
       (nuonEnv->mpe[3]->mpectl & MPECTRL_MPEGO) ||

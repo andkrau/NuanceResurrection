@@ -721,42 +721,6 @@ bool OnDisplayKeyUp(int16 vkey, uint32 keydata)
   return false;
 }
 
-inline void ProcessCycleBasedEvents()
-{
-  nuonEnv.audioInterruptCycleCount--;
-  if(nuonEnv.audioInterruptCycleCount == 0)
-  {
-    if(nuonEnv.IsAudioSampleInterruptEnabled())
-    {
-      nuonEnv.TriggerAudioInterrupt();
-    }
-    else if(!nuonEnv.whichAudioInterrupt)
-    {
-      if(nuonEnv.IsAudioHalfInterruptEnabled())
-      {
-        nuonEnv.TriggerAudioInterrupt();
-      }
-    }
-    else
-    {
-      if(nuonEnv.IsAudioWrapInterruptEnabled())
-      {
-        nuonEnv.TriggerAudioInterrupt();
-      }
-    }
-    nuonEnv.audioInterruptCycleCount = nuonEnv.cyclesPerAudioInterrupt;
-    nuonEnv.whichAudioInterrupt = !nuonEnv.whichAudioInterrupt;
-  }
-
-  //nuonEnv.videoDisplayCycleCount--;
-  //if(nuonEnv.videoDisplayCycleCount == 0 && nuonEnv.bUseCycleBasedTiming)
-  //{
- //   InvalidateRect(display.hWnd,NULL,FALSE);
- //   //UpdateWindow(display.hWnd);
- //   nuonEnv.videoDisplayCycleCount = nuonEnv.cyclesPerVideoDisplay;
- // }
-}
-
 bool CheckForInvalidCommStatus(const MPE &mpe)
 {
   bool bInvalid = (mpe.intsrc & INT_COMMRECV) && 
@@ -945,7 +909,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       nuonEnv.TriggerScheduledInterrupts();
 
       //nuonEnv.videoDisplayCycleCount += nuonEnv.mpe[3].cycleCounter;
-      //ProcessCycleBasedEvents();
 
       //if(nuonEnv.videoDisplayCycleCount >= (54000000/VIDEO_HZ))
       //{
