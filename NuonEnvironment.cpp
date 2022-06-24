@@ -379,7 +379,6 @@ void NuonEnvironment::Init()
     RATE_48_KHZ |
     RATE_96_KHZ;
 
-  bUseCycleBasedTiming = false;
   cyclesPerAudioInterrupt = 1728000;
   audioInterruptCycleCount = cyclesPerAudioInterrupt;
   videoDisplayCycleCount = 120000;
@@ -551,11 +550,6 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
         {
           tokenType = ReadConfigLine(configFile,line);
           compilerOptions.bT3KCompilerHack = !_stricmp(line,"Enabled");
-        }
-        else if(_strnicmp(&line[1],"CycleBasedTiming]",sizeof("CycleBasedTiming]")) == 0)
-        {
-          tokenType = ReadConfigLine(configFile,line);
-          bUseCycleBasedTiming = !_stricmp(line,"Enabled");
         }
 #ifdef _WIN64
         compilerOptions.bAllowCompile = false; //!!
