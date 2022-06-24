@@ -76,206 +76,158 @@ const char *GetConditionCode(uint32 which)
   }
 }
 
-uint32 Print_ECU_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_ECU_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[] = "ecu_nop";
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize, "ecu_nop%s", bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_Halt(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_Halt(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[] = "halt";
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize, "halt%s", bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_BRAAlways(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_BRAAlways(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"bra $%8.8lX",nuance.fields[FIELD_ECU_ADDRESS]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"bra $%8.8lX%s",nuance.fields[FIELD_ECU_ADDRESS], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_BRAAlways_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_BRAAlways_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"bra $%8.8lX, nop",nuance.fields[FIELD_ECU_ADDRESS]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"bra $%8.8lX, nop%s",nuance.fields[FIELD_ECU_ADDRESS], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_BRAConditional(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_BRAConditional(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"bra %s, $%8.8lX",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"bra %s, $%8.8lX%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_BRAConditional_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_BRAConditional_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"bra %s, $%8.8lX, nop",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"bra %s, $%8.8lX, nop%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JMPAlwaysIndirect(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JMPAlwaysIndirect(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jmp (r%lu)",nuance.fields[FIELD_ECU_ADDRESS]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jmp (r%lu)%s",nuance.fields[FIELD_ECU_ADDRESS], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JMPAlwaysIndirect_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JMPAlwaysIndirect_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jmp (r%lu), nop",nuance.fields[FIELD_ECU_ADDRESS]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jmp (r%lu), nop%s",nuance.fields[FIELD_ECU_ADDRESS], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JMPConditionalIndirect(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JMPConditionalIndirect(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jmp %s, (r%lu)",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jmp %s, (r%lu)%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JMPConditionalIndirect_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JMPConditionalIndirect_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jmp %s, (r%lu), nop",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jmp %s, (r%lu), nop%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JSRAlways(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JSRAlways(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jsr $%8.8lX [$%8.8lX,$%8.8lX]",nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jsr $%8.8lX [$%8.8lX,$%8.8lX]%s",nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JSRAlways_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JSRAlways_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jsr $%8.8lX, nop [$%8.8lX,$%8.8lX]",nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jsr $%8.8lX, nop [$%8.8lX,$%8.8lX]%s",nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JSRConditional(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JSRConditional(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jsr %s, $%8.8lX [$%8.8lX,$%8.8lX]",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jsr %s, $%8.8lX [$%8.8lX,$%8.8lX]%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JSRConditional_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JSRConditional_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jsr %s, $%8.8lX, nop [$%8.8lX,$%8.8lX]",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jsr %s, $%8.8lX, nop [$%8.8lX,$%8.8lX]%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JSRAlwaysIndirect(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JSRAlwaysIndirect(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jsr (r%lu) [$%8.8lX,$%8.8lX]",nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jsr (r%lu) [$%8.8lX,$%8.8lX]%s",nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JSRAlwaysIndirect_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JSRAlwaysIndirect_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jsr (r%lu), nop [$%8.8lX,$%8.8lX]",nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jsr (r%lu), nop [$%8.8lX,$%8.8lX]%s",nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JSRConditionalIndirect(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JSRConditionalIndirect(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jsr %s, (r%lu) [$%8.8lX,$%8.8lX]",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jsr %s, (r%lu) [$%8.8lX,$%8.8lX]%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_JSRConditionalIndirect_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_JSRConditionalIndirect_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"jsr %s, (r%lu), nop [$%8.8lX,$%8.8lX]",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT]);
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"jsr %s, (r%lu), nop [$%8.8lX,$%8.8lX]%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]),nuance.fields[FIELD_ECU_ADDRESS],nuance.fields[FIELD_ECU_PCROUTE],nuance.fields[FIELD_ECU_PCFETCHNEXT], bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_RTSAlways(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_RTSAlways(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[] = "rts";
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize, "rts%s", bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_RTSAlways_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_RTSAlways_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[] = "rts, nop";
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer,512, "rts, nop%s", bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_RTSConditional(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_RTSConditional(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"rts %s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]));
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"rts %s%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]), bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_RTSConditional_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_RTSConditional_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"rts %s, nop",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]));
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"rts %s, nop%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]), bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_RTI1Conditional(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_RTI1Conditional(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"rti1 %s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]));
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"rti1 %s%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]), bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_RTI1Conditional_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_RTI1Conditional_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"rti1 %s, nop",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]));
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"rti1 %s, nop%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]), bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_RTI2Conditional(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_RTI2Conditional(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"rti2 %s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]));
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"rti2 %s%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]), bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_RTI2Conditional_NOP(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_RTI2Conditional_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"rti2 %s, nop",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]));
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize,"rti2 %s, nop%s",GetConditionCode(nuance.fields[FIELD_ECU_CONDITION]), bNewline ? "\n" : "");
+  return length;
 }

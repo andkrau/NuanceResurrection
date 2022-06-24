@@ -3,42 +3,32 @@
 #include <cstring>
 #include "InstructionCache.h"
 
-uint32 Print_PacketStart(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_PacketStart(char *buffer, size_t bufSize, const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"PacketStart");
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize, "PacketStarts%s", bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_PacketEnd(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_PacketEnd(char *buffer, size_t bufSize, const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"PacketEnd");
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize, "PacketEnd%s", bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_CheckECUSkipCounter(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_CheckECUSkipCounter(char *buffer, size_t bufSize, const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"CheckECUSkipCounter");
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize, "CheckECUSkipCounter%s", bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_SaveFlags(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_SaveFlags(char *buffer, size_t bufSize, const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"SaveFlags");
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize, "SaveFlags%s", bNewline ? "\n" : "");
+  return length;
 }
 
-uint32 Print_SaveRegs(char *buffer, const Nuance &nuance, const bool bNewline)
+uint32 Print_SaveRegs(char *buffer, size_t bufSize, const Nuance &nuance, const bool bNewline)
 {
-  char tempStr[512];
-  sprintf(tempStr,"SaveRegs");
-  sprintf(buffer,"%s%s",tempStr, bNewline ? "\n" : "");
-  return strlen(tempStr) + (bNewline ? 1 : 0);
+  const uint32 length = sprintf_s(buffer, bufSize, "SaveRegs%s", bNewline ? "\n" : "");
+  return length;
 }

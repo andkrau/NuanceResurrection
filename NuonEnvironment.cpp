@@ -169,7 +169,7 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &_mpe, const uint32 address,
       if((address < MPE_ADDR_SPACE_BASE) || (address >= MPE1_ADDR_BASE))
       {
         char textBuf[1024];
-        sprintf(textBuf,"MPE%u Illegal Memory Address Operand (MAIN) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+        sprintf_s(textBuf, sizeof(textBuf),"MPE%u Illegal Memory Address Operand (MAIN) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
           _mpe.mpeIndex,
           address,
           mpe[0].pcexec,
@@ -191,7 +191,7 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &_mpe, const uint32 address,
       if((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK)))
       {
         char textBuf[1024];
-        sprintf(textBuf,"MPE%u Illegal Memory Address Operand (SYSTEM) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+        sprintf_s(textBuf, sizeof(textBuf), "MPE%u Illegal Memory Address Operand (SYSTEM) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
           _mpe.mpeIndex,
           address,
           mpe[0].pcexec,
@@ -213,7 +213,7 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &_mpe, const uint32 address,
       if((address > (SYSTEM_BUS_BASE + SYSTEM_BUS_VALID_MEMORY_MASK)))
       {
         char textBuf[1024];
-        sprintf(textBuf,"MPE%u Illegal Memory Address Operand (ROM_BIOS) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+        sprintf_s(textBuf,sizeof(textBuf), "MPE%u Illegal Memory Address Operand (ROM_BIOS) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
           _mpe.mpeIndex,
           address,
           mpe[0].pcexec,
@@ -249,7 +249,7 @@ void *NuonEnvironment::GetPointerToSystemMemory(const uint32 address, const bool
       if((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK)))
       {
         char textBuf[1024];
-        sprintf(textBuf,"Illegal Memory Address Operand (SYSTEM) %8.8X\n",address);
+        sprintf_s(textBuf,sizeof(textBuf),"Illegal Memory Address Operand (SYSTEM) %8.8X\n",address);
 
         MessageBox( NULL, textBuf, "GetPointerToSystemMemory error", MB_OK);
       }
@@ -487,9 +487,9 @@ ConfigTokenType NuonEnvironment::ReadConfigLine(FILE *file, char buf[1025])
 
 bool NuonEnvironment::LoadConfigFile(const char * const fileName)
 {
-  FILE *configFile = fopen(fileName,"r");
-  if(!configFile)
-    return false;
+    FILE* configFile;
+    if (fopen_s(&configFile, fileName, "r") != 0 )
+        return false;
 
   while(!feof(configFile))
   {
