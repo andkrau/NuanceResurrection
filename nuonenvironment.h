@@ -122,7 +122,6 @@ public:
 
   bool bInterlaced;
   bool bProcessorStartStopChange;
-  bool bUseCycleBasedTiming; //!! unfinished
   bool whichAudioInterrupt;
 
   volatile bool trigger_render_video;

@@ -845,8 +845,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         nuonEnv.TriggerAudioInterrupt(); //!! meh
       } else*/
 
-      if (!nuonEnv.bUseCycleBasedTiming &&
-           nuonEnv.pNuonAudioBuffer && // was nuon audio setup already?
+      if (nuonEnv.pNuonAudioBuffer && // was nuon audio setup already?
          ((nuonEnv.nuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT)) != (nuonEnv.oldNuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT))) && // was a new audio interrupt requested?
        ((((nuonEnv.mpe[0].intsrc & nuonEnv.mpe[0].inten1) | (nuonEnv.mpe[1].intsrc & nuonEnv.mpe[1].inten1) | (nuonEnv.mpe[2].intsrc & nuonEnv.mpe[2].inten1) | (nuonEnv.mpe[3].intsrc & nuonEnv.mpe[3].inten1)) & INT_AUDIO) == 0) && // & (INT_AUDIO | INT_COMMXMIT | INT_VIDTIMER) // are any audio interrupts still pending?
           _InterlockedExchange(&nuonEnv.audio_buffer_played,0) == 1) // was a audio buffer already played since last cycle?
