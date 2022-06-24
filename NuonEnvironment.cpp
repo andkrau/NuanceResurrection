@@ -395,10 +395,22 @@ void NuonEnvironment::Init()
 
 uint32 NuonEnvironment::GetBufferSize(uint32 channelMode)
 {
-  return ((channelMode & BUFFER_SIZE_64K) == 0) ?
-    8192 //!! why hardcoded to 8k ??
-    :
-    (512UL << (((channelMode & BUFFER_SIZE_64K) >> 5) & 0x7UL)); //!! ??
+  if (channelMode & BUFFER_SIZE_1K) {
+    return 1024;
+  } else if (channelMode & BUFFER_SIZE_2K) {
+    return 2048;
+  } else if (channelMode & BUFFER_SIZE_4K) {
+    return 4096;
+  } else if (channelMode & BUFFER_SIZE_8K) {
+    return 8192;
+  } else if (channelMode & BUFFER_SIZE_16K) {
+    return 16384;
+  } else if (channelMode & BUFFER_SIZE_32K) {
+    return 32768;
+  } else if (channelMode & BUFFER_SIZE_64K) {
+    return 65536;
+  }
+  return 0;
 }
 
 void NuonEnvironment::InitBios()
