@@ -539,7 +539,7 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
         fprintf(blockFile,"*DEAD*: ");
       }
       char tempStr[2048];
-      (printHandlers[handler])(tempStr, pCurrentInstruction->instruction, false);
+      (printHandlers[handler])(tempStr, sizeof(tempStr), pCurrentInstruction->instruction, false);
       fprintf(blockFile,"%s ",tempStr);
       if(!(pCurrentInstruction->flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
       //if(0)

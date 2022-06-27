@@ -2322,37 +2322,37 @@ NativeCodeCacheEntryPoint MPE::CompileNativeCodeBlock(const uint32 _pcexec, cons
   return superBlock.CompileBlock(_pcexec, nativeCodeCache, compileType, bSinglePacket, bError);
 }
 
-void MPE::PrintInstructionCachePacket(char *buffer, const InstructionCacheEntry &entry)
+void MPE::PrintInstructionCachePacket(char *buffer, size_t bufSize, const InstructionCacheEntry &entry)
 {
   for(uint32 i = 0; i < entry.nuanceCount; i++)
   {
-    buffer += (printHandlers[entry.handlers[i]])(buffer, *((Nuance *)(&entry.nuances[FIXED_FIELD(i,0)])), true);
+    buffer += (printHandlers[entry.handlers[i]])(buffer, bufSize, *((Nuance *)(&entry.nuances[FIXED_FIELD(i,0)])), true);
   }
   
   if(entry.packetInfo & PACKETINFO_BREAKPOINT)
   {
-    sprintf(buffer,"breakpoint\n");
+    sprintf_s(buffer, bufSize, "breakpoint\n");
   }
   else if(entry.packetInfo & PACKETINFO_NOP)
   {
-    sprintf(buffer,"nop\n");
+    sprintf_s(buffer, bufSize, "nop\n");
   }
 }
 
-void MPE::PrintInstructionCachePacket(char *buffer, const uint32 address)
+void MPE::PrintInstructionCachePacket(char *buffer, size_t bufSize, const uint32 address)
 {
   bool bCacheEntryValid;
   const InstructionCacheEntry * const pEntry = instructionCache->FindInstructionCacheEntry(address,bCacheEntryValid);
   if(bCacheEntryValid && (address == pEntry->pcexec))
   {
-    PrintInstructionCachePacket(buffer,*pEntry);
+    PrintInstructionCachePacket(buffer, bufSize, *pEntry);
   }
   else
   {
     InstructionCacheEntry entry;
     entry.pcexec = address;
     DecompressPacket(GetPointerToMemoryBank(address),entry);
-    PrintInstructionCachePacket(buffer,entry);    
+    PrintInstructionCachePacket(buffer, bufSize, entry);
   }
 }
 
