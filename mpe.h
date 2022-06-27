@@ -224,8 +224,8 @@ bit ECU instructions and TestConditionCode.
 
 typedef void (* NuanceHandler)(MPE &, const uint32 pRegs[48], const Nuance &);
 typedef void NuanceHandlerProto(MPE &, const uint32 pRegs[48], const Nuance &);
-typedef uint32 (* NuancePrintHandler)(char *, const Nuance &, bool);
-typedef uint32 NuancePrintHandlerProto(char *, const Nuance &, bool);
+typedef uint32 (* NuancePrintHandler)(char *, size_t, const Nuance &, bool);
+typedef uint32 NuancePrintHandlerProto(char *, size_t, const Nuance &, bool);
 typedef void (* NativeEmitHandler)(EmitterVariables * const, const Nuance &);
 typedef void NativeEmitHandlerProto(EmitterVariables * const, const Nuance &);
 typedef void (* NativeCodeBlockFunction)();
@@ -523,8 +523,8 @@ public:
 
   void UpdateInvalidateRegion(const uint32 start, const uint32 length);
 
-  void PrintInstructionCachePacket(char *buffer, const uint32 address);
-  void PrintInstructionCachePacket(char *buffer, const InstructionCacheEntry &entry);
+  void PrintInstructionCachePacket(char *buffer, size_t bufSize, const uint32 address);
+  void PrintInstructionCachePacket(char *buffer, size_t bufSize, const InstructionCacheEntry &entry);
 
   void Reset();
 
