@@ -159,61 +159,61 @@ static void GetFlagString(const uint32 flags, char * const buffer)
 
   if(flags & SUPERBLOCKINFO_PACKETSTART)
   {
-    sprintf(tempStr,"SUPERBLOCKINFO_PACKETSTART\n");
-    strcat(buffer,tempStr);
+    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_PACKETSTART\n");
+    strcat_s(buffer,sizeof(buffer),tempStr);
   }
   
   if(flags & SUPERBLOCKINFO_PACKETEND)
   {
-    sprintf(tempStr,"SUPERBLOCKINFO_PACKETEND\n");
-    strcat(buffer,tempStr);
+    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_PACKETEND\n");
+    strcat_s(buffer,sizeof(buffer),tempStr);
   }
 
   if(flags & SUPERBLOCKINFO_LOCKED)
   {
-    sprintf(tempStr,"SUPERBLOCKINFO_LOCKED\n");
-    strcat(buffer,tempStr);
+    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_LOCKED\n");
+    strcat_s(buffer,sizeof(buffer),tempStr);
   }
 
   if(flags & SUPERBLOCKINFO_NONATIVECOMPILE)
   {
-    sprintf(tempStr,"SUPERBLOCKINFO_NONATIVECOMPILE\n");
-    strcat(buffer,tempStr);
+    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_NONATIVECOMPILE\n");
+    strcat_s(buffer,sizeof(buffer),tempStr);
   }
 
   if(flags & SUPERBLOCKINFO_DEAD)
   {
-    sprintf(tempStr,"SUPERBLOCKINFO_DEAD\n");
-    strcat(buffer,tempStr);
+    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_DEAD\n");
+    strcat_s(buffer,sizeof(buffer),tempStr);
   }
 
   if(flags & SUPERBLOCKINFO_SYNC)
   {
-    sprintf(tempStr,"SUPERBLOCKINFO_SYNC\n");
-    strcat(buffer,tempStr);
+    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_SYNC\n");
+    strcat_s(buffer,sizeof(buffer),tempStr);
   }
 
   if(flags & SUPERBLOCKINFO_INHIBIT_ECU)
   {
-    sprintf(tempStr,"SUPERBLOCKINFO_INHIBIT_ECU\n");
-    strcat(buffer,tempStr);
+    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_INHIBIT_ECU\n");
+    strcat_s(buffer,sizeof(buffer),tempStr);
   }
 
   if(flags & SUPERBLOCKINFO_CHECK_ECU_INHIBIT)
   {
-    sprintf(tempStr,"SUPERBLOCKINFO_CHECK_ECU_INHIBIT\n");
-    strcat(buffer,tempStr);
+    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_CHECK_ECU_INHIBIT\n");
+    strcat_s(buffer,sizeof(buffer),tempStr);
   }
 
   if(flags & SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER)
   {
-    sprintf(tempStr,"SUPERBLOCKINFO_CHECK_ECU_SKIPCOUNTER\n");
-    strcat(buffer,tempStr);
+    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_CHECK_ECU_SKIPCOUNTER\n");
+    strcat_s(buffer,sizeof(buffer),tempStr);
   }
 
   if(buffer[0] == '\0')
   {
-    sprintf(buffer,"NONE\n");
+    sprintf_s(buffer,sizeof(buffer),"NONE\n");
   }
 }
 
@@ -231,7 +231,7 @@ static void GetIFlagsString(char *buffer, const uint32 dep)
   const bool bCF0 = dep & DEPENDENCY_FLAG_CP0;
   const bool bCF1 = dep & DEPENDENCY_FLAG_CP1;
 
-  sprintf(buffer,"[%s%s%s%s%s%s%s%s%s%s%s]",
+  sprintf_s(buffer,sizeof(buffer),"[%s%s%s%s%s%s%s%s%s%s%s]",
     bN ? "N " : "",
     bV ? "V " : "",
     bZ ? "Z " : "",
@@ -492,8 +492,8 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
   if(!blockFile)
   {
     char fileStr[128];
-    sprintf(fileStr,"SuperBlocks%li.txt",pMPE->mpeIndex);
-    blockFile = fopen(fileStr,"w");
+    sprintf_s(fileStr,sizeof(fileStr),"SuperBlocks%li.txt",pMPE->mpeIndex);
+    fopen_s(&blockFile,fileStr,"w");
     if(!blockFile)
       return;
   }

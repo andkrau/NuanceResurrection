@@ -166,12 +166,12 @@ void FileOpen(MPE &mpe)
       pPath += 5;
     }
 
-    strcpy(name,nuonEnv.GetDVDBase());
-    strcat(name,pPath);
+    strcpy_s(name,sizeof(name),nuonEnv.GetDVDBase());
+    strcat_s(name,sizeof(name),pPath);
     
     ConvertSeparatorCharacters(name);
 
-    fd = _open(name,access,mode);
+    _sopen_s(&fd,name,access,_SH_DENYNO,mode);
     if(fd == -1)
     {
       goto Error;

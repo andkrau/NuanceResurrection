@@ -1,5 +1,6 @@
 #include "basetypes.h"
 #include <io.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <cstring>
 #include <cstdio>
@@ -12,7 +13,8 @@ bool MPE::LoadNuonRomFile(const char * const filename)
   int bytesRead;
   uint32 offset;
 
-  const int handle = _open(filename,O_RDONLY|O_BINARY,0);
+  int handle;
+  _sopen_s(&handle,filename,O_RDONLY|O_BINARY,_SH_DENYWR,_S_IREAD);
   if(handle >= 0)
   {
 check_for_bles:
