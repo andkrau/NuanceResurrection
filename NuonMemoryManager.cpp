@@ -18,7 +18,7 @@ uint32 NuonMemoryManager::Alloc(const uint32 requestedBytes, const uint32 reques
     if((address != 0) && ((address < MAIN_BUS_BASE) || (address >= MAIN_BUS_BASE + MAIN_BUS_SIZE)))
     {
       char msg[128];
-      sprintf(msg,"Illegal Main Bus memory address allocation: %8.8lX",address);
+      sprintf_s(msg,sizeof(msg),"Illegal Main Bus memory address allocation: %8.8lX",address);
       MessageBox(NULL,"MemAlloc Error",msg,MB_OK);
     }
 #endif
@@ -31,7 +31,7 @@ uint32 NuonMemoryManager::Alloc(const uint32 requestedBytes, const uint32 reques
     if((address != 0) && ((address < SYSTEM_BUS_BASE) || (address >= BIOS_FUNCTIONS_BASE)))
     {
       char msg[128];
-      sprintf(msg,"Illegal Other Bus memory address allocation: %8.8lX",address);
+      sprintf_s(msg,sizeof(msg),"Illegal Other Bus memory address allocation: %8.8lX",address);
       MessageBox(NULL,"MemAlloc Error",msg,MB_OK);
     }
 #endif

@@ -272,7 +272,8 @@ void FlashEEPROM::LockSector(uint32 address)
 
 void FlashEEPROM::LoadFromFile(const char * const fileName)
 {
-  FILE *inFile = fopen(fileName,"rb");
+  FILE *inFile;
+  fopen_s(&inFile,fileName,"rb");
 
   if(inFile)
   {
@@ -294,7 +295,8 @@ void FlashEEPROM::LoadFromFile(const char * const fileName)
 
 void FlashEEPROM::SaveToFile(const char * const fileName)
 {
-  FILE *outFile = fopen(fileName,"wb");
+  FILE *outFile;
+  fopen_s(&outFile,fileName,"wb");
 
   if(outFile)
   {

@@ -78,7 +78,8 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
 {
   bool bStatus = false;
 
-  FILE *inFile = fopen(filename,"rb");
+  FILE *inFile;
+  fopen_s(&inFile,filename,"rb");
 
   if(inFile)
   {

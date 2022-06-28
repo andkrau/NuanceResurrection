@@ -1329,7 +1329,7 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
   if((sdramBase < 0x40000000) || (sdramBase > 0x407FFFFF))
   {
     char msgBuf[512];
-    sprintf(msgBuf,"sdramBase is out of range on MPE%u: 0x%lx\n",mpe.mpeIndex,sdramBase);
+    sprintf_s(msgBuf, sizeof(msgBuf), "sdramBase is out of range on MPE%u: 0x%lx\n",mpe.mpeIndex,sdramBase);
     MessageBox(NULL,msgBuf,"DMABiLinear error",MB_OK);
   }
   //else

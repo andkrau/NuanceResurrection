@@ -39,7 +39,7 @@ bool MPE::LoadCoffFile(const char * const filename, bool bSetEntryPoint, int han
 {
   if(handle == -1)
   {
-    handle = _open(filename,O_RDONLY|O_BINARY,0);
+    _sopen_s(&handle,filename,O_RDONLY|O_BINARY,_SH_DENYWR,_S_IREAD);
   }
 
   const int start_offset = _tell(handle);

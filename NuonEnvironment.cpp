@@ -458,7 +458,7 @@ void NuonEnvironment::SetDVDBaseFromFileName(const char * const filename)
   delete [] dvdBase;
   int i = (int)strlen(filename);
   dvdBase = new char[i+1];
-  strncpy(dvdBase,filename,i+1);
+  strcpy_s(dvdBase,i+1,filename);
   while(i >= 0)
   {
      if(dvdBase[i] == '\\')
@@ -516,8 +516,9 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
           tokenType = ReadConfigLine(configFile,line);
           ReplaceNewline(line,0,1024);
           delete [] dvdBase;
-          dvdBase = new char[strlen(line)+1];
-          strcpy(dvdBase,line);
+          int i = (int)strlen(line);
+          dvdBase = new char[i+1];
+          strcpy_s(dvdBase,i+1,line);
         }
         else if(_strnicmp(&line[1],"AudioInterrupts]",sizeof("AudioInterrupts]")) == 0)
         {
