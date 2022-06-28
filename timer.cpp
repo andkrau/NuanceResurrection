@@ -109,33 +109,31 @@ void TimeOfDay(MPE &mpe)
 
     time_t currTime;
     time(&currTime);
-    const tm* const pcTime = localtime(&currTime);
+    struct tm pcTime;
+    localtime_s(&pcTime,&currTime);
+    long offset;
+    _get_timezone(&offset);
 
-    nuonTime->sec = pcTime->tm_sec;
-    nuonTime->min = pcTime->tm_min;
-    nuonTime->hour = pcTime->tm_hour;
-    nuonTime->wday = pcTime->tm_wday;
-    nuonTime->mday = pcTime->tm_mday;
-    nuonTime->month = pcTime->tm_mon + 1; //according to the SDK, january = 1
-    nuonTime->year = pcTime->tm_year + 1900; //Nuon year field is the actual year value, not a delta
-    nuonTime->isdst = pcTime->tm_isdst;
-    nuonTime->timezone = _timezone/60; //Nuon timezone field is in minutes rather than seconds
+    nuonTime->sec = pcTime.tm_sec;
+    nuonTime->min = pcTime.tm_min;
+    nuonTime->hour = pcTime.tm_hour;
+    nuonTime->wday = pcTime.tm_wday;
+    nuonTime->mday = pcTime.tm_mday;
+    nuonTime->month = pcTime.tm_mon + 1; //according to the SDK, january = 1
+    nuonTime->year = pcTime.tm_year + 1900; //Nuon year field is the actual year value, not a delta
+    nuonTime->isdst = pcTime.tm_isdst;
+    nuonTime->timezone = offset/60; //Nuon timezone field is in minutes rather than seconds
 
     //A value of -1 in the Nuon field indicates that the system doesn't keep track of DST.
-    if(pcTime->tm_isdst != -1)
+    if(pcTime.tm_isdst > 0)
     {
       nuonTime->isdst = 1;
     }
-
-    //The pointer in _tzname[1] points to the daylight savings time zone name
-    //if available, and is set to NULL if not available.  I am assuming that
-    //if windows is not set up to keep track of DST, _tzname[1] is set to NULL.
-
-    //Almost all windows users will allow windows to keep track of DST, so it
-    //wont hurt too much if this assumption is incorrect.  This may have to
-    //be taken care of differently on other platforms
-
-    if(_tzname[1] == nullptr)
+    else if (pcTime.tm_isdst == 0)
+    {
+      nuonTime->isdst = 0;
+    }
+    else
     {
       nuonTime->isdst = -1;
     }
