@@ -146,78 +146,91 @@ SuperBlock::SuperBlock(MPE * const mpe)
 SuperBlock::~SuperBlock()
 {
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
-  if(blockFile)
-    fclose(blockFile);
+    if (blockFile != nullptr)
+    {
+        fclose(blockFile);
+        blockFile = nullptr; // In destructor, so probably doesn't matter
+    }
 #endif
 }
 
-static void GetFlagString(const uint32 flags, char * const buffer)
+// This weird string hacking only works on ASCII characters
+static void GetFlagString(const uint32 flags, char * buffer, int bufferSize)
 {
-  char tempStr[128];
+  uint32 length;
 
-  buffer[0] = '\0';
+  memset(buffer, 0, bufferSize);
 
   if(flags & SUPERBLOCKINFO_PACKETSTART)
   {
-    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_PACKETSTART\n");
-    strcat_s(buffer,sizeof(buffer),tempStr);
+    length = sprintf_s(buffer, bufferSize,"SUPERBLOCKINFO_PACKETSTART\n");
+    buffer += length;
+    bufferSize -= length;
   }
   
   if(flags & SUPERBLOCKINFO_PACKETEND)
   {
-    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_PACKETEND\n");
-    strcat_s(buffer,sizeof(buffer),tempStr);
+    length = sprintf_s(buffer, bufferSize,"SUPERBLOCKINFO_PACKETEND\n");
+    buffer += length;
+    bufferSize -= length;
   }
 
   if(flags & SUPERBLOCKINFO_LOCKED)
   {
-    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_LOCKED\n");
-    strcat_s(buffer,sizeof(buffer),tempStr);
+    length = sprintf_s(buffer, bufferSize,"SUPERBLOCKINFO_LOCKED\n");
+    buffer += length;
+    bufferSize -= length;
   }
 
   if(flags & SUPERBLOCKINFO_NONATIVECOMPILE)
   {
-    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_NONATIVECOMPILE\n");
-    strcat_s(buffer,sizeof(buffer),tempStr);
+    length = sprintf_s(buffer, bufferSize,"SUPERBLOCKINFO_NONATIVECOMPILE\n");
+    buffer += length;
+    bufferSize -= length;
   }
 
   if(flags & SUPERBLOCKINFO_DEAD)
   {
-    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_DEAD\n");
-    strcat_s(buffer,sizeof(buffer),tempStr);
+    length = sprintf_s(buffer, bufferSize,"SUPERBLOCKINFO_DEAD\n");
+    buffer += length;
+    bufferSize -= length;
   }
 
   if(flags & SUPERBLOCKINFO_SYNC)
   {
-    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_SYNC\n");
-    strcat_s(buffer,sizeof(buffer),tempStr);
+    length = sprintf_s(buffer, bufferSize,"SUPERBLOCKINFO_SYNC\n");
+    buffer += length;
+    bufferSize -= length;
   }
 
   if(flags & SUPERBLOCKINFO_INHIBIT_ECU)
   {
-    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_INHIBIT_ECU\n");
-    strcat_s(buffer,sizeof(buffer),tempStr);
+    length = sprintf_s(buffer, bufferSize,"SUPERBLOCKINFO_INHIBIT_ECU\n");
+    buffer += length;
+    bufferSize -= length;
   }
 
   if(flags & SUPERBLOCKINFO_CHECK_ECU_INHIBIT)
   {
-    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_CHECK_ECU_INHIBIT\n");
-    strcat_s(buffer,sizeof(buffer),tempStr);
+    length = sprintf_s(buffer, bufferSize,"SUPERBLOCKINFO_CHECK_ECU_INHIBIT\n");
+    buffer += length;
+    bufferSize -= length;
   }
 
   if(flags & SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER)
   {
-    sprintf_s(tempStr,sizeof(tempStr),"SUPERBLOCKINFO_CHECK_ECU_SKIPCOUNTER\n");
-    strcat_s(buffer,sizeof(buffer),tempStr);
+    length = sprintf_s(buffer, bufferSize,"SUPERBLOCKINFO_CHECK_ECU_SKIPCOUNTER\n");
+    buffer += length;
+    bufferSize -= length;
   }
 
   if(buffer[0] == '\0')
   {
-    sprintf_s(buffer,sizeof(buffer),"NONE\n");
+    strcpy_s(buffer,bufferSize, "NONE\n");
   }
 }
 
-static void GetIFlagsString(char *buffer, const uint32 dep)
+static void GetIFlagsString(char *buffer, int bufferSize, const uint32 dep)
 {
   const bool bN = dep & DEPENDENCY_FLAG_N;
   const bool bV = dep & DEPENDENCY_FLAG_V;
@@ -231,7 +244,7 @@ static void GetIFlagsString(char *buffer, const uint32 dep)
   const bool bCF0 = dep & DEPENDENCY_FLAG_CP0;
   const bool bCF1 = dep & DEPENDENCY_FLAG_CP1;
 
-  sprintf_s(buffer,sizeof(buffer),"[%s%s%s%s%s%s%s%s%s%s%s]",
+  sprintf_s(buffer, bufferSize, "[%s%s%s%s%s%s%s%s%s%s%s]",
     bN ? "N " : "",
     bV ? "V " : "",
     bZ ? "Z " : "",
@@ -489,13 +502,15 @@ void SuperBlock::PerformConstantPropagation()
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
 void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size)
 {
-  if(!blockFile)
+  if(blockFile == nullptr)
   {
     char fileStr[128];
     sprintf_s(fileStr,sizeof(fileStr),"SuperBlocks%li.txt",pMPE->mpeIndex);
-    fopen_s(&blockFile,fileStr,"w");
-    if(!blockFile)
-      return;
+    if (fopen_s(&blockFile, fileStr, "w") != 0)
+    {
+        blockFile = nullptr;
+        return;
+    }
   }
 
   InstructionEntry *pCurrentInstruction = instructions;
@@ -541,15 +556,20 @@ void SuperBlock::PrintBlockToFile(SuperBlockCompileType compileType, uint32 size
       char tempStr[2048];
       (printHandlers[handler])(tempStr, sizeof(tempStr), pCurrentInstruction->instruction, false);
       fprintf(blockFile,"%s ",tempStr);
+
       if(!(pCurrentInstruction->flags & (SUPERBLOCKINFO_PACKETSTART | SUPERBLOCKINFO_PACKETEND)))
       //if(0)
       {
         fprintf(blockFile,"(ScalarInDep: $%8.8X, MiscInDep: $%8.8X, ScalarOutDep: $%8.8X, MiscOutDep: $%8.8X, ",
           pCurrentInstruction->scalarInputDependencies,pCurrentInstruction->miscInputDependencies,
           pCurrentInstruction->scalarOutputDependencies,pCurrentInstruction->miscOutputDependencies);
-        GetIFlagsString(tempStr,pCurrentInstruction->miscInputDependencies);
+
+        GetIFlagsString(tempStr, sizeof(tempStr), pCurrentInstruction->miscInputDependencies);
+
         fprintf(blockFile,"FlagsInDep: %s ",tempStr);
-        GetIFlagsString(tempStr,pCurrentInstruction->miscOutputDependencies);
+
+        GetIFlagsString(tempStr, sizeof(tempStr), pCurrentInstruction->miscOutputDependencies);
+
         fprintf(blockFile,"FlagsOutDep: %s)\n",tempStr);
       }
       else if(pCurrentInstruction->flags & SUPERBLOCKINFO_PACKETSTART)
