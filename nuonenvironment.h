@@ -60,9 +60,9 @@ public:
 
   void TriggerAudioInterrupt()
   {
-    if(bAudioInterruptsEnabled)
-      for(int i = 0; i < 4; ++i)
-        mpe[i].TriggerInterrupt(INT_AUDIO);
+    if(bAudioInterruptsEnabled) {
+      ScheduleInterrupt(INT_AUDIO);
+    }
   }
 
   void TriggerVideoInterrupt()
@@ -74,10 +74,10 @@ public:
 
   inline void ScheduleInterrupt(const uint32 which)
   {
-    _InterlockedOr(&schedule_intsrc,(LONG)which); //!! if using cycle based timing at some point, do a TriggerInterrupt on all MPEs instead
+    _InterlockedOr(&schedule_intsrc,(LONG)which);
   }
 
-  inline void TriggerScheduledInterrupts() //!! if using cycle based timing at some point, remove again
+  inline void TriggerScheduledInterrupts()
   {
     const uint32 which = _InterlockedExchange(&schedule_intsrc,(LONG)0);
     if(which)
