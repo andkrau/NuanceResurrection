@@ -839,30 +839,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       if(nuonEnv.pendingCommRequests)
         DoCommBusController();
 
-      /*if (nuonEnv.nuonAudioChannelMode & ENABLE_SAMP_INT)
-      {
-        //!! also see FMOD callback
-        nuonEnv.TriggerAudioInterrupt(); //!! meh
-      } else*/
-
-      if (nuonEnv.pNuonAudioBuffer && // was nuon audio setup already?
-         ((nuonEnv.nuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT)) != (nuonEnv.oldNuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT))) && // was a new audio interrupt requested?
-       ((((nuonEnv.mpe[0].intsrc & nuonEnv.mpe[0].inten1) | (nuonEnv.mpe[1].intsrc & nuonEnv.mpe[1].inten1) | (nuonEnv.mpe[2].intsrc & nuonEnv.mpe[2].inten1) | (nuonEnv.mpe[3].intsrc & nuonEnv.mpe[3].inten1)) & INT_AUDIO) == 0) && // & (INT_AUDIO | INT_COMMXMIT | INT_VIDTIMER) // are any audio interrupts still pending?
-          _InterlockedExchange(&nuonEnv.audio_buffer_played,0) == 1) // was a audio buffer already played since last cycle?
-          //!! should also check if enough emulated cycles since last update have passed so that the Nuon could've filled up the new sound buffer
-      {
-        nuonEnv.audio_buffer_offset = (nuonEnv.nuonAudioChannelMode & ENABLE_HALF_INT) ? 0 : (nuonEnv.nuonAudioBufferSize >> 1); //!! ENABLE_HALF_INT leads to better sound in Tetris, although one would assume it should be ENABLE_WRAP_INT here
-        nuonEnv.oldNuonAudioChannelMode = nuonEnv.nuonAudioChannelMode;
-        nuonEnv.TriggerAudioInterrupt();
-      }
-
       // handle the sysTimer0, sysTimer1 and vidTimer (video refresh at 50/60Hz)
       // note that these all run at the real hostCPU time rate, NOT the actual emulated time/cycles!
-      if ((cycles % 1024) == 0) // only pull hostCPU timer from time to time, otherwise too costly
+      if ((cycles % 500) == 0) // only pull hostCPU timer from time to time, otherwise too costly
       {
         static uint64 last_time0 = useconds_since_start();
         static uint64 last_time1 = useconds_since_start();
         static uint64 last_time2 = useconds_since_start();
+        static uint64 last_time3 = useconds_since_start();
         const uint64 new_time = useconds_since_start();
 
         // sysTimer0 (BIOS, should always be 200Hz)
@@ -903,18 +887,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
           last_time2 = new_time;
         }
         } else last_time2 = new_time;
+
+        // audTimer
+        if (nuonEnv.timer_rate[2] > 0)
+        {
+        if (nuonEnv.pNuonAudioBuffer && // was nuon audio setup already?
+        (new_time >= last_time3 + nuonEnv.timer_rate[2]) && // did enough time pass for new audio data to be ready?
+        ((nuonEnv.nuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT)) != (nuonEnv.oldNuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT))) && // was a new audio interrupt requested?
+        ((((nuonEnv.mpe[0].intsrc & nuonEnv.mpe[0].inten1) | (nuonEnv.mpe[1].intsrc & nuonEnv.mpe[1].inten1) | (nuonEnv.mpe[2].intsrc & nuonEnv.mpe[2].inten1) | (nuonEnv.mpe[3].intsrc & nuonEnv.mpe[3].inten1)) & INT_AUDIO) == 0) && // & (INT_AUDIO | INT_COMMXMIT | INT_VIDTIMER) // are any audio interrupts still pending?
+        _InterlockedExchange(&nuonEnv.audio_buffer_played,0) == 1) // was an audio buffer already played since last cycle?
+        {
+          nuonEnv.audio_buffer_offset = (nuonEnv.nuonAudioChannelMode & ENABLE_HALF_INT) ? 0 : (nuonEnv.nuonAudioBufferSize >> 1); //!! ENABLE_HALF_INT leads to better sound in Tetris, although one would assume it should be ENABLE_WRAP_INT here
+          nuonEnv.oldNuonAudioChannelMode = nuonEnv.nuonAudioChannelMode;
+          nuonEnv.TriggerAudioInterrupt();
+          last_time3 = new_time;
+        }
+        } else last_time3 = new_time;
       }
 
       nuonEnv.TriggerScheduledInterrupts();
-
-      //nuonEnv.videoDisplayCycleCount += nuonEnv.mpe[3].cycleCounter;
-
-      //if(nuonEnv.videoDisplayCycleCount >= (54000000/VIDEO_HZ))
-      //{
-      //  IncrementVideoFieldCounter(); //!! for now done in timer, also need to do nuonEnv.TriggerVideoInterrupt(); here then??
-      //  nuonEnv.videoDisplayCycleCount -= (54000000/VIDEO_HZ);
-      //  nuonEnv.videoDisplayCycleCount = 0;
-      //}
     }
 
     if(nuonEnv.trigger_render_video) // set by the ~50 or 60Hz timer.cpp routine
