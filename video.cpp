@@ -858,17 +858,29 @@ void VidConfig(MPE &mpe)
     const VidDisplay *const pMainDisplay = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe, display_addr);
     memcpy(&maindisplay,pMainDisplay,sizeof(VidDisplay));
     SwapScalarBytes((uint32 *)&maindisplay.bordcolor);
-
-    maindisplay.dispwidth = VIDEO_WIDTH;
-    maindisplay.dispheight = VIDEO_HEIGHT;
-    maindisplay.fps = 0;
-    maindisplay.progressive = -1;
   }
   else
   {
-    mpe.regs[0] = 1;
-    return; // leave unchanged from last call
+    if (!bCanDisplayVideo)
+    {
+      // bios.pdf says the BIOS always calls VidConfig before program startup,
+      // so there is always a valid video mode. If this is the first call,
+      // initialize some default video settings.
+      maindisplay.bordcolor = 0x10808000; // Black
+    }
+    else
+    {
+      // Reuse the last-set state.
+      memcpy(&maindisplay, &structMainDisplay, sizeof(VidDisplay));
+    }
   }
+
+  // Most of the video configuration is immutable in Nuance, as bios.pdf
+  // indicated was the case for "most" (all?) machines.
+  maindisplay.dispwidth = VIDEO_WIDTH;
+  maindisplay.dispheight = VIDEO_HEIGHT;
+  maindisplay.fps = 0;
+  maindisplay.progressive = -1;
 
   channelStatePrev = channelState;
   channelState = 0;
