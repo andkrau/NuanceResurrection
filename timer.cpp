@@ -107,12 +107,19 @@ void TimeOfDay(MPE &mpe)
 
     //Get time and fill time structure
 
+    static time_t oldTime{0};
     time_t currTime;
+    static struct tm pcTime;
+    static long offset;
+
     time(&currTime);
-    struct tm pcTime;
-    localtime_s(&pcTime,&currTime);
-    long offset;
-    _get_timezone(&offset);
+    if(currTime != oldTime)
+    {
+      localtime_s(&pcTime,&currTime);
+      _get_timezone(&offset);
+
+      oldTime = currTime;
+    }
 
     nuonTime->sec = pcTime.tm_sec;
     nuonTime->min = pcTime.tm_min;
