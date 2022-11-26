@@ -71,7 +71,7 @@ void ShaderProgram::PrintInfoLog(GLhandleARB obj, const char *msg)
     glGetInfoLogARB(obj, blen, &slen, infoLog);
     MessageBox(NULL,infoLog,msg,MB_OK);
     delete [] infoLog;
- }
+  }
 }
 
 bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLenum type)
@@ -79,9 +79,7 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
   bool bStatus = false;
 
   FILE *inFile;
-  fopen_s(&inFile,filename,"rb");
-
-  if(inFile)
+  if(fopen_s(&inFile,filename,"rb") == 0)
   {
     fseek(inFile,0,SEEK_END);
     const GLint length = ftell(inFile);

@@ -273,9 +273,7 @@ void FlashEEPROM::LockSector(uint32 address)
 void FlashEEPROM::LoadFromFile(const char * const fileName)
 {
   FILE *inFile;
-  fopen_s(&inFile,fileName,"rb");
-
-  if(inFile)
+  if(fopen_s(&inFile,fileName,"rb") == 0)
   {
     fseek(inFile,0,SEEK_END);
     uint32 fileLength = ftell(inFile) + 1;
@@ -296,9 +294,7 @@ void FlashEEPROM::LoadFromFile(const char * const fileName)
 void FlashEEPROM::SaveToFile(const char * const fileName)
 {
   FILE *outFile;
-  fopen_s(&outFile,fileName,"wb");
-
-  if(outFile)
+  if(fopen_s(&outFile,fileName,"wb") == 0)
   {
     for(uint32 i = 0; i < DEFAULT_EEPROM_SIZE; i++)
     {

@@ -2324,15 +2324,13 @@ NativeCodeCacheEntryPoint MPE::CompileNativeCodeBlock(const uint32 _pcexec, cons
 
 void MPE::PrintInstructionCachePacket(char *buffer, size_t bufSize, const InstructionCacheEntry &entry)
 {
-  uint32 outputLen;
-
   for(uint32 i = 0; i < entry.nuanceCount; i++)
   {
-    outputLen = (printHandlers[entry.handlers[i]])(buffer, bufSize, *((Nuance *)(&entry.nuances[FIXED_FIELD(i,0)])), true);
+    const uint32 outputLen = (printHandlers[entry.handlers[i]])(buffer, bufSize, *((Nuance *)(&entry.nuances[FIXED_FIELD(i,0)])), true);
     buffer += outputLen;
     bufSize -= outputLen;
   }
-  
+
   if(entry.packetInfo & PACKETINFO_BREAKPOINT)
   {
     sprintf_s(buffer, bufSize, "breakpoint\n");

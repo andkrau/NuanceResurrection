@@ -250,8 +250,7 @@ void MediaRead(MPE &mpe)
     if(!fileNameArray[handle].empty() && buffer && ((eMedia)fileModeArray[handle] != eMedia::MEDIA_WRITE))
     {
       FILE* inFile;
-	  fopen_s(&inFile,fileNameArray[handle].c_str(),"rb");
-      if(inFile)
+      if(fopen_s(&inFile,fileNameArray[handle].c_str(),"rb") == 0)
       {
         void* pBuf = nuonEnv.GetPointerToMemory(mpe,buffer);
         fseek(inFile,startblock*BLOCK_SIZE_DVD,SEEK_SET);
@@ -289,12 +288,11 @@ void MediaWrite(MPE &mpe)
     {
       //try to open the existing file for read/write without erasing the contents
       FILE* outFile;
-      fopen_s(&outFile,fileNameArray[handle].c_str(),"r+b");
-      
-      if(!outFile)
+      if(fopen_s(&outFile,fileNameArray[handle].c_str(),"r+b") != 0)
       {
         //try to create the file
-        fopen_s(&outFile,fileNameArray[handle].c_str(),"w+b");
+        if(fopen_s(&outFile,fileNameArray[handle].c_str(),"w+b") != 0)
+          outFile = nullptr;
       }
 
       if(outFile)
