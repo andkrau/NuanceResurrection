@@ -39,13 +39,14 @@ bool MPE::LoadCoffFile(const char * const filename, bool bSetEntryPoint, int han
 {
   if(handle == -1)
   {
-    _sopen_s(&handle,filename,O_RDONLY|O_BINARY,_SH_DENYWR,_S_IREAD);
+    if(_sopen_s(&handle, filename, O_RDONLY | O_BINARY, _SH_DENYWR, _S_IREAD) != 0 || handle == -1)
+        return false;
   }
-
-  const int start_offset = _tell(handle);
 
   if(handle >= 0)
   {
+    const int start_offset = _tell(handle);
+
     FILHDR coffhdr;
     _read(handle, &coffhdr, sizeof(FILHDR));
     coffhdr.f_magic = bswap16(coffhdr.f_magic);

@@ -14,8 +14,7 @@ bool MPE::LoadNuonRomFile(const char * const filename)
   uint32 offset;
 
   int handle;
-  _sopen_s(&handle,filename,O_RDONLY|O_BINARY,_SH_DENYWR,_S_IREAD);
-  if(handle >= 0)
+  if(_sopen_s(&handle,filename,O_RDONLY|O_BINARY,_SH_DENYWR,_S_IREAD) == 0 && handle >= 0)
   {
 check_for_bles:
     bytesRead = _read(handle, &linebuf, 16);
