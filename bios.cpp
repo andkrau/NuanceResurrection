@@ -27,7 +27,6 @@ extern VidChannel structOverlayChannelPrev;
 
 void KPrintf(MPE &mpe);
 
-#ifdef LOG_BIOS_CALLS
 const char *BiosRoutineNames[512] = {
 "CommSend",
 "CommSendInfo",
@@ -181,7 +180,6 @@ const char *BiosRoutineNames[512] = {
 "SetISRExitHook",
 "CompatibilityMode"
 };
-#endif
 
 void UnimplementedFileHandler(MPE &mpe)
 {
@@ -220,8 +218,13 @@ void AssemblyBiosHandler(MPE &mpe)
   return;
 }
 
-#define WillNotImplement NullBiosHandler
-#define AssemblyImplemented AssemblyBiosHandler
+void WillNotImplement(MPE &mpe)
+{
+  //char msg[512];
+  //sprintf(msg,"This BIOS Handler does nothing: %ld",(mpe->pcexec >> 1) & 0xFFUL);
+  //::MessageBox(NULL,msg,"Unimplemented BIOS Routine",MB_OK);
+  return;
+}
 
 void SetISRExitHook(MPE &mpe)
 {
@@ -396,12 +399,12 @@ void BiosGetInfo(MPE &mpe)
 }
 
 NuonBiosHandler BiosJumpTable[256] = {
-AssemblyImplemented, //_CommSend (0)
-AssemblyImplemented, //_CommSendInfo (1)
-AssemblyImplemented, //_CommRecvInfo (2)
-AssemblyImplemented, //_CommRecvInfoQuery (3)
-AssemblyImplemented, //_CommSendRecv (4)
-AssemblyImplemented, //_CommSendRecvInfo (5)
+AssemblyBiosHandler, //_CommSend (0)
+AssemblyBiosHandler, //_CommSendInfo (1)
+AssemblyBiosHandler, //_CommRecvInfo (2)
+AssemblyBiosHandler, //_CommRecvInfoQuery (3)
+AssemblyBiosHandler, //_CommSendRecv (4)
+AssemblyBiosHandler, //_CommSendRecvInfo (5)
 ControllerInitialize, //_ControllerInitialize (6)
 NullBiosHandler, //_ControllerExtendedInfo (7)
 TimeOfDay, //_TimeOfDay (8)
@@ -411,7 +414,7 @@ UnimplementedCacheHandler, //_DCacheInvalidateRegion (11)
 UnimplementedCacheHandler, //_DCacheFlush (12)
 TimerInit, //_TimerInit (13)
 TimeElapsed, //_TimeElapsed (14)
-AssemblyImplemented, //_TimeToSleep (15)
+AssemblyBiosHandler, //_TimeToSleep (15)
 MPEAlloc, //_MPEAlloc (16)
 MPEAllocSpecific, //_MPEAllocSpecific (17)
 MPEFree, //_MPEFree (18)
@@ -477,9 +480,9 @@ NullBiosHandler, //_NetSethostname (77)
 NullBiosHandler, //_NetSetsockopt (78)
 NullBiosHandler, //_NetShutdown (79)
 NullBiosHandler, //_NetSocket (80)
-AssemblyImplemented, //_comm_send (CommSendDirect) (81)
-AssemblyImplemented, //_comm_recv (82)
-AssemblyImplemented, //_comm_query (83)
+AssemblyBiosHandler, //_comm_send (CommSendDirect) (81)
+AssemblyBiosHandler, //_comm_recv (82)
+AssemblyBiosHandler, //_comm_query (83)
 WillNotImplement, //_serial_delay (84)
 WillNotImplement, //_serial_read (85)
 WillNotImplement, //_serial_write (86)
@@ -502,12 +505,12 @@ PatchJumptable, //_PatchJumptable (102)
 NullBiosHandler, //_BiosResume (103)
 MPEStop, //_MPEStop (104)
 MPERun, //_MPERun (105)
-AssemblyImplemented, //_MPEWait (106)
+AssemblyBiosHandler, //_MPEWait (106)
 MPEReadRegister, //_MPEReadRegister (107)
 MPEWriteRegister, //_MPEWriteRegister (108)
 NullBiosHandler, //_SetParentalControl (109)
 NullBiosHandler, //_GetParentalControl (110)
-AssemblyImplemented,     //_BiosGetInfo (111)
+AssemblyBiosHandler, //_BiosGetInfo (111)
 NullBiosHandler, //_LoadTest (112)
 MPELoad, //_MPELoad (113)
 NullBiosHandler, //_MPEAllocThread (114)
@@ -612,7 +615,7 @@ void InitBios(MPE &mpe)
   //Patch the jump table for the first 151 entries
   for(uint32 i = 0; i < ((0x4B0UL >> 3) + 1); i++)
   {
-    if(BiosJumpTable[i] != AssemblyImplemented)
+    if(BiosJumpTable[i] != AssemblyBiosHandler)
     {
       PatchJumptable(SYSTEM_BUS_BASE + (i << 3UL), ROM_BIOS_BASE + (i << 1));
     }

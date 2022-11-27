@@ -273,7 +273,7 @@ void UpdateControlPanelDisplay()
   if(GetMPERunStatus(disassemblyMPE))
     nuonEnv.mpe[disassemblyMPE].PrintInstructionCachePacket(buf, sizeof(buf), nuonEnv.mpe[disassemblyMPE].pcexec);
   else
-    buf[0] = 0;
+    buf[0] = '\0';
   SendMessage(reTermDisplay,EM_REPLACESEL,NULL,LPARAM(buf));
 
   sprintf_s(buf, sizeof(buf),"}\n");

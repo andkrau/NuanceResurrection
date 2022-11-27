@@ -43,9 +43,12 @@
 
 extern NuonEnvironment nuonEnv;
 extern NuonBiosHandler BiosJumpTable[];
-#ifdef LOG_BIOS_CALLS
 extern const char *BiosRoutineNames[];
-#endif
+extern void NullBiosHandler(MPE& mpe);
+extern void WillNotImplement(MPE& mpe);
+extern void AssemblyBiosHandler(MPE& mpe);
+extern void UnimplementedCacheHandler(MPE& mpe);
+extern void UnimplementedMediaHandler(MPE& mpe);
 extern bool bCallingMediaCallback;
 #ifdef LOG_COMM
 extern FILE *commLogFile;
@@ -2144,7 +2147,7 @@ bool MPE::FetchDecodeExecute()
         pcexec = pcroute;
         ExecuteNuances(*pInstructionCacheEntry);
       }
-      else if(pcexec < 0xF0008000)
+      else if(pcexec < ROM_PE_BASE)
       {
         cycleCounter++;
         //Execute BIOS function: force to one of 256 entries
@@ -2177,11 +2180,11 @@ bool MPE::FetchDecodeExecute()
       if(ecuSkipCounter == 0)
       {
 #ifdef LOG_BIOS_CALLS
-          if(((pcfetchnext >= 0x80000000) && (pcfetchnext <= 0x8000FFFF)) && (mpeIndex == LOG_MPE_INDEX))
+          if(((pcfetchnext >= BIOS_JUMPTABLE_START) && (pcfetchnext <= 0x8000FFFF)) && (mpeIndex == LOG_MPE_INDEX)) //!! rather DVD_JUMPTABLE_END?
           {
             if(logfile)
             {
-              if(pcfetchnext >= 0x80008000)
+              if(pcfetchnext >= DVD_JUMPTABLE_START) // Presentation Engine
               {
 #ifdef LOG_ADDRESS_ONLY
                 fprintf(logfile,"PE CALL: $%8.8lX\n",pcfetchnext);
@@ -2338,6 +2341,11 @@ void MPE::PrintInstructionCachePacket(char *buffer, size_t bufSize, const Instru
   else if(entry.packetInfo & PACKETINFO_NOP)
   {
     sprintf_s(buffer, bufSize, "nop\n");
+  }
+  else if(entry.pcexec >= ROM_BIOS_BASE && pcexec < ROM_PE_BASE)
+  {
+    const unsigned char idx = (entry.pcexec >> 1) & 0xFF;
+    sprintf_s(buffer, bufSize, "BIOS: %s (%s)\n", BiosRoutineNames[idx], BiosJumpTable[idx] == AssemblyBiosHandler ? "ASM" : (BiosJumpTable[idx] == UnimplementedCacheHandler ? "Unimpl. Cache Handler" : (BiosJumpTable[idx] == UnimplementedMediaHandler ? "Unimpl. Media Handler" : (BiosJumpTable[idx] == NullBiosHandler ? "Null Handler" : (BiosJumpTable[idx] == WillNotImplement ? "Will not impl." : "C")))));
   }
 }
 
