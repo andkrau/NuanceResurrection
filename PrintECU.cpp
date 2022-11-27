@@ -3,7 +3,7 @@
 #include <cstring>
 #include "InstructionCache.h"
 
-const char *GetConditionCode(uint32 which)
+static const char *GetConditionCode(const uint32 which)
 {
   switch(which)
   {
@@ -16,7 +16,7 @@ const char *GetConditionCode(uint32 which)
     case 3:
       return "cc";
     case 4:
-      return "eq ";
+      return "eq";
     case 5:
       return "cs";
     case 6:

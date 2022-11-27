@@ -3,7 +3,7 @@
 #include <cstring>
 #include "InstructionCache.h"
 
-const char *GetImmediateShift(uint32 which)
+static const char *GetImmediateShift(const uint32 which)
 {
   switch(which)
   {

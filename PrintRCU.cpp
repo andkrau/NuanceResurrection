@@ -3,7 +3,7 @@
 #include <cstring>
 #include "InstructionCache.h"
 
-const char *GetIndexRegister(uint32 which)
+static const char *GetIndexRegister(const uint32 which)
 {
   switch(which & 0x3)
   {

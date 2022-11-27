@@ -3,7 +3,7 @@
 #include <cstring>
 #include "InstructionCache.h"
 
-uint32 GetBtstSrc1(const uint32 src1)
+static uint32 GetBtstSrc1(const uint32 src1)
 {
   for(uint32 i = 0; i < 32; i++)
   {

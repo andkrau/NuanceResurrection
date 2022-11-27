@@ -210,12 +210,10 @@ void NullBiosHandler(MPE &mpe)
   //char msg[512];
   //sprintf(msg,"This BIOS Handler does nothing: %ld",(mpe->pcexec >> 1) & 0xFFUL);
   //::MessageBox(NULL,msg,"Unimplemented BIOS Routine",MB_OK);
-  return;
 }
 
 void AssemblyBiosHandler(MPE &mpe)
 {
-  return;
 }
 
 void WillNotImplement(MPE &mpe)
@@ -223,7 +221,6 @@ void WillNotImplement(MPE &mpe)
   //char msg[512];
   //sprintf(msg,"This BIOS Handler does nothing: %ld",(mpe->pcexec >> 1) & 0xFFUL);
   //::MessageBox(NULL,msg,"Unimplemented BIOS Routine",MB_OK);
-  return;
 }
 
 void SetISRExitHook(MPE &mpe)

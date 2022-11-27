@@ -5,7 +5,7 @@
 #include "InstructionCache.h"
 #include "NuonMemoryMap.h"
 
-const char *GetControlRegister(uint32 which)
+static const char *GetControlRegister(const uint32 which)
 {
   switch(which)
   {
