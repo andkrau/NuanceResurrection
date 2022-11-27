@@ -171,22 +171,18 @@ void FileOpen(MPE &mpe)
     
     ConvertSeparatorCharacters(name);
 
-    _sopen_s(&fd,name,access,_SH_DENYNO,mode);
-    if(fd == -1)
+    if(_sopen_s(&fd, name, access, _SH_DENYNO, mode & (_S_IWRITE | _S_IREAD)) == 0 && fd != -1)
     {
-      goto Error;
+      fileDescriptors[index] = fd;
+      mpe.regs[0] = fd;
+      return;
     }
-    fileDescriptors[index] = fd;
-    mpe.regs[0] = fd;
   }
-  else
-  {
-Error:
-    pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,errnum);
-    *pErr = errno;
-    SwapScalarBytes(pErr);
-    mpe.regs[0] = -1;
-  }
+
+  pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,errnum);
+  *pErr = errno;
+  SwapScalarBytes(pErr);
+  mpe.regs[0] = -1;
 }
 
 void FileClose(MPE &mpe)
