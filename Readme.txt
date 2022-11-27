@@ -1,4 +1,4 @@
-Nuance 0.6.0
+Nuance 0.6.2
 Copyright 2002 - 2007 Mike Perry
 Continued using the released source in honour of the original author by Carsten Wächter (toxie^ainc) in 2020
 NUON is a trademark of Genesis Microchip, Inc.
@@ -387,6 +387,12 @@ Z: switch between controller 0 and controller 1
 
 History
 =======
+11/27/2022 version 0.6.2:
+Tweak audio interrupts some more
+Correctly set DST
+Some internal buffer overflow protection
+Improve debugging output a bit
+
 09/19/2021 version 0.6.1:
 Optimizations
 Fix some more opcode implementations
