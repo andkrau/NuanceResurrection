@@ -215,6 +215,7 @@ uint32 Print_MV_SImmediate(char *buffer, size_t bufSize, const Nuance &nuance, c
   const uint32 length = sprintf_s(buffer, bufSize, "mv_s #$%8.8lX, r%lu%s",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO], bNewline ? "\n" : "" );
   return length;
 }
+
 uint32 Print_MV_SScalar(char *buffer, size_t bufSize, const Nuance &nuance, const bool bNewline)
 {
   const uint32 length = sprintf_s(buffer, bufSize, "mv_s r%lu, r%lu%s",nuance.fields[FIELD_MEM_FROM],nuance.fields[FIELD_MEM_TO], bNewline ? "\n" : "" );
@@ -370,6 +371,7 @@ uint32 Print_LoadScalarBilinearUV(char *buffer, size_t bufSize, const Nuance &nu
   const uint32 length = sprintf_s(buffer, bufSize, "ld_s (uv), r%lu%s",nuance.fields[FIELD_MEM_TO], bNewline ? "\n" : "" );
   return length;
 }
+
 uint32 Print_LoadScalarBilinearXY(char *buffer, size_t bufSize, const Nuance &nuance, const bool bNewline)
 {
   const uint32 length = sprintf_s(buffer, bufSize, "ld_s (xy), r%lu%s",nuance.fields[FIELD_MEM_TO], bNewline ? "\n" : "" );

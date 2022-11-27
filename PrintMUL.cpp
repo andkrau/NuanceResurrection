@@ -131,6 +131,7 @@ uint32 Print_MUL_SVScalarShiftImmediate(char *buffer, size_t bufSize, const Nuan
 
   return length;
 }
+
 uint32 Print_MUL_SVScalarShiftSvshift(char *buffer, size_t bufSize, const Nuance &nuance, const bool bNewline)
 {
   const uint32 length
@@ -138,6 +139,7 @@ uint32 Print_MUL_SVScalarShiftSvshift(char *buffer, size_t bufSize, const Nuance
 
   return length;
 }
+
 uint32 Print_MUL_SVRuShiftImmediate(char *buffer, size_t bufSize, const Nuance &nuance, const bool bNewline)
 {
   const uint32 length

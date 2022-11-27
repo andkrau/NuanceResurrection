@@ -27,7 +27,7 @@ uint32 Print_DEC(char *buffer, size_t bufSize, const Nuance &nuance, const bool 
   {
     if(nuance.fields[FIELD_RCU_INFO] & RCU_DEC_RC1)
     {
-       bufinc = sprintf_s(buffer, bufSize, "dec rc0\ndec rc1%s",bNewline ? "\n" : "");
+      bufinc = sprintf_s(buffer, bufSize, "dec rc0\ndec rc1%s",bNewline ? "\n" : "");
     }
     else
     {
@@ -42,10 +42,7 @@ uint32 Print_DEC(char *buffer, size_t bufSize, const Nuance &nuance, const bool 
     }
     else
     {
-      if(bNewline)
-      {
-        bufinc = sprintf_s(buffer, bufSize, "%s",bNewline ? "\n" : "");
-      }
+      bufinc = sprintf_s(buffer, bufSize, "%s",bNewline ? "\n" : "");
     }
   }
 
