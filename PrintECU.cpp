@@ -192,7 +192,7 @@ uint32 Print_RTSAlways(char *buffer, size_t bufSize,  const Nuance &nuance, cons
 
 uint32 Print_RTSAlways_NOP(char *buffer, size_t bufSize,  const Nuance &nuance, const bool bNewline)
 {
-  const uint32 length = sprintf_s(buffer,512, "rts, nop%s", bNewline ? "\n" : "");
+  const uint32 length = sprintf_s(buffer, bufSize, "rts, nop%s", bNewline ? "\n" : "");
   return length;
 }
 
