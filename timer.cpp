@@ -173,13 +173,13 @@ uint64 useconds_since_start()
 
 void TimeElapsed(MPE &mpe)
 {
-  uint64 useconds = useconds_since_start();
-  const uint64 seconds = useconds / 1000000;
-  const uint64 mseconds = useconds / 1000;
-  useconds = useconds % 1000000; // returns number of microseconds elapsed within the second
-
   const uint32 ptrSecs = mpe.regs[0];
   const uint32 ptrUSecs = mpe.regs[1];
+
+  uint64 useconds = useconds_since_start();
+  const uint64 seconds = useconds / 1000000;
+  const uint64 mseconds = (ptrUSecs == 0) ? (5 * (useconds / 5000)) : (useconds / 1000); // if ptrUSecs == 0, then this should actually be only in 5msec steps (as granularity of system timer 0 is 5msecs)
+  useconds = useconds % 1000000; // returns number of microseconds elapsed within the second
 
   //Store seconds if pointer is not NULL
   if(ptrSecs)
