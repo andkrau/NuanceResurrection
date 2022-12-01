@@ -1,6 +1,6 @@
-Nuance 0.6.2
+Nuance 0.6.3
 Copyright 2002 - 2007 Mike Perry
-Continued using the released source in honour of the original author by Carsten Wächter (toxie^ainc) in 2020
+Continued using the released source in honour of the original author by Carsten Waechter (toxie^ainc) in 2020
 NUON is a trademark of Genesis Microchip, Inc.
 
 License Agreement
@@ -391,6 +391,14 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 
 History
 =======
+version 0.6.3:
+Fix a lot of problems with the MPE IRAM overlay areas and the code caching of these
+Make MPE IRAM overlay caching more efficient
+Merlin Racing now is playable (although the AI carts are still driving around randomly)
+Update status window on single stepping, too
+Add missing registers to status window
+Add debug output for BIOS calls
+
 11/27/2022 version 0.6.2:
 Tweak audio interrupts some more
 Correctly set DST

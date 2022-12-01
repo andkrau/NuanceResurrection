@@ -16,17 +16,19 @@ Playable, distorted music.
 
 Merlin Racing
 -------------
-Playable, BUT hangs most of the time on/shortly after race start. Also some screen corruption when
-watching the Adventure intro.
+Playable, BUT some screen corruption when watching the Adventure intro, 
+and minor gfx glitches during the race.
+And most noticeably: AI karts are driving around more or less randomly.
 
 Tempest 3000
 ------------
 Playable, BUT
 1) hangs most of the time when starting a game from certain levels (level 1 as prominent example).
-   WORKAROUND enter options->music test first and play some different musics (or disable AudioInterrupts in nuance.cfg :/ )
+   WORKAROUND enter options->music test before, and play a different music track (or disable AudioInterrupts in nuance.cfg :/ )
 2) hangs (only if dynamic compilation enabled) on entering level select
-   WORKAROUND after(!) doing 1), enter options->vector test first
-also music does not loop correctly.
+   WORKAROUND enter options->vector test before
+(so best is to do 1) and 2) first before starting the game at all)
+Also music does not loop correctly.
 
 Ballistic
 ---------
