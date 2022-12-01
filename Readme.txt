@@ -6,7 +6,7 @@ NUON is a trademark of Genesis Microchip, Inc.
 License Agreement
 =================
 The latest official distribution of Nuance was always to be obtained from 
-the nuon-emu.com FTP site.  Nowadays it's on https://sourceforge.net/projects/nuance-nuon-emulator/
+the nuon-emu.com FTP site.  Nowadays it's on https://github.com/andkrau/NuanceResurrection/
 The emulator may not be redistributed for profit
 by itself or as part of any other package.   Redistribution of the official
 distribution package is allowed via HTTP or FTP under the restriction that the
@@ -145,7 +145,7 @@ DVD device will work but the image must be a complete DVD image.
 
 (3) Click the "Load File" button.  
 
-Dyanmic Compilation Options
+Dynamic Compilation Options
 ===========================
 Nuance is now capable of compiling basic blocks of code, performing optimizations
 on the code block and interpreting the optimized instruction sequence.  This allows
@@ -384,6 +384,10 @@ Down: DPad Down
 Left: Dpad Left
 Right: DPad Right
 Z: switch between controller 0 and controller 1
+
+Aries version:
+
+At the moment the emulator is hardwired to assume an Aries 2 generation chip
 
 History
 =======

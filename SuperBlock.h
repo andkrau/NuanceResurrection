@@ -14,8 +14,8 @@ class CompilerOptions
 public:
   CompilerOptions()
   {
-    bT3KCompilerHack = true;
-    bConstantPropagation = true;
+    bT3KCompilerHack = false;
+    bConstantPropagation = false;
     bDeadCodeElimination = false;
 #ifdef _WIN64
     bAllowCompile = false; //!!

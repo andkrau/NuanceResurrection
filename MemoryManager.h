@@ -23,7 +23,7 @@ class MemoryManager
 public:
   MemoryManager() {}
   ~MemoryManager() {}
-  void AddAllocatedBlock(const uint32 base, const uint32 numBytes);
+  void AddAllocatedBlock(const uint32 startAddress, const uint32 numBytes);
   void Add(const uint32 startAddress, const uint32 endAddress, uint32 index = 0);
   uint32 Allocate(uint32 requestedBytes, uint32 requestedAlignment);
   void Free(const uint32 address);
