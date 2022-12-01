@@ -764,10 +764,6 @@ static FILE *logfile = NULL;
 
 void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8* flashEEPROMPtr)
 {
-  constexpr uint32 numCacheEntries[] = {4096,2048,2048,262144};
-  //constexpr uint32 numTLBEntries[] = {4096,2048,2048,98304};
-  constexpr uint32 overlayLengths[] = {8192,4096,4096,4096};
-
   numInterpreterCacheFlushes = 0;
   numNativeCodeCacheFlushes = 0;
   numNonCompilablePackets = 0;
@@ -776,7 +772,7 @@ void MPE::Init(const uint32 index, uint8* mainBusPtr, uint8* systemBusPtr, uint8
   InitMPELocalMemory();
   //nativeCodeCache = new NativeCodeCache(5UL*1024UL*1024UL/*, numTLBEntries[mpeIndex]*/);
   instructionCache = new InstructionCache(numCacheEntries[mpeIndex]);
-  overlayManager.SetOverlayLength(overlayLengths[mpeIndex]);
+  overlayManager.SetOverlayBufferAndLength((uint32*)(&dtrom[MPE_IRAM_OFFSET]), overlayLengths[mpeIndex]);
   bInvalidateInstructionCaches = false;
   bInvalidateInterpreterCache = false;
   overlayMask = 0;
@@ -862,11 +858,9 @@ void MPE::Reset()
   nativeCodeCache.Flush();
 
   invalidateRegionStart = MPE_IRAM_BASE;
-  invalidateRegionEnd = MPE_IRAM_BASE + OVERLAY_SIZE - 1;
+  invalidateRegionEnd = MPE_IRAM_BASE + MPE::overlayLengths[mpeIndex] - 1;
   interpreterInvalidateRegionStart = 0;
-  interpreterInvalidateRegionEnd = 0;
-
-  //overlayIndex = 0;
+  interpreterInvalidateRegionEnd = 0xFFFFFFFFUL;
 
   //Interpretation of Nuances require the use of the cc composite flags register
   ecuSkipCounter = 0;
@@ -1914,24 +1908,26 @@ bool MPE::FetchDecodeExecute()
     /* is loaded into the MPE local memory and executed, the hash will not match that of overlay index 0 and so overlay index 1 will be */
     /* assigned with a code cache range of $20308000-$2030FFFF.  This is an important optimization as games like Tempest 3000 load */
     /* multiple overlays into the MPEs several times per frame.  If compiled overlay code was not allowed to exist, the overlay code would */
-    /* require compiliation every time new overlay code was loaded into an MPE even when ping-ponging between two sets of overlay code. */
+    /* require compilation every time new overlay code was loaded into an MPE even when ping-ponging between two sets of overlay code. */
     /* The code cache entries would also require invalidation each time this happened. */
 
-    if((pcexec < (MPE_IRAM_BASE + OVERLAY_SIZE)) && (pcexec >= MPE_IRAM_BASE))
+    if((pcexec < (MPE_IRAM_BASE + MPE::overlayLengths[mpeIndex])) && (pcexec >= MPE_IRAM_BASE))
     {
-      //pcexec is within local MPE IRAM address space
+#if 0
+      //invalidated region is within local MPE IRAM address space
+      if((MPE_IRAM_BASE <= invalidateRegionEnd) && ((MPE_IRAM_BASE + MPE::overlayLengths[mpeIndex] - 1) >= invalidateRegionStart)) //!! very conservative, BUT not 100% clear to me if this is needed, e.g. in case only a part of the IRAM region was updated
+#else
+      //pcexec is within invalidated region
       if((pcexec <= invalidateRegionEnd) && (pcexec >= invalidateRegionStart))
+#endif
       {
         //pcexec is within MPE IRAM region that has been modified since the last time it was hashed
 
-        bool bInvalidateOverlayRegion;
-        /*overlayIndex =*/ overlayManager.FindOverlay((uint32 *)&dtrom[MPE_IRAM_OFFSET], bInvalidateOverlayRegion);
-
-        //Get the new overlay mask
-        overlayMask = overlayManager.GetOverlayMask();
+        bool bInvalidateOverlayRegion; // and also get the new overlay mask
+        overlayMask = overlayManager.FindOverlay(bInvalidateOverlayRegion);
 
         //Invalidate the interpreter cache because these entries are not mapped to unique address ranges
-        
+
         //numInterpreterCacheFlushes++;
         //instructionCache->InvalidateRegion(invalidateRegionStart, invalidateRegionEnd);
         bInvalidateInterpreterCache = true;
@@ -1941,10 +1937,15 @@ bool MPE::FetchDecodeExecute()
           //The overlay manager assigned a previously used overlay ID so invalidate the code cache entries
           //associated with the overlay address range
           numNativeCodeCacheFlushes++;
-          nativeCodeCache.FlushRegion(invalidateRegionStart | overlayMask, invalidateRegionEnd | overlayMask);
+          nativeCodeCache.FlushRegion(MPE_IRAM_BASE | overlayMask, (MPE_IRAM_BASE + MPE::overlayLengths[mpeIndex] - 1) | overlayMask); // always invalidate whole MPE IRAM region
         }
 
-        //Reset the IRAM invalidation indicators
+        // if not only IRAM was affected, handle the leftover invalid regions
+        // numNativeCodeCacheFlushes++;
+        nativeCodeCache.FlushRegion(invalidateRegionStart, MPE_IRAM_BASE - 1);
+        nativeCodeCache.FlushRegion(MPE_IRAM_BASE + MPE::overlayLengths[mpeIndex], invalidateRegionEnd);
+
+        //Reset/Invalidate the IRAM invalidation indicators
         invalidateRegionStart = 0xFFFFFFFFUL;
         invalidateRegionEnd = 0x00000000UL;
       }

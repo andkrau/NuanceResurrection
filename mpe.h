@@ -232,6 +232,7 @@ typedef void (* NativeCodeBlockFunction)();
 
 extern const NuanceHandler nuanceHandlers[];
 
+// This assumes emulation of a Aries 2 MPE (for now), e.g. due to how the overlay code caching works (see OverlayManager)
 __declspec(align(16)) class MPE
 {
 public:
@@ -373,6 +374,11 @@ public:
   OverlayManager overlayManager;
 
   uint8 *bankPtrTable[16];
+
+  static constexpr uint32 numCacheEntries[] = { 4096,2048,2048,262144 };
+  //static constexpr uint32 numTLBEntries[] = {4096,2048,2048,98304};
+  static constexpr uint32 overlayLengths[] = { 8192,4096,4096,4096 }; // Aries 2 MPE program RAM (real HW size in bytes)
+  //static constexpr uint32 overlayLengths[] = {20*1024,16*1024,16*1024,20*1024}; // Aries 3
 
   void InitMPELocalMemory();
   uint8 DecodeSingleInstruction(const uint8 * const iPtr, InstructionCacheEntry * const entry, uint32 * const immExt, bool &bTerminating);

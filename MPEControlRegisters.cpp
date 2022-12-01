@@ -246,8 +246,10 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
         }
         InvalidateICache();
         nativeCodeCache.Flush();
-        invalidateRegionStart = MPE_IRAM_BASE;
-        invalidateRegionEnd = MPE_IRAM_BASE+OVERLAY_SIZE-1;
+        if (MPE_IRAM_BASE < invalidateRegionStart)
+          invalidateRegionStart = MPE_IRAM_BASE;
+        if ((MPE_IRAM_BASE + MPE::overlayLengths[mpeIndex] - 1) > invalidateRegionEnd)
+          invalidateRegionEnd = MPE_IRAM_BASE + MPE::overlayLengths[mpeIndex] - 1;
       }
 
       return;

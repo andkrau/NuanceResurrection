@@ -162,7 +162,7 @@ void MPERun(MPE &mpe)
     //nuonEnv.mpe[which].sp = 0x20102000;
     //Invalidate cached instruction packets
     //nuonEnv.mpe[which].InvalidateICache();
-    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
+    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[which]);
     nuonEnv.mpe[which].Go();
     nuonEnv.bProcessorStartStopChange = true;
     //Let MPERunMediaMPE set a comm packet to the media MPE to start it
@@ -186,7 +186,7 @@ void MPERun(MPE &mpe)
     //Invalidate cached instruction packets
     //nuonEnv.mpe[which].InvalidateICache();
     //nuonEnv.mpe[which].nativeCodeCache->Flush();
-    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
+    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[which]);
     //Sets mpego bit
     nuonEnv.mpe[which].Go();
     nuonEnv.bProcessorStartStopChange = true;
@@ -215,7 +215,7 @@ void MPERunThread(MPE &mpe)
     //Invalidate cached instruction packets
     //nuonEnv.mpe[which].InvalidateICache();
     //nuonEnv.mpe[which].nativeCodeCache->Flush();
-    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
+    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[which]);
     nuonEnv.mpe[which].rz = MPE_THREAD_RETURN_ADDRESS;
     //Set up entry point
     nuonEnv.mpe[which].pcexec = funcptr;
@@ -224,7 +224,7 @@ void MPERunThread(MPE &mpe)
     nuonEnv.mpe[which].regs[0] = arg;
     //Set up C stack pointer (r31)
     nuonEnv.mpe[which].regs[31] = stacktop;
-  
+
     //** Stuff done by MPERun
     //Clear exceptions 
     nuonEnv.mpe[which].excepsrc = 0;

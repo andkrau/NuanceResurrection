@@ -877,9 +877,10 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
   //If the starting address is in the imaginary overlay region (0x20308000,0x2FF07FFF), mask the ending address so that it is within
   //the real IRAM region of (20300000,20307FFF).  The starting address should not be modified as it is used as the lookup key.
 
-  if((startAddress < MPE1_ADDR_BASE) && (startAddress >= (MPE_IRAM_BASE + OVERLAY_SIZE)))
+  if((startAddress < MPE_DTAGS_BASE) && (startAddress >= (MPE_IRAM_BASE + MPE::overlayLengths[pMPE->mpeIndex])))
   {
-    packetAddress = (packetAddress & (0xFFF00000 | (OVERLAY_SIZE - 1)));
+    assert(MPE::overlayLengths[pMPE->mpeIndex] == 4096 || MPE::overlayLengths[pMPE->mpeIndex] == 8192); // if non-power of 2 (like Aries 3), adopt line below to % !!
+    packetAddress = (packetAddress & (MPE::overlayLengths[pMPE->mpeIndex] - 1)) | MPE_IRAM_BASE;
   }
 
   exitAddress = packetAddress;

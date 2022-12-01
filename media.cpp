@@ -76,7 +76,7 @@ void MediaInitMPE(const uint32 i)
 
   //Mask interrupts
   nuonEnv.mpe[i].intctl = 0xAA;
-  nuonEnv.mpe[i].UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
+  nuonEnv.mpe[i].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[i]);
 
   //Set pcexec to the minibios spinwait routine.
   if(i == 0)

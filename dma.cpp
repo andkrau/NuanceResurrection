@@ -843,7 +843,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].nativeCodeCache->FlushRegion(intaddr & 0xF07FFFFF, (intaddr & 0xF07FFFFF) + (length << 2) - 1);
       
         nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].UpdateInvalidateRegion(intaddr & 0xF07FFFFF, length << 2);
-        //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].UpdateInvalidateRegion(MPE_IRAM_BASE, OVERLAY_SIZE);
+        //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[(intaddr >> 23) & 0x1FUL]);
         //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].nativeCodeCache->FlushRegion(0x20300000, (intaddr & 0xF07FFFFF) + ((length - 1) << 2));
         //QueryPerformanceCounter(&timeEnd);
         //char tempBuf[128];
@@ -864,7 +864,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         //mpe.InvalidateICache();
         //mpe.nativeCodeCache->FlushRegion(intaddr, intaddr + (length << 2) - 1);
         mpe.UpdateInvalidateRegion(intaddr,length << 2);
-        //mpe.UpdateInvalidateRegion(MPE_IRAM_BASE,OVERLAY_SIZE);
+        //mpe.UpdateInvalidateRegion(MPE_IRAM_BASE,MPE::overlayLengths[mpe.mpeIndex]);
         //mpe.nativeCodeCache->FlushRegion(0x20300000, intaddr + ((length - 1) << 2));
       }
     }
