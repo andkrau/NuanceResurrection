@@ -268,32 +268,25 @@ void MPELoad(MPE &mpe)
 
   if(which < 4)
   {
-    if((size + (mpeaddr & MPE_VALID_MEMORY_MASK) - 1) <= MPE_VALID_MEMORY_MASK)
+    if(((mpeaddr & MPE_VALID_MEMORY_MASK) + size - 1) <= MPE_VALID_MEMORY_MASK)
     {
       uint8 *systemMemPtr;
       if(linkaddr < SYSTEM_BUS_BASE)
       {
-        systemMemPtr = &(nuonEnv.mainBusDRAM[linkaddr & MAIN_BUS_VALID_MEMORY_MASK]);
+        systemMemPtr = nuonEnv.mainBusDRAM + (linkaddr & MAIN_BUS_VALID_MEMORY_MASK);
       }
       else
       {
-        systemMemPtr = &(nuonEnv.systemBusDRAM[linkaddr & SYSTEM_BUS_VALID_MEMORY_MASK]);
+        systemMemPtr = nuonEnv.systemBusDRAM + (linkaddr & SYSTEM_BUS_VALID_MEMORY_MASK);
       }
 
-      uint8 *mpeMemPtr = &(((uint8 *)(nuonEnv.mpe[which].GetPointerToMemory()))[mpeaddr & MPE_VALID_MEMORY_MASK]);
-
-      for(uint32 count = 0; count < size; count++)
-      {
-        *mpeMemPtr = *systemMemPtr;
-
-        mpeMemPtr++;
-        systemMemPtr++;
-      }
+      uint8 *mpeMemPtr = ((uint8 *)(nuonEnv.mpe[which].GetPointerToMemory())) + (mpeaddr & MPE_VALID_MEMORY_MASK);
+      memcpy(mpeMemPtr, systemMemPtr, size);
 
       //nuonEnv.mpe[which].InvalidateICacheRegion(mpeaddr, mpeaddr + size - 1);
       //nuonEnv.mpe[which].InvalidateICache();
       //nuonEnv.mpe[which].nativeCodeCache->FlushRegion(mpeaddr, mpeaddr + size - 1);
-      nuonEnv.mpe[which].UpdateInvalidateRegion(mpeaddr, size - 1);
+      nuonEnv.mpe[which].UpdateInvalidateRegion(mpeaddr & MPE_LOCAL_MEMORY_MASK, size);
       //nuonEnv.mpe[which].nativeCodeCache->FlushRegion(0x20300000, mpeaddr + size - 1);
     }
   }
