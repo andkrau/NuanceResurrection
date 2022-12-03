@@ -741,10 +741,10 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
 
   //wordSize is the size of the atomic data transfer unit as a multiple of a 16-bit word: (word = 1, scalar = 2)
 
-  //source stride specifies the spacing between each atomic data item to be transfered from the source
+  //source stride specifies the spacing between each atomic data item to be transferred from the source
   //this is normally set to one to indicate contiguous items, but will be set to zero for direct data
   //where the source pointer is not incremented between data transfers
-  
+
   //dest stride specifies the stride in 32-bit scalars from the start of one written data item to the next
   //for example, alternate word write locations are spaced 32-bits apart, for a stride of one
 
@@ -841,8 +841,8 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].InvalidateICacheRegion((intaddr & 0xF07FFFFF), (intaddr & 0xF07FFFFF) + (length << 2) - 1);
         //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].InvalidateICache();
         //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].nativeCodeCache->FlushRegion(intaddr & 0xF07FFFFF, (intaddr & 0xF07FFFFF) + (length << 2) - 1);
-      
-        nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].UpdateInvalidateRegion(intaddr & 0xF07FFFFF, length << 2);
+
+        nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].UpdateInvalidateRegion(intaddr & MPE_LOCAL_MEMORY_MASK, length*2*wordSize);
         //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[(intaddr >> 23) & 0x1FUL]);
         //nuonEnv.mpe[(intaddr >> 23) & 0x1FUL].nativeCodeCache->FlushRegion(0x20300000, (intaddr & 0xF07FFFFF) + ((length - 1) << 2));
         //QueryPerformanceCounter(&timeEnd);
@@ -863,7 +863,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         //mpe.InvalidateICacheRegion(intaddr, intaddr + (length << 2) - 1);
         //mpe.InvalidateICache();
         //mpe.nativeCodeCache->FlushRegion(intaddr, intaddr + (length << 2) - 1);
-        mpe.UpdateInvalidateRegion(intaddr,length << 2);
+        mpe.UpdateInvalidateRegion(intaddr & MPE_LOCAL_MEMORY_MASK, length*2*wordSize);
         //mpe.UpdateInvalidateRegion(MPE_IRAM_BASE,MPE::overlayLengths[mpe.mpeIndex]);
         //mpe.nativeCodeCache->FlushRegion(0x20300000, intaddr + ((length - 1) << 2));
       }
@@ -1006,7 +1006,7 @@ void DMALinear(MPE &mpe)
 
   //For the BIOS call, simulate the latency of the call assuming
   //40 cycles of setup time (copying to command buffer, determining
-  //which bus to write to, etc) plus one cycle per long transfered
+  //which bus to write to, etc) plus one cycle per long transferred
   nuonEnv.cycleCounter += (40 + (flags >> 16) & 0xFF); //Only 1-127 is valid according to docs but field is 8 bits
 
   DMALinear(mpe,flags,baseaddr,intaddr);
