@@ -17,7 +17,7 @@ bool bCallingMediaCallback = false; // globally used
 uint32 media_mpe_allocated = 0;
 uint32 media_mpe = 0;
 
-MediaDevInfo DeviceInfo[] = {
+static MediaDevInfo DeviceInfo[] = {
   {0,0,0,0,0,0},
   {0,0,0,0,0,0},
   {0,0,0,0,0,0},
@@ -126,8 +126,8 @@ void MediaInitMPE(MPE &mpe)
   mpe.regs[0] = which;
 }
 
-std::string fileNameArray[] = {"stdin","stdout","stderr","","","","","","","","","","","","","","","","",""};
-uint32 fileModeArray[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+static std::string fileNameArray[] = {"stdin","stdout","stderr","","","","","","","","","","","","","","","","",""};
+static uint32 fileModeArray[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 #define FIRST_DVD_FD (3)
 #define LAST_DVD_FD (19)

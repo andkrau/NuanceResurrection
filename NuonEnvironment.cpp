@@ -516,7 +516,7 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
           tokenType = ReadConfigLine(configFile,line);
           ReplaceNewline(line,0,1024);
           delete [] dvdBase;
-          int i = (int)strlen(line);
+          size_t i = strlen(line);
           dvdBase = new char[i+1];
           strcpy_s(dvdBase,i+1,line);
         }

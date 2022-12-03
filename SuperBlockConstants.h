@@ -220,10 +220,12 @@ public:
 
 private:
   uint32 currentInstructionIndex;
+
   uint32 tempScalarRegisterConstants[32];
   uint32 tempMiscRegisterConstants[32];
   uint32 scalarRegisterConstants[32];
   uint32 miscRegisterConstants[32];
+
   uint32 scalarRegisterConstantsStatus;
   uint32 miscRegisterConstantsStatus;
   uint32 tempScalarRegisterConstantsStatus;

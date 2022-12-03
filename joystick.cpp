@@ -1,10 +1,9 @@
-//---------------------------------------------------------------------------
 #include "Bios.h"
 #include "byteswap.h"
 #include "mpe.h"
 #include "joystick.h"
 #include "NuonEnvironment.h"
-//---------------------------------------------------------------------------
+
 extern NuonEnvironment nuonEnv;
 ControllerData *controller;
 
