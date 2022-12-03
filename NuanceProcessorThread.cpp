@@ -1,5 +1,4 @@
-//---------------------------------------------------------------------------
-#include <stdio.h>
+#include <cstdio>
 #include "mpe.h"
 #include "comm.h"
 #include "NuonEnvironment.h"

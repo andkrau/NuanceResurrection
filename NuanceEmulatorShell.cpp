@@ -6,7 +6,7 @@
 #include "SuperBlock.h"
 #include "comm.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include "qapplication.h"
 #include <qcombobox.h>
 #include <qlabel.h>
