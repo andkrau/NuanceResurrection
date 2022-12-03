@@ -77,9 +77,9 @@ static uint32 ConvertFlags(uint32 nuonFlags)
   return (result | O_BINARY) & ~O_TEXT;
 }
 
-static int FindFileDescriptorIndex(int fd)
+static int FindFileDescriptorIndex(const int fd)
 {
-  for(uint32 i = 0; i < 16; i++)
+  for(int i = 0; i < 16; i++)
   {
     if(fileDescriptors[i] == fd)
     {
@@ -145,18 +145,15 @@ void FileOpen(MPE &mpe)
   uint32 access = mpe.regs[1];
   uint32 mode = mpe.regs[2];
   const uint32 errnum = mpe.regs[3];
-  uint32 *pErr;
-  char name[513];
 
-  char *pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
-  int index, fd;
-
+  int index;
   if((index = FindFileDescriptorIndex(-1)) >= 0)
   {
     access = ConvertFlags(access);
     //Windows will set the read-only flag after opening the file if _S_IWRITE is not specified within the mode bits
     mode = ConvertFlags(mode) | _S_IWRITE;
 
+    char* pPath = (char*)nuonEnv.GetPointerToMemory(mpe, path);
     if(!strncmp("/iso9660/",pPath,9))
     {
       pPath += 9;
@@ -166,11 +163,13 @@ void FileOpen(MPE &mpe)
       pPath += 5;
     }
 
+    char name[513];
     strcpy_s(name,sizeof(name),nuonEnv.GetDVDBase());
     strcat_s(name,sizeof(name),pPath);
     
     ConvertSeparatorCharacters(name);
 
+    int fd;
     if(_sopen_s(&fd, name, access, _SH_DENYNO, mode & (_S_IWRITE | _S_IREAD)) == 0 && fd != -1)
     {
       fileDescriptors[index] = fd;
@@ -179,7 +178,7 @@ void FileOpen(MPE &mpe)
     }
   }
 
-  pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,errnum);
+  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,errnum);
   *pErr = errno;
   SwapScalarBytes(pErr);
   mpe.regs[0] = -1;
@@ -189,29 +188,23 @@ void FileClose(MPE &mpe)
 {
   const int32 fd = mpe.regs[0];
   const uint32 errnum = mpe.regs[1];
-  uint32 *pErr;
 
-  int result, index;
-
+  int index;
   if((index = FindFileDescriptorIndex(fd)) >= 0)
   {
-    result = _close(fileDescriptors[index]);
-    if(result == -1)
+    int result = _close(fileDescriptors[index]);
+    if(result != -1)
     {
-      goto Error;
+      fileDescriptors[index] = -1;
+      mpe.regs[0] = 0;
+      return;
     }
+  }
 
-    fileDescriptors[index] = -1;
-    mpe.regs[0] = 0;
-  }
-  else
-  {
-Error:
-    pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
-    *pErr = EINVAL;
-    SwapScalarBytes(pErr);
-    mpe.regs[0] = -1;
-  }
+  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
+  *pErr = EINVAL;
+  SwapScalarBytes(pErr);
+  mpe.regs[0] = -1;
 }
 
 void FileRead(MPE &mpe)
@@ -220,28 +213,23 @@ void FileRead(MPE &mpe)
   const uint32 buf = mpe.regs[1];
   const uint32 len = mpe.regs[2];
   const uint32 errnum = mpe.regs[3];
-  uint32 *pErr;
-  int32 index, result;
-  void *pBuf;
 
+  int32 index;
   if((index = FindFileDescriptorIndex(fd)) >= 0)
   {
-    pBuf = nuonEnv.GetPointerToMemory(mpe, buf);
-    result = _read(fileDescriptors[index], pBuf, len);
-    if(result == -1)
+    void* pBuf = nuonEnv.GetPointerToMemory(mpe, buf);
+    int32 result = _read(fileDescriptors[index], pBuf, len);
+    if(result != -1)
     {
-      goto Error;
-    }
       mpe.regs[0] = result;
+      return;
+    }
   }
-  else
-  {
-Error:
-    pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
-    *pErr = EBADF;
-    SwapScalarBytes(pErr);
-    mpe.regs[0] = -1;
-  }
+
+  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
+  *pErr = EBADF;
+  SwapScalarBytes(pErr);
+  mpe.regs[0] = -1;
 }
 
 void FileWrite(MPE &mpe)
@@ -250,10 +238,6 @@ void FileWrite(MPE &mpe)
   const uint32 buf = mpe.regs[1];
   const uint32 len = mpe.regs[2];
   const uint32 errnum = mpe.regs[3];
-  uint32 *pErr;
-  int32 index, result;
-
-  const char *pBuf = (char *)nuonEnv.GetPointerToMemory(mpe,buf);
 
   if((fd == NUON_FD_STDOUT) || (fd == NUON_FD_STDERR))
   {
@@ -262,23 +246,22 @@ void FileWrite(MPE &mpe)
   }
   else
   {
+    int32 index;
     if((index = FindFileDescriptorIndex(fd)) >= 0)
     {
-      result = _write(fileDescriptors[index], pBuf, len);
-      if(result == -1)
+      const void *pBuf = nuonEnv.GetPointerToMemory(mpe, buf);
+      int32 result = _write(fileDescriptors[index], pBuf, len);
+      if(result != -1)
       {
-        goto Error;
+        mpe.regs[0] = result;
+        return;
       }
-      mpe.regs[0] = result;
     }
-    else
-    {
-  Error:
-      pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
-      *pErr = errno;
-      SwapScalarBytes(pErr);
-      mpe.regs[0] = -1;
-    }
+
+    uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
+    *pErr = errno;
+    SwapScalarBytes(pErr);
+    mpe.regs[0] = -1;
   }
 }
 
@@ -296,9 +279,6 @@ void FileIoctl(MPE &mpe)
 
 void FileFstat(MPE &mpe)
 {
-  int32 /*index,*/ result;
-  uint32 *pErr;
-  struct _stat32 st;
   const uint32 fd = mpe.regs[0];
   const uint32 buf = mpe.regs[1];
   const uint32 errnum = mpe.regs[2];
@@ -341,49 +321,47 @@ void FileFstat(MPE &mpe)
   {
     if((/*index =*/ FindFileDescriptorIndex(fd)) >= 0)
     {
-      result = _fstat32(fd, &st);
-      if(result == -1)
+      struct _stat32 st;
+      int32 result = _fstat32(fd, &st);
+      if(result != -1)
       {
-        goto Error;
-      }
-      
-      pBuf->st_atime = st.st_atime;
-      pBuf->st_blksize = 1;
-      pBuf->st_blocks = st.st_size;
-      pBuf->st_ctime = st.st_ctime;
-      pBuf->st_dev = st.st_dev;
-      pBuf->st_gid = st.st_gid;
-      pBuf->st_ino = st.st_ino;
-      pBuf->st_mode = ConvertIFMT(st.st_mode);
-      pBuf->st_mtime = st.st_mtime;
-      pBuf->st_nlink = st.st_nlink;
-      pBuf->st_rdev = st.st_rdev;
-      pBuf->st_size = st.st_size;
-      pBuf->st_uid = st.st_uid;
+        pBuf->st_atime = st.st_atime;
+        pBuf->st_blksize = 1;
+        pBuf->st_blocks = st.st_size;
+        pBuf->st_ctime = st.st_ctime;
+        pBuf->st_dev = st.st_dev;
+        pBuf->st_gid = st.st_gid;
+        pBuf->st_ino = st.st_ino;
+        pBuf->st_mode = ConvertIFMT(st.st_mode);
+        pBuf->st_mtime = st.st_mtime;
+        pBuf->st_nlink = st.st_nlink;
+        pBuf->st_rdev = st.st_rdev;
+        pBuf->st_size = st.st_size;
+        pBuf->st_uid = st.st_uid;
 
-      SwapWordBytes((uint16 *)&pBuf->st_dev);
-      SwapWordBytes((uint16 *)&pBuf->st_nlink);
-      SwapWordBytes((uint16 *)&pBuf->st_gid);
-      SwapWordBytes((uint16 *)&pBuf->st_uid);
-      SwapWordBytes((uint16 *)&pBuf->st_rdev);
-      SwapScalarBytes((uint32 *)&pBuf->st_atime);
-      SwapScalarBytes((uint32 *)&pBuf->st_ctime);
-      SwapScalarBytes((uint32 *)&pBuf->st_mtime);
-      SwapScalarBytes((uint32 *)&pBuf->st_ino);
-      SwapScalarBytes((uint32 *)&pBuf->st_mode);      
-      SwapScalarBytes((uint32 *)&pBuf->st_size);
-      SwapScalarBytes((uint32 *)&pBuf->st_blocks);      
-      SwapScalarBytes((uint32 *)&pBuf->st_blksize);      
-      mpe.regs[0] = 0;
+        SwapWordBytes((uint16 *)&pBuf->st_dev);
+        SwapWordBytes((uint16 *)&pBuf->st_nlink);
+        SwapWordBytes((uint16 *)&pBuf->st_gid);
+        SwapWordBytes((uint16 *)&pBuf->st_uid);
+        SwapWordBytes((uint16 *)&pBuf->st_rdev);
+        SwapScalarBytes((uint32 *)&pBuf->st_atime);
+        SwapScalarBytes((uint32 *)&pBuf->st_ctime);
+        SwapScalarBytes((uint32 *)&pBuf->st_mtime);
+        SwapScalarBytes((uint32 *)&pBuf->st_ino);
+        SwapScalarBytes((uint32 *)&pBuf->st_mode);
+        SwapScalarBytes((uint32 *)&pBuf->st_size);
+        SwapScalarBytes((uint32 *)&pBuf->st_blocks);
+        SwapScalarBytes((uint32 *)&pBuf->st_blksize);
+        mpe.regs[0] = 0;
+
+        return;
+      }
     }
-    else
-    {
-  Error:
-      pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
-      *pErr = errno;
-      SwapScalarBytes(pErr);
-      mpe.regs[0] = -1;
-    }
+
+    uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
+    *pErr = errno;
+    SwapScalarBytes(pErr);
+    mpe.regs[0] = -1;
   }
 }
 
@@ -418,26 +396,21 @@ void FileLseek(MPE &mpe)
   const uint32 offset = mpe.regs[1];
   const uint32 whence = mpe.regs[2];
   const uint32 errnum = mpe.regs[3];
-  int32 /*index,*/ result;
-  uint32 *pErr;
 
   if((/*index =*/ FindFileDescriptorIndex(fd)) >= 0)
   {
-    result = _lseek(fd, offset, whence);
-    if(result == -1)
+    int32 result = _lseek(fd, offset, whence);
+    if(result != -1)
     {
-      goto Error;
+      mpe.regs[0] = result;
+      return;
     }
-    mpe.regs[0] = result;
   }
-  else
-  {
-Error:
-    pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
-    *pErr = EBADF;
-    SwapScalarBytes(pErr);
-    mpe.regs[0] = -1;
-  }
+
+  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
+  *pErr = EBADF;
+  SwapScalarBytes(pErr);
+  mpe.regs[0] = -1;
 }
 
 void FileLink(MPE &mpe)
