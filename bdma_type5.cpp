@@ -312,8 +312,7 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
   const void* const pSrc = (void *)baseMemory;
   void* const pDest = (void *)intMemory;
 
-/*
-  if(((intaddr & MPE_LOCAL_MEMORY_MASK) >= MPE_IROM_BASE) &&
+  if(((intaddr & MPE_LOCAL_MEMORY_MASK) >= MPE_IRAM_BASE) &&
     ((intaddr & MPE_LOCAL_MEMORY_MASK) < MPE_DTAGS_BASE))
   {
     //Maintain cache coherency!  This assumes that code will not be
@@ -321,18 +320,17 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
     //to flush the cache on data writes.
     if(bRemote)
     {
-      nuonEnv.mpe[(intaddr >> 23) & 0x1FUL]->InvalidateICache();
-      nuonEnv.mpe[(intaddr >> 23) & 0x1FUL]->nativeCodeCache->Flush();
-      nuonEnv.mpe[(intaddr >> 23) & 0x1FUL]->UpdateInvalidateRegion(MPE_IRAM_BASE, length << 2);
+      //nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL].InvalidateICache();
+      //nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL].nativeCodeCache.Flush();
+      nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[(mpeBase >> 23) & 0x1FUL]);
     }
     else
     {
-      mpe.InvalidateICache();
-      mpe.nativeCodeCache->Flush();
-      mpe.UpdateInvalidateRegion(MPE_IRAM_BASE, length << 2)
+      //mpe.InvalidateICache();
+      //mpe.nativeCodeCache.Flush();
+      mpe.UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[mpe.mpeIndex]);
     }
   }
-*/
 
   constexpr int32 srcAStep = 1;
   const int32 srcBStep = xsize;
