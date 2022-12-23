@@ -3,6 +3,8 @@
 #include <cstdio>
 #include <string>
 #include <windows.h>
+#include <Commctrl.h>
+#include <tchar.h>
 #include <commdlg.h>
 #include "external\glew-2.2.0\include\GL\glew.h"
 #include <GL/gl.h>
@@ -60,6 +62,7 @@ static HWND textMPE1Pcexec;
 static HWND textMPE2Pcexec;
 static HWND textMPE3Pcexec;
 static HWND cbLoadFile;
+static HWND cbCfgInput;
 static HWND cbSingleStep;
 static HWND cbRun;
 static HWND cbStop;
@@ -75,7 +78,6 @@ static HWND reStatus;
 static OPENFILENAME ofn;
 static char openFileName[512];
 
-static unsigned long whichController = 1;
 static unsigned long disassemblyMPE = 3;
 static char whichStatus = -1;
 
@@ -438,6 +440,350 @@ bool Load()
   return false;
 }
 
+static int EditIDToCtrlrBitnum(int id)
+{
+  switch (id)
+  {
+  case IDC_SET_DUP:
+    return CTRLR_BITNUM_DPAD_UP;
+
+  case IDC_SET_DRIGHT:
+    return CTRLR_BITNUM_DPAD_RIGHT;
+
+  case IDC_SET_DDOWN:
+    return CTRLR_BITNUM_DPAD_DOWN;
+
+  case IDC_SET_DLEFT:
+    return CTRLR_BITNUM_DPAD_LEFT;
+
+  case IDC_SET_CUP:
+    return CTRLR_BITNUM_BUTTON_C_UP;
+
+  case IDC_SET_CRIGHT:
+    return CTRLR_BITNUM_BUTTON_C_RIGHT;
+
+  case IDC_SET_CDOWN:
+    return CTRLR_BITNUM_BUTTON_C_DOWN;
+
+  case IDC_SET_CLEFT:
+    return CTRLR_BITNUM_BUTTON_C_LEFT;
+
+  case IDC_SET_A:
+    return CTRLR_BITNUM_BUTTON_A;
+    
+  case IDC_SET_B:
+    return CTRLR_BITNUM_BUTTON_B;
+
+  case IDC_SET_L:
+    return CTRLR_BITNUM_BUTTON_L;
+
+  case IDC_SET_R:
+    return CTRLR_BITNUM_BUTTON_R;
+
+  case IDC_SET_NUON:
+    return CTRLR_BITNUM_BUTTON_NUON;
+
+  case IDC_SET_START:
+    return CTRLR_BITNUM_BUTTON_START;
+
+  default:
+    return -1;
+  }
+}
+
+void SetNewMapping(HWND hWnd, InputManager::InputType type, int idx, int subIdx)
+{
+  char mappingStr[ControllerButtonMapping::MAPPING_STRING_SIZE];
+  ControllerButtonMapping newMap(type, idx, subIdx);
+  newMap.toString(mappingStr, _countof(mappingStr));
+  SetWindowText(hWnd, mappingStr);
+  SetFocus(GetNextDlgTabItem(GetParent(hWnd), hWnd, FALSE));
+}
+
+static WNDPROC pOrigEditProc;
+LRESULT APIENTRY SetButtonControlProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+  // Call down to base control handler first.
+  LRESULT res = CallWindowProc(pOrigEditProc, hWnd, uMsg, wParam, lParam);
+
+  // Intercept most keydown messages.
+  if ((uMsg == WM_GETDLGCODE) && lParam)
+  {
+    MSG* msg = (MSG*)lParam;
+
+    if (msg->message == WM_KEYDOWN)
+    {
+      switch (msg->wParam)
+      {
+        // Use default processing for Escape
+      case VK_ESCAPE:
+        break;
+
+      default:
+        SetNewMapping(hWnd, InputManager::KEY, (int)wParam, 0);
+        return DLGC_WANTMESSAGE;
+      }
+    }
+  }
+
+  return res;
+}
+
+struct JoyPressedCtx
+{
+  InputManager::InputType type;
+  int idx;
+  int subIdx;
+  bool pressed;
+};
+
+static void AnyJoyPressed(void* ctx, InputManager::InputType type, int idx, int subIdx)
+{
+  JoyPressedCtx *joyCtx = (JoyPressedCtx *)ctx;
+
+  if (!joyCtx->pressed)
+  {
+    joyCtx->type = type;
+    joyCtx->idx = idx;
+    joyCtx->subIdx = subIdx;
+    joyCtx->pressed = true;
+  }
+}
+
+#define FOR_ALL_JOY_EDIT_CTRLS(_op) \
+    _op(IDC_SET_DUP); \
+    _op(IDC_SET_DDOWN); \
+    _op(IDC_SET_DLEFT); \
+    _op(IDC_SET_DRIGHT); \
+    _op(IDC_SET_START); \
+    _op(IDC_SET_NUON); \
+    _op(IDC_SET_CUP); \
+    _op(IDC_SET_CDOWN); \
+    _op(IDC_SET_CLEFT); \
+    _op(IDC_SET_CRIGHT); \
+    _op(IDC_SET_A); \
+    _op(IDC_SET_B); \
+    _op(IDC_SET_L); \
+    _op(IDC_SET_R)
+
+static constexpr unsigned int IDT_JOY_TIMER = 0x00000001;
+static HWND hFocusedWnd = nullptr;
+static int joyGrabbed = -1;
+INT_PTR CALLBACK CfgInputDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+  InputManager* im = display.GetInputManager();
+  switch (msg)
+  {
+  case WM_INITDIALOG:
+    if (im)
+    {
+      size_t numJoysticks;
+      const Joystick* pJoysticks = im->EnumJoysticks(&numJoysticks);
+      const GUID& controller1Joystick = nuonEnv.GetController1Joystick();
+      int controller1JoystickIdx = -1;
+      HWND hwndCtrl = GetDlgItem(hwndDlg, IDC_JOYSTICK_COMBO);
+
+      for (size_t i = 0; i < numJoysticks; i++) {
+        SendMessage(hwndCtrl, CB_ADDSTRING, 0, (LPARAM)pJoysticks[i].tszName);
+        if (controller1Joystick == pJoysticks[i].guid)
+        {
+          controller1JoystickIdx = i;
+        }
+      }
+
+      if (numJoysticks)
+      {
+        if (controller1JoystickIdx < 0) controller1JoystickIdx = 0;
+        SendMessage(hwndCtrl, CB_SETCURSEL, controller1JoystickIdx, 0);
+        if (im->GrabJoystick(hwndDlg, controller1JoystickIdx)) joyGrabbed = controller1JoystickIdx;
+      }
+
+      char mappingStr[ControllerButtonMapping::MAPPING_STRING_SIZE];
+#define INIT_CTRLR_EDIT(id) \
+do { \
+  hwndCtrl = GetDlgItem(hwndDlg, (id)); \
+  WNDPROC proc = (WNDPROC)SetWindowLongPtr(hwndCtrl, GWL_WNDPROC, (LONG_PTR)SetButtonControlProc); \
+  if (pOrigEditProc) \
+  { \
+      assert(pOrigEditProc == proc); \
+  } \
+  else \
+  { \
+    pOrigEditProc = proc; \
+  } \
+  nuonEnv.GetMappingForCTRLRBitnum(EditIDToCtrlrBitnum(id)).toString(mappingStr, _countof(mappingStr)); \
+  SetWindowText(hwndCtrl, mappingStr); \
+} while (0)
+      FOR_ALL_JOY_EDIT_CTRLS(INIT_CTRLR_EDIT);
+#undef INIT_CTRLR_EDIT
+    }
+    break;
+
+  case WM_DESTROY:
+    if (im)
+    {
+      HWND hwndCtrl;
+#define UNINIT_CTRLR_EDIT(id) \
+do { \
+  hwndCtrl = GetDlgItem(hwndDlg, (id)); \
+  SetWindowLongPtr(hwndCtrl, GWL_WNDPROC, (LONG_PTR)pOrigEditProc); \
+} while(0)
+      FOR_ALL_JOY_EDIT_CTRLS(UNINIT_CTRLR_EDIT);
+#undef UNINIT_CTRLR_EDIT
+    }
+    return TRUE;
+
+  case WM_CTLCOLORSTATIC:
+  {
+    HWND hWndCtrl = (HWND)lParam;
+    if (hWndCtrl == hFocusedWnd)
+    {
+      HDC hDC = (HDC)wParam;
+      SetBkColor(hDC, RGB(182, 208, 226));
+      return (INT_PTR)CreateSolidBrush(RGB(182, 208, 226));
+    }
+  }
+  break;
+
+  case WM_COMMAND:
+    switch (LOWORD(wParam))
+    {
+    case IDB_OK:
+      {
+        EndDialog(hwndDlg, TRUE);
+        if (joyGrabbed >= 0)
+        {
+          im->UngrabJoystick();
+          joyGrabbed = -1;
+        }
+
+        HWND hJoyCombo = GetDlgItem(hwndDlg, IDC_JOYSTICK_COMBO);
+        LRESULT res = SendMessage(hJoyCombo, CB_GETCURSEL, 0, 0);
+
+        if (res != CB_ERR)
+        {
+          size_t numJoysticks;
+          const Joystick* pJoysticks = im->EnumJoysticks(&numJoysticks);
+          im->SetJoystick((size_t)res);
+          nuonEnv.SetController1Joystick(pJoysticks[res].guid);
+        }
+
+#define APPLY_MAPPING(id) \
+do { \
+  HWND hEditWnd = GetDlgItem(hwndDlg, (id)); \
+  char dlgText[ControllerButtonMapping::MAPPING_STRING_SIZE]; \
+  GetWindowTextA(hEditWnd, dlgText, _countof(dlgText)); \
+  ControllerButtonMapping newMap; \
+  ControllerButtonMapping::fromString(dlgText, &newMap); \
+  nuonEnv.SetControllerButtonMapping(EditIDToCtrlrBitnum(id), newMap); \
+} while (0)
+        FOR_ALL_JOY_EDIT_CTRLS(APPLY_MAPPING);
+#undef APPLY_MAPPING
+      }
+      return TRUE;
+
+    case IDB_CANCEL:
+      EndDialog(hwndDlg, FALSE);
+      if (joyGrabbed >= 0)
+      {
+        im->UngrabJoystick();
+        joyGrabbed = -1;
+      }
+      return TRUE;
+
+    case IDC_JOYSTICK_COMBO:
+      if (HIWORD(wParam) != CBN_SELENDOK) break;
+
+      if (joyGrabbed >= 0)
+      {
+        im->UngrabJoystick();
+      }
+      if (im)
+      {
+        HWND hJoyCombo = (HWND)lParam;
+        LRESULT res = SendMessage(hJoyCombo, CB_GETCURSEL, 0, 0);
+
+        if (res != CB_ERR)
+        {
+          if (im->GrabJoystick(hwndDlg, (size_t)res)) joyGrabbed = (int)res;
+        }
+        else
+        {
+          MessageBox(NULL, _T("Error sending GETCURSEL message"), _T("Error"), MB_ICONERROR);
+        }
+      }
+      return TRUE;
+
+    case IDC_SET_DUP:
+    case IDC_SET_DDOWN:
+    case IDC_SET_DLEFT:
+    case IDC_SET_DRIGHT:
+    case IDC_SET_START:
+    case IDC_SET_NUON:
+    case IDC_SET_CUP:
+    case IDC_SET_CDOWN:
+    case IDC_SET_CLEFT:
+    case IDC_SET_CRIGHT:
+    case IDC_SET_A:
+    case IDC_SET_B:
+    case IDC_SET_L:
+    case IDC_SET_R:
+      switch (HIWORD(wParam))
+      {
+      case EN_SETFOCUS:
+      {
+        HWND hEdit = (HWND)lParam;
+        hFocusedWnd = hEdit;
+        if (joyGrabbed >= 0)
+        {
+          im->UpdateState(NULL, NULL, NULL);
+          SetTimer(hwndDlg, IDT_JOY_TIMER, 50, nullptr);
+        }
+        InvalidateRect(hEdit, NULL, FALSE);
+
+        break;
+      }
+      case EN_KILLFOCUS:
+      {
+        HWND hEdit = (HWND)lParam;
+        if (hFocusedWnd == hEdit)
+        {
+          if (joyGrabbed >=  0) KillTimer(hwndDlg, IDT_JOY_TIMER);
+          hFocusedWnd = nullptr;
+          InvalidateRect(hEdit, NULL, FALSE);
+        }
+        break;
+
+      }
+      default:
+        break;
+      }
+      break;
+    }
+
+  case WM_TIMER:
+    if ((wParam == IDT_JOY_TIMER) && im && hFocusedWnd)
+    {
+      JoyPressedCtx ctx;
+      ctx.pressed = false;
+
+      im->UpdateState(NULL, AnyJoyPressed, &ctx);
+
+      if (ctx.pressed)
+      {
+        SetNewMapping(hFocusedWnd, ctx.type, ctx.idx, ctx.subIdx);
+      }
+      return 0;
+    }
+    break;
+
+  default:
+    break;
+  }
+
+  return FALSE;
+}
+
 INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
   switch(msg)
@@ -497,6 +843,17 @@ INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPAR
               load4firsttime = false;
 
             return TRUE;
+          }
+          else if ((HWND)lParam == cbCfgInput)
+          {
+              HINSTANCE hInstance = (HINSTANCE)GetWindowLong(hwndDlg, GWL_HINSTANCE);
+              if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_CFG_INPUT), hwndDlg, CfgInputDialogProc))
+              {
+                if (MessageBox(hwndDlg, _T("Save Joytick config to configuration file?"), _T("Save Config"), MB_YESNO | MB_ICONQUESTION) == IDYES)
+                {
+                  nuonEnv.SaveConfigFile(nullptr);
+                }
+              }
           }
           else if((HWND)lParam == textMPE0)
           {
@@ -603,151 +960,13 @@ bool OnDisplayResize(uint16 width, uint16 height)
   return false;
 }
 
-bool OnDisplayKeyDown(int16 vkey, uint32 keydata)
+static void ApplyControllerState(unsigned int controllerIdx, uint16 buttons)
 {
-  uint16 buttons = 0;
-
-  switch(vkey)
-  {
-    case 'A':
-      //Start
-      buttons = CTRLR_BUTTON_START;
-      break;
-    case 'S':
-      //NUON (Z)
-      buttons = CTRLR_BUTTON_NUON;
-      break;
-    case 'D':
-      //A
-      buttons = CTRLR_BUTTON_A;
-      break;
-    case 'F':
-      //B
-      buttons = CTRLR_BUTTON_B;
-      break;
-    case VK_UP:
-      //DPad Up
-      buttons = CTRLR_DPAD_UP;
-      break;
-    case VK_DOWN:
-      //DPad Down
-      buttons = CTRLR_DPAD_DOWN;
-      break;
-    case VK_LEFT:
-      //DPad Left
-      buttons = CTRLR_DPAD_LEFT;
-      break;
-    case VK_RIGHT:
-      //DPad Right
-      buttons = CTRLR_DPAD_RIGHT;
-      break;
-    case 'Q':
-      //LShoulder
-      buttons = CTRLR_BUTTON_L;
-      break;
-    case 'T':
-      //RShoulder
-      buttons = CTRLR_BUTTON_R;
-      break;
-    case 'W':
-      //C left
-      buttons = CTRLR_BUTTON_C_LEFT;
-      break;
-    case 'E':
-      //C down
-      buttons = CTRLR_BUTTON_C_DOWN;
-      break;
-    case 'R':
-      //C right
-      buttons = CTRLR_BUTTON_C_RIGHT;
-      break;
-    case '3':
-      //C up
-      buttons = CTRLR_BUTTON_C_UP;
-      break;
-  }
-  SwapWordBytes(&buttons);
-  if(controller)
-  {
-    controller[whichController].buttons |= buttons;
-  }
-
-  return false;
-}
-
-bool OnDisplayKeyUp(int16 vkey, uint32 keydata)
-{
-  uint16 buttons = 0;
-
-  switch(vkey)
-  {
-    case 'A':
-      //Start
-      buttons = ~CTRLR_BUTTON_START;
-      break;
-    case 'S':
-      //NUON (Z)
-      buttons = ~CTRLR_BUTTON_NUON;
-      break;
-    case 'D':
-      //A
-      buttons = ~CTRLR_BUTTON_A;
-      break;
-    case 'F':
-      //B
-      buttons = ~CTRLR_BUTTON_B;
-      break;
-    case VK_UP:
-      //DPad Up
-      buttons = ~CTRLR_DPAD_UP;
-      break;
-    case VK_DOWN:
-      //DPad Down
-      buttons = ~CTRLR_DPAD_DOWN;
-      break;
-    case VK_LEFT:
-      //DPad Left
-      buttons = ~CTRLR_DPAD_LEFT;
-      break;
-    case VK_RIGHT:
-      //DPad Right
-      buttons = ~CTRLR_DPAD_RIGHT;
-      break;
-    case 'Q':
-      //LShoulder
-      buttons = ~CTRLR_BUTTON_L;
-      break;
-    case 'T':
-      //RShoulder
-      buttons = ~CTRLR_BUTTON_R;
-      break;
-    case 'W':
-      //C left
-      buttons = ~CTRLR_BUTTON_C_LEFT;
-      break;
-    case 'E':
-      //C down
-      buttons = ~CTRLR_BUTTON_C_DOWN;
-      break;
-    case 'R':
-      //C right
-      buttons = ~CTRLR_BUTTON_C_RIGHT;
-      break;
-    case '3':
-      //C up
-      buttons = ~CTRLR_BUTTON_C_UP;
-      break;
-    case 'Z':
-      //Toggle between IR controller and Controller[1]
-      whichController = 1 - whichController;
-      break;
-  }
-  SwapWordBytes(&buttons);
-  if(controller)
-  {
-    controller[whichController].buttons &= buttons;
-  }
-  return false;
+    if (controller)
+    {
+        SwapWordBytes(&buttons);
+        controller[controllerIdx].buttons = buttons;
+    }
 }
 
 bool CheckForInvalidCommStatus(const MPE &mpe)
@@ -779,9 +998,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   nuonEnv.Init();
 
+  display.hInstance = hInstance;
+  display.applyControllerState = ApplyControllerState;
   display.resizeHandler = OnDisplayResize;
-  display.keyDownHandler = OnDisplayKeyDown;
-  display.keyUpHandler = OnDisplayKeyUp;
   display.paintHandler = OnDisplayPaint;
 
   display.Create();
@@ -816,6 +1035,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   textMPE2Pcexec = GetDlgItem(hDlg, IDC_MPE2_PCEXEC);
   textMPE3Pcexec = GetDlgItem(hDlg, IDC_MPE3_PCEXEC);
   cbLoadFile = GetDlgItem(hDlg, IDC_CB_LOAD_FILE);
+  cbCfgInput = GetDlgItem(hDlg, IDC_CB_CFG_INPUT);
   cbRun = GetDlgItem(hDlg, IDC_CB_RUN);
   cbSingleStep = GetDlgItem(hDlg, IDC_CB_SINGLE_STEP);
   cbStop = GetDlgItem(hDlg, IDC_CB_STOP);

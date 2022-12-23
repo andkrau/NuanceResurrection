@@ -367,7 +367,8 @@ second that are now available for use by the processor emulation thread.
 
 Joystick support:
 
-The keyboard may be used to control Controller slots 0 and 1 using the following keys:
+By default, the keyboard may be used to control Controller slots 0 and 1 using
+the following keys:
 
 A: Button Start
 S: Button Nuon/Z
@@ -384,6 +385,58 @@ Down: DPad Down
 Left: Dpad Left
 Right: DPad Right
 Z: switch between controller 0 and controller 1
+
+The default controller bindings can be modified by including a
+[Controller1Mappings] section in the configuration file, followed by a list of
+<Nuon Controller button> = <joystick or keyboard binding> pairs. The available
+controller button names are:
+
+CPAD_UP
+CPAD_RIGHT
+CPAD_DOWN
+CPAD_LEFT
+A
+B
+L
+R
+DPAD_UP
+DPAD_RIGHT
+DPAD_DOWN
+DPAD_LEFT
+NUON
+START
+
+The format for joystick/keyboard bindings is:
+
+<type>_<index>_<subindex>
+
+Where <type> can be:
+
+KEY - A keyboard key
+JOYBUT - Joystick button
+JOYAXIS - Joystick axis, usuallly an analog stick axis.
+JOYPOV - Joystick point of view direction, e.g., a D-pad button.
+
+<index> can take on the following values, depending on <type>:
+
+KEY - A win32 Virtual Keycode. See
+    https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+    for a list of valid values. Note the value must be in decimal, not hex.
+JOYBUT - A Joystick button number.
+JOYAXIS - A Joystick axis index.
+JOYPOV - A Joystick POV control index. Usually 0.
+
+<subindex> cantake on the following values, depending on <type>:
+
+KEY - Must be '0'
+JOYBUT - Must be '0'
+JOYAXIS - '0' = axis min direction, '1' = axis max direction
+JOYPOV - '0' = up, '1' = right, '2' = down, '3' = left.
+
+To figure which buttons/controls are which, you can use the "Properties"
+button on the "Set up USB game controllers" control panel widget. Note the
+buttons in the config file are indexed from zero, while the numbering in the
+control panel widget starts at 1.
 
 Aries version:
 

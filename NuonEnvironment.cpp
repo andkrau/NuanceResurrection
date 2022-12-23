@@ -2,6 +2,7 @@
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
 #include <windows.h>
 #endif
+#include <combaseapi.h>
 
 #include "audio.h"
 #include "Bios.h"
@@ -9,6 +10,7 @@
 #include "mpe.h"
 #include "timer.h"
 #include "video.h"
+#include "joystick.h"
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
 
@@ -384,7 +386,13 @@ void NuonEnvironment::Init()
   videoDisplayCycleCount = 120000;
   whichAudioInterrupt = false;
 
-  LoadConfigFile(!pArgs ? "nuance.cfg" : pArgs[1]);
+  const char* tmpName = !pArgs ? "nuance.cfg" : pArgs[1];
+  const size_t tmpNameLen = strlen(tmpName) + 1;
+
+  cfgFileName = new char[tmpNameLen];
+  strcpy_s(cfgFileName, tmpNameLen, tmpName);
+
+  LoadConfigFile(cfgFileName);
 
   cycleCounter = 0;
 
@@ -430,6 +438,7 @@ NuonEnvironment::~NuonEnvironment()
 
   //Free up string memory
   delete [] dvdBase;
+  delete [] cfgFileName;
 
   DeInitTimingMethod();
 }
@@ -476,39 +485,251 @@ void NuonEnvironment::SetDVDBaseFromFileName(const char * const filename)
   }
 }
 
+
+static void TrimWhitespace(char *buf, size_t bufLength)
+{
+  const char* firstReal = buf;
+  const char* lastReal = buf + strlen(buf);
+  while (*firstReal && isspace(*firstReal)) firstReal++;
+  while ((lastReal > firstReal) && isspace(*(lastReal - 1))) lastReal--;
+  if (firstReal != buf)
+  {
+    memmove_s(buf, bufLength, firstReal, (lastReal + 1) - firstReal);
+  }
+  buf[lastReal - firstReal] = '\0';
+}
+
+bool NuonEnvironment::StrToCtrlrBitnum(const char* str, unsigned int* bitnum)
+{
+#define CHECK_STR(s0, s1, i) \
+do { \
+  if (!_stricmp((s0), (s1))) \
+  { \
+    *bitnum = (i); \
+    return true; \
+  } \
+} while (0)
+
+  if (!_strnicmp(str, "CPAD_", sizeof("CPAD_") - 1))
+  {
+    const char* dir = str + sizeof("CPAD_") - 1;
+    CHECK_STR(dir, "UP", CTRLR_BITNUM_BUTTON_C_UP);
+    CHECK_STR(dir, "DOWN", CTRLR_BITNUM_BUTTON_C_DOWN);
+    CHECK_STR(dir, "LEFT", CTRLR_BITNUM_BUTTON_C_LEFT);
+    CHECK_STR(dir, "RIGHT", CTRLR_BITNUM_BUTTON_C_RIGHT);
+  }
+  else if (!_strnicmp(str, "DPAD_", sizeof("DPAD_") - 1))
+  {
+    const char* dir = str + sizeof("DPAD_") - 1;
+    CHECK_STR(dir, "UP", CTRLR_BITNUM_DPAD_UP);
+    CHECK_STR(dir, "DOWN", CTRLR_BITNUM_DPAD_DOWN);
+    CHECK_STR(dir, "LEFT", CTRLR_BITNUM_DPAD_LEFT);
+    CHECK_STR(dir, "RIGHT", CTRLR_BITNUM_DPAD_RIGHT);
+  }
+  else
+  {
+    CHECK_STR(str, "A", CTRLR_BITNUM_BUTTON_A);
+    CHECK_STR(str, "B", CTRLR_BITNUM_BUTTON_B);
+    CHECK_STR(str, "L", CTRLR_BITNUM_BUTTON_L);
+    CHECK_STR(str, "R", CTRLR_BITNUM_BUTTON_R);
+    CHECK_STR(str, "NUON", CTRLR_BITNUM_BUTTON_NUON);
+    CHECK_STR(str, "START", CTRLR_BITNUM_BUTTON_START);
+  }
+
+  return false;
+}
+
+// Format is <CPAD_[UP,DOWN,LEFT,RIGHT]>|<DPAD_[UP,DOWN,LEFT,RIGHT]>|<A,B,L,R,NUON,START> = <JOYBUT,JOYAXIS,JOYPOV>_<idx>_<subIdx>
+bool NuonEnvironment::ParseJoyButtonConf(char buf[1025], unsigned int *bitnum, ControllerButtonMapping *mapping)
+{
+  char tmpBuf[1025];
+
+  // strtok is destructive. Don't harm the original string.
+  strcpy_s(tmpBuf, buf);
+
+  // Split on the equals sign.
+  char *ctx = NULL;
+  char *nuonName = strtok_s(tmpBuf, "=", &ctx);
+
+  if (!nuonName) return false;
+
+  char* mappingName = strtok_s(NULL, "=", &ctx);
+
+  if (!mappingName) return false;
+
+  // Trim any whitespace
+  TrimWhitespace(nuonName, strlen(nuonName) + 1);
+  TrimWhitespace(mappingName, strlen(mappingName) + 1);
+
+  if (!StrToCtrlrBitnum(nuonName, bitnum)) return false;
+
+  return ControllerButtonMapping::fromString(mappingName, mapping);
+}
+
 ConfigTokenType NuonEnvironment::ReadConfigLine(FILE *file, char buf[1025])
 {
-  if(feof(file))
-    return ConfigTokenType::CONFIG_EOF;
+  while (true)
+  {
+    if (feof(file))
+      return ConfigTokenType::CONFIG_EOF;
 
-  fscanf_s(file,"%s",buf,1025);
-  const char firstChar = buf[0];
+    // Get a whitespace-trimmed line from the file. Note this logic is broken
+    // for lines longer than 1025 characters, but that's way better than the
+    // previous logic, which was broken for lines containing spaces.
+    fgets(buf, 1025, file);
+    TrimWhitespace(buf, 1025);
 
-  if(firstChar == CONFIG_COMMENT_CHAR)
-    return ConfigTokenType::CONFIG_COMMENT;
-  else if(firstChar == CONFIG_VARIABLE_START_CHAR)
-    return ConfigTokenType::CONFIG_VARIABLE_START;
-  else if(firstChar == CONFIG_VARIABLE_FINISH_CHAR)
-    return ConfigTokenType::CONFIG_VARIABLE_FINISH;
-  else if((firstChar == '<') || (firstChar == '>') || (firstChar == '"'))
-    return ConfigTokenType::CONFIG_RESERVED;
-  else
-    return ConfigTokenType::CONFIG_STRING;
+    const char firstChar = buf[0];
+
+    if (firstChar == '\0')
+      continue; // Skip empty lines
+    else if (firstChar == CONFIG_COMMENT_CHAR)
+      return ConfigTokenType::CONFIG_COMMENT;
+    else if (firstChar == CONFIG_VARIABLE_START_CHAR)
+      return ConfigTokenType::CONFIG_VARIABLE_START;
+    else if (firstChar == CONFIG_VARIABLE_FINISH_CHAR)
+      return ConfigTokenType::CONFIG_VARIABLE_FINISH;
+    else if ((firstChar == '<') || (firstChar == '>') || (firstChar == '"'))
+      return ConfigTokenType::CONFIG_RESERVED;
+    else
+      return ConfigTokenType::CONFIG_STRING;
+  }
+}
+
+bool NuonEnvironment::SaveConfigFile(const char* const fileName)
+{
+  FILE* configFile;
+
+  if (fopen_s(&configFile, fileName ? fileName : cfgFileName, "w") != 0)
+    return false;
+
+  // Don't save DVDBase. AFAICT, it is always overriden when loading a file, so no point in saving/loading it.
+  //fprintf_s(configFile, "[DVDBase]\n");
+  //fprintf_s(configFile, "%s\n\n", dvdBase);
+
+  fprintf_s(configFile, "[AudioInterrupts]\n");
+  fprintf_s(configFile, "%s\n\n", bAudioInterruptsEnabled ? "Enabled" : "Disabled");
+
+  fprintf_s(configFile, "[DynamicCompiler]\n");
+  fprintf_s(configFile, "%s\n\n", compilerOptions.bAllowCompile ? "Enabled" : "Disabled");
+
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  fprintf_s(configFile, "[DumpCompiledBlocks]\n");
+  fprintf_s(configFile, "%s\n\n", compilerOptions.bDumpBlocks ? "Enabled" : "Disabled");
+#endif
+
+  fprintf_s(configFile, "[CompilerDeadCodeElimination]\n");
+  fprintf_s(configFile, "%s\n\n", compilerOptions.bDeadCodeElimination ? "Enabled" : "Disabled");
+
+  fprintf_s(configFile, "[CompilerConstantPropagation]\n");
+  fprintf_s(configFile, "%s\n\n", compilerOptions.bConstantPropagation ? "Enabled" : "Disabled");
+
+  fprintf_s(configFile, "[T3KCompilerHack]\n");
+  fprintf_s(configFile, "%s\n\n", compilerOptions.bT3KCompilerHack ? "Enabled" : "Disabled");
+
+  fprintf_s(configFile, "[Controller1Mappings]\n");
+  for (int i = 0; i < _countof(controller1Mapping); i++)
+  {
+    const char* ctrlrStr;
+
+    switch (i)
+    {
+    case CTRLR_BITNUM_BUTTON_C_UP:
+      ctrlrStr = "CPAD_UP";
+      break;
+    case CTRLR_BITNUM_BUTTON_C_RIGHT:
+      ctrlrStr = "CPAD_RIGHT";
+      break;
+    case CTRLR_BITNUM_BUTTON_C_DOWN:
+      ctrlrStr = "CPAD_DOWN";
+      break;
+    case CTRLR_BITNUM_BUTTON_C_LEFT:
+      ctrlrStr = "CPAD_LEFT";
+      break;
+    case CTRLR_BITNUM_DPAD_UP:
+      ctrlrStr = "DPAD_UP";
+      break;
+    case CTRLR_BITNUM_DPAD_RIGHT:
+      ctrlrStr = "DPAD_RIGHT";
+      break;
+    case CTRLR_BITNUM_DPAD_DOWN:
+      ctrlrStr = "DPAD_DOWN";
+      break;
+    case CTRLR_BITNUM_DPAD_LEFT:
+      ctrlrStr = "DPAD_LEFT";
+      break;
+    case CTRLR_BITNUM_BUTTON_A:
+      ctrlrStr = "A";
+      break;
+    case CTRLR_BITNUM_BUTTON_B:
+      ctrlrStr = "B";
+      break;
+    case CTRLR_BITNUM_BUTTON_L:
+      ctrlrStr = "L";
+      break;
+    case CTRLR_BITNUM_BUTTON_R:
+      ctrlrStr = "R";
+      break;
+    case CTRLR_BITNUM_BUTTON_NUON:
+      ctrlrStr = "NUON";
+      break;
+    case CTRLR_BITNUM_BUTTON_START:
+      ctrlrStr = "START";
+      break;
+    case CTRLR_BITNUM_UNUSED_1:
+      // Fall through
+    case CTRLR_BITNUM_UNUSED_2:
+      //Fall through
+    default:
+      continue;
+    }
+
+    char mappingStr[ControllerButtonMapping::MAPPING_STRING_SIZE];
+    controller1Mapping[i].toString(mappingStr, _countof(mappingStr));
+    fprintf_s(configFile, "%s = %s\n", ctrlrStr, mappingStr);
+  }
+  fprintf_s(configFile, "\n");
+
+  fprintf_s(configFile, "[Controller1GUID]\n");
+
+  LPOLESTR guidWStr;
+  char guidStr[100];
+  StringFromCLSID(controller1Di8Dev, &guidWStr);
+  size_t convSize;
+  wcstombs_s(&convSize, guidStr, _countof(guidStr), guidWStr, _countof(guidStr) - 1);
+  CoTaskMemFree(guidWStr);
+
+  fprintf_s(configFile, "%s\n", guidStr);
+
+  fclose(configFile);
+  return true;
 }
 
 bool NuonEnvironment::LoadConfigFile(const char * const fileName)
 {
-    FILE* configFile;
-    if (fopen_s(&configFile, fileName, "r") != 0 )
-        return false;
+  FILE* configFile;
+  if (fopen_s(&configFile, fileName, "r") != 0 )
+    return false;
+
+
+  bool useExistingLine = false;
+  ConfigTokenType tokenType;
 
   while(!feof(configFile))
   {
     char line[1025];
-    ConfigTokenType tokenType = ReadConfigLine(configFile,line);
+    if (!useExistingLine)
+    {
+      tokenType = ReadConfigLine(configFile, line);
+    }
+    else
+    {
+      useExistingLine = false;
+    }
+
     switch(tokenType)
     {
-      case CONFIG_COMMENT_CHAR:
+      case ConfigTokenType::CONFIG_COMMENT:
         break;
       case ConfigTokenType::CONFIG_VARIABLE_START:
         if(_strnicmp(&line[1],"DVDBase]",sizeof("DVDBase]")) == 0)
@@ -552,6 +773,36 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
           tokenType = ReadConfigLine(configFile,line);
           compilerOptions.bT3KCompilerHack = !_stricmp(line,"Enabled");
         }
+        else if(_strnicmp(&line[1],"Controller1Mappings]",sizeof("Controller1Mappings]")) == 0)
+        {
+          while (true)
+          {
+            ControllerButtonMapping mapping;
+            unsigned int bitnum;
+            tokenType = ReadConfigLine(configFile, line);
+            if (tokenType == ConfigTokenType::CONFIG_COMMENT) continue;
+
+            if ((tokenType == ConfigTokenType::CONFIG_STRING) &&
+              ParseJoyButtonConf(line, &bitnum, &mapping))
+            {
+              controller1Mapping[bitnum] = mapping;
+            }
+            else
+            {
+              useExistingLine = true;
+              break;
+            }
+          }
+        }
+        else if (_strnicmp(&line[1], "Controller1GUID]", sizeof("Controller1GUID]")) == 0)
+        {
+          wchar_t guidStr[100];
+          tokenType = ReadConfigLine(configFile, line);
+          size_t convLen;
+          mbstowcs_s(&convLen, guidStr, line, _countof(guidStr) - 1);
+          CLSIDFromString(guidStr, &controller1Di8Dev);
+        }
+
 #ifdef _WIN64
         compilerOptions.bAllowCompile = false; //!!
 #endif
@@ -562,5 +813,70 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
   }
 
   fclose(configFile);
+  return true;
+}
+
+void NuonEnvironment::SetController1Joystick(const GUID& guid)
+{
+  controller1Di8Dev = guid;
+}
+
+void NuonEnvironment::SetControllerButtonMapping(unsigned int ctrlrBitnum, const ControllerButtonMapping& mapping)
+{
+  if (ctrlrBitnum < 16)
+  {
+    controller1Mapping[ctrlrBitnum] = mapping;
+  }
+}
+const GUID& NuonEnvironment::GetController1Joystick() const
+{
+  return controller1Di8Dev;
+}
+
+int NuonEnvironment::GetCTRLRBitnumFromMapping(const ControllerButtonMapping& mapping) const
+{
+  for (int i = 0; i < _countof(controller1Mapping); i++)
+  {
+    if (controller1Mapping[i] == mapping) return i;
+  }
+
+  return -1;
+}
+
+const ControllerButtonMapping& NuonEnvironment::GetMappingForCTRLRBitnum(unsigned int bitnum) const
+{
+  static const ControllerButtonMapping invalidMapping(InputManager::JOYBUT, INT_MAX, INT_MAX);
+
+  if (bitnum >= _countof(controller1Mapping)) return invalidMapping;
+
+  return controller1Mapping[bitnum];
+}
+
+bool ControllerButtonMapping::fromString(char* strIn, ControllerButtonMapping* mapping)
+{
+  // Split the button mapping into three parts on '_'
+  char* ctx = NULL;
+  const char* type = strtok_s(strIn, "_", &ctx);
+
+  if (!type) return false;
+
+  const char* idxStr = strtok_s(NULL, "_", &ctx);
+
+  if (!idxStr) return false;
+
+  const char* subIdxStr = strtok_s(NULL, "_", &ctx);
+
+  if (!subIdxStr) return false;
+
+  // Convert each part to its appropriate mapping field
+  if (!InputManager::StrToInputType(type, &mapping->type)) return false;
+
+  char* endConv;
+  errno = 0;
+  mapping->idx = strtoul(idxStr, &endConv, 10);
+  if ((errno != 0) || (*endConv != '\0')) return false;
+  mapping->subIdx = strtoul(subIdxStr, &endConv, 10);
+  if ((errno != 0) || (*endConv != '\0')) return false;
+
   return true;
 }

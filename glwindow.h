@@ -2,6 +2,7 @@
 #define GLWindowH
 
 #include "basetypes.h"
+#include "InputManager.h"
 #include <windows.h>
 
 #define bUseSeparateThread false
@@ -39,11 +40,13 @@ public:
   void MessagePump();
   void ToggleFullscreen();
   void UpdateRestoreValues();
+  InputManager* GetInputManager() { return inputManager; }
 
   GLWINDOW_KEYCALLBACK keyDownHandler;
   GLWINDOW_KEYCALLBACK keyUpHandler;
   GLWINDOW_RESIZECALLBACK resizeHandler;
   GLWINDOW_CALLBACK paintHandler;
+  InputManager::CONTROLLER_CALLBACK applyControllerState;
 
 private:
   void OnResize(int _width, int _height);
@@ -60,6 +63,8 @@ private:
 
   uint32 windowStyle, windowExtendedStyle;
   uint32 fullScreenWindowStyle, fullScreenWindowExtendedStyle;
+
+  InputManager *inputManager;
 
   int restoreWidth;
   int restoreHeight;
