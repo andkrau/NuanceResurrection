@@ -1,5 +1,6 @@
 #include "basetypes.h"
 #include <windows.h>
+#include <tchar.h>
 #include <mutex>
 #include "external\glew-2.2.0\include\GL\glew.h"
 #include <GL/gl.h>
@@ -404,6 +405,9 @@ void GLWindow::CleanUp()
 {
   if(hWnd)
   {
+    delete inputManager;
+    inputManager = NULL;
+
     if(bUseSeparateThread) gfx_lock.lock();
 		if(hDC)
 		{
@@ -438,6 +442,10 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 
   switch(uMsg)
   {
+    case WM_ACTIVATE:
+      if (window->inputManager) window->inputManager->Activate();
+      break;
+
     case WM_SYSCOMMAND:
 		{
 			switch(wParam)
@@ -492,10 +500,8 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       break;
 
     case WM_KEYDOWN:
-      if(window->keyDownHandler)
-      {
-        window->keyDownHandler((int16)wParam,(uint32)lParam);
-      }
+      if (window->inputManager) window->inputManager->keyDown(window->applyControllerState, (int16)wParam);
+
       if((int)wParam == VK_F1 || ((int)wParam == VK_ESCAPE && window->bFullScreen))
       {
         window->ToggleFullscreen();
@@ -503,10 +509,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       break;
 
     case WM_KEYUP:
-      if(window->keyUpHandler)
-      {
-        window->keyUpHandler((int16)wParam,(uint32)lParam);
-      }
+      if (window->inputManager) window->inputManager->keyUp(window->applyControllerState, (int16)wParam);
       break;
 
     case WM_PAINT:
@@ -646,6 +649,8 @@ bool GLWindow::Create()
 
 void GLWindow::MessagePump()
 {
+  if (inputManager) inputManager->UpdateState(applyControllerState, NULL, NULL);
+
   if(!bUseSeparateThread)
   {
     MSG msg;
@@ -670,6 +675,14 @@ unsigned WINAPI GLWindow::GLWindowMain(void *param)
     if (err != GLEW_OK)
       MessageBox(NULL, (char*)glewGetErrorString(err), "Error", MB_ICONWARNING);
     if(bUseSeparateThread) gfx_lock.unlock();
+
+    // Failure not currently fatal.
+    glWindow->inputManager = InputManager::Create();
+    if (!glWindow->inputManager->Init(glWindow->hWnd))
+    {
+        delete glWindow->inputManager;
+        glWindow->inputManager = NULL;
+    }
 
     if(bUseSeparateThread)
     {

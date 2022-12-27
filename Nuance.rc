@@ -7,19 +7,17 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "windows.h"
+#include "afxres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -56,12 +54,13 @@ END
 // remains consistent on all systems.
 IDI_APPICON             ICON                    "Nuance.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_CONTROL_PANEL DIALOGEX 100, 100, 468, 270
+IDD_CONTROL_PANEL DIALOGEX 100, 100, 468, 290
 STYLE DS_SETFONT | DS_NOIDLEMSG | DS_3DLOOK | DS_FIXEDSYS | WS_VISIBLE | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_NOPARENTNOTIFY | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE | WS_EX_APPWINDOW
 CAPTION "Nuance Control Panel"
@@ -79,13 +78,14 @@ BEGIN
     LTEXT           "$80010000",IDC_MPE1_PCEXEC,56,31,37,8
     LTEXT           "$80010000",IDC_MPE3_PCEXEC,56,62,37,8
     LTEXT           "$80010000",IDC_MPE2_PCEXEC,56,47,37,8
-    CONTROL         "",RE_TERM_DISPLAY,"RichEdit20A",ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_NOHIDESEL | ES_READONLY | WS_BORDER | WS_VSCROLL | WS_HSCROLL,122,11,317,219
-    EDITTEXT        EB_TERM_INPUT,124,239,315,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Reset",IDC_CB_RESET,18,225,67,29
-    PUSHBUTTON      "Run",IDC_CB_RUN,18,160,67,29
-    PUSHBUTTON      "Stop",IDC_CB_STOP,18,193,67,29
-    PUSHBUTTON      "Load File",IDC_CB_LOAD_FILE,18,94,67,29
-    PUSHBUTTON      "Single Step",IDC_CB_SINGLE_STEP,18,126,67,29
+    CONTROL         "",RE_TERM_DISPLAY,"RichEdit20A",ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_NOHIDESEL | ES_READONLY | WS_BORDER | WS_VSCROLL | WS_HSCROLL,122,11,317,238
+    EDITTEXT        EB_TERM_INPUT,123,259,315,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Reset",IDC_CB_RESET,18,212,67,29
+    PUSHBUTTON      "Run",IDC_CB_RUN,18,148,67,29
+    PUSHBUTTON      "Stop",IDC_CB_STOP,18,180,67,29
+    PUSHBUTTON      "Load File",IDC_CB_LOAD_FILE,18,84,67,29
+    PUSHBUTTON      "Single Step",IDC_CB_SINGLE_STEP,18,116,67,29
+    PUSHBUTTON      "Configure Input",IDC_CB_CFG_INPUT,18,244,67,29
 END
 
 IDD_SPLASH_SCREEN DIALOGEX 0, 0, 353, 137
@@ -109,6 +109,50 @@ BEGIN
     PUSHBUTTON      "Dump MPEs",IDC_DUMP_MPES,296,275,70,35
 END
 
+IDD_CFG_INPUT DIALOGEX 0, 0, 399, 176
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Configure Input"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "Player 1",IDC_STATIC,7,7,383,144
+    EDITTEXT        IDC_SET_DUP,54,36,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "DPad Up",IDC_LABEL_DUP,12,36,28,8
+    EDITTEXT        IDC_SET_DDOWN,54,54,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "DPad Down",IDC_LABEL_DDOWN,12,54,38,8
+    EDITTEXT        IDC_SET_DLEFT,54,72,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "DPad Left",IDC_LABEL_DLEFT,12,72,32,8
+    EDITTEXT        IDC_SET_DRIGHT,54,90,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "DPad Right",IDC_LABEL_DRIGHT,12,90,36,8
+    EDITTEXT        IDC_SET_NUON,54,108,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "Nuon",IDC_LABEL_NUON,12,108,18,8
+    EDITTEXT        IDC_SET_START,54,126,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "Start",IDC_LABEL_START,12,126,17,8
+    EDITTEXT        IDC_SET_CUP,180,36,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "CPad Up",IDC_LABEL_CUP,138,36,28,8
+    EDITTEXT        IDC_SET_CDOWN,180,54,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "CPad Down",IDC_LABEL_CDOWN,138,54,38,8
+    EDITTEXT        IDC_SET_CLEFT,180,72,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "CPad Left",IDC_LABEL_CLEFT,138,72,32,8
+    EDITTEXT        IDC_SET_CRIGHT,180,90,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "CPad Right",IDC_LABEL_CRIGHT,138,90,36,8
+    EDITTEXT        IDC_SET_A,180,108,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "A",IDC_LABEL_A,138,108,8,8
+    EDITTEXT        IDC_SET_B,180,126,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "B",IDC_LABEL_B,138,126,8,8
+    EDITTEXT        IDC_SET_L,306,36,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "L",IDC_LABEL_L,264,36,8,8
+    EDITTEXT        IDC_SET_R,306,54,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY
+    LTEXT           "R",IDC_LABEL_R,264,54,8,8
+    EDITTEXT        IDD_SET_ANALOGX,306,72,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY | WS_DISABLED
+    LTEXT           "Analog X",IDC_LABEL_ANALOGX,264,72,36,8
+    EDITTEXT        IDD_SET_ANALOGY,306,90,72,14,ES_CENTER | ES_UPPERCASE | ES_READONLY | WS_DISABLED
+    LTEXT           "Analog Y",IDC_LABEL_ANALOGY,264,90,36,8
+    COMBOBOX        IDC_JOYSTICK_COMBO,96,18,180,126,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Joystick",IDC_STATIC,54,18,36,8
+    DEFPUSHBUTTON   "OK",IDB_OK,282,156,48,12
+    PUSHBUTTON      "Cancel",IDB_CANCEL,336,156,48,12
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -122,7 +166,7 @@ BEGIN
     BEGIN
         RIGHTMARGIN, 463
         TOPMARGIN, 2
-        BOTTOMMARGIN, 263
+        BOTTOMMARGIN, 283
     END
 
     IDD_STATUS_DIALOG, DIALOG
@@ -131,6 +175,14 @@ BEGIN
         RIGHTMARGIN, 388
         TOPMARGIN, 7
         BOTTOMMARGIN, 309
+    END
+
+    IDD_CFG_INPUT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 392
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 169
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -142,9 +194,12 @@ END
 //
 
 IDB_NUANCE_LOGO         BITMAP                  "NuanceLogo.bmp"
+
 IDB_LED_ON              BITMAP                  "led_on.bmp"
+
 IDB_LED_OFF             BITMAP                  "led_off.bmp"
-#endif    // English (U.S.) resources
+
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -158,3 +213,4 @@ IDB_LED_OFF             BITMAP                  "led_off.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
+

@@ -72,7 +72,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>external\glew-2.2.0\lib\Release\Win32\glew32.lib;user32.lib;winmm.lib;external\fmod-3.75\api\lib\fmodvc.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>external\glew-2.2.0\lib\Release\Win32\glew32.lib;user32.lib;winmm.lib;external\fmod-3.75\api\lib\fmodvc.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Nuance.exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)Nuance.pdb</ProgramDatabaseFile>
@@ -110,7 +110,7 @@
       <StringPooling>true</StringPooling>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>external\glew-2.2.0\lib\Release\Win32\glew32.lib;user32.lib;winmm.lib;external\fmod-3.75\api\lib\fmodvc.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>external\glew-2.2.0\lib\Release\Win32\glew32.lib;user32.lib;winmm.lib;external\fmod-3.75\api\lib\fmodvc.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Nuance.exe</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>false</GenerateMapFile>
@@ -216,6 +216,7 @@
     </ClCompile>
     <ClCompile Include="FlashEEPROM.cpp" />
     <ClCompile Include="GLWindow.cpp" />
+    <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="InstructionCache.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Full</Optimization>
       <EnableEnhancedInstructionSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">StreamingSIMDExtensions</EnableEnhancedInstructionSet>
@@ -362,6 +363,7 @@
     <ClInclude Include="FlashEEPROM.h" />
     <ClInclude Include="GLWindow.h" />
     <ClInclude Include="Handlers.h" />
+    <ClInclude Include="InputManager.h" />
     <ClInclude Include="InstructionCache.h" />
     <ClInclude Include="InstructionDependencies.h" />
     <ClInclude Include="joystick.h" />
