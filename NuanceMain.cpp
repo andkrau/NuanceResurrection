@@ -849,7 +849,7 @@ INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPAR
               HINSTANCE hInstance = (HINSTANCE)GetWindowLong(hwndDlg, GWL_HINSTANCE);
               if (DialogBox(hInstance, MAKEINTRESOURCE(IDD_CFG_INPUT), hwndDlg, CfgInputDialogProc))
               {
-                if (MessageBox(hwndDlg, _T("Save Joytick config to configuration file?"), _T("Save Config"), MB_YESNO | MB_ICONQUESTION) == IDYES)
+                if (MessageBox(hwndDlg, _T("Save Joystick config to configuration file?"), _T("Save Config"), MB_YESNO | MB_ICONQUESTION) == IDYES)
                 {
                   nuonEnv.SaveConfigFile(nullptr);
                 }
