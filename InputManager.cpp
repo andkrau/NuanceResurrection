@@ -207,13 +207,13 @@ bool InputManagerImpl::Init(HWND hDpyWnd)
 
   hr = pDi8->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumJoysticksCallback, this, DIEDFL_ATTACHEDONLY);
 
-  if (FAILED(hr) || (numJoysticks == 0))
+  /*if (FAILED(hr) || (numJoysticks == 0))
   {
     MessageBox(nullptr, "Failed to enumerate joysticks, or no joystick found", "Error", MB_ICONWARNING);
     return false;
-  }
+  }*/
 
-  if (!pJoystick1) pJoystick1 = pDi8Devs[0];
+  if (!pJoystick1 && !FAILED(hr) && (numJoysticks != 0)) pJoystick1 = pDi8Devs[0];
 
   return true;
 }
@@ -320,6 +320,9 @@ void InputManagerImpl::UpdateState(CONTROLLER_CALLBACK applyState, ANYPRESSED_CA
   DIJOYSTATE2 js;
   HRESULT hr;
   LPDIRECTINPUTDEVICE8 pJoy = pGrabbedJoy ? pGrabbedJoy : pJoystick1;
+
+  if (!pJoy)
+    return;
 
   do {
     hr = pJoy->Poll();

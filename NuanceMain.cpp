@@ -748,7 +748,7 @@ do { \
         HWND hEdit = (HWND)lParam;
         if (hFocusedWnd == hEdit)
         {
-          if (joyGrabbed >=  0) KillTimer(hwndDlg, IDT_JOY_TIMER);
+          if (joyGrabbed >= 0) KillTimer(hwndDlg, IDT_JOY_TIMER);
           hFocusedWnd = nullptr;
           InvalidateRect(hEdit, NULL, FALSE);
         }
