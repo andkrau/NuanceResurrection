@@ -26,10 +26,10 @@ public:
 
   static InputManager* Create();
   static bool StrToInputType(const char* str, InputType* type);
-  static const char* InputManager::InputTypeToStr(InputType type);
+  static const char* InputTypeToStr(InputType type);
 
 
-  typedef void (*CONTROLLER_CALLBACK)(unsigned int controllerIdx, unsigned __int16 buttons);
+  typedef void (*CONTROLLER_CALLBACK)(unsigned int controllerIdx, uint16 buttons);
   typedef void (*ANYPRESSED_CALLBACK)(void* ctx, InputType type, int idx, int subIdx);
 
   virtual ~InputManager() = 0;
@@ -46,4 +46,3 @@ public:
 };
 
 #endif
-

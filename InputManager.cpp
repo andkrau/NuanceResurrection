@@ -2,7 +2,7 @@
 #include "joystick.h"
 #include "nuonenvironment.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #pragma warning(push)
 #pragma warning(disable:6000 28251)
@@ -53,18 +53,18 @@ public:
     keyButtons(0),
     joyButtons(0)
   {
-  };
+  }
   ~InputManagerImpl();
 
-  bool Init(HWND hDisplayWnd);
-  void Activate();
-  bool SetJoystick(size_t i);
-  void UpdateState(CONTROLLER_CALLBACK applyState, ANYPRESSED_CALLBACK anyPressed, void* anyCtx);
-  virtual void keyDown(CONTROLLER_CALLBACK applyState, int16 vkey);
-  virtual void keyUp(CONTROLLER_CALLBACK applyState, int16 vkey);
-  bool GrabJoystick(HWND hWnd, size_t i);
-  void UngrabJoystick();
-  const Joystick* EnumJoysticks(size_t* pNumJoysticks);
+  bool Init(HWND hDpyWnd) override;
+  void Activate() override;
+  bool SetJoystick(size_t i) override;
+  void UpdateState(CONTROLLER_CALLBACK applyState, ANYPRESSED_CALLBACK anyPressed, void* anyCtx) override;
+  void keyDown(CONTROLLER_CALLBACK applyState, int16 vkey) override;
+  void keyUp(CONTROLLER_CALLBACK applyState, int16 vkey) override;
+  bool GrabJoystick(HWND hWnd, size_t i) override;
+  void UngrabJoystick() override;
+  const Joystick* EnumJoysticks(size_t* pNumJoysticks) override;
 };
 
 struct ManagerAndDev
@@ -76,8 +76,7 @@ struct ManagerAndDev
 BOOL CALLBACK InputManagerImpl::EnumJoystickObjectsCallback(const DIDEVICEOBJECTINSTANCE* pDi8DevObj, VOID* pContext)
 {
   ManagerAndDev* md = (ManagerAndDev*)pContext;
-  TCHAR objMsg[1024];
-  (void)objMsg;
+  //TCHAR objMsg[1024];
 
   if (pDi8DevObj->dwType & DIDFT_PSHBUTTON)
   {
@@ -92,7 +91,7 @@ BOOL CALLBACK InputManagerImpl::EnumJoystickObjectsCallback(const DIDEVICEOBJECT
     MessageBox(nullptr, objMsg, "Button found", MB_ICONINFORMATION);*/
 
     // XXX Hack: Force axis to trinary values (-1, 0, 1)
-    DIPROPRANGE propRange = { 0 };
+    DIPROPRANGE propRange = {};
     propRange.diph.dwSize = sizeof(propRange);
     propRange.diph.dwHeaderSize = sizeof(propRange.diph);
     propRange.diph.dwHow = DIPH_BYID;
@@ -100,7 +99,7 @@ BOOL CALLBACK InputManagerImpl::EnumJoystickObjectsCallback(const DIDEVICEOBJECT
     propRange.lMin = -1;
     propRange.lMax = 1;
 
-    HRESULT hr = md->pDi8Dev->SetProperty(DIPROP_RANGE, &propRange.diph);
+    const HRESULT hr = md->pDi8Dev->SetProperty(DIPROP_RANGE, &propRange.diph);
 
     if (FAILED(hr))
     {
@@ -115,7 +114,7 @@ BOOL CALLBACK InputManagerImpl::EnumJoystickObjectsCallback(const DIDEVICEOBJECT
 BOOL CALLBACK InputManagerImpl::EnumJoysticksCallback(const DIDEVICEINSTANCE* pDi8Dev, VOID* pContext)
 {
   InputManagerImpl* im = (InputManagerImpl*)pContext;
-  size_t i = im->numJoysticks;
+  const size_t i = im->numJoysticks;
 
   if (im->joyArrayLen < (i + 1))
   {
@@ -355,7 +354,7 @@ void InputManagerImpl::UpdateState(CONTROLLER_CALLBACK applyState, ANYPRESSED_CA
 #define CURSTATE() (povState[idx][subIdx])
 #define PREVSTATE() (povLastState[idx][subIdx])
     type = JOYPOV;
-    for (idx = 0; idx < _countof(js.rgdwPOV); idx++)
+    for (idx = 0; idx < (int)_countof(js.rgdwPOV); idx++)
     {
       DWORD angle = js.rgdwPOV[idx];
 
@@ -488,7 +487,7 @@ void InputManagerImpl::UpdateState(CONTROLLER_CALLBACK applyState, ANYPRESSED_CA
 
 void InputManagerImpl::keyDown(CONTROLLER_CALLBACK applyState, int16 vkey)
 {
-  int bitNum = nuonEnv.GetCTRLRBitnumFromMapping(ControllerButtonMapping(KEY, vkey, 0));
+  const int bitNum = nuonEnv.GetCTRLRBitnumFromMapping(ControllerButtonMapping(KEY, vkey, 0));
 
   if (bitNum >= 0)
   {
@@ -500,7 +499,7 @@ void InputManagerImpl::keyDown(CONTROLLER_CALLBACK applyState, int16 vkey)
 
 void InputManagerImpl::keyUp(CONTROLLER_CALLBACK applyState, int16 vkey)
 {
-  int bitNum = nuonEnv.GetCTRLRBitnumFromMapping(ControllerButtonMapping(KEY, vkey, 0));
+  const int bitNum = nuonEnv.GetCTRLRBitnumFromMapping(ControllerButtonMapping(KEY, vkey, 0));
 
   if (bitNum >= 0)
   {
@@ -562,4 +561,3 @@ do { \
 
 #undef TYPE_CASE
 }
-
