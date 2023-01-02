@@ -317,13 +317,13 @@ const Joystick* InputManagerImpl::EnumJoysticks(size_t* pNumJoysticks)
 
 void InputManagerImpl::UpdateState(CONTROLLER_CALLBACK applyState, ANYPRESSED_CALLBACK anyPressed, void* anyCtx)
 {
-  DIJOYSTATE2 js;
-  HRESULT hr;
   LPDIRECTINPUTDEVICE8 pJoy = pGrabbedJoy ? pGrabbedJoy : pJoystick1;
 
   if (!pJoy)
     return;
 
+  DIJOYSTATE2 js;
+  HRESULT hr;
   do {
     hr = pJoy->Poll();
     if (!FAILED(hr)) hr = pJoy->GetDeviceState(sizeof(DIJOYSTATE2), &js);

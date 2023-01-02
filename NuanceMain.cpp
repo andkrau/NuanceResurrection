@@ -539,7 +539,7 @@ struct JoyPressedCtx
 
 static void AnyJoyPressed(void* ctx, InputManager::InputType type, int idx, int subIdx)
 {
-  JoyPressedCtx *joyCtx = (JoyPressedCtx *)ctx;
+  JoyPressedCtx * const joyCtx = (JoyPressedCtx *)ctx;
 
   if (!joyCtx->pressed)
   {
@@ -596,6 +596,11 @@ INT_PTR CALLBACK CfgInputDialogProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARA
         if (controller1JoystickIdx < 0) controller1JoystickIdx = 0;
         SendMessage(hwndCtrl, CB_SETCURSEL, controller1JoystickIdx, 0);
         if (im->GrabJoystick(hwndDlg, controller1JoystickIdx)) joyGrabbed = controller1JoystickIdx;
+      }
+      else
+      {
+        SendMessage(hwndCtrl, CB_ADDSTRING, 0, (LPARAM)"No Joystick/Joypad controller found");
+        SendMessage(hwndCtrl, CB_SETCURSEL, 0, 0);
       }
 
       char mappingStr[ControllerButtonMapping::MAPPING_STRING_SIZE];

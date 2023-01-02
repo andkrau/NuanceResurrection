@@ -49,44 +49,48 @@ class NuonEnvironment
 {
 public:
   NuonEnvironment() : bFMODInitialized(false), audioChannel(0), dvdBase(nullptr), cfgFileName(nullptr),
-    controller1Mapping{
-    // Original key mappings included with Nuance
-    ControllerButtonMapping(InputManager::KEY, 'R', 0), // CTRLR_BITNUM_BUTTON_C_RIGHT
-    ControllerButtonMapping(InputManager::KEY, '3', 0), // CTRLR_BITNUM_BUTTON_C_UP
-    ControllerButtonMapping(InputManager::KEY, 'W', 0), // CTRLR_BITNUM_BUTTON_C_LEFT
-    ControllerButtonMapping(InputManager::KEY, 'F', 0), // CTRLR_BITNUM_BUTTON_B
-    ControllerButtonMapping(InputManager::KEY, 'T', 0), // CTRLR_BITNUM_BUTTON_R
-    ControllerButtonMapping(InputManager::KEY, 'Q', 0), // CTRLR_BITNUM_BUTTON_L
-    ControllerButtonMapping(InputManager::JOYBUT, INT_MAX, INT_MAX), // CTRLR_BITNUM_UNUSED_1
-    ControllerButtonMapping(InputManager::JOYBUT, INT_MAX, INT_MAX), // CTRLR_BITNUM_UNUSED_2
-    ControllerButtonMapping(InputManager::KEY, VK_RIGHT, 0), // CTRLR_BITNUM_DPAD_RIGHT 8
-    ControllerButtonMapping(InputManager::KEY, VK_UP, 0), // CTRLR_BITNUM_DPAD_UP
-    ControllerButtonMapping(InputManager::KEY, VK_LEFT, 0), // CTRLR_BITNUM_DPAD_LEFT
-    ControllerButtonMapping(InputManager::KEY, VK_DOWN, 0), // CTRLR_BITNUM_DPAD_DOWN
-    ControllerButtonMapping(InputManager::KEY, 'S', 0), // CTRLR_BITNUM_BUTTON_NUON
-    ControllerButtonMapping(InputManager::KEY, 'A', 0), // CTRLR_BITNUM_BUTTON_START
-    ControllerButtonMapping(InputManager::KEY, 'D', 0), // CTRLR_BITNUM_BUTTON_A
-    ControllerButtonMapping(InputManager::KEY, 'E', 0), // CTRLR_BITNUM_BUTTON_C_DOWN
+    controllerDefaultMapping{ // Note that the default mapping should always map to keyboard as it will also be used if no other joypad/stick is connected!
+        // Original key mappings included with Nuance
+        ControllerButtonMapping(InputManager::KEY, 'R', 0), // CTRLR_BITNUM_BUTTON_C_RIGHT
+        ControllerButtonMapping(InputManager::KEY, '3', 0), // CTRLR_BITNUM_BUTTON_C_UP
+        ControllerButtonMapping(InputManager::KEY, 'W', 0), // CTRLR_BITNUM_BUTTON_C_LEFT
+        ControllerButtonMapping(InputManager::KEY, 'F', 0), // CTRLR_BITNUM_BUTTON_B
+        ControllerButtonMapping(InputManager::KEY, 'T', 0), // CTRLR_BITNUM_BUTTON_R
+        ControllerButtonMapping(InputManager::KEY, 'Q', 0), // CTRLR_BITNUM_BUTTON_L
+        ControllerButtonMapping(InputManager::JOYBUT, INT_MAX, INT_MAX), // CTRLR_BITNUM_UNUSED_1
+        ControllerButtonMapping(InputManager::JOYBUT, INT_MAX, INT_MAX), // CTRLR_BITNUM_UNUSED_2
+        ControllerButtonMapping(InputManager::KEY, VK_RIGHT, 0), // CTRLR_BITNUM_DPAD_RIGHT 8
+        ControllerButtonMapping(InputManager::KEY, VK_UP, 0), // CTRLR_BITNUM_DPAD_UP
+        ControllerButtonMapping(InputManager::KEY, VK_LEFT, 0), // CTRLR_BITNUM_DPAD_LEFT
+        ControllerButtonMapping(InputManager::KEY, VK_DOWN, 0), // CTRLR_BITNUM_DPAD_DOWN
+        ControllerButtonMapping(InputManager::KEY, 'S', 0), // CTRLR_BITNUM_BUTTON_NUON
+        ControllerButtonMapping(InputManager::KEY, 'A', 0), // CTRLR_BITNUM_BUTTON_START
+        ControllerButtonMapping(InputManager::KEY, 'D', 0), // CTRLR_BITNUM_BUTTON_A
+        ControllerButtonMapping(InputManager::KEY, 'E', 0), // CTRLR_BITNUM_BUTTON_C_DOWN
 
-    // Mapping to a Jag-Dapter with non-pro-controller.
-    // Uses Keypad 2/6/8/4 for C-Pad U/R/D/L and l/3 for L/R.
-    /*ControllerButtonMapping(InputManager::JOYBUT, 13, 0), // CTRLR_BITNUM_BUTTON_C_RIGHT
-    ControllerButtonMapping(InputManager::JOYBUT,  9, 0), // CTRLR_BITNUM_BUTTON_C_UP
-    ControllerButtonMapping(InputManager::JOYBUT, 11, 0), // CTRLR_BITNUM_BUTTON_C_LEFT
-    ControllerButtonMapping(InputManager::JOYBUT,  1, 0), // CTRLR_BITNUM_BUTTON_B
-    ControllerButtonMapping(InputManager::JOYBUT, 10, 0), // CTRLR_BITNUM_BUTTON_R
-    ControllerButtonMapping(InputManager::JOYBUT,  8, 0), // CTRLR_BITNUM_BUTTON_L
-    ControllerButtonMapping(InputManager::JOYBUT, INT_MAX, INT_MAX), // CTRLR_BITNUM_UNUSED_1
-    ControllerButtonMapping(InputManager::JOYBUT, INT_MAX, INT_MAX), // CTRLR_BITNUM_UNUSED_2
-    ControllerButtonMapping(InputManager::JOYAXIS, 0, 1), // CTRLR_BITNUM_DPAD_RIGHT
-    ControllerButtonMapping(InputManager::JOYAXIS, 1, 0), // CTRLR_BITNUM_DPAD_UP
-    ControllerButtonMapping(InputManager::JOYAXIS, 0, 0), // CTRLR_BITNUM_DPAD_LEFT
-    ControllerButtonMapping(InputManager::JOYAXIS, 1, 1), // CTRLR_BITNUM_DPAD_DOWN
-    ControllerButtonMapping(InputManager::JOYBUT,  4, 0), // CTRLR_BITNUM_BUTTON_NUON
-    ControllerButtonMapping(InputManager::JOYBUT,  3, 0), // CTRLR_BITNUM_BUTTON_START
-    ControllerButtonMapping(InputManager::JOYBUT,  2, 0), // CTRLR_BITNUM_BUTTON_A
-    ControllerButtonMapping(InputManager::JOYBUT, 15, 0), // CTRLR_BITNUM_BUTTON_C_DOWN*/
-  } {}
+        // Mapping to a Jag-Dapter with non-pro-controller.
+        // Uses Keypad 2/6/8/4 for C-Pad U/R/D/L and l/3 for L/R.
+        /*ControllerButtonMapping(InputManager::JOYBUT, 13, 0), // CTRLR_BITNUM_BUTTON_C_RIGHT
+        ControllerButtonMapping(InputManager::JOYBUT,  9, 0), // CTRLR_BITNUM_BUTTON_C_UP
+        ControllerButtonMapping(InputManager::JOYBUT, 11, 0), // CTRLR_BITNUM_BUTTON_C_LEFT
+        ControllerButtonMapping(InputManager::JOYBUT,  1, 0), // CTRLR_BITNUM_BUTTON_B
+        ControllerButtonMapping(InputManager::JOYBUT, 10, 0), // CTRLR_BITNUM_BUTTON_R
+        ControllerButtonMapping(InputManager::JOYBUT,  8, 0), // CTRLR_BITNUM_BUTTON_L
+        ControllerButtonMapping(InputManager::JOYBUT, INT_MAX, INT_MAX), // CTRLR_BITNUM_UNUSED_1
+        ControllerButtonMapping(InputManager::JOYBUT, INT_MAX, INT_MAX), // CTRLR_BITNUM_UNUSED_2
+        ControllerButtonMapping(InputManager::JOYAXIS, 0, 1), // CTRLR_BITNUM_DPAD_RIGHT
+        ControllerButtonMapping(InputManager::JOYAXIS, 1, 0), // CTRLR_BITNUM_DPAD_UP
+        ControllerButtonMapping(InputManager::JOYAXIS, 0, 0), // CTRLR_BITNUM_DPAD_LEFT
+        ControllerButtonMapping(InputManager::JOYAXIS, 1, 1), // CTRLR_BITNUM_DPAD_DOWN
+        ControllerButtonMapping(InputManager::JOYBUT,  4, 0), // CTRLR_BITNUM_BUTTON_NUON
+        ControllerButtonMapping(InputManager::JOYBUT,  3, 0), // CTRLR_BITNUM_BUTTON_START
+        ControllerButtonMapping(InputManager::JOYBUT,  2, 0), // CTRLR_BITNUM_BUTTON_A
+        ControllerButtonMapping(InputManager::JOYBUT, 15, 0), // CTRLR_BITNUM_BUTTON_C_DOWN*/
+    }
+  {
+    for (size_t i = 0; i < _countof(controller1Mapping); i++)
+      controller1Mapping[i] = controllerDefaultMapping[i];
+  }
 
   void Init();
   ~NuonEnvironment();
@@ -216,7 +220,8 @@ private:
   char *dvdBase;
   bool bAudioInterruptsEnabled;
 
-  ControllerButtonMapping controller1Mapping[16]; // Indixed by CTRLR_BITNUM_* macros from joystick.h
+  ControllerButtonMapping controllerDefaultMapping[16]; // Indixed by CTRLR_BITNUM_* macros from joystick.h
+  ControllerButtonMapping controller1Mapping[16];       // dto.
   GUID controller1Di8Dev;
 
   // FMOD specific stuff

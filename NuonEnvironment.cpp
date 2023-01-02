@@ -4,6 +4,7 @@
 #endif
 #include <combaseapi.h>
 
+#include "GLWindow.h"
 #include "audio.h"
 #include "Bios.h"
 #include "file.h"
@@ -13,6 +14,8 @@
 #include "joystick.h"
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
+
+extern GLWindow display;
 
 extern VidDisplay structMainDisplay;
 
@@ -628,7 +631,7 @@ bool NuonEnvironment::SaveConfigFile(const char* const fileName)
   fprintf_s(configFile, "%s\n\n", compilerOptions.bT3KCompilerHack ? "Enabled" : "Disabled");
 
   fprintf_s(configFile, "[Controller1Mappings]\n");
-  for (int i = 0; i < _countof(controller1Mapping); i++)
+  for (size_t i = 0; i < _countof(controller1Mapping); i++)
   {
     const char* ctrlrStr;
 
@@ -835,9 +838,14 @@ const GUID& NuonEnvironment::GetController1Joystick() const
 
 int NuonEnvironment::GetCTRLRBitnumFromMapping(const ControllerButtonMapping& mapping) const
 {
-  for (int i = 0; i < _countof(controller1Mapping); i++)
+  InputManager* im = display.GetInputManager();
+  size_t numJoysticks;
+  im->EnumJoysticks(&numJoysticks);
+
+  for (int i = 0; i < (int)_countof(controller1Mapping); i++)
   {
-    if (controller1Mapping[i] == mapping) return i;
+    const ControllerButtonMapping* cbm = (numJoysticks == 0 && controller1Mapping[i].type != InputManager::KEY) ? controllerDefaultMapping : controller1Mapping; // if no joypad/joystick connected, but button is configured, fall back to default key mapping
+    if (cbm[i] == mapping) return i;
   }
 
   return -1;
