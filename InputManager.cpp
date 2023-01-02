@@ -6,6 +6,7 @@
 
 #pragma warning(push)
 #pragma warning(disable:6000 28251)
+#define DIRECTINPUT_VERSION  0x0800
 #include <dinput.h>
 #pragma warning(pop)
 
