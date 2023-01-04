@@ -55,7 +55,9 @@ constexpr GLint osdPixelType32 = GL_UNSIGNED_BYTE;
 constexpr GLint osdPixelType16 = GL_UNSIGNED_BYTE;
 constexpr GLint osdTextureUnit = GL_TEXTURE1;
 
-constexpr GLint lutTextureUnit = GL_TEXTURE2;
+constexpr GLint windowTextureUnit = GL_TEXTURE2;
+
+constexpr GLint lutTextureUnit = GL_TEXTURE3;
 
 static bool bTexturesInitialized = false;
 static bool bShadersInstalled = false;
@@ -144,6 +146,10 @@ void UpdateTextureStates()
   glUniform1f(uniformLoc, (pixType == 2) ? 1.0f : 0.0f);
   uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "resy");
   glUniform1f(uniformLoc, VIDEO_HEIGHT);
+  uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "windowRes");
+  glUniform2f(uniformLoc, (float)display.clientWidth, (float)display.clientHeight);
+  uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "scaleInternal");
+  glUniform4f(uniformLoc, (float)((double)structMainChannel.src_width * (1.0 / ALLOCATED_TEXTURE_WIDTH)), (float)((double)structMainChannel.src_height * (1.0 / ALLOCATED_TEXTURE_HEIGHT)), (float)((double)structOverlayChannel.src_width * (1.0 / ALLOCATED_TEXTURE_WIDTH)), (float)((double)structOverlayChannel.src_height * (1.0 / ALLOCATED_TEXTURE_HEIGHT)));
 
   glActiveTexture(mainTextureUnit);
 
@@ -259,21 +265,34 @@ void UpdateDisplayList()
     videoTexInfo.displayListName[3] = glGenLists(1);
   }
 
+  videoTexInfo.windowTexCoords[0] = 0.f;
+  videoTexInfo.windowTexCoords[1] = 0.f;
+  videoTexInfo.windowTexCoords[2] = 0.f;
+  videoTexInfo.windowTexCoords[3] = (float)display.clientHeight;
+  videoTexInfo.windowTexCoords[4] = (float)display.clientWidth;
+  videoTexInfo.windowTexCoords[5] = (float)display.clientHeight;
+  videoTexInfo.windowTexCoords[6] = (float)display.clientWidth;
+  videoTexInfo.windowTexCoords[7] = 0.f;
+
   if(channelState == (CHANNELSTATE_MAIN_ACTIVE|CHANNELSTATE_OVERLAY_ACTIVE))
   {
     glNewList(videoTexInfo.displayListName[CHANNELSTATE_MAIN_ACTIVE|CHANNELSTATE_OVERLAY_ACTIVE],GL_COMPILE);
     glBegin(GL_QUADS);
     glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[0]);
     glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[0]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[0]);
     glVertex2f(0.0,0.0);
     glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[2]);
     glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[2]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[2]);
     glVertex2f(0.0,1.0);
     glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[4]);
     glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[4]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[4]);
     glVertex2f(1.0,1.0);
     glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[6]);
     glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[6]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[6]);
     glVertex2f(1.0,0.0);
     glEnd();
     glEndList();
@@ -283,12 +302,16 @@ void UpdateDisplayList()
     glNewList(videoTexInfo.displayListName[CHANNELSTATE_OVERLAY_ACTIVE],GL_COMPILE);
     glBegin(GL_QUADS);
     glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[0]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[0]);
     glVertex2f(0.0,0.0);
     glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[2]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[2]);
     glVertex2f(0.0,1.0);
     glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[4]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[4]);
     glVertex2f(1.0,1.0);
     glMultiTexCoord2fv(osdTextureUnit, &videoTexInfo.osdTexCoords[6]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[6]);
     glVertex2f(1.0,0.0);
     glEnd();
     glEndList();
@@ -298,12 +321,16 @@ void UpdateDisplayList()
     glNewList(videoTexInfo.displayListName[CHANNELSTATE_MAIN_ACTIVE],GL_COMPILE);
     glBegin(GL_QUADS);
     glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[0]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[0]);
     glVertex2f(0.0,0.0);
     glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[2]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[2]);
     glVertex2f(0.0,1.0);
     glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[4]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[4]);
     glVertex2f(1.0,1.0);
     glMultiTexCoord2fv(mainTextureUnit, &videoTexInfo.mainTexCoords[6]);
+    glMultiTexCoord2fv(windowTextureUnit, &videoTexInfo.windowTexCoords[6]);
     glVertex2f(1.0,0.0);
     glEnd();
     glEndList();
@@ -353,6 +380,7 @@ void InitTextures()
   if(bUseSeparateThread) gfx_lock.unlock();
 
   UpdateTextureStates();
+  videoTexInfo.bUpdateTextureStates = false;
 
   UpdateDisplayList();
   videoTexInfo.bUpdateDisplayList = false;
@@ -394,6 +422,12 @@ void RenderVideo(const int winwidth, const int winheight)
 
     if(bUseSeparateThread) gfx_lock.unlock();
     bSetupViewport = true;
+  }
+
+  if (videoTexInfo.bUpdateTextureStates)
+  {
+    UpdateTextureStates();
+    videoTexInfo.bUpdateTextureStates = false;
   }
 
   const void* pMainChannelBuffer;
@@ -1110,7 +1144,7 @@ void VidConfig(MPE &mpe)
   if(bUpdateOpenGLData || (channelState != channelStatePrev))
   {
     videoTexInfo.bUpdateDisplayList = true;
-    UpdateTextureStates();
+    videoTexInfo.bUpdateTextureStates = true;
   }
 
   bCanDisplayVideo = true;
@@ -1232,7 +1266,7 @@ void VidSetup(MPE &mpe)
   if(bUpdateOpenGLData || (channelState != channelStatePrev))
   {
     videoTexInfo.bUpdateDisplayList = true;
-    UpdateTextureStates();
+    videoTexInfo.bUpdateTextureStates = true;
   }
 
   //if(nuonEnv.systemBusDRAM)
@@ -1315,7 +1349,7 @@ void VidChangeBase(MPE &mpe)
 
           //It is safe to specify a pixel type of 12 or 15 but this will display Z-data and look really funky.
         }
-        UpdateTextureStates();
+        videoTexInfo.bUpdateTextureStates = true;
         //UpdateBufferLengths();
         break;
       case VID_CHANNEL_OSD:
@@ -1349,7 +1383,7 @@ void VidChangeBase(MPE &mpe)
 
           //It is safe to specify a pixel type of 12 or 15 but this will display Z-data and look really funky.
         }
-        UpdateTextureStates();
+        videoTexInfo.bUpdateTextureStates = true;
         //UpdateBufferLengths();
         break;
       default:
@@ -1390,20 +1424,20 @@ void VidChangeScroll(MPE &mpe)
         structMainChannel.src_xoff = xoff;
         structMainChannel.src_yoff = yoff;
         videoTexInfo.bUpdateDisplayList = true;
+        videoTexInfo.bUpdateTextureStates = true;
         break;
       case VID_CHANNEL_OSD:
         //valid channel, set offsets and return 1
         structOverlayChannel.src_xoff = xoff;
         structOverlayChannel.src_yoff = yoff;
         videoTexInfo.bUpdateDisplayList = true;
+        videoTexInfo.bUpdateTextureStates = true;
         break;
       default:
         //Invalid channel, return 0
         mpe.regs[0] = 0;
         break;
     }
-
-    UpdateTextureStates();
   }
 
   //if(nuonEnv.systemBusDRAM)
@@ -1418,7 +1452,7 @@ void VidSetBorderColor(MPE &mpe)
 {
   structMainDisplay.bordcolor = mpe.regs[0];
   videoTexInfo.bUpdateDisplayList = true;
-  UpdateTextureStates();
+  videoTexInfo.bUpdateTextureStates = true;
 }
 
 void VidSetCLUTRange(MPE &mpe)

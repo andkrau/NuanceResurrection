@@ -11,6 +11,8 @@
 OpenGL Window Code
 ****************************************************************************/
 
+extern vidTexInfo videoTexInfo;
+
 extern std::mutex gfx_lock;
 
 GLWindow::GLWindow()
@@ -481,6 +483,9 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       break;
 
     case WM_SIZE:
+      videoTexInfo.bUpdateDisplayList = true;   // as we need to update the display list (videoTexInfo.windowTexCoords) due to changed resolution
+      videoTexInfo.bUpdateTextureStates = true; // as we need to update the uniform that holds the resolution
+
       switch(wParam)
       {
         case SIZE_MINIMIZED:

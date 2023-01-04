@@ -19,9 +19,11 @@ struct vidTexInfo
   GLuint transparencyTexName;
   GLfloat borderColor[4];
   GLfloat transColor[4];
-  GLfloat mainTexCoords[8];
-  GLfloat osdTexCoords[8];
+  GLfloat mainTexCoords[8];  // main video buffer
+  GLfloat osdTexCoords[8];   // overlay video buffer
+  GLfloat windowTexCoords[8];// simply 0..1 to get window coords in shader
   bool bUpdateDisplayList;
+  bool bUpdateTextureStates;
 };
 
 struct VidDisplay
