@@ -445,6 +445,7 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 History
 =======
 version 0.6.3:
+Add new (optional) postprocessing CRT-like shader ([UseCRTshader] in the .cfg), enabled by default, looks best in fullscreen
 Its now possible to specify a file that should be loaded directly from the command line,
  e.g. nuance.exe C:\NuonGame\nuon.run
  this will also automatically launch in fullscreen mode, too
