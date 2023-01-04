@@ -116,7 +116,7 @@ void UpdateTextureStates()
   {
     shaderProgram.Initialize();
     shaderProgram.InstallShaderSourceFromFile("video_generic.vs",GL_VERTEX_SHADER);
-    shaderProgram.InstallShaderSourceFromFile("video_m32_o32.fs",GL_FRAGMENT_SHADER);
+    shaderProgram.InstallShaderSourceFromFile(nuonEnv.bUseCRTshader ? "video_m32_o32_crt.fs" : "video_m32_o32.fs",GL_FRAGMENT_SHADER);
     shaderProgram.AttachShader(GL_VERTEX_SHADER);
     shaderProgram.AttachShader(GL_FRAGMENT_SHADER);
     bool status = shaderProgram.CompileAndLinkShaders();

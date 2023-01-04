@@ -331,6 +331,8 @@ void NuonEnvironment::Init()
 
   bAutomaticLoadPopup = true;
 
+  bUseCRTshader = true;
+
   trigger_render_video = false;
 
   timer_rate[0] = -1;
@@ -635,6 +637,9 @@ bool NuonEnvironment::SaveConfigFile(const char* const fileName)
   fprintf_s(configFile, "[AutomaticLoadPopup]\n");
   fprintf_s(configFile, "%s\n\n", bAutomaticLoadPopup ? "Enabled" : "Disabled");
 
+  fprintf_s(configFile, "[UseCRTshader]\n");
+  fprintf_s(configFile, "%s\n\n", bUseCRTshader ? "Enabled" : "Disabled");
+
   fprintf_s(configFile, "[Controller1Mappings]\n");
   for (size_t i = 0; i < _countof(controller1Mapping); i++)
   {
@@ -785,6 +790,11 @@ bool NuonEnvironment::LoadConfigFile(const char * const fileName)
         {
           tokenType = ReadConfigLine(configFile,line);
           bAutomaticLoadPopup = !_stricmp(line,"Enabled");
+        }
+        else if(_strnicmp(&line[1],"UseCRTshader]",sizeof("UseCRTshader]")) == 0)
+        {
+          tokenType = ReadConfigLine(configFile,line);
+          bUseCRTshader = !_stricmp(line,"Enabled");
         }
         else if(_strnicmp(&line[1],"Controller1Mappings]",sizeof("Controller1Mappings]")) == 0)
         {

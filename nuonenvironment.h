@@ -212,6 +212,8 @@ public:
 
   bool bAutomaticLoadPopup;
 
+  bool bUseCRTshader;
+
 private:
   bool StrToCtrlrBitnum(const char* str, unsigned int *bitnum);
   bool ParseJoyButtonConf(char buf[1025], unsigned int* bitnum, ControllerButtonMapping* mapping);
