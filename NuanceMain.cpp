@@ -414,15 +414,23 @@ void Run()
             bRun = true;
 }
 
-bool Load()
+bool Load(char* file = nullptr)
 {
-  if(GetOpenFileName(&ofn))
+  if(file || GetOpenFileName(&ofn))
   {
+    if(file)
+      ofn.lpstrFile = file;
+
     bool bSuccess = nuonEnv.mpe[3].LoadNuonRomFile(ofn.lpstrFile);
     if(!bSuccess)
     {
       bSuccess = nuonEnv.mpe[3].LoadCoffFile(ofn.lpstrFile);
-      if(!bSuccess)
+      if(file && !bSuccess)
+      {
+        MessageBox(NULL,"Cannot open file or Invalid COFF or NUONROM-DISK file",ERROR,MB_ICONWARNING);
+        exit(0);
+      }
+      else if(!bSuccess)
         MessageBox(NULL,"Invalid COFF or NUONROM-DISK file",ERROR,MB_ICONWARNING);
     }
     
@@ -1064,8 +1072,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   UpdateControlPanelDisplay();
 
-  if(Load())
+  //
+
+  if (lpCmdLine && lpCmdLine[0] != '\0') // load via commandline
+  {
+    Load(lpCmdLine);
     load4firsttime = false;
+    display.ToggleFullscreen();
+  }
+  else if(nuonEnv.bAutomaticLoadPopup && Load()) // load via file open popup on start
+    load4firsttime = false;
+
+  //
 
   nuonEnv.videoDisplayCycleCount = 0;
   nuonEnv.MPE3wait_fieldCounter = 0;

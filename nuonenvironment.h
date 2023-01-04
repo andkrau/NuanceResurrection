@@ -210,6 +210,8 @@ public:
   uint32 MPE3wait_fieldCounter; // tells how many vsyncs the MPE3 emulation is stalled due to a VidSync call
   int32 timer_rate[3]; // sysTimer0, sysTimer1 and vidTimer
 
+  bool bAutomaticLoadPopup;
+
 private:
   bool StrToCtrlrBitnum(const char* str, unsigned int *bitnum);
   bool ParseJoyButtonConf(char buf[1025], unsigned int* bitnum, ControllerButtonMapping* mapping);

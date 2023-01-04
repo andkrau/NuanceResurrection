@@ -445,12 +445,18 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 History
 =======
 version 0.6.3:
+Its now possible to specify a file that should be loaded directly from the command line,
+ e.g. nuance.exe C:\NuonGame\nuon.run
+ this will also automatically launch in fullscreen mode, too
+Add new [Controller1Mappings] section in the .cfg along with DirectInput support for joypads/sticks
+ and an additional UI dialog to configure keys/buttons
 Fix a lot of problems with the MPE IRAM overlay areas and the code caching of these
 Make MPE IRAM overlay caching more efficient
 Merlin Racing now is playable (although the AI carts are still driving around randomly)
 Update status window on single stepping, too
 Add missing registers to status window
 Add debug output for BIOS calls
+Add new [AutomaticLoadPopup] section to configure if the automatic file section pops up on startup or not
 
 11/27/2022 version 0.6.2:
 Tweak audio interrupts some more
