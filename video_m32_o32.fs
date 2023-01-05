@@ -140,7 +140,7 @@ vec4 texture2D_overlay(vec2 uv_org)
          + bilerp[3]*(bilerpw.x*bilerpw.y);
 }
 
-vec4 texture2D_composite(vec2 mainuv, vec2 overlayuv)
+vec3 texture2D_composite(vec2 mainuv, vec2 overlayuv)
 {
   vec3 mainColor;
   if(mainIs16bit >= 0.) // main buffer enabled?
@@ -149,12 +149,12 @@ vec4 texture2D_composite(vec2 mainuv, vec2 overlayuv)
     mainColor = vec3(0.,0.,0.); //!! ?? or disable mixing with it completely then?
 
   if(structOverlayChannelAlpha == 1.0) // overlay buffer not enabled? or fully transparent?
-    return vec4(mainColor, 1.0);
+    return mainColor;
 
   vec4 overlayColor = texture2D_overlay(overlayuv);
 
   //On the Nuon, alpha represents transparency with 0x00 being fully opaque.
-  return vec4(mix(mainColor, overlayColor.rgb, 1.0 - overlayColor.a), 1.0);
+  return mix(mainColor, overlayColor.rgb, 1.0 - overlayColor.a);
 }
 
 void main()
@@ -162,5 +162,5 @@ void main()
   vec2 mainuv    = gl_TexCoord[0].st*vec2(720.,resy)-0.499; //!! 0.499 because of precision problems if src width/height is rather small (Space Invaders XL)
   vec2 overlayuv = gl_TexCoord[1].st*vec2(720.,resy)-0.499; //!! dto.
 
-  gl_FragColor = texture2D_composite(mainuv, overlayuv);
+  gl_FragColor = vec4(texture2D_composite(mainuv, overlayuv), 1.0);
 }
