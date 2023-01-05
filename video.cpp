@@ -140,10 +140,10 @@ void UpdateTextureStates()
 
   uint32 pixType = (structOverlayChannel.dmaflags >> 4) & 0x0F;
   uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "structOverlayChannelAlpha");
-  glUniform1f(uniformLoc, (pixType == 2) ? (float)((double)structOverlayChannel.alpha*(1.0/255.0)) : -1.0f);
+  glUniform1f(uniformLoc, bOverlayChannelActive ? ((pixType == 2) ? (float)((double)structOverlayChannel.alpha*(1.0/255.0)) : -1.0f) : 1.0f);
   pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
   uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "mainIs16bit");
-  glUniform1f(uniformLoc, (pixType == 2) ? 1.0f : 0.0f);
+  glUniform1f(uniformLoc, bMainChannelActive ? ((pixType == 2) ? 1.0f : 0.0f) : -1.0f);
   uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "resy");
   glUniform1f(uniformLoc, VIDEO_HEIGHT);
   uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "windowRes");
@@ -968,8 +968,10 @@ void VidConfig(MPE &mpe)
     bUpdateOpenGLData |= (structMainDisplay.bordcolor != structMainDisplayPrev.bordcolor);
   }
 
-  bMainChannelActive = false;
-  bOverlayChannelActive = false;
+  bUpdateOpenGLData |= (bMainChannelActive != (!!main)) || (bOverlayChannelActive != (!!osd));
+
+  bMainChannelActive = !!main;
+  bOverlayChannelActive = !!osd;
 
   uint32 map;
   if(main)
@@ -1033,7 +1035,6 @@ void VidConfig(MPE &mpe)
 
     mainChannelScaleX = (float)((double)structMainChannel.dest_width/(double)structMainChannel.src_width);
     mainChannelScaleY = (float)((double)structMainChannel.dest_height/(double)structMainChannel.src_height);
-    bMainChannelActive = true;
     channelState |= CHANNELSTATE_MAIN_ACTIVE;
 
     bUpdateOpenGLData |= (structMainChannel.dmaflags != structMainChannelPrev.dmaflags);
@@ -1113,7 +1114,6 @@ void VidConfig(MPE &mpe)
 
     overlayChannelScaleX = (float)((double)structOverlayChannel.dest_width/(double)structOverlayChannel.src_width);
     overlayChannelScaleY = (float)((double)structOverlayChannel.dest_height/(double)structOverlayChannel.src_height);
-    bOverlayChannelActive = true;
     channelState |= CHANNELSTATE_OVERLAY_ACTIVE;
 
     bUpdateOpenGLData |= (structOverlayChannel.dmaflags != structOverlayChannelPrev.dmaflags);
@@ -1239,14 +1239,15 @@ void VidSetup(MPE &mpe)
 
   mainChannelScaleX = (float)((double)structMainChannel.dest_width/(double)structMainChannel.src_width);
   mainChannelScaleY = (float)((double)structMainChannel.dest_height/(double)structMainChannel.src_height);
-  bMainChannelActive = true;
-  bOverlayChannelActive = false;
 
   mpe.regs[0] = 1;
 
+  bool bUpdateOpenGLData = (bMainChannelActive != true) || (bOverlayChannelActive != false);
+
+  bMainChannelActive = true;
+  bOverlayChannelActive = false;
   UpdateBufferLengths();
 
-  bool bUpdateOpenGLData = false;
   bUpdateOpenGLData |= (channelState != channelStatePrev);
   bUpdateOpenGLData |= (structMainChannel.dmaflags != structMainChannelPrev.dmaflags);
   bUpdateOpenGLData |= (memcmp(&structMainChannel.dest_xoff, &structMainChannelPrev.dest_xoff, 8*sizeof(int32) + 4*sizeof(uint8)) != 0);
