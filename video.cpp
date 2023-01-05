@@ -140,7 +140,7 @@ void UpdateTextureStates()
 
   uint32 pixType = (structOverlayChannel.dmaflags >> 4) & 0x0F;
   uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "structOverlayChannelAlpha");
-  glUniform1f(uniformLoc, (pixType == 2) ? structOverlayChannel.alpha : -1.0f);
+  glUniform1f(uniformLoc, (pixType == 2) ? (float)((double)structOverlayChannel.alpha*(1.0/255.0)) : -1.0f);
   pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
   uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "mainIs16bit");
   glUniform1f(uniformLoc, (pixType == 2) ? 1.0f : 0.0f);
@@ -1306,13 +1306,6 @@ void VidChangeBase(MPE &mpe)
     MessageBox(NULL,"VidChangeBase was called with a base parameter of 0","Invalid Video Pointer",MB_OK);
 #endif
 
-  if(((which == VID_CHANNEL_MAIN) && !mainChannelBuffer) ||
-     ((which == VID_CHANNEL_OSD) && !overlayChannelBuffer))
-  {
-    //Channel is not active, return 0
-    mpe.regs[0] = 0;
-  }
-  else
   {
     uint32 map = (dmaflags >> 4) & 0x0FUL;
 
@@ -1409,8 +1402,8 @@ void VidChangeScroll(MPE &mpe)
 
   mpe.regs[0] = 1;
 
-  if(((which == VID_CHANNEL_MAIN) && (!mainChannelBuffer || !bMainChannelActive)) ||
-     ((which == VID_CHANNEL_OSD) && (!overlayChannelBuffer || !bOverlayChannelActive)))
+  if(((which == VID_CHANNEL_MAIN) && !bMainChannelActive) ||
+     ((which == VID_CHANNEL_OSD) && !bOverlayChannelActive))
   {
     //Channel is not active, return 0
     mpe.regs[0] = 0;

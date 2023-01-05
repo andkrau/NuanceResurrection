@@ -434,6 +434,7 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 History
 =======
 version 0.6.4:
+Fix wrong handling of global overlay alpha values > 0
 
 01/04/2023 version 0.6.3:
 Add new (optional) postprocessing CRT-like shader ([UseCRTshader] in the .cfg), enabled by default, looks best in fullscreen
