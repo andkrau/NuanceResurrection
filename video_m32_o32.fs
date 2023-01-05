@@ -31,14 +31,20 @@ uniform float mainIs16bit;
 
 uniform float resy;
 
-const vec3 preBias = vec3(16.0/255.0,16.0/255.0,16.0/255.0);
-const vec2 chromianceBias = vec2(0.5,0.5);
+const vec3 preBiasExpansion = vec3(16.0/219.0,16.0/224.0,16.0/224.0);
+const float chromianceBias = 0.5;
 const vec3 expansion = vec3(255.0/219.0,255.0/224.0,255.0/224.0);
-const mat3 ycrcb2rgb = mat3(1.000,1.402,0.000,1.000,-0.714136,-0.34413,1.000,0.000,1.772);
 
-vec4 texture2D_main(vec2 uv_org)
+vec3 ycrcb2rgb(vec3 ycrcb)
 {
-  vec4 bilerp[4];
+  ycrcb.yz -= chromianceBias;
+  return vec3(ycrcb.x+1.402*ycrcb.y, ycrcb.x-0.34413*ycrcb.z-0.714136*ycrcb.y, ycrcb.x+1.772*ycrcb.z);
+}
+
+vec3 texture2D_main(vec2 uv_org)
+{
+  vec2 LUT[4];
+  if(mainIs16bit != 0.)
   for(int i = 0; i < 4; ++i)
   {
     vec2 uv = uv_org;
@@ -48,35 +54,44 @@ vec4 texture2D_main(vec2 uv_org)
       uv.y += 1.;
     uv *= vec2(0.0013888889,1./resy); // 1./720
 
-    vec4 mainColor;
+    LUT[i] = texture2D(mainChannelSampler, uv).yx;
+  }
+
+  vec3 bilerp[4];
+  for(int i = 0; i < 4; ++i)
+  {
+    vec3 mainColor;
     if(mainIs16bit != 0.)
-    {
-      vec2 mainColor88 = texture2D(mainChannelSampler, uv).yx;
-      mainColor = vec4(texture2D(LUTSampler, mainColor88).xyz,1.0);
-    }
+      mainColor = texture2D(LUTSampler, LUT[i]).xyz;
     else
-      mainColor = texture2D(mainChannelSampler, uv).bgra;
+    {
+      vec2 uv = uv_org;
+      if(i == 1 || i == 3)
+        uv.x += 1.;
+      if(i > 1)
+        uv.y += 1.;
+      uv *= vec2(0.0013888889,1./resy); // 1./720
 
-    mainColor.rgb -= preBias;
-    mainColor.rgb = clamp(mainColor.rgb * expansion, 0.0, 1.0);
-    mainColor.gb -= chromianceBias;
-    mainColor.rgb = clamp(mainColor.rgb * ycrcb2rgb, 0.0, 1.0);
+      mainColor = texture2D(mainChannelSampler, uv).bgr; //!! throws away alpha, but should not matter as this is the final displayed buffer anyway!
+    }
 
-    bilerp[i] = mainColor;
+    mainColor = clamp(mainColor*expansion-preBiasExpansion, 0.0, 1.0);
+    bilerp[i] = clamp(ycrcb2rgb(mainColor), 0.0, 1.0);
   }
 
   vec2 bilerpw = fract(uv_org);
   // smoothstep:
   bilerpw = bilerpw*bilerpw*(3.-2.*bilerpw); //bilerpw = bilerpw*bilerpw*bilerpw*(bilerpw*(bilerpw*6.0-15.0)+10.0);
-  return   bilerp[0]*((1.-bilerpw.x)*(1.-bilerpw.y))
-         + bilerp[1]*(    bilerpw.x *(1.-bilerpw.y))
-         + bilerp[2]*((1.-bilerpw.x)*    bilerpw.y)
-         + bilerp[3]*(    bilerpw.x *    bilerpw.y);
+  return   bilerp[0]*(1.-bilerpw.y-(bilerpw.x-bilerpw.x*bilerpw.y))
+         + bilerp[1]*(bilerpw.x-bilerpw.x*bilerpw.y)
+         + bilerp[2]*(bilerpw.y-bilerpw.x*bilerpw.y)
+         + bilerp[3]*(bilerpw.x*bilerpw.y);
 }
 
 vec4 texture2D_overlay(vec2 uv_org)
 {
-  vec4 bilerp[4];
+  vec2 LUT[4];
+  if(structOverlayChannelAlpha >= 0.)
   for(int i = 0; i < 4; ++i)
   {
     vec2 uv = uv_org;
@@ -86,22 +101,32 @@ vec4 texture2D_overlay(vec2 uv_org)
       uv.y += 1.;
     uv *= vec2(0.0013888889,1./resy); // 1./720
 
+    LUT[i] = texture2D(overlayChannelSampler, uv).yx;
+  }
+
+  vec4 bilerp[4];
+  for(int i = 0; i < 4; ++i)
+  {
     vec4 overlayColor;
     if(structOverlayChannelAlpha >= 0.)
-    {
-      vec2 overlayColor88 = texture2D(overlayChannelSampler, uv).yx;
-      overlayColor = vec4(texture2D(LUTSampler, overlayColor88).xyz,structOverlayChannelAlpha);
-    }
+      overlayColor = vec4(texture2D(LUTSampler, LUT[i]).xyz,structOverlayChannelAlpha);
     else
-      overlayColor = texture2D(overlayChannelSampler, uv).bgra;
-
-    if(overlayColor.rgb != vec3(0.0,0.0,0.0)) //!! necessary?! seems not
     {
-      overlayColor.rgb -= preBias;
-      overlayColor.rgb = clamp(overlayColor.rgb * expansion, 0.0, 1.0);
-      overlayColor.gb -= chromianceBias;
-      overlayColor.rgb = clamp(overlayColor.rgb * ycrcb2rgb, 0.0, 1.0);
+      vec2 uv = uv_org;
+      if(i == 1 || i == 3)
+        uv.x += 1.;
+      if(i > 1)
+        uv.y += 1.;
+      uv *= vec2(0.0013888889,1./resy); // 1./720
+
+      overlayColor = texture2D(overlayChannelSampler, uv).bgra;
     }
+
+    if(overlayColor.xyz == vec3(0.0,0.0,0.0)) // invalid overlay pixel -> fully transparent overlay pixel //!! should this also be interpolated??
+      return vec4(overlayColor.xyz,1.0);
+
+    overlayColor.xyz = clamp(overlayColor.xyz*expansion-preBiasExpansion, 0.0, 1.0);
+    overlayColor.rgb = clamp(ycrcb2rgb(overlayColor.xyz), 0.0, 1.0);
 
     bilerp[i] = overlayColor;
   }
@@ -109,24 +134,27 @@ vec4 texture2D_overlay(vec2 uv_org)
   vec2 bilerpw = fract(uv_org);
   // smoothstep:
   bilerpw = bilerpw*bilerpw*(3.-2.*bilerpw); //bilerpw = bilerpw*bilerpw*bilerpw*(bilerpw*(bilerpw*6.0-15.0)+10.0);
-  return   bilerp[0]*((1.-bilerpw.x)*(1.-bilerpw.y))
-         + bilerp[1]*(    bilerpw.x *(1.-bilerpw.y))
-         + bilerp[2]*((1.-bilerpw.x)*    bilerpw.y)
-         + bilerp[3]*(    bilerpw.x *    bilerpw.y);
+  return   bilerp[0]*(1.-bilerpw.y-(bilerpw.x-bilerpw.x*bilerpw.y))
+         + bilerp[1]*(bilerpw.x-bilerpw.x*bilerpw.y)
+         + bilerp[2]*(bilerpw.y-bilerpw.x*bilerpw.y)
+         + bilerp[3]*(bilerpw.x*bilerpw.y);
 }
 
 vec4 texture2D_composite(vec2 mainuv, vec2 overlayuv)
 {
-  vec4 mainColor = texture2D_main(mainuv);
+  vec3 mainColor;
+  if(mainIs16bit >= 0.) // main buffer enabled?
+    mainColor = texture2D_main(mainuv);
+  else
+    mainColor = vec3(0.,0.,0.); //!! ?? or disable mixing with it completely then?
+
+  if(structOverlayChannelAlpha == 1.0) // overlay buffer not enabled? or fully transparent?
+    return vec4(mainColor, 1.0);
+
   vec4 overlayColor = texture2D_overlay(overlayuv);
 
-  if(overlayColor.rgb == vec3(0.0,0.0,0.0))
-    return mainColor;
-  else
-  {
-    //On the Nuon, alpha represents transparency with 0x00 being fully opaque.
-    return vec4(mix(mainColor.rgb, overlayColor.rgb, 1.0 - overlayColor.a), 1.0);
-  }
+  //On the Nuon, alpha represents transparency with 0x00 being fully opaque.
+  return vec4(mix(mainColor, overlayColor.rgb, 1.0 - overlayColor.a), 1.0);
 }
 
 void main()
