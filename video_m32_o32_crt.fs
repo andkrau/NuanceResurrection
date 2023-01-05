@@ -85,7 +85,7 @@ vec3 texture2D_main(vec2 uv_org)
 
   vec2 bilerpw = fract(uv_org);
   // smoothstep:
-  bilerpw = bilerpw*bilerpw*(3.-2.*bilerpw); //bilerpw = bilerpw*bilerpw*bilerpw*(bilerpw*(bilerpw*6.0-15.0)+10.0);
+  // bilerpw = bilerpw*bilerpw*(3.-2.*bilerpw); //bilerpw = bilerpw*bilerpw*bilerpw*(bilerpw*(bilerpw*6.0-15.0)+10.0);
   return   bilerp[0]*(1.-bilerpw.y-(bilerpw.x-bilerpw.x*bilerpw.y))
          + bilerp[1]*(bilerpw.x-bilerpw.x*bilerpw.y)
          + bilerp[2]*(bilerpw.y-bilerpw.x*bilerpw.y)
@@ -137,7 +137,7 @@ vec4 texture2D_overlay(vec2 uv_org)
 
   vec2 bilerpw = fract(uv_org);
   // smoothstep:
-  bilerpw = bilerpw*bilerpw*(3.-2.*bilerpw); //bilerpw = bilerpw*bilerpw*bilerpw*(bilerpw*(bilerpw*6.0-15.0)+10.0);
+  // bilerpw = bilerpw*bilerpw*(3.-2.*bilerpw); //bilerpw = bilerpw*bilerpw*bilerpw*(bilerpw*(bilerpw*6.0-15.0)+10.0);
   return   bilerp[0]*(1.-bilerpw.y-(bilerpw.x-bilerpw.x*bilerpw.y))
          + bilerp[1]*(bilerpw.x-bilerpw.x*bilerpw.y)
          + bilerp[2]*(bilerpw.y-bilerpw.x*bilerpw.y)
