@@ -1,6 +1,6 @@
-Nuance 0.6.3
-Copyright 2002 - 2007 Mike Perry
-Continued using the released source in honour of the original author by Carsten Waechter (toxie^ainc) in 2020
+Nuance 0.6.4
+Copyright 2002 - 2007 Mike Perry and 2020 - 2023 all the open source contributors (see license section)
+Continued using the released source in honour of the original author by Carsten Waechter (toxie at ainc.de) in 2020
 NUON is a trademark of Genesis Microchip, Inc.
 
 License Agreement
@@ -13,6 +13,39 @@ distribution package is allowed via HTTP or FTP under the restriction that the
 official distribution package is not modified in any way.  In particular, no
 advertisements, .nfo files, readme files or bookmarks may be added to the
 distribution package under any circumstances.
+
+Note that any source changes that were/are done by the open source contributors (i.e. NOT by
+the original author Mike Perry, so everything that was commited AFTER the initial source release) are available under
+
+The 3-Clause BSD License:
+
+Copyright (C) 2020-2023 Nuance development team and contributors
+                        (unless specifically noted differently in a respective source file)
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation and/or
+   other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may
+   be used to endorse or promote products derived from this software without specific
+   prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+OF SUCH DAMAGE.
 
 Disclaimer
 ==========
@@ -444,7 +477,9 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 
 History
 =======
-version 0.6.3:
+version 0.6.4:
+
+01/04/2023 version 0.6.3:
 Add new (optional) postprocessing CRT-like shader ([UseCRTshader] in the .cfg), enabled by default, looks best in fullscreen
 Its now possible to specify a file that should be loaded directly from the command line,
  e.g. nuance.exe C:\NuonGame\nuon.run
@@ -457,7 +492,7 @@ Merlin Racing now is playable (although the AI carts are still driving around ra
 Update status window on single stepping, too
 Add missing registers to status window
 Add debug output for BIOS calls
-Add new [AutomaticLoadPopup] section to configure if the automatic file section pops up on startup or not
+Add new [AutomaticLoadPopup] section to configure if the automatic file selection pops up on startup or not
 
 11/27/2022 version 0.6.2:
 Tweak audio interrupts some more
