@@ -1,51 +1,7 @@
 Nuance 0.6.4
-Copyright 2002 - 2007 Mike Perry and 2020 - 2023 all the open source contributors (see license section)
+Copyright 2002 - 2007 Mike Perry and 2020 - 2023 all the open source contributors (see separate license.txt)
 Continued using the released source in honour of the original author by Carsten Waechter (toxie at ainc.de) in 2020
 NUON is a trademark of Genesis Microchip, Inc.
-
-License Agreement
-=================
-The latest official distribution of Nuance was always to be obtained from 
-the nuon-emu.com FTP site.  Nowadays it's on https://github.com/andkrau/NuanceResurrection/
-The emulator may not be redistributed for profit
-by itself or as part of any other package.   Redistribution of the official
-distribution package is allowed via HTTP or FTP under the restriction that the
-official distribution package is not modified in any way.  In particular, no
-advertisements, .nfo files, readme files or bookmarks may be added to the
-distribution package under any circumstances.
-
-Note that any source changes that were/are done by the open source contributors (i.e. NOT by
-the original author Mike Perry, so everything that was commited AFTER the initial source release) are available under
-
-The 3-Clause BSD License:
-
-Copyright (C) 2020-2023 Nuance development team and contributors
-                        (unless specifically noted differently in a respective source file)
-
-Redistribution and use in source and binary forms, with or without modification,
-are permitted provided that the following conditions are met:
-
-1. Redistributions of source code must retain the above copyright notice,
-   this list of conditions and the following disclaimer.
-
-2. Redistributions in binary form must reproduce the above copyright notice,
-   this list of conditions and the following disclaimer in the documentation and/or
-   other materials provided with the distribution.
-
-3. Neither the name of the copyright holder nor the names of its contributors may
-   be used to endorse or promote products derived from this software without specific
-   prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY
-EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
-OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
-OF SUCH DAMAGE.
 
 Disclaimer
 ==========
