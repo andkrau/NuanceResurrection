@@ -161,6 +161,11 @@ vec3 texture2D_composite(vec2 mainuv, vec2 overlayuv)
   return mix(mainColor, overlayColor.rgb, 1.0 - overlayColor.a);
 }
 
+float sqr(float x)
+{
+  return x*x;
+}
+
 void main()
 {
   vec2 uvw   = vec2(gl_TexCoord[2].x,windowRes.y-gl_TexCoord[2].y); // window/screen coords in pixels (flipped y just to match reshade)
@@ -181,18 +186,19 @@ void main()
   vec2 uvo = gl_TexCoord[1].xy; // overlay buffer
 
   vec3 col;
-  vec2 offs = vec2(0.001,0.001);
+  vec2 offs = vec2( 0.001, 0.001);
   col.r = texture2D_composite(uvm+offs*scaleInternal.xy,uvo+offs*scaleInternal.zw).r+0.05;
        offs = vec2( 0.000,-0.002);
   col.g = texture2D_composite(uvm+offs*scaleInternal.xy,uvo+offs*scaleInternal.zw).g+0.05;
        offs = vec2(-0.002, 0.000);
   col.b = texture2D_composite(uvm+offs*scaleInternal.xy,uvo+offs*scaleInternal.zw).b+0.05;
-       offs = 0.75*vec2( 0.025,-0.027)+vec2( 0.001, 0.001);
-  col.r += 0.08*texture2D_composite(uvm+offs*scaleInternal.xy,uvo+offs*scaleInternal.zw).r;
-       offs = 0.75*vec2(-0.022, -0.02)+vec2( 0.000,-0.002);
-  col.g += 0.05*texture2D_composite(uvm+offs*scaleInternal.xy,uvo+offs*scaleInternal.zw).g;
-       offs = 0.75*vec2(-0.02, -0.018)+vec2(-0.002, 0.000);
-  col.b += 0.08*texture2D_composite(uvm+offs*scaleInternal.xy,uvo+offs*scaleInternal.zw).b;
+  // ghosting
+       offs = 0.45*vec2(-0.014,-0.027)+vec2( 0.001, 0.001);
+  col.r += 0.03505*sqr(clamp(3.*texture2D_composite(uvm+offs*scaleInternal.xy,uvo+offs*scaleInternal.zw).r,0.,1.));
+       offs = 0.45*vec2(-0.019, -0.02)+vec2( 0.000,-0.002);
+  col.g += 0.02065*sqr(clamp(3.*texture2D_composite(uvm+offs*scaleInternal.xy,uvo+offs*scaleInternal.zw).g,0.,1.));
+       offs = 0.35*vec2(-0.017,-0.003)+vec2(-0.002, 0.000);
+  col.b += 0.0443 *sqr(clamp(3.*texture2D_composite(uvm+offs*scaleInternal.xy,uvo+offs*scaleInternal.zw).b,0.,1.));
 
   col = clamp(0.6*col + 0.4*col*col, 0.0,1.0);
 
