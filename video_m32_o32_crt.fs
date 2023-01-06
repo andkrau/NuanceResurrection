@@ -197,7 +197,7 @@ void main()
   col = clamp(0.6*col + 0.4*col*col, 0.0,1.0);
 
   float vignetting = 16.0*(uvw01.x-uvw01.x*uvw01.x)*(uvw01.y-uvw01.y*uvw01.y);
-  col *= pow(vignetting, 0.3);
+  col *= pow(vignetting, 0.15); //!! was 0.3
 
   col *= vec3(0.95,1.05,0.95) * 2.8;
 
