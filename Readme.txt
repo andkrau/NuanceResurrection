@@ -1,4 +1,4 @@
-Nuance 0.6.4
+Nuance 0.6.5
 Copyright 2002 - 2007 Mike Perry and 2020 - 2023 all the open source contributors (see separate license.txt)
 Continued using the released source in honour of the original author by Carsten Waechter (toxie at ainc.de) in 2020
 NUON is a trademark of Genesis Microchip, Inc.
@@ -433,8 +433,14 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 
 History
 =======
-version 0.6.4:
+version 0.6.5:
+
+01/10/2023 version 0.6.4:
+Fix command line file parsing, also drag and drop will now work properly
 Fix wrong handling of global overlay alpha values > 0
+Optimize OpenGL output shaders
+Fix CRT-like shader for very high resolutions (e.g. 4K)
+Retweak CRT-like shader to be a bit more realistic compared to common CRT TVs back in the days
 
 01/04/2023 version 0.6.3:
 Add new (optional) postprocessing CRT-like shader ([UseCRTshader] in the .cfg), enabled by default, looks best in fullscreen
