@@ -58,7 +58,7 @@ vec3 texture2D_main(vec2 uv_org)
       uv.y += 1.;
     uv *= vec2(0.0013888889,1./resy); // 1./720
 
-    LUT[i] = texture2D(mainChannelSampler, uv).yx;
+    LUT[i] = texture2D(mainChannelSampler, max(uv,0.)).yx;
   }
 
   vec3 bilerp[4];
@@ -76,7 +76,7 @@ vec3 texture2D_main(vec2 uv_org)
         uv.y += 1.;
       uv *= vec2(0.0013888889,1./resy); // 1./720
 
-      mainColor = texture2D(mainChannelSampler, uv).bgr; //!! throws away alpha, but should not matter as this is the final displayed buffer anyway!
+      mainColor = texture2D(mainChannelSampler, max(uv,0.)).bgr; //!! throws away alpha, but should not matter as this is the final displayed buffer anyway!
     }
 
     mainColor = clamp(mainColor*expansion-preBiasExpansion, 0.0, 1.0);
@@ -105,7 +105,7 @@ vec4 texture2D_overlay(vec2 uv_org)
       uv.y += 1.;
     uv *= vec2(0.0013888889,1./resy); // 1./720
 
-    LUT[i] = texture2D(overlayChannelSampler, uv).yx;
+    LUT[i] = texture2D(overlayChannelSampler, max(uv,0.)).yx;
   }
 
   vec4 bilerp[4];
@@ -123,7 +123,7 @@ vec4 texture2D_overlay(vec2 uv_org)
         uv.y += 1.;
       uv *= vec2(0.0013888889,1./resy); // 1./720
 
-      overlayColor = texture2D(overlayChannelSampler, uv).bgra;
+      overlayColor = texture2D(overlayChannelSampler, max(uv,0.)).bgra;
     }
 
     if(overlayColor.xyz == vec3(0.0,0.0,0.0)) // invalid overlay pixel -> fully transparent overlay pixel //!! should this also be interpolated??
