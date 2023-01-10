@@ -2,7 +2,7 @@
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
 #include <windows.h>
 #endif
-#include <combaseapi.h>
+#include <Objbase.h>
 
 #include "GLWindow.h"
 #include "audio.h"

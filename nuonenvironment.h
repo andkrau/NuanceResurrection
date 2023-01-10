@@ -187,7 +187,7 @@ public:
   //Current position in the audio buffer for the sound output callback
   uint32 audio_buffer_offset;
   //0 or 1, depending if the audio callback has played since the last emulation cycle
-  uint32 audio_buffer_played;
+  LONG audio_buffer_played;
   //Bitflag value passed back as return value in _AudioQuerySampleRates
   //The constructor initializes this variable.  Supported rates are
   //16000/22050/24000/32000/44100/48000/64000/88200/96000
