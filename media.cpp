@@ -55,7 +55,15 @@ void MediaInitMPE(const uint32 i)
 
     if(!loadStatus)
     {
-      MessageBox(NULL,"Missing File!","Could not load minibios.cof",MB_OK);
+      char tmp[1024];
+      GetModuleFileName(NULL, tmp, 1024);
+      string tmps(tmp);
+      size_t idx = tmps.find_last_of('\\');
+      if (idx != string::npos)
+        tmps = tmps.substr(0, idx+1);
+      loadStatus = nuonEnv.mpe[i].LoadCoffFile((tmps+"minibios.cof").c_str(),false);
+      if(!loadStatus)
+        MessageBox(NULL,"Missing File!","Could not load minibios.cof",MB_OK);
     }
 
     nuonEnv.mpe[i].intvec1 = MINIBIOS_INTVEC1_HANDLER_ADDRESS;
@@ -67,7 +75,15 @@ void MediaInitMPE(const uint32 i)
 
     if(!loadStatus)
     {
-      MessageBox(NULL,"Missing File!","Could not load minibiosX.cof",MB_OK);
+      char tmp[1024];
+      GetModuleFileName(NULL, tmp, 1024);
+      string tmps(tmp);
+      size_t idx = tmps.find_last_of('\\');
+      if (idx != string::npos)
+        tmps = tmps.substr(0, idx+1);
+      loadStatus = nuonEnv.mpe[i].LoadCoffFile((tmps+"minibiosX.cof").c_str(),false);
+      if(!loadStatus)
+        MessageBox(NULL,"Missing File!","Could not load minibiosX.cof",MB_OK);
     }
 
     nuonEnv.mpe[i].intvec1 = MINIBIOSX_INTVEC1_HANDLER_ADDRESS;

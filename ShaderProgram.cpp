@@ -1,3 +1,4 @@
+#include <string>
 #include <cstdio>
 #include "ShaderProgram.h"
 #include "Windows.h"
@@ -79,7 +80,19 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
   bool bStatus = false;
 
   FILE *inFile;
-  if(fopen_s(&inFile,filename,"rb") == 0)
+  errno_t err = fopen_s(&inFile,filename,"rb");
+  if(err != 0)
+  {
+    char tmp[1024];
+    GetModuleFileName(NULL, tmp, 1024);
+    std::string tmps(tmp);
+    size_t idx = tmps.find_last_of('\\');
+    if (idx != std::string::npos)
+      tmps = tmps.substr(0, idx+1);
+    err = fopen_s(&inFile,(tmps + filename).c_str(),"rb");
+  }
+
+  if(err == 0)
   {
     fseek(inFile,0,SEEK_END);
     const GLint length = ftell(inFile);

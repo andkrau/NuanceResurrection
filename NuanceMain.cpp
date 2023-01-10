@@ -414,12 +414,12 @@ void Run()
             bRun = true;
 }
 
-bool Load(char* file = nullptr)
+bool Load(const char* file = nullptr)
 {
   if(file || GetOpenFileName(&ofn))
   {
     if(file)
-      ofn.lpstrFile = file;
+      ofn.lpstrFile = (char*)file;
 
     bool bSuccess = nuonEnv.mpe[3].LoadNuonRomFile(ofn.lpstrFile);
     if(!bSuccess)
@@ -1076,7 +1076,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
   if (lpCmdLine && lpCmdLine[0] != '\0') // load via commandline
   {
-    Load(lpCmdLine);
+    string fileName(lpCmdLine);
+    if (lpCmdLine[0] == '\"')
+    {
+      size_t idx = fileName.find_last_of('\"');
+      if(idx != string::npos)
+        fileName = fileName.substr(1, idx-1);
+    }
+    Load(fileName.c_str());
     load4firsttime = false;
     display.ToggleFullscreen();
   }

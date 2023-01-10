@@ -3,6 +3,7 @@
 #include <windows.h>
 #endif
 
+#include <string>
 #include "byteswap.h"
 #include "media.h"
 #include "mpe.h"
@@ -568,11 +569,19 @@ void BiosPoll(MPE &mpe)
 
 void InitBios(MPE &mpe)
 {
-  const bool loadStatus = nuonEnv.mpe[3].LoadCoffFile("bios.cof",false);
+  bool loadStatus = nuonEnv.mpe[3].LoadCoffFile("bios.cof",false);
 
   if(!loadStatus)
   {
-    ::MessageBox(NULL,"Missing File!","Could not load bios.cof",MB_OK);
+    char tmp[1024];
+    GetModuleFileName(NULL, tmp, 1024);
+    string tmps(tmp);
+    size_t idx = tmps.find_last_of('\\');
+    if (idx != string::npos)
+      tmps = tmps.substr(0, idx+1);
+    loadStatus = nuonEnv.mpe[3].LoadCoffFile((tmps+"bios.cof").c_str(),false);
+    if(!loadStatus)
+      ::MessageBox(NULL,"Missing File!","Could not load bios.cof",MB_OK);
   }
 
   //Reset MPEAlloc flags to reset values
