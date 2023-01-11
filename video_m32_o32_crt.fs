@@ -177,7 +177,7 @@ void main()
 
   // limit mask size
   float tmp = min(windowRes.x,720.*4.);
-  while(tmp > 720.*3.) //!! not optimal yet, but good enough to look good on 1920x1080 and 4k screens at all kinds of resolutions (>720*3 has a noticeable brightness change though!!)
+  while(tmp > 720.*3.) //!! not optimal yet, but good enough to look good on 1920x1080 and 4k screens at all kinds of resolutions
   {
     uvw.x *= 0.5;
     tmp *= 0.5;
