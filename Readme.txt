@@ -434,6 +434,9 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 History
 =======
 version 0.6.5:
+Fix loading of nuance.cfg when drag and drop is used
+Hide mouse cursor when in fullscreen mode
+Make rendering window behave like the others when trying to close it (e.g. clicking 'X' and Alt-F4 work now)
 
 01/10/2023 version 0.6.4:
 Fix command line file parsing, also drag and drop will now work properly

@@ -38,7 +38,7 @@ extern vidTexInfo videoTexInfo;
 
 //
 
-static bool bQuit = false;
+bool bQuit = false;
 static bool bRun = false;
 
 static bool load4firsttime = true;

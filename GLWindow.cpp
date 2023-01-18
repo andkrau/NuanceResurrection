@@ -12,6 +12,8 @@
 OpenGL Window Code
 ****************************************************************************/
 
+extern bool bQuit;
+
 extern vidTexInfo videoTexInfo;
 
 extern std::mutex gfx_lock;
@@ -468,6 +470,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
 		return 0;
 
     case WM_CLOSE:
+      bQuit = true;
       return 0;
 
     case WM_DESTROY:
@@ -555,6 +558,8 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         SetWindowPos(window->hWnd, HWND_TOP, 0, 0, GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN), SWP_SHOWWINDOW); //!! aspect ratio of widescreens wrong for Nuon!
         SetCursorPos(GetSystemMetrics(SM_CXSCREEN)/2, GetSystemMetrics(SM_CYSCREEN));
 
+        while (ShowCursor(FALSE) >= 0) ;
+
         window->clientWidth = GetSystemMetrics(SM_CXSCREEN);
         window->clientHeight = GetSystemMetrics(SM_CYSCREEN);
         window->width = GetSystemMetrics(SM_CXSCREEN);
@@ -584,6 +589,8 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         //window->ChangeScreenResolution(0,0);
         SetWindowPos(window->hWnd, HWND_TOP,window->x,window->y,window->width,window->height, SWP_SHOWWINDOW);
         SetCursorPos(window->x + window->width/2, window->y + window->height/2);
+
+        ShowCursor(TRUE);
       }
       break;
   }
