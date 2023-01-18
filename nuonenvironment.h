@@ -2,8 +2,9 @@
 #define NuonEnvironmentH
 
 #include "basetypes.h"
-#include <limits.h>
+#include <climits>
 #include <windows.h>
+#include <string>
 #include "external\fmod-3.75\api\inc\fmod.h"
 #include "audio.h"
 #include "mpe.h"
@@ -48,7 +49,7 @@ public:
 class NuonEnvironment
 {
 public:
-  NuonEnvironment() : bFMODInitialized(false), audioChannel(0), dvdBase(nullptr), cfgFileName(nullptr),
+  NuonEnvironment() : dvdBase(nullptr), bFMODInitialized(false), audioChannel(0),
     controllerDefaultMapping{ // Note that the default mapping should always map to keyboard as it will also be used if no other joypad/stick is connected!
         // Original key mappings included with Nuance
         ControllerButtonMapping(InputManager::KEY, 'R', 0), // CTRLR_BITNUM_BUTTON_C_RIGHT
@@ -218,9 +219,9 @@ private:
   bool StrToCtrlrBitnum(const char* str, unsigned int *bitnum);
   bool ParseJoyButtonConf(char buf[1025], unsigned int* bitnum, ControllerButtonMapping* mapping);
   ConfigTokenType ReadConfigLine(FILE *file, char buf[1025]);
-  bool LoadConfigFile(const char * const fileName);
+  bool LoadConfigFile(const std::string& fileName);
 
-  char *cfgFileName;
+  std::string cfgFileName;
   char *dvdBase;
   bool bAudioInterruptsEnabled;
 

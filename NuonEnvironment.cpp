@@ -19,7 +19,6 @@ extern GLWindow display;
 
 extern VidDisplay structMainDisplay;
 
-extern char **pArgs;
 
   inline void ConvertNuonAudioData(const uint8 * const __restrict pNuonAudioBuffer, uint8 * const __restrict pPCAudioBuffer, const uint32 numBytes)
   {
@@ -393,11 +392,21 @@ void NuonEnvironment::Init()
   videoDisplayCycleCount = 120000;
   whichAudioInterrupt = false;
 
-  const char* tmpName = !pArgs ? "nuance.cfg" : pArgs[1];
-  const size_t tmpNameLen = strlen(tmpName) + 1;
+  cfgFileName = "nuance.cfg";
 
-  cfgFileName = new char[tmpNameLen];
-  strcpy_s(cfgFileName, tmpNameLen, tmpName);
+  FILE* configFile;
+  if (fopen_s(&configFile, cfgFileName.c_str(), "r") != 0)
+  {
+    char tmp[1024];
+    GetModuleFileName(NULL, tmp, 1024);
+    string tmps(tmp);
+    size_t idx = tmps.find_last_of('\\');
+    if (idx != string::npos)
+      tmps = tmps.substr(0, idx+1);
+    cfgFileName = tmps + cfgFileName;
+  }
+  else
+    fclose(configFile);
 
   LoadConfigFile(cfgFileName);
 
@@ -445,7 +454,6 @@ NuonEnvironment::~NuonEnvironment()
 
   //Free up string memory
   delete [] dvdBase;
-  delete [] cfgFileName;
 
   DeInitTimingMethod();
 }
@@ -607,7 +615,7 @@ bool NuonEnvironment::SaveConfigFile(const char* const fileName)
 {
   FILE* configFile;
 
-  if (fopen_s(&configFile, fileName ? fileName : cfgFileName, "w") != 0)
+  if (fopen_s(&configFile, fileName ? fileName : cfgFileName.c_str(), "w") != 0)
     return false;
 
   // Don't save DVDBase. AFAICT, it is always overriden when loading a file, so no point in saving/loading it.
@@ -718,10 +726,10 @@ bool NuonEnvironment::SaveConfigFile(const char* const fileName)
   return true;
 }
 
-bool NuonEnvironment::LoadConfigFile(const char * const fileName)
+bool NuonEnvironment::LoadConfigFile(const std::string& fileName)
 {
   FILE* configFile;
-  if (fopen_s(&configFile, fileName, "r") != 0 )
+  if (fopen_s(&configFile, fileName.c_str(), "r") != 0)
     return false;
 
 

@@ -27,7 +27,6 @@
 #include "Bios.h"
 
 NuonEnvironment nuonEnv;
-char **pArgs = 0;
 
 extern ControllerData *controller;
 
