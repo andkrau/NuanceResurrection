@@ -414,26 +414,26 @@ void GLWindow::CleanUp()
     inputManager = NULL;
 
     if(bUseSeparateThread) gfx_lock.lock();
-		if(hDC)
-		{
-			wglMakeCurrent(hDC, 0);
-			if(hRC)
-			{
-				wglDeleteContext(hRC);
-				hRC = 0;
-			}
-			ReleaseDC(hWnd, hDC);
-			hDC = 0;
-		}
-		DestroyWindow(hWnd);
-		hWnd = 0;
+    if(hDC)
+    {
+      wglMakeCurrent(hDC, 0);
+      if(hRC)
+      {
+        wglDeleteContext(hRC);
+        hRC = 0;
+      }
+      ReleaseDC(hWnd, hDC);
+      hDC = 0;
+    }
+    DestroyWindow(hWnd);
+    hWnd = 0;
     if(bUseSeparateThread) gfx_lock.unlock();
   }
 
   if(bFullScreen)
   {
-		ChangeDisplaySettings(NULL,0);
-		ShowCursor(TRUE);
+    ChangeDisplaySettings(NULL,0);
+    while (ShowCursor(TRUE) < 0) ;
   }
 
   UnregisterClass("NuanceGLWindow", hInstance);
@@ -452,22 +452,22 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
       break;
 
     case WM_SYSCOMMAND:
-		{
-			switch(wParam)
-			{
-				case SC_SCREENSAVE:
-				case SC_MONITORPOWER:
-				  return 0;
-			}
-			break;
-		}
+      {
+        switch(wParam)
+        {
+          case SC_SCREENSAVE:
+          case SC_MONITORPOWER:
+            return 0;
+        }
+        break;
+      }
     case WM_CREATE:
-		{
-			const CREATESTRUCT *creation = (CREATESTRUCT *)(lParam);
-			window = (GLWindow *)(creation->lpCreateParams);
-			SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)(window));
-		}
-		return 0;
+      {
+        const CREATESTRUCT *creation = (CREATESTRUCT *)(lParam);
+        window = (GLWindow *)(creation->lpCreateParams);
+        SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)(window));
+      }
+      return 0;
 
     case WM_CLOSE:
       bQuit = true;
@@ -590,7 +590,7 @@ LRESULT CALLBACK GLWindow::GLWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         SetWindowPos(window->hWnd, HWND_TOP,window->x,window->y,window->width,window->height, SWP_SHOWWINDOW);
         SetCursorPos(window->x + window->width/2, window->y + window->height/2);
 
-        ShowCursor(TRUE);
+        while (ShowCursor(TRUE) < 0) ;
       }
       break;
   }
