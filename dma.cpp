@@ -378,7 +378,7 @@ constexpr BilinearDMAHandler BilinearDMAHandlers[] =
   UnimplementedBilinearDMAHandler,
 //Read
   //Horizontal, A = 0, B = 0
-  UnimplementedBilinearDMAHandler,
+  BDMA_Type5_Read_0,
   //Horizontal, A = 1, B = 0
   UnimplementedBilinearDMAHandler,
   //Vertical, A = 0, B = 0
@@ -413,7 +413,7 @@ constexpr BilinearDMAHandler BilinearDMAHandlers[] =
   UnimplementedBilinearDMAHandler,
 //Read
   //Horizontal, A = 0, B = 0
-  UnimplementedBilinearDMAHandler,
+  BDMA_Type5_Read_0,
   //Horizontal, A = 1, B = 0
   UnimplementedBilinearDMAHandler,
   //Vertical, A = 0, B = 0
@@ -448,7 +448,7 @@ constexpr BilinearDMAHandler BilinearDMAHandlers[] =
   UnimplementedBilinearDMAHandler,
 //Read
   //Horizontal, A = 0, B = 0
-  UnimplementedBilinearDMAHandler,
+  BDMA_Type5_Read_0,
   //Horizontal, A = 1, B = 0
   UnimplementedBilinearDMAHandler,
   //Vertical, A = 0, B = 0
@@ -518,7 +518,7 @@ constexpr BilinearDMAHandler BilinearDMAHandlers[] =
   UnimplementedBilinearDMAHandler,
 //Read
   //Horizontal, A = 0, B = 0
-  UnimplementedBilinearDMAHandler,
+  BDMA_Type5_Read_0,
   //Horizontal, A = 1, B = 0
   UnimplementedBilinearDMAHandler,
   //Vertical, A = 0, B = 0
@@ -553,7 +553,7 @@ constexpr BilinearDMAHandler BilinearDMAHandlers[] =
   UnimplementedBilinearDMAHandler,
 //Read
   //Horizontal, A = 0, B = 0
-  UnimplementedBilinearDMAHandler,
+  BDMA_Type5_Read_0,
   //Horizontal, A = 1, B = 0
   UnimplementedBilinearDMAHandler,
   //Vertical, A = 0, B = 0
