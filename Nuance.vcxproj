@@ -363,6 +363,7 @@
     <ClInclude Include="FlashEEPROM.h" />
     <ClInclude Include="GLWindow.h" />
     <ClInclude Include="Handlers.h" />
+    <ClInclude Include="NuanceMain.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="InstructionCache.h" />
     <ClInclude Include="InstructionDependencies.h" />

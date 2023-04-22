@@ -6,13 +6,12 @@
 #include "external\glew-2.2.0\include\GL\glew.h"
 #include <GL/gl.h>
 #include "GLWindow.h"
+#include "NuanceMain.h"
 #include "video.h"
 
 /****************************************************************************
 OpenGL Window Code
 ****************************************************************************/
-
-extern bool bQuit;
 
 extern vidTexInfo videoTexInfo;
 

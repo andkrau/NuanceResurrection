@@ -34,6 +34,7 @@
 #include "SuperBlock.h"
 #include "X86EmitTypes.h"
 #include "Utility.h"
+#include "NuanceMain.h"
 
 #define LOG_MPE_INDEX (1)
 
@@ -2213,7 +2214,10 @@ bool MPE::FetchDecodeExecute()
       }
     }
 
-    if((excephalten & excepsrc) || (pcexec == breakpointAddress))
+    if (pcexec == breakpointAddress)
+      StopEmulation();
+
+    if((excephalten & excepsrc))
       Halt();
 
     //StopPerformanceTimer();

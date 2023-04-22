@@ -251,7 +251,7 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
   //const uint32 type = (flags >> 14) & 0x03UL;
   //const uint32 mode = flags & 0xFFFUL;
   const uint32 zcompare = (flags >> 1) & 0x07UL;
-  //const uint32 pixtype = (flags >> 4) & 0x0FUL;
+  const uint32 pixtype = (flags >> 4) & 0x0FUL;
   //const uint32 bva = ((flags >> 7) & 0x06UL) | (flags & 0x01UL);
   const uint32 sdramBase = baseaddr & 0x7FFFFFFEUL;
   const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
@@ -260,8 +260,8 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
   const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
   const uint32 ypos = yinfo & 0x7FFUL;
 
-  /*uint32 map = 0;
-  uint32 zmap;
+  uint32 map = 0;
+  uint32 zmap = 1;
 
   if(pixtype >= 13)
   {
@@ -274,6 +274,7 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
     zmap = 3;
   }
 
+  /*
   bool bCompareZ, bUpdatePixel;
   bool bUpdateZ = (zcompare != 7);
   uint8 srcStrideShift;
@@ -338,14 +339,12 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
   const int32 destBStep = xlen;
 
   const uint32 srcOffset = ypos * (uint32)xsize + xpos;
-  const uint32* const pSrc32 = ((uint32 *)pSrc) + srcOffset;
-  const uint16* const pSrc16 = ((uint16 *)pSrc) + srcOffset;
+  const uint16* pSrcColor = (uint16*)pSrc + (xsize * structMainChannel.src_height * map + srcOffset);
+  const uint16* pSrcZ = (uint16 *)pSrc + (xsize * structMainChannel.src_height * zmap + srcOffset);
 
   //const uint32 destOffset = 0;
   uint16* const pDest16 = (uint16 *)pDest;
   //pDest16 += destOffset;
-  uint32* const pDest32 = (uint32 *)pDest;
-  //pDest32 += destOffset;
 
   uint32 srcB = 0;
   uint32 destB = 0;
@@ -361,7 +360,7 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
 
       while(aCount--)
       {
-        pDest16[destA] = pSrc16[srcA];
+        pDest16[destA] = pSrcColor[srcA];
 
         srcA += srcAStep;
         destA += destAStep;
@@ -381,11 +380,11 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
 
       while(aCount--)
       {
-        pDest32[destA] = pSrc32[srcA];
-        //((uint16 *)(&pDest32[destA]))[0] = ((uint16 *)(&pSrc32[srcA]))[0];
+        pDest16[destA] = pSrcColor[srcA];
+        pDest16[destA + 1] = pSrcZ[srcA];
 
         srcA += srcAStep;
-        destA += destAStep;
+        destA += (destAStep << 1);
       }
 
       srcB += srcBStep;
