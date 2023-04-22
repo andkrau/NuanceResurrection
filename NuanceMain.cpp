@@ -328,6 +328,16 @@ static void ExecuteSingleStep()
     DoCommBusController();
 }
 
+void StopEmulation()
+{
+  EnableWindow(cbStop, FALSE);
+  EnableWindow(cbSingleStep, TRUE);
+  EnableWindow(cbLoadFile, FALSE);
+  EnableWindow(cbRun, TRUE);
+  bRun = false;
+  UpdateControlPanelDisplay();
+}
+
 INT_PTR CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
 {
   switch(msg)
@@ -828,12 +838,7 @@ INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPAR
           }
           else if((HWND)lParam == cbStop)
           {
-            EnableWindow(cbStop,FALSE);
-            EnableWindow(cbSingleStep,TRUE);
-            EnableWindow(cbLoadFile,FALSE);
-            EnableWindow(cbRun,TRUE);
-            bRun = false;
-            UpdateControlPanelDisplay();
+            StopEmulation();
 
             return TRUE;
           }
