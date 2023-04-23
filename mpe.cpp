@@ -2215,7 +2215,7 @@ bool MPE::FetchDecodeExecute()
     }
 
     if (pcexec == breakpointAddress)
-      StopEmulation();
+      StopEmulation(mpeIndex);
 
     if((excephalten & excepsrc))
       Halt();

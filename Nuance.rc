@@ -7,7 +7,7 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "windows.h"
+#include "afxres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -77,10 +77,10 @@ BEGIN
     CONTROL         IDB_LED_OFF,IDC_MPE1_LED,"Static",SS_BITMAP | SS_NOTIFY | WS_TABSTOP,5,26,19,16
     CONTROL         IDB_LED_OFF,IDC_MPE2_LED,"Static",SS_BITMAP | SS_NOTIFY | WS_TABSTOP,5,42,19,16
     CONTROL         IDB_LED_OFF,IDC_MPE3_LED,"Static",SS_BITMAP | SS_NOTIFY | WS_TABSTOP,5,57,19,16
-    LTEXT           "mpe0:",IDC_LABEL_MPE0,32,15,21,8
-    LTEXT           "mpe1:",IDC_LABEL_MPE1,32,31,21,8
-    LTEXT           "mpe2:",IDC_LABEL_MPE2,32,47,21,8
-    LTEXT           "mpe3:",IDC_LABEL_MPE3,32,62,21,8
+    LTEXT           "mpe0:",IDC_LABEL_MPE0,32,15,21,8,SS_NOTIFY
+    LTEXT           "mpe1:",IDC_LABEL_MPE1,32,31,21,8,SS_NOTIFY
+    LTEXT           "mpe2:",IDC_LABEL_MPE2,32,47,21,8,SS_NOTIFY
+    LTEXT           "mpe3:",IDC_LABEL_MPE3,32,62,21,8,SS_NOTIFY
     LTEXT           "$80010000",IDC_MPE0_PCEXEC,56,15,37,8
     LTEXT           "$80010000",IDC_MPE1_PCEXEC,56,31,37,8
     LTEXT           "$80010000",IDC_MPE3_PCEXEC,56,62,37,8
