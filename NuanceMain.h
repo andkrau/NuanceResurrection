@@ -2,6 +2,6 @@
 #define NUANCE_MAIN_H
 
 extern bool bQuit;
-extern void StopEmulation();
+extern void StopEmulation(int mpeIndex);
 
 #endif

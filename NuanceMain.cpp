@@ -328,14 +328,20 @@ static void ExecuteSingleStep()
     DoCommBusController();
 }
 
-void StopEmulation()
+static void SetDisassemblyMPE(int mpeIndex)
+{
+  disassemblyMPE = mpeIndex;
+  UpdateControlPanelDisplay();
+}
+
+void StopEmulation(int mpeIndex)
 {
   EnableWindow(cbStop, FALSE);
   EnableWindow(cbSingleStep, TRUE);
   EnableWindow(cbLoadFile, FALSE);
   EnableWindow(cbRun, TRUE);
   bRun = false;
-  UpdateControlPanelDisplay();
+  SetDisassemblyMPE(mpeIndex);
 }
 
 INT_PTR CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPARAM lParam)
@@ -816,7 +822,7 @@ INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPAR
     case WM_COMMAND:
       switch(HIWORD(wParam))
       {
-        case BN_CLICKED:
+        case BN_CLICKED: /* Alias for STN_CLICKED */
           if((HWND)lParam == cbRun)
           {
             Run();
@@ -838,7 +844,7 @@ INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPAR
           }
           else if((HWND)lParam == cbStop)
           {
-            StopEmulation();
+            StopEmulation(disassemblyMPE);
 
             return TRUE;
           }
@@ -874,23 +880,19 @@ INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPAR
           }
           else if((HWND)lParam == textMPE0)
           {
-            disassemblyMPE = 0;
-            UpdateControlPanelDisplay();
+            SetDisassemblyMPE(0);
           }
           else if((HWND)lParam == textMPE1)
           {
-            disassemblyMPE = 1;
-            UpdateControlPanelDisplay();
+            SetDisassemblyMPE(1);
           }
           else if((HWND)lParam == textMPE2)
           {
-            disassemblyMPE = 2;
-            UpdateControlPanelDisplay();
+            SetDisassemblyMPE(2);
           }
           else if((HWND)lParam == textMPE3)
           {
-            disassemblyMPE = 3;
-            UpdateControlPanelDisplay();
+            SetDisassemblyMPE(3);
           }
           return TRUE;
         case STN_DBLCLK:
