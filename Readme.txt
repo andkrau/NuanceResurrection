@@ -486,6 +486,10 @@ Fix fullscreen toggle (via F1/ESC)
 Rudimentary support for x64/64bit compiles, needs to force-disable dynamic compiler though
 Enable Reshade support by using double buffering
 
+6/08/2007, version 0.5.1:
+  Fixed compiler bug that caused nearly all programs to crash when constant propagation and
+dead code elimination was enabled.
+
 5/30/2007, version 0.5.0:
   Fixed tons of compiler bugs.  Fixed TimeToSleep routine, allowing Snake to work again.
 Added compiler support for all remaining instructions including delayed branches.  Implemented
@@ -512,13 +516,6 @@ all programs using multiple framebuffers, namely commercial games.  Tweaked inte
 cache routines to significantly reduce cache invalidation overhead and greatly improve
 performance of programs with large working sets, e.g. most stuff running out of external
 memory on mpe3.
-
-6/30/2004, version 0.3.0:
-  Added dynamic recompiler with support for block coalescing, constant propagation
-and dead code elimination. Added support for standard non-rectangle textures.  Added
-pixel shader support for pixel mode 4 (GLSL required, no overlay support).  Added
-optional command line parameter for specifying configuration file.  Added compiler
-options and video options to configuration file.
 
 6/30/2004, version 0.3.0:
   Added dynamic recompiler with support for block coalescing, constant propagation
