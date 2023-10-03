@@ -680,25 +680,22 @@ void KPrintf(MPE &mpe)
   if(pStr)
   {
     const char* const str = (const char*)(nuonEnv.GetPointerToMemory(mpe, pStr, true));
-   // MessageBox(NULL, str, "kprintf", MB_OK);
-    
-    extern int kprintfDebug; // config file defined with [kprintf] 0 none, 1 popup, 2 kprintf.txt, 3 both 1 & 2
-    extern FILE* kprintf_log_fp;//both externs are from NounEnvironment.cpp
+
+    extern int kprintfDebug;     // config file defined with [kprintf] 0 none, 1 popup, 2 kprintf.txt, 3 both 1 & 2
+    extern FILE* kprintf_log_fp; //  both externs are from NounEnvironment.cpp
 
     if (kprintfDebug == 0)
-        return;
-    
+      return;
+
     if (kprintfDebug == 1 || kprintfDebug == 3)
-        MessageBox(NULL,str,"kprintf",MB_OK);
-    
+      MessageBox(NULL,str,"kprintf",MB_OK);
+
     if (kprintfDebug == 2 || kprintfDebug == 3)
     {
-        if (!kprintf_log_fp)
-        {
-            kprintf_log_fp = fopen("kprintf.txt", "w");
+      if (!kprintf_log_fp)
+        kprintf_log_fp = fopen("kprintf.txt", "w");
 
-        }
-        fwrite(str, strlen(str), 1, kprintf_log_fp);
+      fwrite(str, strlen(str), 1, kprintf_log_fp);
     }
   }
 #endif
@@ -734,16 +731,15 @@ inline void debug(const char *format, ...)
 
 //config instructions:
 
-; Enables kprintf for printf debugging (via console/TTY/serial)
-; To use kprintf you must define the prototype as:
+;Enables kprintf for printf debugging (via console/TTY/serial)
+;To use kprintf one must define the prototype as:
 ; extern void kprintf(const char *, ...);
-; And link with -lrombios
-; kprint values are 0-3
-; 0 does nothing
-; 1 halts and popup message for each kprintf
-; 2 writes log file to kprintf.txt in the folder nuance.exe was called in
+;And link with -lrombios
+;kprintf values:
+; 0 disables
+; 1 halts, popup message for each kprintf
+; 2 writes log file to kprintf.txt in the folder nuance.exe was called from
 ; 3 does both 2 and 3
-; 4+ does nothing
 [kprintf]
 2
 

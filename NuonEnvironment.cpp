@@ -19,9 +19,9 @@ extern GLWindow display;
 
 extern VidDisplay structMainDisplay;
 
-#ifdef ENABLE_EMULATION_MESSAGEBOXES // vars for kprintf config and log fil
-int kprintfDebug = 0; //garcia 0 none, 1 popup, 2 kprintf.txt, 3 both 1 & 2
-FILE* kprintf_log_fp = 0;
+#ifdef ENABLE_EMULATION_MESSAGEBOXES // vars for kprintf config and log file
+int kprintfDebug = 0; // 0 none, 1 popup, 2 kprintf.txt, 3 both 1 & 2
+FILE* kprintf_log_fp = nullptr;
 #endif
 
   inline void ConvertNuonAudioData(const uint8 * const __restrict pNuonAudioBuffer, uint8 * const __restrict pPCAudioBuffer, const uint32 numBytes)
@@ -782,10 +782,10 @@ bool NuonEnvironment::LoadConfigFile(const std::string& fileName)
           tokenType = ReadConfigLine(configFile,line);
           compilerOptions.bDumpBlocks = !_stricmp(line,"Enabled");
         }
-        else if (_strnicmp(&line[1], "kprintf]", sizeof("kprintf]")) == 0)  //garcia
+        else if(_strnicmp(&line[1],"kprintf]",sizeof("kprintf]")) == 0)
         {
-            tokenType = ReadConfigLine(configFile, line);
-            kprintfDebug = atoi(line); //int is 0 to 3: 0 nothing, 1 popup line, 2 write to kprintf.txt, 3 both 1 & 2
+          tokenType = ReadConfigLine(configFile,line);
+          kprintfDebug = atoi(line); //int is 0 to 3: 0 nothing, 1 popup line, 2 write to kprintf.txt, 3 both 1 & 2
         }
 #endif
         else if(_strnicmp(&line[1],"CompilerDeadCodeElimination]",sizeof("CompilerDeadCodeElimination]")) == 0)
