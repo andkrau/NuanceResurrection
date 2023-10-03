@@ -716,7 +716,7 @@ void KPrintf(MPE &mpe)
 extern void kprintf(const char *, ...);
 #include <Nuon/msprintf.h>
 
-void debug(const char *format, ...)
+inline void debug(const char *format, ...)
 {
 	char buff[1024];
 	va_list args;
