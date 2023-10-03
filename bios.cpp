@@ -703,3 +703,46 @@ void KPrintf(MPE &mpe)
   }
 #endif
 }
+
+
+/*
+  
+// Note: kprintf (on Nuance at least) doesn't parse the string variables, so it has to be done before calling kprintf, example usage
+
+#define DEBUG
+#ifdef DEBUG
+#include <stdarg.h>
+extern void kprintf(const char *, ...);
+inline void debug(const char *format, ...)
+{
+	va_list args;
+	char buff[512];
+
+		va_start(args, format);
+		printf(format, args );
+		sprintf(buff, format, args);
+		kprintf(buff);
+		va_end(args);
+
+}
+#else
+#define debug(...)
+#endif
+
+
+//config instructions:
+
+; Enables kprintf for printf debugging (via console/TTY/serial)
+; To use kprintf you must define the prototype as:
+; extern void kprintf(const char *, ...);
+; And link with -lrombios
+; kprint values are 0-3
+; 0 does nothing
+; 1 halts and popup message for each kprintf
+; 2 writes log file to kprintf.txt in the folder nuance.exe was called in
+; 3 does both 2 and 3
+; 4+ does nothing
+[kprintf]
+2
+
+*/
