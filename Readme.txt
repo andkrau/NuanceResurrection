@@ -439,6 +439,7 @@ Hide mouse cursor when in fullscreen mode
 Make rendering window behave like the others when trying to close it (e.g. clicking 'X' and Alt-F4 work now)
 Fix user breakpoints
 Fix 16/16z pixel format bilinear DMA
+Enable kprintf outputs (see end of bios.cpp for documentation)
 
 01/10/2023 version 0.6.4:
 Fix command line file parsing, also drag and drop will now work properly
