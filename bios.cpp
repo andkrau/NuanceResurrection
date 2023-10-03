@@ -709,21 +709,23 @@ void KPrintf(MPE &mpe)
   
 // Note: kprintf (on Nuance at least) doesn't parse the string variables, so it has to be done before calling kprintf, example usage
 
+
 #define DEBUG
+
 #ifdef DEBUG
-#include <stdarg.h>
 extern void kprintf(const char *, ...);
-inline void debug(const char *format, ...)
+#include <Nuon/msprintf.h>
+
+void debug(const char *format, ...)
 {
+	char buff[1024];
 	va_list args;
-	char buff[512];
 
-		va_start(args, format);
-		printf(format, args );
-		sprintf(buff, format, args);
-		kprintf(buff);
-		va_end(args);
+	va_start(args, format);
+	mvsprintf(buff, format, args);
+	va_end(args);
 
+	kprintf(buff);
 }
 #else
 #define debug(...)
