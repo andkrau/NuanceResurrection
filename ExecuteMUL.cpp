@@ -9,6 +9,7 @@ void Execute_ADDM(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
     pRegs[nuance.fields[FIELD_MUL_SRC1]] +
     pRegs[nuance.fields[FIELD_MUL_SRC2]];
 }
+
 void Execute_ADDMImmediate(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
   mpe.regs[nuance.fields[FIELD_MUL_DEST]] =

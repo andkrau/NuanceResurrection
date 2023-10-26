@@ -50,6 +50,8 @@ NativeCodeCache::~NativeCodeCache()
 
 bool NativeCodeCache::ReleaseBuffer(NativeCodeCacheEntryPoint entryPoint, uint32 virtualAddress, uint32 nextVirtualAddress, uint32 newUsedBytes, uint32 packetCount, uint32 instructionCount, SuperBlockCompileType compileType, uint32 nextDelayCount, uint32 alignment)
 {
+  assert((int)packetCount > 0);
+
   NativeCodeCacheEntry newEntry;
   newEntry.entryPoint = entryPoint;
   newEntry.virtualAddress = virtualAddress;

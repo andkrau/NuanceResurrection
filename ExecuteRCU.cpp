@@ -37,7 +37,6 @@ void Execute_DECBoth(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
   if(mpe.rc0)
   {
     mpe.rc0--;
-
     if(mpe.rc0)
     {
       mpe.cc &= ~CC_COUNTER0_ZERO;
@@ -47,7 +46,6 @@ void Execute_DECBoth(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
   if(mpe.rc1)
   {
     mpe.rc1--;
-
     if(mpe.rc1)
     {
       mpe.cc &= ~CC_COUNTER1_ZERO;

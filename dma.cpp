@@ -646,7 +646,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
           }
         }
         else
-        {          
+        {
           if((intaddr & MPE_CTRL_BASE) == MPE_CTRL_BASE)
           {
             mpe.WriteControlRegister(intaddr & 0x207FFFFC, directValue);
@@ -676,7 +676,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
           nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].WriteControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE, directValue);
         }
         else
-        {          
+        {
           if((intaddr & MPE_CTRL_BASE) == MPE_CTRL_BASE)
           {
             directValue = mpe.ReadControlRegister((intaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.reg_union);
@@ -806,7 +806,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
     //Read: base -> internal
     pSrc = baseMemory;
 
-    const bool bFlushCache = 
+    const bool bFlushCache =
       ((intaddr & MPE_LOCAL_MEMORY_MASK) >= MPE_IRAM_BASE) &&
       ((intaddr & MPE_LOCAL_MEMORY_MASK) < MPE_DTAGS_BASE);
 

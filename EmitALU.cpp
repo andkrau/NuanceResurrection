@@ -28,7 +28,7 @@ void Emit_ABS(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_eax);
   // ebx = 0 if src1 is positive and -1 if src1 is negative
   vars->mpe->nativeCodeCache.X86Emit_SARIR(x86Reg::x86Reg_ebx, 31);
-  // eax = ~src1 if src1 is negative and src1 if src1 is positve
+  // eax = ~src1 if src1 is negative and src1 if src1 is positive
   vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_ebx);
   // eax = ~src1 + 1 if src1 is negative and src1 if src1 is positive
   vars->mpe->nativeCodeCache.X86Emit_SUBRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_ebx);
