@@ -54,9 +54,9 @@ public:
   void PrintBlockToFile(SuperBlockCompileType blockType, uint32 size);
 #endif
   void AddPacketToList(const InstructionCacheEntry &packet, const uint32 index);
-  bool AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry * const pPacketEntry, const uint32 index, const bool bExplicitNOP = false);
-  NativeCodeCacheEntryPoint CompileBlock(const uint32 address, NativeCodeCache &codeCache, const SuperBlockCompileType eCompileType, const bool bSinglePacket, bool &bError);
-  bool EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, const bool bContainsBranch);
+  bool AddInstructionsToList(InstructionCacheEntry &packet, PacketEntry * const pPacketEntry, const uint32 index, const bool bExplicitNOP);
+  NativeCodeCacheEntryPoint CompileBlock(const uint32 address, NativeCodeCache &codeCache, bool &bError);
+  bool EmitCodeBlock(NativeCodeCache &codeCache, const bool bContainsBranch);
   void UpdateDependencyInfo();
   void PerformConstantPropagation();
   uint32 PerformDeadCodeElimination();
@@ -71,13 +71,12 @@ private:
   PacketEntry packets[MAX_SUPERBLOCK_PACKETS + 2];
   SuperBlockConstants constants;
   uint32 numPackets;
-  uint32 packetsProcessed;
+  int32 packetsProcessed;
   uint32 startAddress;
   uint32 exitAddress;
   uint32 nextDelayCounter;
-  bool bSinglePacket;
-  bool bAllowBlockCompile;
   bool bCanEmitNativeCode;
+  static constexpr bool bAllowBlockCompile = (COMPILE_TYPE != SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE);
 };
 
 #endif

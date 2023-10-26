@@ -1938,7 +1938,7 @@ bool MPE::FetchDecodeExecute()
           //The overlay manager assigned a previously used overlay ID so invalidate the code cache entries
           //associated with the overlay address range
           numNativeCodeCacheFlushes++;
-          nativeCodeCache.FlushRegion(MPE_IRAM_BASE | overlayMask, (MPE_IRAM_BASE + MPE::overlayLengths[mpeIndex] - 1) | overlayMask); // always invalidate whole MPE IRAM region
+          nativeCodeCache.FlushRegion(MPE_IRAM_BASE | overlayMask, (MPE_IRAM_BASE + MPE::overlayLengths[mpeIndex] - 1) | overlayMask); // always invalidate whole MPE IRAM region, as previously cached code must be erased
         }
 
         // if not only IRAM was affected, handle the leftover invalid regions
@@ -2012,7 +2012,7 @@ bool MPE::FetchDecodeExecute()
           }
 
           bool bError;
-          nativeCodeCacheEntryPoint = CompileNativeCodeBlock(pcexecLookupValue, COMPILE_TYPE, bError);
+          nativeCodeCacheEntryPoint = superBlock.CompileBlock(pcexecLookupValue, nativeCodeCache, bError);
           if(!bError)
           {
             pNativeCodeCacheEntry = nativeCodeCache.pageMap.FindEntry(pcexecLookupValue);
@@ -2323,11 +2323,6 @@ uint8 MPE::DecodeSingleInstruction(const uint8 *const iPtr, InstructionCacheEntr
     }
   }
   return 0;
-}
-
-NativeCodeCacheEntryPoint MPE::CompileNativeCodeBlock(const uint32 _pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket)
-{
-  return superBlock.CompileBlock(_pcexec, nativeCodeCache, compileType, bSinglePacket, bError);
 }
 
 void MPE::PrintInstructionCachePacket(char *buffer, size_t bufSize, const InstructionCacheEntry &entry)

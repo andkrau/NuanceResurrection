@@ -260,17 +260,13 @@ static void GetIFlagsString(char *buffer, int bufferSize, const uint32 dep)
 
 extern NuancePrintHandler printHandlers[];
 
-bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType compileType, const bool bContainsBranch)
+bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, const bool bContainsBranch)
 {
   codeCache.emitVars.bCheckECUSkipCounter = false;
 
-  if(!bAllowBlockCompile)
-    compileType = SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE;
-  else if(compileType != SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE)
-  {
-    if(!bCanEmitNativeCode)
-      compileType = SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK;
-  }
+  const SuperBlockCompileType compileType = !bAllowBlockCompile ? SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE :
+    (((COMPILE_TYPE != SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE) && !bCanEmitNativeCode) ? SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK :
+    COMPILE_TYPE);
 
   uint32 numLiveInstructions = 0;
   InstructionEntry* pInstruction = instructions;
@@ -409,17 +405,14 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, SuperBlockCompileType
   return false;
 }
 
-NativeCodeCacheEntryPoint SuperBlock::CompileBlock(const uint32 address, NativeCodeCache &codeCache, const SuperBlockCompileType compileType, const bool bLimitToSinglePacket, bool &bError)
+NativeCodeCacheEntryPoint SuperBlock::CompileBlock(const uint32 address, NativeCodeCache &codeCache, bool &bError)
 {
   const NativeCodeCacheEntryPoint entryPoint = (NativeCodeCacheEntryPoint)codeCache.GetEmitPointer();
   bCanEmitNativeCode = true;
-  bSinglePacket = bLimitToSinglePacket;
   bool bContainsBranch = false;
 
   bError = false;
   constants.bConstantPropagated = false;
-
-  bAllowBlockCompile = (compileType != SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE);
 
   //Step 1, fetch the block (or superblock)
   //int32 fetchSuperBlockResult; //!! never used
@@ -451,33 +444,28 @@ NativeCodeCacheEntryPoint SuperBlock::CompileBlock(const uint32 address, NativeC
     return (NativeCodeCacheEntryPoint)0;
   }
 
-  //Step 2, perform constant propagation
-  if(bSinglePacket)
-  {
-    UpdateDependencyInfo();
-  }
-  else
+  UpdateDependencyInfo();
+
+  if(!COMPILE_SINGLE_PACKET)
   {
     if(nuonEnv.compilerOptions.bConstantPropagation)
     {
       //Step 2, perform constant propagation
-      UpdateDependencyInfo();
       PerformConstantPropagation();
+      UpdateDependencyInfo();
     }
-    
+
     if(nuonEnv.compilerOptions.bDeadCodeElimination)
     {
       //Step 3, perform dead code elimination
-      UpdateDependencyInfo();
       PerformDeadCodeElimination();
+      UpdateDependencyInfo();
     }
-
-    UpdateDependencyInfo();
   }
-  
+
   //Step 4, emit native code or IL nodes based on compile type and
   //update code cache entry fields appropriately
-  if(!EmitCodeBlock(codeCache, compileType, bContainsBranch))
+  if(!EmitCodeBlock(codeCache, bContainsBranch))
   {
     return entryPoint;
   }
@@ -715,17 +703,17 @@ uint32 SuperBlock::PerformDeadCodeElimination()
   //scalarRegMask and miscRegMask represent all registers which do not need to be 
   //output by the instruction being processed
 
-  //scalarRegMaskNext and miscRegMaskNext work the same way except they aggregrate the
+  //scalarRegMaskNext and miscRegMaskNext work the same way except they aggregate the
   //mask values to be applied to the instructions in the next packet to be processed.  
   //These variables would not be needed on a single (instruction) issue architecture
   //but enclosing single instructions within packets does not add significant overhead
   //to the compilation process.
 
   uint32 numLive = 0;
-  uint32 i = numInstructions - 1;
- 
+
   for(uint32 j = numInstructions; j > 0; j--)
   {
+    const uint32 i = j-1;
     const uint32 flags = instructions[i].flags;
 
     if(!(flags & SUPERBLOCKINFO_DEAD))
@@ -791,8 +779,6 @@ uint32 SuperBlock::PerformDeadCodeElimination()
         miscRegMaskNext = miscRegMask;
       }
     }
-  
-    i--;
   }
 
   return numLive;
@@ -887,7 +873,7 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
 
   packetsProcessed = 0;
 
-  int32 packetCounter = bSinglePacket ? 1 : MAX_SUPERBLOCK_PACKETS;
+  int32 packetCounter = COMPILE_SINGLE_PACKET ? 1 : MAX_SUPERBLOCK_PACKETS;
 
   while(packetCounter > 0)
   {
@@ -960,11 +946,13 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
             if(!((packetDelaySlot1.packetInfo | packetDelaySlot2.packetInfo) & (PACKETINFO_MEMORY_IO|PACKETINFO_MEMORY_INDIRECT|PACKETINFO_ECU|PACKETINFO_NEVERCOMPILE)) 
               || bForceILBlock)
             {
+              {
               AddPacketToList(packet,numPackets);
-              const bool bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
+              const bool bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions,false);
               bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
               numInstructions += (packet.nuanceCount + 2);
               numPackets++;
+              }
               packetCounter--;
 
               if(bForceILBlock)
@@ -1014,7 +1002,7 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
           {
             //Delayed branch with implicit NOP
             AddPacketToList(packet,numPackets);
-            const bool bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
+            const bool bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions,false);
             bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
             //Increment numInstructions by nuance count and add two to account for PacketStart and PacketEnd
             numInstructions += (packet.nuanceCount + 2);
@@ -1030,7 +1018,7 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
         bFirstNonNOPReached = true;
 
         AddPacketToList(packet,numPackets);
-        const bool bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions);
+        const bool bPacketAllowsNativeCode = AddInstructionsToList(packet,&packets[numPackets],numInstructions,false);
         bCanEmitNativeCode = bCanEmitNativeCode && bPacketAllowsNativeCode;
         //Increment numInstructions by nuance count and add two to account for PacketStart and PacketEnd
         numInstructions += (packet.nuanceCount + 2);

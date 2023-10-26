@@ -5,6 +5,7 @@
 
 //#define COMPILE_TYPE SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK
 #define COMPILE_TYPE SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK
+#define COMPILE_SINGLE_PACKET false
 
 #define ALLOW_NATIVE_CODE_EMIT true
 
@@ -391,7 +392,6 @@ public:
   void GetInstructionTripletDependencies(uint32& comboScalarDep, uint32& comboMiscDep, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
   void ScheduleInstructionTriplet(InstructionCacheEntry &destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry, const uint32 slot1, const uint32 slot2, const uint32 slot3);
   void ScheduleInstructionQuartet(InstructionCacheEntry &destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry);
-  NativeCodeCacheEntryPoint CompileNativeCodeBlock(const uint32 _pcexec, const SuperBlockCompileType compileType, bool &bError, const bool bSinglePacket = false);
   bool FetchDecodeExecute();
   void ExecuteSingleStep();
 
