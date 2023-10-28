@@ -171,7 +171,7 @@ void MPE::DecodeInstruction_ALU16(const uint8 * const iPtr, InstructionCacheEntr
       entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVZ;
       if(*immExt == 0)
       {
-        entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E0 << 27)) >> 27; //#n
+        entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E0 << 27)) >> 27; //#n "0..31" -> -16..15
       }
       else
       {
@@ -336,7 +336,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVCZ;
           if(field_1F)
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] <<= (32 - field_1F);
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] <<= (32u - field_1F);
           }
           return;
         case 0x04:
@@ -346,7 +346,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           //add Si, >>#m, Sk
           entry->packetInfo |= addFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27;
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->scalarOutputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
@@ -373,7 +373,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           return;
         case 0x07:
           //add_p Vi, Vj, Vk
-          entry->packetInfo |= addpFlags;          
+          entry->packetInfo |= addpFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ADD_P;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000 & 0x1C;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000 & 0x1C;
@@ -432,7 +432,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVCZ;
           if(field_1F)
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] <<= (32 - field_1F);
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] <<= (32u - field_1F);
           }
           return;
         case 0x04:
@@ -451,12 +451,12 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->packetInfo |= subFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_SUBImmediate;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27;
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->scalarOutputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVCZ;
-          if(((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]) >= 0)
+          if((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] >= 0)
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_SUBScalarShiftRightImmediate;
           }
@@ -517,7 +517,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVCZ;
           if(field_1F)
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] <<= (32 - field_1F);
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] <<= (32u - field_1F);
           }
           return;
         case 0x04:
@@ -532,11 +532,11 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           //cmp Si, >>#m, Sk
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_CMPImmediateReverse;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27;
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVCZ;
-          if(((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]) >= 0)
+          if((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] >= 0)
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_CMPScalarShiftRightImmediate;
           }
@@ -578,7 +578,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVZ;
           if(*immExt == 0)
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n "0..31" -> -16..15
           }
           else
           {
@@ -588,7 +588,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
         case 0x02:
           //and #n, <>#m, Sk
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ANDImmediate;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n;
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
@@ -600,7 +600,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           }
           else
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = _lrotl(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)], 32 - field_1F);
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = _lrotl(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)], 32u - field_1F);
           }
           return;
         case 0x03:
@@ -617,26 +617,25 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           }
           else
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_1F << 27)) >> 27;
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           }
           return;
         case 0x04:
           //and Si, >>#m, Sk
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27;
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->scalarOutputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVZ;
-          if(((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]) >= 0)
+          if((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] >= 0)
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ANDScalarShiftRightImmediate;
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] &= 0x3FUL;
           }
           else
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ANDScalarShiftLeftImmediate;
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = -((int32)(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)])) & 0x3FUL;
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = -((int32)(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]));
           }
           return;
         case 0x05:
@@ -687,7 +686,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVZ;
           if(*immExt == 0)
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n "0..31" -> -16..15
           }
           else
           {
@@ -697,7 +696,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
         case 0x02:
           //ftst #n, <>#m, Sk
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_FTSTImmediate;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
@@ -708,7 +707,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           }
           else
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = _lrotl(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)], 32 - field_1F);
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = _lrotl(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)], 32u - field_1F);
           }
           return;
         case 0x03:
@@ -724,24 +723,24 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           }
           else
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_1F << 27)) >> 27;
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           }
           return;
         case 0x04:
           //ftst Si, >>#m, Sk
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000; //Si
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27;  //>>#m
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27;  //>>#m "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000; //Sk
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVZ;
-          if(((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]) >= 0)
+          if((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] >= 0)
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_FTSTScalarShiftRightImmediate;
           }
           else
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_FTSTScalarShiftLeftImmediate;
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = -((int32)(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)])) & 0x3FUL;
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = -((int32)(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]));
           }
           return;
         case 0x05:
@@ -784,7 +783,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           return;
         case 0x01:
           //or #n, Sj, Sk
-          entry->packetInfo |= orImmediateFlags;            
+          entry->packetInfo |= orImmediateFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ORImmediate;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F;
@@ -793,7 +792,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVZ;
           if(*immExt == 0)
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n "0..31" -> -16..15
           }
           else
           {
@@ -802,9 +801,9 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           return;
         case 0x02:
           //or #n, <>#m, Sk
-          entry->packetInfo |= orImmediateFlags;            
+          entry->packetInfo |= orImmediateFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ORImmediate;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n;
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
@@ -816,12 +815,12 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           }
           else
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = _lrotl(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)], 32 - field_1F);
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = _lrotl(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)], 32u - field_1F);
           }
           return;
         case 0x03:
           //or #n, >>Sj, Sk
-          entry->packetInfo |= orImmediateFlags;            
+          entry->packetInfo |= orImmediateFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ORImmediateShiftScalar;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000; //>>Sj
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_3E00000; //Sk
@@ -834,32 +833,31 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           }
           else
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_1F << 27)) >> 27;
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           }
           return;
         case 0x04:
           //or Si, >>#m, Sk
-          entry->packetInfo |= orFlags;            
+          entry->packetInfo |= orFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27;
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->scalarOutputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVZ;
-          if(((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]) >= 0)
+          if((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] >= 0)
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ORScalarShiftRightImmediate;
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] &= 0x3FUL;
           }
           else
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ORScalarShiftLeftImmediate;
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = -((int32)(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)])) & 0x3FUL;
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = -((int32)(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]));
           }
           return;
         case 0x05:
           //or Si, >>Sj, Sk
-          entry->packetInfo |= orFlags;            
+          entry->packetInfo |= orFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ORScalarShiftScalar;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000;
@@ -870,7 +868,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           return;
         case 0x06:
           //or Si, <>Sj, Sk
-          entry->packetInfo |= orFlags;            
+          entry->packetInfo |= orFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ORScalarRotateScalar;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000;
@@ -910,7 +908,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVZ;
           if(*immExt == 0)
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n "0..31" -> -16..15
           }
           else
           {
@@ -921,7 +919,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           //eor #n, <>#m, Sk
           entry->packetInfo |= eorImmediateFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_EORImmediate;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n;
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_3E00000 << 27)) >> 27; //#n "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
@@ -933,7 +931,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           }
           else
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = _lrotl(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)], 32 - field_1F);
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = _lrotl(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)], 32u - field_1F);
           }
           return;
         case 0x03:
@@ -951,27 +949,26 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           }
           else
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_1F << 27)) >> 27;
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           }
           return;
         case 0x04:
           //eor Si, >>#m, Sk
           entry->packetInfo |= eorFlags;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000; //Si
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27;
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000; //Sk
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->scalarOutputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVZ;
-          if(((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]) >= 0)
+          if((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] >= 0)
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_EORScalarShiftRightImmediate;
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] &= 0x3FUL;
           }
           else
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_EORScalarShiftLeftImmediate;
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = -((int32)(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)])) & 0x3FUL;
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = -((int32)(entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]));
           }
           return;
         case 0x05:
@@ -1082,7 +1079,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           if(field_1F & 0x10UL)
           {
             entry->packetInfo |= rolFlags;
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = 32 - field_1F;
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = 32u - field_1F;
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ROL;
             return;
           }
@@ -1217,7 +1214,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVCZ;
           if(field_1F)
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] >>= (32 - field_1F);
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] >>= (32u - field_1F);
           }
           return;
         case 0x04:
@@ -1226,13 +1223,13 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
         case 0x05:
           //addwc Si, >>#m, Sk
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27;
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->scalarOutputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->miscInputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_C;
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVCZ;
-          if(((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]) >= 0)
+          if((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] >= 0)
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_ADDWCScalarShiftRightImmediate;
           }
@@ -1299,7 +1296,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVCZ;
           if(field_1F)
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] >>= (32 - field_1F);
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] >>= (32u - field_1F);
           }
           return;
         case 0x04:
@@ -1316,13 +1313,13 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
         case 0x05:
           //subwc Si, >>#m, Sk
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000;
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27;
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000;
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->scalarOutputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->miscInputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_C;
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVCZ;
-          if(((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]) >= 0)
+          if((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] >= 0)
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_SUBWCScalarShiftRightImmediate;
           }
@@ -1381,7 +1378,7 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVCZ;
           if(field_1F)
           {
-            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] >>= (32 - field_1F);
+            entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] >>= (32u - field_1F);
           }
           return;
         case 0x04:
@@ -1396,12 +1393,12 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
         case 0x05:
           //cmpwc Si, >>#m, Sq
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000; //Si
-          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27; //#m
+          entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = ((int32)(field_1F << 27)) >> 27; //#m "0..31" -> -16..15
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F0000; //Sq
           entry->scalarInputDependencies[SLOT_ALU] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | SCALAR_REG_DEPENDENCY_MASK(field_1F0000);
           entry->miscInputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_C;
           entry->miscOutputDependencies[SLOT_ALU] = DEPENDENCY_FLAG_NVCZ;
-          if(((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)]) >= 0)
+          if((int32)entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] >= 0)
           {
             entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_HANDLER)] = Handler_CMPWCScalarShiftRightImmediate;
           }
