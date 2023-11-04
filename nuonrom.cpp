@@ -17,7 +17,7 @@ bool MPE::LoadNuonRomFile(const char * const filename)
   if(_sopen_s(&handle,filename,O_RDONLY|O_BINARY,_SH_DENYWR,_S_IREAD) == 0 && handle >= 0)
   {
 check_for_bles:
-    bytesRead = _read(handle, &linebuf, 16);
+    bytesRead = _read(handle, linebuf, 16);
     if(bytesRead == 16)
     {
       if(strncmp(linebuf,"Bles",4) == 0)
@@ -29,7 +29,7 @@ check_for_bles:
           //Version 1?  COFF offset value is at offset 0x52
           bytesRead = _lseek(handle, 0x52 - 0x10, SEEK_CUR);
           
-          _read(handle, &linebuf, 2);
+          _read(handle, linebuf, 2);
           union {
             uint32 u32;
             struct { uint8 u8[4]; };
@@ -45,10 +45,10 @@ check_for_bles:
       if(strncmp(linebuf,"NUONROM-DISK",12) == 0)
       {
         //skip to line containing "cd_app.cof"
-        bytesRead = _read(handle, &linebuf, 48);
+        bytesRead = _read(handle, linebuf, 48);
         if(bytesRead == 48)
         {
-          bytesRead = _read(handle, &linebuf, 16);
+          bytesRead = _read(handle, linebuf, 16);
           if(bytesRead == 16)
           {
             if(strncmp(linebuf,"cd_app.cof",10) == 0)
@@ -58,7 +58,7 @@ check_for_bles:
               uint32 length;
               bytesRead = _read(handle, &length, 4);
               SwapScalarBytes(&length);
-              bytesRead = _read(handle, &linebuf, 8);
+              bytesRead = _read(handle, linebuf, 8);
               _lseek(handle, 0, SEEK_SET);
 
               if(bytesRead == 8)
@@ -83,7 +83,7 @@ load_coff_file:
               uint32 length;
               bytesRead = _read(handle, &length, 4);
               SwapScalarBytes(&length);
-              bytesRead = _read(handle, &linebuf, 8);
+              bytesRead = _read(handle, linebuf, 8);
               if(bytesRead == 8)
               {
                 bytesRead = _lseek(handle, offset, SEEK_SET);
