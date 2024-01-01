@@ -1092,10 +1092,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     Load(fileName.c_str());
     load4firsttime = false;
 
-#ifdef ENABLE_EMULATION_MESSAGEBOXES
-    extern int kprintfDebug;
-    if (kprintfDebug == 0) // dont want fullscreen when programming
-#endif
+    if (nuonEnv.debugLogFile) // dont want fullscreen when programming
       display.ToggleFullscreen();
   }
   else if(nuonEnv.bAutomaticLoadPopup && Load()) // load via file open popup on start
@@ -1239,12 +1236,6 @@ CLEANUP AND APPLICATION SHUTDOWN CODE
   EndDialog(hStatusDlg,IDOK);
 
   VideoCleanup();
-
-#ifdef ENABLE_EMULATION_MESSAGEBOXES // close kprintf log if opened
-  extern FILE* kprintf_log_fp;
-  if (kprintf_log_fp)
-    fclose(kprintf_log_fp);
-#endif
 
   return 0;
 }

@@ -5,6 +5,7 @@
 #include <climits>
 #include <windows.h>
 #include <string>
+#include <stdio.h>
 #include "external\fmod-3.75\api\inc\fmod.h"
 #include "audio.h"
 #include "mpe.h"
@@ -49,7 +50,7 @@ public:
 class NuonEnvironment
 {
 public:
-  NuonEnvironment() : dvdBase(nullptr), bFMODInitialized(false), audioChannel(0),
+  NuonEnvironment() : dvdBase(nullptr), bFMODInitialized(false), audioChannel(0), debugLogFile(0), debugLogFileName(0),
     controllerDefaultMapping{ // Note that the default mapping should always map to keyboard as it will also be used if no other joypad/stick is connected!
         // Original key mappings included with Nuance
         ControllerButtonMapping(InputManager::KEY, 'R', 0), // CTRLR_BITNUM_BUTTON_C_RIGHT
@@ -215,6 +216,8 @@ public:
 
   bool bUseCRTshader;
 
+  FILE *debugLogFile;
+
 private:
   bool StrToCtrlrBitnum(const char* str, unsigned int *bitnum);
   bool ParseJoyButtonConf(char buf[1025], unsigned int* bitnum, ControllerButtonMapping* mapping);
@@ -223,6 +226,7 @@ private:
 
   std::string cfgFileName;
   char *dvdBase;
+  char *debugLogFileName;
   bool bAudioInterruptsEnabled;
 
   ControllerButtonMapping controllerDefaultMapping[16]; // Indixed by CTRLR_BITNUM_* macros from joystick.h

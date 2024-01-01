@@ -673,32 +673,20 @@ void InitBios(MPE &mpe)
 
 void KPrintf(MPE &mpe)
 { 
-#ifdef ENABLE_EMULATION_MESSAGEBOXES // kprintf will do nothing if not compiled with ENABLE_EMULATION_MESSAGEBOXES
   uint32 pStr = *((uint32 *)(nuonEnv.GetPointerToMemory(mpe,mpe.regs[31],true)));
 
   SwapScalarBytes(&pStr);
   if(pStr)
   {
-    const char* const str = (const char*)(nuonEnv.GetPointerToMemory(mpe, pStr, true));
+    const char* const str = (const char *)(nuonEnv.GetPointerToMemory(mpe,pStr,true));
 
-    extern int kprintfDebug;     // config file defined with [kprintf] 0 none, 1 popup, 2 kprintf.txt, 3 both 1 & 2
-    extern FILE* kprintf_log_fp; //  both externs are from NounEnvironment.cpp
-
-    if (kprintfDebug == 0)
-      return;
-
-    if (kprintfDebug == 1 || kprintfDebug == 3)
-      MessageBox(NULL,str,"kprintf",MB_OK);
-
-    if (kprintfDebug == 2 || kprintfDebug == 3)
+    if (!nuonEnv.debugLogFile)
     {
-      if (!kprintf_log_fp)
-        kprintf_log_fp = fopen("kprintf.txt", "w");
-
-      fwrite(str, strlen(str), 1, kprintf_log_fp);
+      return;
     }
+    fprintf(nuonEnv.debugLogFile, "%s", str);
+    fflush(nuonEnv.debugLogFile);
   }
-#endif
 }
 
 
