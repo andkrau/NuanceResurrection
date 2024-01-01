@@ -670,21 +670,171 @@ void InitBios(MPE &mpe)
   TimerInit(2,1000*1000/VIDEO_HZ); // triggers video int at ~50 or 60Hz
 }
 
+static int32 GetStackInt(MPE &mpe, uint32 &stackPtr)
+{
+  int32 val = *((int32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true)));
+  SwapScalarBytes((uint32 *)&val);
+  stackPtr += 4;
+  return val;
+}
+
+static uint32 GetStackUInt(MPE &mpe, uint32 &stackPtr)
+{
+  uint32 val = *((uint32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true)));
+  SwapScalarBytes(&val);
+  stackPtr += 4;
+  return val;
+}
+
+static double GetStackDouble(MPE &mpe, uint32 &stackPtr)
+{
+  const uint8* bytes = (const uint8*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
+  double val;
+  uint8* valBytes = (uint8*)&val;
+  uint32* valDwords = (uint32*)&val;
+  uint32 tmp;
+
+  memcpy(&val, bytes, sizeof(val));
+  SwapScalarBytes((uint32 *)&valBytes[0]);
+  SwapScalarBytes((uint32 *)&valBytes[4]);
+
+  tmp = valDwords[0];
+  valDwords[0] = valDwords[1];
+  valDwords[1] = tmp;
+
+  stackPtr += 8;
+  return val;
+}
+
+static const void *GetStackPtr(MPE &mpe, uint32 &stackPtr)
+{
+  uint32 ptr = *(uint32 *)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
+  SwapScalarBytes(&ptr);
+  const void* ret = (nuonEnv.GetPointerToMemory(mpe, ptr, true));
+  stackPtr += 4;
+  return ret;
+}
+
+static void NuonSprintf(MPE &mpe, uint32 stackPtr, char* buf, size_t bufSize, const char* fmt)
+{
+  char* bufEnd = buf + bufSize - 1;
+
+  for (char c = *fmt++; c && (buf < bufEnd); c = *fmt++) {
+    if (c != '%')
+    {
+      *buf++ = c;
+      continue;
+    }
+
+    c = *fmt++;
+
+    if (!c) break;
+
+    switch (c)
+    {
+    case '%':
+      *buf++ = '%';
+      break;
+    case 'c':
+    {
+      int32 val = GetStackInt(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%c", val);
+      break;
+    }
+    case 'd':
+    {
+      int32 val = GetStackInt(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%d", val);
+      break;
+    }
+    case 'e':
+    {
+      double val = GetStackDouble(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%e", val);
+      break;
+    }
+    case 'f':
+    {
+      double val = GetStackDouble(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%f", val);
+      break;
+    }
+    case 'g':
+    {
+      double val = GetStackDouble(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%g", val);
+      break;
+    }
+    case 'a':
+    {
+      double val = GetStackDouble(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%a", val);
+      break;
+    }
+    case 'u':
+    {
+      uint32 val = GetStackUInt(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%u", val);
+      break;
+    }
+    case 'o':
+    {
+      uint32 val = GetStackUInt(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%o", val);
+      break;
+    }
+    case 'x':
+    {
+      uint32 val = GetStackUInt(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%x", val);
+      break;
+    }
+    case 'X':
+    {
+      uint32 val = GetStackUInt(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%X", val);
+      break;
+    }
+    case 'p':
+    {
+      uint32 val = GetStackUInt(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%#x", val);
+      break;
+    }
+    case 's':
+    {
+      const char* val = (const char *)GetStackPtr(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, "%s", val);
+      break;
+    }
+    default:
+      /* Unknown conversion character. Just skip it */
+      stackPtr += 4; // Best guess at parameter size
+      break;
+    }
+  }
+
+  *buf = '\0';
+}
 
 void KPrintf(MPE &mpe)
-{ 
-  uint32 pStr = *((uint32 *)(nuonEnv.GetPointerToMemory(mpe,mpe.regs[31],true)));
+{
+  uint32 stackPtr = mpe.regs[31];
+
+  uint32 pStr = *((uint32 *)(nuonEnv.GetPointerToMemory(mpe,stackPtr,true)));
 
   SwapScalarBytes(&pStr);
   if(pStr)
   {
     const char* const str = (const char *)(nuonEnv.GetPointerToMemory(mpe,pStr,true));
+    char buf[2048];
 
     if (!nuonEnv.debugLogFile)
     {
       return;
     }
-    fprintf(nuonEnv.debugLogFile, "%s", str);
+    NuonSprintf(mpe, stackPtr + 4, buf, sizeof(buf), str);
+    fprintf(nuonEnv.debugLogFile, "%s", buf);
     fflush(nuonEnv.debugLogFile);
   }
 }
