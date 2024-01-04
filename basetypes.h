@@ -4,7 +4,7 @@
 #include <xmmintrin.h>
 
 #define ENABLE_ASSERTS
-#define ENABLE_EMULATION_MESSAGEBOXES // also enables "DumpCompiledBlocks" & "kprintf" config file option
+#define ENABLE_EMULATION_MESSAGEBOXES // also enables "DumpCompiledBlocks" option
 
 #define STRICT
 #define WIN32_LEAN_AND_MEAN
