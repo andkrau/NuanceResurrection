@@ -1,5 +1,5 @@
-Nuance 0.6.5
-Copyright 2002 - 2007 Mike Perry and 2020 - 2023 all the open source contributors (see separate license.txt)
+Nuance 0.6.6
+Copyright 2002 - 2007 Mike Perry and 2020 - 2024 all the open source contributors (see separate license.txt)
 Continued using the released source in honour of the original author by Carsten Waechter (toxie at ainc.de) in 2020
 NUON is a trademark of Genesis Microchip, Inc.
 
@@ -469,7 +469,9 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 
 History
 =======
-version 0.6.5:
+version 0.6.6:
+
+01/04/2024 version 0.6.5:
 Fix loading of nuance.cfg when drag and drop is used
 Hide mouse cursor when in fullscreen mode
 Make rendering window behave like the others when trying to close it (e.g. clicking 'X' and Alt-F4 work now)

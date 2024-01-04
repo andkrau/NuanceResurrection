@@ -16,7 +16,7 @@ the original author Mike Perry, so everything that was commited AFTER the initia
 
 The 3-Clause BSD License:
 
-Copyright (C) 2020-2023 Nuance development team and contributors
+Copyright (C) 2020-2024 Nuance development team and contributors
                         (unless specifically noted differently in a respective source file)
 
 Redistribution and use in source and binary forms, with or without modification,
