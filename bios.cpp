@@ -670,15 +670,30 @@ void InitBios(MPE &mpe)
   TimerInit(2,1000*1000/VIDEO_HZ); // triggers video int at ~50 or 60Hz
 }
 
-static int32 GetStackInt(MPE &mpe, uint32 &stackPtr)
+enum NuonPrintfType {
+  NPF_TYPE_NONE,
+  NPF_TYPE_CHAR,
+  NPF_TYPE_UCHAR,
+  NPF_TYPE_SHORT,
+  NPF_TYPE_USHORT,
+  NPF_TYPE_INT,
+  NPF_TYPE_UINT,
+  NPF_TYPE_INT64,
+  NPF_TYPE_UINT64,
+  NPF_TYPE_DOUBLE,
+  NPF_TYPE_STRING,
+};
+
+
+static int32 GetStackInt(MPE& mpe, uint32& stackPtr)
 {
   int32 val = *((int32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true)));
-  SwapScalarBytes((uint32 *)&val);
+  SwapScalarBytes((uint32*)&val);
   stackPtr += 4;
   return val;
 }
 
-static uint32 GetStackUInt(MPE &mpe, uint32 &stackPtr)
+static uint32 GetStackUInt(MPE& mpe, uint32& stackPtr)
 {
   uint32 val = *((uint32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true)));
   SwapScalarBytes(&val);
@@ -686,7 +701,7 @@ static uint32 GetStackUInt(MPE &mpe, uint32 &stackPtr)
   return val;
 }
 
-static double GetStackDouble(MPE &mpe, uint32 &stackPtr)
+static double GetStackDouble(MPE& mpe, uint32& stackPtr)
 {
   const uint8* bytes = (const uint8*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
   double val;
@@ -695,8 +710,8 @@ static double GetStackDouble(MPE &mpe, uint32 &stackPtr)
   uint32 tmp;
 
   memcpy(&val, bytes, sizeof(val));
-  SwapScalarBytes((uint32 *)&valBytes[0]);
-  SwapScalarBytes((uint32 *)&valBytes[4]);
+  SwapScalarBytes((uint32*)&valBytes[0]);
+  SwapScalarBytes((uint32*)&valBytes[4]);
 
   tmp = valDwords[0];
   valDwords[0] = valDwords[1];
@@ -706,13 +721,253 @@ static double GetStackDouble(MPE &mpe, uint32 &stackPtr)
   return val;
 }
 
-static const void *GetStackPtr(MPE &mpe, uint32 &stackPtr)
+static uint64 GetStackUInt64(MPE& mpe, uint32& stackPtr)
 {
-  uint32 ptr = *(uint32 *)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
+  const uint8* bytes = (const uint8*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
+  uint64 val;
+  uint8* valBytes = (uint8*)&val;
+  uint32* valDwords = (uint32*)&val;
+  uint32 tmp;
+
+  memcpy(&val, bytes, sizeof(val));
+  SwapScalarBytes((uint32*)&valBytes[0]);
+  SwapScalarBytes((uint32*)&valBytes[4]);
+
+  tmp = valDwords[0];
+  valDwords[0] = valDwords[1];
+  valDwords[1] = tmp;
+
+  stackPtr += 8;
+  return val;
+}
+
+static uint64 GetStackInt64(MPE& mpe, uint32& stackPtr)
+{
+  const uint8* bytes = (const uint8*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
+  int64 val;
+  uint8* valBytes = (uint8*)&val;
+  uint32* valDwords = (uint32*)&val;
+  uint32 tmp;
+
+  memcpy(&val, bytes, sizeof(val));
+  SwapScalarBytes((uint32*)&valBytes[0]);
+  SwapScalarBytes((uint32*)&valBytes[4]);
+
+  tmp = valDwords[0];
+  valDwords[0] = valDwords[1];
+  valDwords[1] = tmp;
+
+  stackPtr += 8;
+  return val;
+}
+
+static const void* GetStackPtr(MPE& mpe, uint32& stackPtr)
+{
+  uint32 ptr = *(uint32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
   SwapScalarBytes(&ptr);
   const void* ret = (nuonEnv.GetPointerToMemory(mpe, ptr, true));
   stackPtr += 4;
   return ret;
+}
+
+static const char *BuildFmtString(MPE& mpe, uint32& stackPtr, char* fmtString, const char* srcFmtString, NuonPrintfType &typeOut)
+{
+  char c;
+
+  typeOut = NPF_TYPE_NONE;
+
+  *fmtString++ = '%';
+
+  bool doFlags = true;
+  while (doFlags)
+  {
+    c = *srcFmtString;
+    switch (c)
+    {
+    case '#':
+    case '0':
+    case '-':
+    case '+':
+    case ' ':
+      *fmtString++ = c;
+      srcFmtString++;
+      break;
+
+    default:
+      doFlags = false;
+      break;
+    }
+  }
+
+  if (*srcFmtString == '*')
+  {
+    srcFmtString++;
+    int fWidth = GetStackInt(mpe, stackPtr);
+    fmtString += sprintf(fmtString, "%d", fWidth);
+  }
+  else
+  {
+    while (true)
+    {
+      c = *srcFmtString;
+
+      if ((c >= '0') && (c <= '9')) {
+        *fmtString++ = c;
+        srcFmtString++;
+      }
+      else
+      {
+        break;
+      }
+    }
+  }
+  if (*srcFmtString == '.')
+  {
+    *fmtString++ = '.';
+    srcFmtString++;
+    if (*srcFmtString == '*')
+    {
+      srcFmtString++;
+      int precision = GetStackInt(mpe, stackPtr);
+      fmtString += sprintf(fmtString, "%d", precision);
+    }
+    else
+    {
+      while (true)
+      {
+        c = *srcFmtString;
+
+        if ((c >= '0') && (c <= '9')) {
+          *fmtString++ = c;
+          srcFmtString++;
+        }
+        else
+        {
+          break;
+        }
+      }
+    }
+  }
+
+  bool doEnding = true;
+  while (doEnding)
+  {
+    c = *srcFmtString;
+
+    switch (c)
+    {
+    case 'h':
+      *fmtString++ = c;
+      c = *++srcFmtString;
+
+      if (c == 'h')
+      {
+        *fmtString++ = c;
+        srcFmtString++;
+        typeOut = NPF_TYPE_CHAR;
+      }
+      else
+      {
+        typeOut = NPF_TYPE_SHORT;
+      }
+      break;
+
+    case 'l':
+      // Eat a single 'l', since sizeof(long int) == sizeof(int) on Nuon.
+      c = *++srcFmtString;
+      if (c == 'l')
+      {
+        // Include a double 'l', since long long int is always 64 bits.
+        *fmtString++ = c;
+        *fmtString++ = c;
+        srcFmtString++;
+        typeOut = NPF_TYPE_INT64;
+      }
+      else
+      {
+        typeOut = NPF_TYPE_INT;
+      }
+      break;
+
+    case 'z':
+      // size_t is 32-bit on Nuon.
+      *fmtString++ = c;
+      srcFmtString++;
+      typeOut = NPF_TYPE_INT;
+      break;
+
+    // XXX Don't support long doubles, intmax_t/uintmax_t, some even more arcane stuff.
+
+    case 'd':
+    case 'i':
+      *fmtString++ = c;
+      srcFmtString++;
+      doEnding = false;
+      if (typeOut == NPF_TYPE_NONE)
+      {
+        typeOut = NPF_TYPE_INT;
+      }
+      break;
+
+    case 'o':
+    case 'u':
+    case 'x':
+    case 'X':
+      *fmtString++ = c;
+      srcFmtString++;
+      doEnding = false;
+      switch (typeOut)
+      {
+      case NPF_TYPE_CHAR:
+      case NPF_TYPE_SHORT:
+      case NPF_TYPE_INT:
+      case NPF_TYPE_INT64:
+        typeOut = (NuonPrintfType)((int)typeOut + 1);
+        break;
+
+      default:
+        typeOut = NPF_TYPE_UINT;
+        break;
+      }
+      break;
+
+    case 'e':
+    case 'f':
+    case 'g':
+    case 'a':
+      *fmtString++ = c;
+      srcFmtString++;
+      typeOut = NPF_TYPE_DOUBLE;
+      doEnding = false;
+      break;
+
+    case 'p':
+      *fmtString++ = '#';
+      *fmtString++ = 'x';
+      srcFmtString++;
+      typeOut = NPF_TYPE_UINT;
+      doEnding = false;
+      break;
+
+    case 's':
+      *fmtString++ = c;
+      srcFmtString++;
+      typeOut = NPF_TYPE_STRING;
+      doEnding = false;
+      break;
+
+    case '\0':
+    default:
+      /* Error condition. Invalid or unhandled conversion string */
+      typeOut = NPF_TYPE_NONE;
+      doEnding = false;
+      break;
+    }
+  }
+
+  *fmtString = '\0';
+
+  return srcFmtString;
 }
 
 static void NuonSprintf(MPE &mpe, uint32 stackPtr, char* buf, size_t bufSize, const char* fmt)
@@ -726,85 +981,61 @@ static void NuonSprintf(MPE &mpe, uint32 stackPtr, char* buf, size_t bufSize, co
       continue;
     }
 
-    c = *fmt++;
+    c = *fmt;
 
     if (!c) break;
 
-    switch (c)
+    if (c == '%')
     {
-    case '%':
       *buf++ = '%';
-      break;
-    case 'c':
+      fmt++;
+      continue;
+    }
+
+    char subFmtStr[128];
+    NuonPrintfType type;
+    fmt = BuildFmtString(mpe, stackPtr, subFmtStr, fmt, type);
+
+    switch (type)
+    {
+    case NPF_TYPE_CHAR:
+    case NPF_TYPE_SHORT:
+    case NPF_TYPE_INT:
     {
       int32 val = GetStackInt(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%c", val);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
       break;
     }
-    case 'd':
+    case NPF_TYPE_UCHAR:
+    case NPF_TYPE_USHORT:
+    case NPF_TYPE_UINT:
     {
-      int32 val = GetStackInt(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%d", val);
+      uint32 val = GetStackUInt(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
       break;
     }
-    case 'e':
+    case NPF_TYPE_DOUBLE:
     {
       double val = GetStackDouble(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%e", val);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
       break;
     }
-    case 'f':
-    {
-      double val = GetStackDouble(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%f", val);
-      break;
-    }
-    case 'g':
-    {
-      double val = GetStackDouble(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%g", val);
-      break;
-    }
-    case 'a':
-    {
-      double val = GetStackDouble(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%a", val);
-      break;
-    }
-    case 'u':
-    {
-      uint32 val = GetStackUInt(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%u", val);
-      break;
-    }
-    case 'o':
-    {
-      uint32 val = GetStackUInt(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%o", val);
-      break;
-    }
-    case 'x':
-    {
-      uint32 val = GetStackUInt(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%x", val);
-      break;
-    }
-    case 'X':
-    {
-      uint32 val = GetStackUInt(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%X", val);
-      break;
-    }
-    case 'p':
-    {
-      uint32 val = GetStackUInt(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%#x", val);
-      break;
-    }
-    case 's':
+    case NPF_TYPE_STRING:
     {
       const char* val = (const char *)GetStackPtr(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, "%s", val);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      break;
+    }
+    case NPF_TYPE_INT64:
+    {
+      int64 val = GetStackInt64(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      break;
+    }
+    case NPF_TYPE_UINT64:
+    {
+      uint64 val = GetStackUInt64(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
       break;
     }
     default:
