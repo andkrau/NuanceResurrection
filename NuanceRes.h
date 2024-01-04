@@ -75,6 +75,7 @@
 #define IDC_LABEL_R                     1068
 #define IDC_LABEL_ANALOGX               1069
 #define IDC_LABEL_ANALOGY               1070
+#define IDC_STATIC                      -1
 
 // Next default values for new objects
 // 
