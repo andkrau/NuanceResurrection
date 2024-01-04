@@ -218,6 +218,14 @@ public:
 
   FILE *debugLogFile;
 
+  char** kprintRingBuffer;
+  size_t kprintCurrentLine;
+  size_t kprintCurrentChar;
+  bool kprintUpdated;
+
+  static const size_t KPRINT_RING_SIZE = 32;
+  static const size_t KPRINT_LINE_LENGTH = 100;
+
 private:
   bool StrToCtrlrBitnum(const char* str, unsigned int *bitnum);
   bool ParseJoyButtonConf(char buf[1025], unsigned int* bitnum, ControllerButtonMapping* mapping);
@@ -227,6 +235,7 @@ private:
   std::string cfgFileName;
   char *dvdBase;
   char *debugLogFileName;
+  char* kprintBuffer;
   bool bAudioInterruptsEnabled;
 
   ControllerButtonMapping controllerDefaultMapping[16]; // Indixed by CTRLR_BITNUM_* macros from joystick.h

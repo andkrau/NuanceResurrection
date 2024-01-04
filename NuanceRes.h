@@ -41,6 +41,8 @@
 #define IDC_DUMP_MPES                   1022
 #define IDB_OK                          1022
 #define IDB_CANCEL                      1023
+#define IDC_DUMP_MPES2                  1024
+#define IDC_KPRINTF_LOG                 1024
 #define IDC_SET_DUP                     1033
 #define IDC_LABEL_DUP                   1034
 #define IDC_SET_DDOWN                   1035
@@ -73,7 +75,6 @@
 #define IDC_LABEL_R                     1068
 #define IDC_LABEL_ANALOGX               1069
 #define IDC_LABEL_ANALOGY               1070
-#define IDC_STATIC                      -1
 
 // Next default values for new objects
 // 

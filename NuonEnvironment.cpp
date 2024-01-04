@@ -423,6 +423,19 @@ void NuonEnvironment::Init()
     }
   }
 
+  kprintRingBuffer = new char*[KPRINT_RING_SIZE];
+  kprintBuffer = new char[(KPRINT_LINE_LENGTH + 1) * KPRINT_RING_SIZE];
+
+  for (size_t i = 0; i < KPRINT_RING_SIZE; i++)
+  {
+    kprintRingBuffer[i] = &kprintBuffer[(KPRINT_LINE_LENGTH + 1) * i];
+    kprintRingBuffer[i][0] = '\0';
+  }
+
+  kprintCurrentLine = 0;
+  kprintCurrentChar = 0;
+  kprintUpdated = false;
+
   cycleCounter = 0;
 
   //Initialize the BIOS
@@ -474,6 +487,9 @@ NuonEnvironment::~NuonEnvironment()
     fclose(debugLogFile);
     debugLogFile = NULL;
   }
+
+  delete[] kprintRingBuffer;
+  delete[] kprintBuffer;
 
   delete[] debugLogFileName;
   debugLogFileName = NULL;

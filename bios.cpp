@@ -1060,13 +1060,37 @@ void KPrintf(MPE &mpe)
     const char* const str = (const char *)(nuonEnv.GetPointerToMemory(mpe,pStr,true));
     char buf[2048];
 
-    if (!nuonEnv.debugLogFile)
-    {
-      return;
-    }
     NuonSprintf(mpe, stackPtr + 4, buf, sizeof(buf), str);
-    fprintf(nuonEnv.debugLogFile, "%s", buf);
-    fflush(nuonEnv.debugLogFile);
+
+    if (nuonEnv.debugLogFile)
+    {
+      fprintf(nuonEnv.debugLogFile, "%s", buf);
+      fflush(nuonEnv.debugLogFile);
+    }
+
+    for (size_t i = 0; buf[i]; i++)
+    {
+      char c = buf[i];
+      switch (c)
+      {
+      case '\r':
+        /* Eat these */
+        continue;
+      case '\n':
+        nuonEnv.kprintRingBuffer[nuonEnv.kprintCurrentLine][nuonEnv.kprintCurrentChar++] = '\0';
+        nuonEnv.kprintCurrentLine = (nuonEnv.kprintCurrentLine + 1) % NuonEnvironment::KPRINT_RING_SIZE;
+        nuonEnv.kprintCurrentChar = 0;
+        continue;
+      default:
+        if (nuonEnv.kprintCurrentChar < NuonEnvironment::KPRINT_LINE_LENGTH)
+        {
+          nuonEnv.kprintRingBuffer[nuonEnv.kprintCurrentLine][nuonEnv.kprintCurrentChar++] = c;
+        }
+        break;
+      }
+    }
+    nuonEnv.kprintRingBuffer[nuonEnv.kprintCurrentLine][nuonEnv.kprintCurrentChar] = '\0';
+    nuonEnv.kprintUpdated = true;
   }
 }
 
