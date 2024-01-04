@@ -4,6 +4,9 @@
 # Visual Studio cache/options directory
 .vs/
 
+# Binary intermediate representation of Nuance.rc
+Nuance.aps
+
 # Build results
 [Dd]ebug/
 [Rr]elease/

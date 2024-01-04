@@ -19,11 +19,6 @@ extern GLWindow display;
 
 extern VidDisplay structMainDisplay;
 
-#ifdef ENABLE_EMULATION_MESSAGEBOXES // vars for kprintf config and log file
-int kprintfDebug = 0; // 0 none, 1 popup, 2 kprintf.txt, 3 both 1 & 2
-FILE* kprintf_log_fp = nullptr;
-#endif
-
   inline void ConvertNuonAudioData(const uint8 * const __restrict pNuonAudioBuffer, uint8 * const __restrict pPCAudioBuffer, const uint32 numBytes)
   {
     assert((numBytes % 4) == 0); //!! only handles 16bit stereo at the moment
@@ -414,6 +409,33 @@ void NuonEnvironment::Init()
 
   LoadConfigFile(cfgFileName);
 
+  if (debugLogFile)
+  {
+    fclose(debugLogFile);
+    debugLogFile = NULL;
+  }
+
+  if (debugLogFileName)
+  {
+    if (fopen_s(&debugLogFile, debugLogFileName, "at") != 0)
+    {
+      MessageBox(NULL, "Failed to open debug log file", "Failure", MB_OK);
+    }
+  }
+
+  kprintRingBuffer = new char*[KPRINT_RING_SIZE];
+  kprintBuffer = new char[(KPRINT_LINE_LENGTH + 1) * KPRINT_RING_SIZE];
+
+  for (size_t i = 0; i < KPRINT_RING_SIZE; i++)
+  {
+    kprintRingBuffer[i] = &kprintBuffer[(KPRINT_LINE_LENGTH + 1) * i];
+    kprintRingBuffer[i][0] = '\0';
+  }
+
+  kprintCurrentLine = 0;
+  kprintCurrentChar = 0;
+  kprintUpdated = false;
+
   cycleCounter = 0;
 
   //Initialize the BIOS
@@ -448,7 +470,7 @@ void NuonEnvironment::InitBios()
 NuonEnvironment::~NuonEnvironment()
 {
   //Stop the processor thread
-  for(uint32 i = 0; i < 4; i++)
+  for (uint32 i = 0; i < 4; i++)
     mpe[i].Halt();
 
   //Close stream and shut down audio library
@@ -457,9 +479,20 @@ NuonEnvironment::~NuonEnvironment()
   bFMODInitialized = false;
 
   //Free up string memory
-  delete [] dvdBase;
+  delete[] dvdBase;
 
   DeInitTimingMethod();
+  if (debugLogFile)
+  {
+    fclose(debugLogFile);
+    debugLogFile = NULL;
+  }
+
+  delete[] kprintRingBuffer;
+  delete[] kprintBuffer;
+
+  delete[] debugLogFileName;
+  debugLogFileName = NULL;
 }
 
 constexpr char CONFIG_COMMENT_CHAR = ';';
@@ -652,6 +685,12 @@ bool NuonEnvironment::SaveConfigFile(const char* const fileName)
   fprintf_s(configFile, "[UseCRTshader]\n");
   fprintf_s(configFile, "%s\n\n", bUseCRTshader ? "Enabled" : "Disabled");
 
+  if (debugLogFileName)
+  {
+    fprintf_s(configFile, "[DebugLogFile]\n");
+    fprintf_s(configFile, "%s\n\n", debugLogFileName);
+  }
+
   fprintf_s(configFile, "[Controller1Mappings]\n");
   for (size_t i = 0; i < _countof(controller1Mapping); i++)
   {
@@ -776,18 +815,11 @@ bool NuonEnvironment::LoadConfigFile(const std::string& fileName)
           tokenType = ReadConfigLine(configFile,line);
           compilerOptions.bAllowCompile = !_stricmp(line,"Enabled");
         }
-#ifdef ENABLE_EMULATION_MESSAGEBOXES
         else if(_strnicmp(&line[1],"DumpCompiledBlocks]",sizeof("DumpCompiledBlocks]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
           compilerOptions.bDumpBlocks = !_stricmp(line,"Enabled");
         }
-        else if(_strnicmp(&line[1],"kprintf]",sizeof("kprintf]")) == 0)
-        {
-          tokenType = ReadConfigLine(configFile,line);
-          kprintfDebug = atoi(line); //int is 0 to 3: 0 nothing, 1 popup line, 2 write to kprintf.txt, 3 both 1 & 2
-        }
-#endif
         else if(_strnicmp(&line[1],"CompilerDeadCodeElimination]",sizeof("CompilerDeadCodeElimination]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
@@ -812,6 +844,15 @@ bool NuonEnvironment::LoadConfigFile(const std::string& fileName)
         {
           tokenType = ReadConfigLine(configFile,line);
           bUseCRTshader = !_stricmp(line,"Enabled");
+        }
+        else if (_strnicmp(&line[1],"DebugLogFile]",sizeof("DebugLogFile]")) == 0)
+        {
+          tokenType = ReadConfigLine(configFile,line);
+          ReplaceNewline(line, 0, 1024);
+          delete[] debugLogFileName;
+          size_t i = strlen(line);
+          debugLogFileName = new char[i+1];
+          strcpy_s(debugLogFileName, i+1, line);
         }
         else if(_strnicmp(&line[1],"Controller1Mappings]",sizeof("Controller1Mappings]")) == 0)
         {

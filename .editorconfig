@@ -1,0 +1,7 @@
+root = true
+
+[*.{h,c,hpp,cpp,cc}]
+indent_style = space
+indent_size = 2
+cpp_indent_case_contents_when_block = true
+cpp_space_pointer_reference_alignment = ignore

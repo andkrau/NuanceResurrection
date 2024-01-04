@@ -72,6 +72,7 @@ static HWND cbCommStatus;
 static HWND cbDisplayStatus;
 static HWND cbMPEStatus;
 static HWND cbDumpMPEs;
+static HWND cbKprintfLog;
 static HWND reStatus;
 
 static OPENFILENAME ofn;
@@ -277,6 +278,25 @@ static void UpdateStatusWindowDisplay()
     SendMessage(reStatus,EM_REPLACESEL,NULL,LPARAM(buf));
     SendMessage(reStatus,EM_SETSEL,WPARAM(-1),LPARAM(-1));
   }
+  else if (whichStatus == 3)
+  {
+    size_t i = nuonEnv.kprintCurrentLine;
+    bool first = true;
+
+    do {
+      i = (i + 1) % NuonEnvironment::KPRINT_RING_SIZE;
+      sprintf_s(buf, sizeof(buf), "%s\n", nuonEnv.kprintRingBuffer[i]);
+      if (first) {
+        SendMessage(reStatus, WM_SETTEXT, NULL, LPARAM(buf));
+        first = false;
+      }
+      else
+      {
+        SendMessage(reStatus, EM_REPLACESEL, NULL, LPARAM(buf));
+      }
+      SendMessage(reStatus, EM_SETSEL, WPARAM(-1), LPARAM(-1));
+    } while (i != nuonEnv.kprintCurrentLine);
+  }
 }
 
 static void UpdateControlPanelDisplay()
@@ -396,6 +416,12 @@ INT_PTR CALLBACK StatusWindowDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPAR
               fwrite(nuonEnv.mpe[3].dtrom,sizeof(uint8),MPE_LOCAL_MEMORY_SIZE,outFile);
               fclose(outFile);
             }
+            return TRUE;
+          }
+          else if((HWND)lParam == cbKprintfLog)
+          {
+            whichStatus = 3;
+            UpdateStatusWindowDisplay();
             return TRUE;
           }
         default:
@@ -1063,6 +1089,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   cbDisplayStatus = GetDlgItem(hStatusDlg, IDC_DISPLAY_STATUS);
   cbMPEStatus = GetDlgItem(hStatusDlg, IDC_MPE_STATUS);
   cbDumpMPEs = GetDlgItem(hStatusDlg, IDC_DUMP_MPES);
+  cbKprintfLog = GetDlgItem(hStatusDlg, IDC_KPRINTF_LOG);
 
   memset(&ofn,0,sizeof(OPENFILENAME));
   ofn.lStructSize = sizeof(OPENFILENAME);
@@ -1092,10 +1119,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     Load(fileName.c_str());
     load4firsttime = false;
 
-#ifdef ENABLE_EMULATION_MESSAGEBOXES
-    extern int kprintfDebug;
-    if (kprintfDebug == 0) // dont want fullscreen when programming
-#endif
+    if (nuonEnv.debugLogFile) // dont want fullscreen when programming
       display.ToggleFullscreen();
   }
   else if(nuonEnv.bAutomaticLoadPopup && Load()) // load via file open popup on start
@@ -1116,6 +1140,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     while(PeekMessage(&msg,hStatusDlg,0,0,PM_REMOVE))
       IsDialogMessage(hStatusDlg,&msg);
+
+    if (nuonEnv.kprintUpdated)
+    {
+      nuonEnv.kprintUpdated = false;
+      if (whichStatus == 3) {
+        UpdateStatusWindowDisplay();
+      }
+      
+    }
 
     uint64 cycles = 0;
     while(bRun && !nuonEnv.trigger_render_video)
@@ -1239,12 +1272,6 @@ CLEANUP AND APPLICATION SHUTDOWN CODE
   EndDialog(hStatusDlg,IDOK);
 
   VideoCleanup();
-
-#ifdef ENABLE_EMULATION_MESSAGEBOXES // close kprintf log if opened
-  extern FILE* kprintf_log_fp;
-  if (kprintf_log_fp)
-    fclose(kprintf_log_fp);
-#endif
 
   return 0;
 }

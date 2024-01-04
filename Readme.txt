@@ -190,6 +190,41 @@ The emulator cannot currently execute instructions out of ROM.  Please note that
 is not perfect and can cause corrupted bytes to be output in a repetitive fashion when running the
 Samsung BIOS update program.
 
+printf Debugging (kprintf) Support
+==================================
+
+The Nuon rombios library implements a function 'kprintf' which isn't included
+in any of the SDK headers, but is defined as follows:
+
+  extern void kprintf(const char *fmt, ...);
+
+And behaves like one would expect printf to. Nuance implements this BIOS
+function by storing the generated text in a ring buffer that can be viewed in
+the status dialog by clicking the "kprintf Log" button. Additionally, Nuance
+can log the kprintf output to a file. To enable logging, include the
+[DebugLogFile] section in your nuance.cfg file, and include the filename (or
+full path) of the desired log file on the next line, e.g.:
+
+  [DebugLogFile]
+  nuance_debug.log
+
+Here is a small sample code listing demonstrating how to use the functionality
+in a Nuon program:
+
+  #include <nuon/bios.h>
+  extern void kprintf(const char *fmt, ...);
+
+  int main(void) {
+      kprintf("Hello, world! %d %d %d\n", 1, 2, 3);
+      return 0;
+  }
+
+Compiling and running this program in Nuance will output:
+
+  Hello, world! 1 2 3
+
+In the kprintf Log status and the debug log file, if configured.
+
 Known Issues
 ============
 

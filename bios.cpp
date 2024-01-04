@@ -670,35 +670,428 @@ void InitBios(MPE &mpe)
   TimerInit(2,1000*1000/VIDEO_HZ); // triggers video int at ~50 or 60Hz
 }
 
+enum NuonPrintfType {
+  NPF_TYPE_NONE,
+  NPF_TYPE_CHAR,
+  NPF_TYPE_UCHAR,
+  NPF_TYPE_SHORT,
+  NPF_TYPE_USHORT,
+  NPF_TYPE_INT,
+  NPF_TYPE_UINT,
+  NPF_TYPE_INT64,
+  NPF_TYPE_UINT64,
+  NPF_TYPE_DOUBLE,
+  NPF_TYPE_STRING,
+};
+
+
+static int32 GetStackInt(MPE& mpe, uint32& stackPtr)
+{
+  int32 val = *((int32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true)));
+  SwapScalarBytes((uint32*)&val);
+  stackPtr += 4;
+  return val;
+}
+
+static uint32 GetStackUInt(MPE& mpe, uint32& stackPtr)
+{
+  uint32 val = *((uint32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true)));
+  SwapScalarBytes(&val);
+  stackPtr += 4;
+  return val;
+}
+
+static double GetStackDouble(MPE& mpe, uint32& stackPtr)
+{
+  const uint8* bytes = (const uint8*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
+  double val;
+  uint8* valBytes = (uint8*)&val;
+  uint32* valDwords = (uint32*)&val;
+  uint32 tmp;
+
+  memcpy(&val, bytes, sizeof(val));
+  SwapScalarBytes((uint32*)&valBytes[0]);
+  SwapScalarBytes((uint32*)&valBytes[4]);
+
+  tmp = valDwords[0];
+  valDwords[0] = valDwords[1];
+  valDwords[1] = tmp;
+
+  stackPtr += 8;
+  return val;
+}
+
+static uint64 GetStackUInt64(MPE& mpe, uint32& stackPtr)
+{
+  const uint8* bytes = (const uint8*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
+  uint64 val;
+  uint8* valBytes = (uint8*)&val;
+  uint32* valDwords = (uint32*)&val;
+  uint32 tmp;
+
+  memcpy(&val, bytes, sizeof(val));
+  SwapScalarBytes((uint32*)&valBytes[0]);
+  SwapScalarBytes((uint32*)&valBytes[4]);
+
+  tmp = valDwords[0];
+  valDwords[0] = valDwords[1];
+  valDwords[1] = tmp;
+
+  stackPtr += 8;
+  return val;
+}
+
+static uint64 GetStackInt64(MPE& mpe, uint32& stackPtr)
+{
+  const uint8* bytes = (const uint8*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
+  int64 val;
+  uint8* valBytes = (uint8*)&val;
+  uint32* valDwords = (uint32*)&val;
+  uint32 tmp;
+
+  memcpy(&val, bytes, sizeof(val));
+  SwapScalarBytes((uint32*)&valBytes[0]);
+  SwapScalarBytes((uint32*)&valBytes[4]);
+
+  tmp = valDwords[0];
+  valDwords[0] = valDwords[1];
+  valDwords[1] = tmp;
+
+  stackPtr += 8;
+  return val;
+}
+
+static const void* GetStackPtr(MPE& mpe, uint32& stackPtr)
+{
+  uint32 ptr = *(uint32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
+  SwapScalarBytes(&ptr);
+  const void* ret = (nuonEnv.GetPointerToMemory(mpe, ptr, true));
+  stackPtr += 4;
+  return ret;
+}
+
+static const char *BuildFmtString(MPE& mpe, uint32& stackPtr, char* fmtString, const char* srcFmtString, NuonPrintfType &typeOut)
+{
+  char c;
+
+  typeOut = NPF_TYPE_NONE;
+
+  *fmtString++ = '%';
+
+  bool doFlags = true;
+  while (doFlags)
+  {
+    c = *srcFmtString;
+    switch (c)
+    {
+    case '#':
+    case '0':
+    case '-':
+    case '+':
+    case ' ':
+      *fmtString++ = c;
+      srcFmtString++;
+      break;
+
+    default:
+      doFlags = false;
+      break;
+    }
+  }
+
+  if (*srcFmtString == '*')
+  {
+    srcFmtString++;
+    int fWidth = GetStackInt(mpe, stackPtr);
+    fmtString += sprintf(fmtString, "%d", fWidth);
+  }
+  else
+  {
+    while (true)
+    {
+      c = *srcFmtString;
+
+      if ((c >= '0') && (c <= '9')) {
+        *fmtString++ = c;
+        srcFmtString++;
+      }
+      else
+      {
+        break;
+      }
+    }
+  }
+  if (*srcFmtString == '.')
+  {
+    *fmtString++ = '.';
+    srcFmtString++;
+    if (*srcFmtString == '*')
+    {
+      srcFmtString++;
+      int precision = GetStackInt(mpe, stackPtr);
+      fmtString += sprintf(fmtString, "%d", precision);
+    }
+    else
+    {
+      while (true)
+      {
+        c = *srcFmtString;
+
+        if ((c >= '0') && (c <= '9')) {
+          *fmtString++ = c;
+          srcFmtString++;
+        }
+        else
+        {
+          break;
+        }
+      }
+    }
+  }
+
+  bool doEnding = true;
+  while (doEnding)
+  {
+    c = *srcFmtString;
+
+    switch (c)
+    {
+    case 'h':
+      *fmtString++ = c;
+      c = *++srcFmtString;
+
+      if (c == 'h')
+      {
+        *fmtString++ = c;
+        srcFmtString++;
+        typeOut = NPF_TYPE_CHAR;
+      }
+      else
+      {
+        typeOut = NPF_TYPE_SHORT;
+      }
+      break;
+
+    case 'l':
+      // Eat a single 'l', since sizeof(long int) == sizeof(int) on Nuon.
+      c = *++srcFmtString;
+      if (c == 'l')
+      {
+        // Include a double 'l', since long long int is always 64 bits.
+        *fmtString++ = c;
+        *fmtString++ = c;
+        srcFmtString++;
+        typeOut = NPF_TYPE_INT64;
+      }
+      else
+      {
+        typeOut = NPF_TYPE_INT;
+      }
+      break;
+
+    case 'z':
+      // size_t is 32-bit on Nuon.
+      *fmtString++ = c;
+      srcFmtString++;
+      typeOut = NPF_TYPE_INT;
+      break;
+
+    // XXX Don't support long doubles, intmax_t/uintmax_t, some even more arcane stuff.
+
+    case 'd':
+    case 'i':
+      *fmtString++ = c;
+      srcFmtString++;
+      doEnding = false;
+      if (typeOut == NPF_TYPE_NONE)
+      {
+        typeOut = NPF_TYPE_INT;
+      }
+      break;
+
+    case 'o':
+    case 'u':
+    case 'x':
+    case 'X':
+      *fmtString++ = c;
+      srcFmtString++;
+      doEnding = false;
+      switch (typeOut)
+      {
+      case NPF_TYPE_CHAR:
+      case NPF_TYPE_SHORT:
+      case NPF_TYPE_INT:
+      case NPF_TYPE_INT64:
+        typeOut = (NuonPrintfType)((int)typeOut + 1);
+        break;
+
+      default:
+        typeOut = NPF_TYPE_UINT;
+        break;
+      }
+      break;
+
+    case 'e':
+    case 'f':
+    case 'g':
+    case 'a':
+      *fmtString++ = c;
+      srcFmtString++;
+      typeOut = NPF_TYPE_DOUBLE;
+      doEnding = false;
+      break;
+
+    case 'p':
+      *fmtString++ = '#';
+      *fmtString++ = 'x';
+      srcFmtString++;
+      typeOut = NPF_TYPE_UINT;
+      doEnding = false;
+      break;
+
+    case 's':
+      *fmtString++ = c;
+      srcFmtString++;
+      typeOut = NPF_TYPE_STRING;
+      doEnding = false;
+      break;
+
+    case '\0':
+    default:
+      /* Error condition. Invalid or unhandled conversion string */
+      typeOut = NPF_TYPE_NONE;
+      doEnding = false;
+      break;
+    }
+  }
+
+  *fmtString = '\0';
+
+  return srcFmtString;
+}
+
+static void NuonSprintf(MPE &mpe, uint32 stackPtr, char* buf, size_t bufSize, const char* fmt)
+{
+  char* bufEnd = buf + bufSize - 1;
+
+  for (char c = *fmt++; c && (buf < bufEnd); c = *fmt++) {
+    if (c != '%')
+    {
+      *buf++ = c;
+      continue;
+    }
+
+    c = *fmt;
+
+    if (!c) break;
+
+    if (c == '%')
+    {
+      *buf++ = '%';
+      fmt++;
+      continue;
+    }
+
+    char subFmtStr[128];
+    NuonPrintfType type;
+    fmt = BuildFmtString(mpe, stackPtr, subFmtStr, fmt, type);
+
+    switch (type)
+    {
+    case NPF_TYPE_CHAR:
+    case NPF_TYPE_SHORT:
+    case NPF_TYPE_INT:
+    {
+      int32 val = GetStackInt(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      break;
+    }
+    case NPF_TYPE_UCHAR:
+    case NPF_TYPE_USHORT:
+    case NPF_TYPE_UINT:
+    {
+      uint32 val = GetStackUInt(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      break;
+    }
+    case NPF_TYPE_DOUBLE:
+    {
+      double val = GetStackDouble(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      break;
+    }
+    case NPF_TYPE_STRING:
+    {
+      const char* val = (const char *)GetStackPtr(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      break;
+    }
+    case NPF_TYPE_INT64:
+    {
+      int64 val = GetStackInt64(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      break;
+    }
+    case NPF_TYPE_UINT64:
+    {
+      uint64 val = GetStackUInt64(mpe, stackPtr);
+      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      break;
+    }
+    default:
+      /* Unknown conversion character. Just skip it */
+      stackPtr += 4; // Best guess at parameter size
+      break;
+    }
+  }
+
+  *buf = '\0';
+}
 
 void KPrintf(MPE &mpe)
-{ 
-#ifdef ENABLE_EMULATION_MESSAGEBOXES // kprintf will do nothing if not compiled with ENABLE_EMULATION_MESSAGEBOXES
-  uint32 pStr = *((uint32 *)(nuonEnv.GetPointerToMemory(mpe,mpe.regs[31],true)));
+{
+  uint32 stackPtr = mpe.regs[31];
+
+  uint32 pStr = *((uint32 *)(nuonEnv.GetPointerToMemory(mpe,stackPtr,true)));
 
   SwapScalarBytes(&pStr);
   if(pStr)
   {
-    const char* const str = (const char*)(nuonEnv.GetPointerToMemory(mpe, pStr, true));
+    const char* const str = (const char *)(nuonEnv.GetPointerToMemory(mpe,pStr,true));
+    char buf[2048];
 
-    extern int kprintfDebug;     // config file defined with [kprintf] 0 none, 1 popup, 2 kprintf.txt, 3 both 1 & 2
-    extern FILE* kprintf_log_fp; //  both externs are from NounEnvironment.cpp
+    NuonSprintf(mpe, stackPtr + 4, buf, sizeof(buf), str);
 
-    if (kprintfDebug == 0)
-      return;
-
-    if (kprintfDebug == 1 || kprintfDebug == 3)
-      MessageBox(NULL,str,"kprintf",MB_OK);
-
-    if (kprintfDebug == 2 || kprintfDebug == 3)
+    if (nuonEnv.debugLogFile)
     {
-      if (!kprintf_log_fp)
-        kprintf_log_fp = fopen("kprintf.txt", "w");
-
-      fwrite(str, strlen(str), 1, kprintf_log_fp);
+      fprintf(nuonEnv.debugLogFile, "%s", buf);
+      fflush(nuonEnv.debugLogFile);
     }
+
+    for (size_t i = 0; buf[i]; i++)
+    {
+      char c = buf[i];
+      switch (c)
+      {
+      case '\r':
+        /* Eat these */
+        continue;
+      case '\n':
+        nuonEnv.kprintRingBuffer[nuonEnv.kprintCurrentLine][nuonEnv.kprintCurrentChar++] = '\0';
+        nuonEnv.kprintCurrentLine = (nuonEnv.kprintCurrentLine + 1) % NuonEnvironment::KPRINT_RING_SIZE;
+        nuonEnv.kprintCurrentChar = 0;
+        continue;
+      default:
+        if (nuonEnv.kprintCurrentChar < NuonEnvironment::KPRINT_LINE_LENGTH)
+        {
+          nuonEnv.kprintRingBuffer[nuonEnv.kprintCurrentLine][nuonEnv.kprintCurrentChar++] = c;
+        }
+        break;
+      }
+    }
+    nuonEnv.kprintRingBuffer[nuonEnv.kprintCurrentLine][nuonEnv.kprintCurrentChar] = '\0';
+    nuonEnv.kprintUpdated = true;
   }
-#endif
 }
 
 
