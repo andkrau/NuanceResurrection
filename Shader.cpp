@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 #include "Shader.h"
 
 void ShaderProgram::ShaderProgram()
@@ -16,7 +16,7 @@ void ShaderProgram::~ShaderProgram()
 }
 
 bool ShaderProgram::Initialize()
-{  
+{
   if(!hProgramObject)
   {
     hProgramObject = glCreateProgramObjectARB();
@@ -67,7 +67,7 @@ bool ShaderProgram::InstallShaderSourceFromFile(uchar *filename, GLshaderType ty
 
 
   inFile = fopen(filename,"r");
-  
+
   if(inFile)
   {
     fseek(inFile,0,SEEK_END);
@@ -96,7 +96,7 @@ bool ShaderProgram::InstallShaderSourceFromFile(uchar *filename, GLshaderType ty
 
     delete [] buffer;
   }
-  
+
   return bStatus;
 }
 
@@ -119,7 +119,7 @@ bool ShaderProgram::InstallShaderSourceFromMemory(uchar **sourceStrings, uint32 
       glShaderSourceARB(hVertexShaderObject,1,&buffer,&length);
       bStatus = true;
     }
-  } 
+  }
 
   return bStatus;
 }
