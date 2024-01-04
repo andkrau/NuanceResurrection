@@ -670,6 +670,10 @@ void InitBios(MPE &mpe)
   TimerInit(2,1000*1000/VIDEO_HZ); // triggers video int at ~50 or 60Hz
 }
 
+
+// Everything below this point is solely related to the KPrintf implementation
+
+
 enum NuonPrintfType {
   NPF_TYPE_NONE,
   NPF_TYPE_CHAR,
@@ -1094,46 +1098,14 @@ void KPrintf(MPE &mpe)
   }
 }
 
-
 /*
-  
-// Note: kprintf (on Nuance at least) doesn't parse the string variables, so it has to be done before calling kprintf, example usage
+  // kprintf example usage
 
+  #include <nuon/bios.h>
+  extern void kprintf(const char *fmt, ...);
 
-#define DEBUG
-
-#ifdef DEBUG
-extern void kprintf(const char *, ...);
-#include <Nuon/msprintf.h>
-
-inline void debug(const char *format, ...)
-{
-	char buff[1024];
-	va_list args;
-
-	va_start(args, format);
-	mvsprintf(buff, format, args);
-	va_end(args);
-
-	kprintf(buff);
-}
-#else
-#define debug(...)
-#endif
-
-
-//config instructions:
-
-;Enables kprintf for printf debugging (via console/TTY/serial)
-;To use kprintf one must define the prototype as:
-; extern void kprintf(const char *, ...);
-;And link with -lrombios
-;kprintf values:
-; 0 disables
-; 1 halts, popup message for each kprintf
-; 2 writes log file to kprintf.txt in the folder nuance.exe was called from
-; 3 does both 2 and 3
-[kprintf]
-2
-
+  int main() {
+      kprintf("Hello, world! %d %d %d\n", 1, 2, 3);
+      return 0;
+  }
 */

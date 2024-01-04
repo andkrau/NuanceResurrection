@@ -242,7 +242,7 @@ void *NuonEnvironment::GetPointerToSystemMemory(const uint32 address, const bool
   if(address < MAIN_BUS_BASE)
   {
     assert(false);
-    return NULL;
+    return nullptr;
   }
   else if(address < SYSTEM_BUS_BASE)
   {
@@ -263,12 +263,12 @@ void *NuonEnvironment::GetPointerToSystemMemory(const uint32 address, const bool
   else if(address < ROM_BIOS_BASE)
   {
     assert(false);
-    return NULL;
+    return nullptr;
   }
   else
   {
     assert(false);
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -412,7 +412,7 @@ void NuonEnvironment::Init()
   if (debugLogFile)
   {
     fclose(debugLogFile);
-    debugLogFile = NULL;
+    debugLogFile = nullptr;
   }
 
   if (debugLogFileName)
@@ -485,14 +485,14 @@ NuonEnvironment::~NuonEnvironment()
   if (debugLogFile)
   {
     fclose(debugLogFile);
-    debugLogFile = NULL;
+    debugLogFile = nullptr;
   }
 
   delete[] kprintRingBuffer;
   delete[] kprintBuffer;
 
   delete[] debugLogFileName;
-  debugLogFileName = NULL;
+  debugLogFileName = nullptr;
 }
 
 constexpr char CONFIG_COMMENT_CHAR = ';';
@@ -600,7 +600,7 @@ bool NuonEnvironment::ParseJoyButtonConf(char buf[1025], unsigned int *bitnum, C
   strcpy_s(tmpBuf, buf);
 
   // Split on the equals sign.
-  char *ctx = NULL;
+  char *ctx = nullptr;
   char *nuonName = strtok_s(tmpBuf, "=", &ctx);
 
   if (!nuonName) return false;
@@ -941,7 +941,7 @@ const ControllerButtonMapping& NuonEnvironment::GetMappingForCTRLRBitnum(unsigne
 bool ControllerButtonMapping::fromString(char* strIn, ControllerButtonMapping* mapping)
 {
   // Split the button mapping into three parts on '_'
-  char* ctx = NULL;
+  char* ctx = nullptr;
   const char* type = strtok_s(strIn, "_", &ctx);
 
   if (!type) return false;

@@ -5,7 +5,7 @@
 #include <climits>
 #include <windows.h>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 #include "external\fmod-3.75\api\inc\fmod.h"
 #include "audio.h"
 #include "mpe.h"
@@ -223,8 +223,8 @@ public:
   size_t kprintCurrentChar;
   bool kprintUpdated;
 
-  static const size_t KPRINT_RING_SIZE = 32;
-  static const size_t KPRINT_LINE_LENGTH = 100;
+  static constexpr size_t KPRINT_RING_SIZE = 32;
+  static constexpr size_t KPRINT_LINE_LENGTH = 100;
 
 private:
   bool StrToCtrlrBitnum(const char* str, unsigned int *bitnum);

@@ -1119,7 +1119,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     Load(fileName.c_str());
     load4firsttime = false;
 
-    if (nuonEnv.debugLogFile) // dont want fullscreen when programming
+    if (!nuonEnv.debugLogFile) // dont want fullscreen when programming
       display.ToggleFullscreen();
   }
   else if(nuonEnv.bAutomaticLoadPopup && Load()) // load via file open popup on start
@@ -1147,7 +1147,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       if (whichStatus == 3) {
         UpdateStatusWindowDisplay();
       }
-      
     }
 
     uint64 cycles = 0;

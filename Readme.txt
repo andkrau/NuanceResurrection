@@ -161,6 +161,7 @@ The configuration entries applicable to dynamic compilation are:
   NOTE: Still buggy, recommended: Disabled
 
 [DumpCompiledBlocks]
+  NOTE: This option is only available in custom builds, not released versions!
   Enabled/Disabled: toggles file dump of blocks that are compiled during execution.  When
   enabled, the emulator will print the resulting optimized blocks in a readable format to
   the files SuperBlocks0.txt through SuperBlocks3.txt corresponding to MPE0 through MPE3.
@@ -474,7 +475,9 @@ Hide mouse cursor when in fullscreen mode
 Make rendering window behave like the others when trying to close it (e.g. clicking 'X' and Alt-F4 work now)
 Fix user breakpoints
 Fix 16/16z pixel format bilinear DMA
-Enable kprintf outputs (see end of bios.cpp for documentation)
+Enable kprintf outputs (also new documentation about it within this readme file)
+Fix regression in code interpreter (shift+XXX opcodes)
+Slightly optimize code interpreter (ALU add+/sub+XXX opcodes)
 
 01/10/2023 version 0.6.4:
 Fix command line file parsing, also drag and drop will now work properly
