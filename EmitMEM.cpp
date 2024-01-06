@@ -5,7 +5,7 @@
 #include "ExecuteMEM.h"
 #include "InstructionCache.h"
 #include "mpe.h"
-#include "NativeCodeCache.h"
+#include "nativecodecache.h"
 #include "NuonEnvironment.h"
 #include "X86EmitTypes.h"
 
@@ -191,12 +191,11 @@ void Emit_LoadByteBilinearXY(EmitterVariables * const vars, const Nuance &nuance
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -232,12 +231,11 @@ void Emit_LoadByteBilinearUV(EmitterVariables * const vars, const Nuance &nuance
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -329,12 +327,11 @@ void Emit_LoadWordBilinearXY(EmitterVariables * const vars, const Nuance &nuance
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -371,12 +368,11 @@ void Emit_LoadWordBilinearUV(EmitterVariables * const vars, const Nuance &nuance
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -486,12 +482,11 @@ void Emit_LoadScalarBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -531,12 +526,11 @@ void Emit_LoadScalarBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -647,12 +641,11 @@ void Emit_LoadShortVectorBilinearXY(EmitterVariables * const vars, const Nuance 
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -707,12 +700,11 @@ void Emit_LoadShortVectorBilinearUV(EmitterVariables * const vars, const Nuance 
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -855,12 +847,11 @@ void Emit_LoadVectorBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -910,12 +901,11 @@ void Emit_LoadVectorBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-  
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -1069,17 +1059,18 @@ void Emit_LoadPixelBilinearUV(EmitterVariables * const vars, const Nuance &nuanc
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelAbsolute
   vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_mipped_xoffset);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uint32)&vars->mpe->uvbase);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFCu, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_ADDRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
@@ -1119,15 +1110,15 @@ void Emit_LoadPixelZBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelZAbsolute
   vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uint32)&vars->mpe->uvbase);
@@ -1169,17 +1160,18 @@ void Emit_LoadPixelBilinearXY(EmitterVariables * const vars, const Nuance &nuanc
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelAbsolute
   vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_mipped_xoffset);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uint32)&vars->mpe->xybase);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFCu, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_ADDRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
@@ -1219,15 +1211,15 @@ void Emit_LoadPixelZBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelZAbsolute
   vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uint32)&vars->mpe->xybase);
@@ -1354,12 +1346,11 @@ void Emit_StoreScalarBilinearXY(EmitterVariables * const vars, const Nuance &nua
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-  
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -1400,12 +1391,11 @@ void Emit_StoreScalarBilinearUV(EmitterVariables * const vars, const Nuance &nua
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-  
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -1517,12 +1507,11 @@ void Emit_StoreShortVectorBilinearXY(EmitterVariables * const vars, const Nuance
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -1575,12 +1564,11 @@ void Emit_StoreShortVectorBilinearUV(EmitterVariables * const vars, const Nuance
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-  
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -1743,12 +1731,11 @@ void Emit_StoreVectorBilinearXY(EmitterVariables * const vars, const Nuance &nua
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-  
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -1801,12 +1788,11 @@ void Emit_StoreVectorBilinearUV(EmitterVariables * const vars, const Nuance &nua
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
-
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -1943,15 +1929,15 @@ void Emit_StorePixelBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelAbsolute
   vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uint32)&vars->mpe->uvbase);
@@ -1992,15 +1978,15 @@ void Emit_StorePixelZBilinearUV(EmitterVariables * const vars, const Nuance &nua
   const int32 rvRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RV);
   const int32 uvctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelZAbsolute
   vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uint32)&vars->mpe->uvbase);
@@ -2042,15 +2028,15 @@ void Emit_StorePixelBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelAbsolute
   vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uint32)&vars->mpe->xybase);
@@ -2092,15 +2078,15 @@ void Emit_StorePixelZBilinearXY(EmitterVariables * const vars, const Nuance &nua
   const int32 ryRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RY);
   const int32 xyctlRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_x);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, (uint32)&vars->mpe->ba_y);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
+  vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelZAbsolute
   vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
 
-  vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uint32)&vars->mpe->xybase);

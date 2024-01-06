@@ -361,13 +361,11 @@ public:
   //uint32 mpeEndAddress;
   uint32 mpeIndex;
 
-  // these are only used to communicate data into the GetBilinearAddress and _LoadPixelAbsolute,_LoadPixelZAbsolute,_StorePixelAbsolute,_StorePixelZAbsolute calls, but never back to anything else
+  // these are only used to communicate data into the _LoadPixelAbsolute,_LoadPixelZAbsolute,_StorePixelAbsolute,_StorePixelZAbsolute calls, but never back to anything else
   uint32* ba_regs;
   uint32 ba_control;
-  uint32 ba_x;
-  uint32 ba_y;
   // this one is used to pass data from GetBilinearAddress into the single 4bit case in _LoadPixelAbsolute, but never back to anything else
-  uint32 ba_mipped_xoffset; // note that only the lowest bit is used in _LoadPixelAbsolute later-on
+  uint32 ba_mipped_xoffset; // note that only the lowest or the highest bit is used in _LoadPixelAbsolute later-on
 
   InstructionCache *instructionCache;
   SuperBlock superBlock;
@@ -411,7 +409,7 @@ public:
         intsrc |= 0x01;
       }
     }
-   
+
     if(!(entry.packetInfo & PACKETINFO_NOP))
     {
       //!! move parallelization here?!
@@ -419,7 +417,7 @@ public:
         memcpy(tempreg_union, reg_union, sizeof(uint32) * 48);
       else
         tempCC = cc;
-   
+
       //static uint64 nuanceHandlersCount[224] = {};
       //static uint64 counter = 0;
       //static uint64 oldcounter = 0;

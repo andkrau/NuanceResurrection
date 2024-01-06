@@ -422,12 +422,11 @@ void Execute_MUL_SVVectorShiftImmediate(MPE &mpe, const uint32 pRegs[48], const 
   const int32 shift = shiftTable[nuance.fields[FIELD_MUL_INFO]];
   const uint32 src1 = nuance.fields[FIELD_MUL_SRC1];
   const uint32 src2 = nuance.fields[FIELD_MUL_SRC2];
-  int32 src1_vector[4];
-
-  src1_vector[0] = ((int32)(pRegs[src1    ])) >> 16;
-  src1_vector[1] = ((int32)(pRegs[src1 + 1])) >> 16;
-  src1_vector[2] = ((int32)(pRegs[src1 + 2])) >> 16;
-  src1_vector[3] = ((int32)(pRegs[src1 + 3])) >> 16;
+  const int32 src1_vector[4] = {
+   ((int32)(pRegs[src1    ])) >> 16,
+   ((int32)(pRegs[src1 + 1])) >> 16,
+   ((int32)(pRegs[src1 + 2])) >> 16,
+   ((int32)(pRegs[src1 + 3])) >> 16};
 
   mpe.regs[nuance.fields[FIELD_MUL_DEST]] =
     (src1_vector[0] * (((int32)(pRegs[src2    ])) >> 16)) << shift;
@@ -445,12 +444,11 @@ void Execute_MUL_SVVectorShiftSvshift(MPE &mpe, const uint32 pRegs[48], const Nu
   const uint32 src1 = nuance.fields[FIELD_MUL_SRC1];
   const uint32 src2 = nuance.fields[FIELD_MUL_SRC2];
   const uint32 dest = nuance.fields[FIELD_MUL_DEST];
-  int32 src1_vector[4];
-
-  src1_vector[0] = ((int32)(pRegs[src1    ])) >> 16;
-  src1_vector[1] = ((int32)(pRegs[src1 + 1])) >> 16;
-  src1_vector[2] = ((int32)(pRegs[src1 + 2])) >> 16;
-  src1_vector[3] = ((int32)(pRegs[src1 + 3])) >> 16;
+  const int32 src1_vector[4] = {
+   ((int32)(pRegs[src1    ])) >> 16,
+   ((int32)(pRegs[src1 + 1])) >> 16,
+   ((int32)(pRegs[src1 + 2])) >> 16,
+   ((int32)(pRegs[src1 + 3])) >> 16};
 
   mpe.regs[dest] =
     (src1_vector[0] * (((int32)(pRegs[src2    ])) >> 16)) << shift;
@@ -627,16 +625,11 @@ void Execute_DOTPScalarShiftImmediate(MPE &mpe, const uint32 pRegs[48], const Nu
 {
   const int32 scalar = ((int32)(pRegs[nuance.fields[FIELD_MUL_SRC1]])) >> 16;
   const int32 src2 = nuance.fields[FIELD_MUL_SRC2];
-  int32 products[4];
-
-  products[0] =
-    (((int32)(pRegs[src2 + 0])) >> 16) * scalar;
-  products[1] =
-    (((int32)(pRegs[src2 + 1])) >> 16) * scalar;
-  products[2] =
-    (((int32)(pRegs[src2 + 2])) >> 16) * scalar;
-  products[3] =
-    (((int32)(pRegs[src2 + 3])) >> 16) * scalar;
+  const int32 products[4] = {
+   (((int32)(pRegs[src2 + 0])) >> 16) * scalar,
+   (((int32)(pRegs[src2 + 1])) >> 16) * scalar,
+   (((int32)(pRegs[src2 + 2])) >> 16) * scalar,
+   (((int32)(pRegs[src2 + 3])) >> 16) * scalar};
 
   mpe.regs[nuance.fields[FIELD_MUL_DEST]] =
     (products[0] + products[1] + products[2] + products[3]) << shiftTable[nuance.fields[FIELD_MUL_INFO]];
@@ -646,16 +639,11 @@ void Execute_DOTPScalarShiftSvshift(MPE &mpe, const uint32 pRegs[48], const Nuan
 {
   const int32 scalar = ((int32)(pRegs[nuance.fields[FIELD_MUL_SRC1]])) >> 16;
   const int32 src2 = nuance.fields[FIELD_MUL_SRC2];
-  int32 products[4];
-
-  products[0] =
-    (((int32)(pRegs[src2 + 0])) >> 16) * scalar;
-  products[1] =
-    (((int32)(pRegs[src2 + 1])) >> 16) * scalar;
-  products[2] =
-    (((int32)(pRegs[src2 + 2])) >> 16) * scalar;
-  products[3] =
-    (((int32)(pRegs[src2 + 3])) >> 16) * scalar;
+  const int32 products[4] = {
+   (((int32)(pRegs[src2 + 0])) >> 16) * scalar,
+   (((int32)(pRegs[src2 + 1])) >> 16) * scalar,
+   (((int32)(pRegs[src2 + 2])) >> 16) * scalar,
+   (((int32)(pRegs[src2 + 3])) >> 16) * scalar};
 
   mpe.regs[nuance.fields[FIELD_MUL_DEST]] =
     (products[0] + products[1] + products[2] + products[3]) << shiftTable[pRegs[SVS_REG]];

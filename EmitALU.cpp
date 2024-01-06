@@ -2,11 +2,11 @@
 #include "InstructionCache.h"
 #include "InstructionDependencies.h"
 #include "EmitMisc.h"
-#include "NativeCodeCache.h"
+#include "nativecodecache.h"
 #include "PatchManager.h"
 #include "mpe.h"
 
-static constexpr uint32 sub_sv_mask[] = {0xFFFF0000UL, 0xFFFF0000UL, 0xFFFF0000UL, 0xFFFF0000UL};
+static const __m128i sub_sv_mask = _mm_set_epi32(0xFFFF0000UL, 0xFFFF0000UL, 0xFFFF0000UL, 0xFFFF0000UL);
 
 void Emit_ABS(EmitterVariables * const vars, const Nuance &nuance)
 {
@@ -543,7 +543,7 @@ void Emit_ADD_SV(EmitterVariables * const vars, const Nuance &nuance)
   if( ((src1RegReadBaseReg_0 == src1RegReadBaseReg_1) && (src1RegReadBaseReg_2 == src1RegReadBaseReg_3)) &&
       ((src2RegReadBaseReg_0 == src2RegReadBaseReg_1) && (src2RegReadBaseReg_2 == src2RegReadBaseReg_3)) )
   {
-    vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm2, (uint32)sub_sv_mask);
+    vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm2, (uint32)&sub_sv_mask);
     vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
     vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm1, src1RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
     vars->mpe->nativeCodeCache.X86Emit_PANDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm2);
@@ -641,7 +641,7 @@ void Emit_SUB_SV(EmitterVariables * const vars, const Nuance &nuance)
     if( ((src1RegReadBaseReg_0 == src1RegReadBaseReg_1) && (src1RegReadBaseReg_2 == src1RegReadBaseReg_3)) &&
         ((src2RegReadBaseReg_0 == src2RegReadBaseReg_1) && (src2RegReadBaseReg_2 == src2RegReadBaseReg_3)) )
       {
-        vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm2, (uint32)sub_sv_mask);
+        vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm2, (uint32)&sub_sv_mask);
         vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, src2RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
         vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm1, src1RegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
         vars->mpe->nativeCodeCache.X86Emit_PANDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm2);
