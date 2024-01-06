@@ -209,9 +209,13 @@ inline uint32 CalculateBilinearAddress(MPE &mpe, const uint32 control, uint32 x,
 {
   x>>=16;
   y>>=16;
-  if(BilinearInfo_XRev(control))
+
+  if ((x|y) == 0) // quick computation possible?
+    return 0;
+
+  if (BilinearInfo_XRev(control))
     x = mirrorLookup[x];
-  if(BilinearInfo_YRev(control))
+  if (BilinearInfo_YRev(control))
     y = mirrorLookup[y];
 
   mpe.ba_mipped_xoffset = MIP(x) & SIGNMIP16(XTILEMASK);
@@ -234,25 +238,25 @@ uint32 __fastcall GetBilinearAddress(const uint32 xy, const uint32 control)
     mipped_xoffset = 0;
   else
   {
-    if(BilinearInfo_XRev(control))
+    if (BilinearInfo_XRev(control))
       x = mirrorLookup[x];
 
     mipped_xoffset = MIP(x) & SIGNMIP16(XTILEMASK);
   }
 
   uint32 offset;
-  if(y == 0) // quick computation possible?
+  if (y == 0) // quick computation possible?
     offset = mipped_xoffset;
   else
   {
-    if(BilinearInfo_YRev(control))
+    if (BilinearInfo_YRev(control))
       y = mirrorLookup[y];
 
     offset = (MIP(y) & SIGNMIP16(YTILEMASK)) * MIP(BilinearInfo_XYWidth(control)) + mipped_xoffset;
   }
 
   return (pixwidth >= 0) ? (offset << pixwidth) : //Everything but 4-bit pixels and MPEG
-                           ((offset >> 1) | (mipped_xoffset<<31)); //4-bit pixels, store single/lowest bit for later-on addressing in MSB
+                           ((offset >> 1) | (mipped_xoffset<<31)); //4-bit pixels, store single/lowest bit for later-on addressing in MSB (see _LoadPixelAbsolute)
 }
 
 void Execute_Mirror(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
@@ -519,7 +523,8 @@ void __fastcall _LoadPixelAbsolute(const MPE* const __restrict mpe, const void* 
       //The initial xoffset is guaranteed to start at the first pixel of a group of four.  
       //This means that for even values of X, the pixel bits to be extracted are always [7:4]
       //and for odd values of X, the pixel bits to be extracted are [3:0]
-      const uint32 pixelData32 = (*((uint8 *)memPtr) >> (4 - ((mpe->ba_mipped_xoffset >> 31) << 2))) & 0x0FUL;
+      const uint32 pixelData8 = *((uint8 *)memPtr);
+      const uint32 pixelData32 = (mpe->ba_mipped_xoffset&0x80000000u) ? (pixelData8 & 0x0FUL) : (pixelData8 >> 4);
       regs[0] = (mpe->clutbase & 0xFFFFFFC0UL) | (pixelData32 << 2);
       regs[1] = 0;
       regs[2] = 0;
@@ -613,7 +618,8 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
       //The initial xoffset is guaranteed to start at the first pixel of a group of four.  
       //This means that for even values of X, the pixel bits to be extracted are always [7:4]
       //and for odd values of X, the pixel bits to be extracted are [3:0]
-      const uint32 pixelData32 = (*((uint8 *)memPtr) >> (4 - ((mpe.ba_mipped_xoffset & 1) << 2))) & 0x0FUL;
+      const uint32 pixelData8 = *((uint8 *)memPtr);
+      const uint32 pixelData32 = (mpe.ba_mipped_xoffset&1u) ? (pixelData8 & 0x0FUL) : (pixelData8 >> 4);
       mpe.regs[dest  ] = (mpe.clutbase & 0xFFFFFFC0UL) | (pixelData32 << 2);
       mpe.regs[dest+1] = 0;
       mpe.regs[dest+2] = 0;
