@@ -12,7 +12,7 @@ void __fastcall _LoadPixelZAbsolute(const MPE* const __restrict mpe, const void*
 void __fastcall _StorePixelAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr);
 void __fastcall _StorePixelZAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr);
 
-uint32 __fastcall GetBilinearAddress(MPE* const __restrict mpe, const uint32 control);
+uint32 __fastcall GetBilinearAddress(const uint32 xy, const uint32 control);
 
 NuanceHandlerProto Execute_Mirror;
 NuanceHandlerProto Execute_MV_SImmediate;
