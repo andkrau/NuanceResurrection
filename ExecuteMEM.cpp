@@ -6,12 +6,8 @@
 #include "NuonMemoryMap.h"
 #include "NuonEnvironment.h"
 
-#define XTILEMASK (~(0xFFFF0000UL << (16 - BilinearInfo_XTile(control))))
-#define YTILEMASK (~(0xFFFF0000UL << (16 - BilinearInfo_YTile(control))))
-
-#define MIP(mip_me)       (((uint32)(mip_me)) >> BilinearInfo_XYMipmap(control))
-#define SIGNMIP(mip_me)   ((( int32)(mip_me)) >> BilinearInfo_XYMipmap(control))
-#define SIGNMIP16(mip_me) ((( int32)(mip_me)) >> (BilinearInfo_XYMipmap(control)|16))
+#define MIP(mip_me) (((uint32)(mip_me)) >> BilinearInfo_XYMipmap(control))
+static constexpr uint32 tilemask[16] = { 0xFFFF,0x7FFF,0x3FFF,0x1FFF,0xFFF,0x7FF,0x3FF,0x1FF,0xFF,0x7F,0x3F,0x1F,0xF,0x7,0x3,0x1 }; // already shifted by 16
 
 static constexpr int8 pixel_type_width[16] = {
 -2,//Type 0: MPEG Pixel (macroblock size of 16 bytes)
@@ -216,8 +212,8 @@ inline uint32 CalculateBilinearAddress(MPE &mpe, const uint32 control, uint32 x,
   if (BilinearInfo_YRev(control))
     y = mirrorLookup[y];
 
-  mpe.ba_mipped_xoffset = MIP(x) & SIGNMIP16(XTILEMASK);
-  return (MIP(y) & SIGNMIP16(YTILEMASK)) * MIP(BilinearInfo_XYWidth(control)) + mpe.ba_mipped_xoffset;
+  mpe.ba_mipped_xoffset = MIP(x & tilemask[BilinearInfo_XTile(control)]);
+  return MIP(y & tilemask[BilinearInfo_YTile(control)]) * MIP(BilinearInfo_XYWidth(control)) + mpe.ba_mipped_xoffset;
 }
 
 // leave __fastcall here!
@@ -239,7 +235,7 @@ uint32 __fastcall GetBilinearAddress(const uint32 xy, const uint32 control)
     if (BilinearInfo_XRev(control))
       x = mirrorLookup[x];
 
-    mipped_xoffset = MIP(x) & SIGNMIP16(XTILEMASK);
+    mipped_xoffset = MIP(x & tilemask[BilinearInfo_XTile(control)]);
   }
 
   uint32 offset;
@@ -250,7 +246,7 @@ uint32 __fastcall GetBilinearAddress(const uint32 xy, const uint32 control)
     if (BilinearInfo_YRev(control))
       y = mirrorLookup[y];
 
-    offset = (MIP(y) & SIGNMIP16(YTILEMASK)) * MIP(BilinearInfo_XYWidth(control)) + mipped_xoffset;
+    offset = MIP(y & tilemask[BilinearInfo_YTile(control)]) * MIP(BilinearInfo_XYWidth(control)) + mipped_xoffset;
   }
 
   return (pixwidth >= 0) ? (offset << pixwidth) : //Everything but 4-bit pixels and MPEG
@@ -500,10 +496,10 @@ void Execute_LoadVectorControlRegisterAbsolute(MPE &mpe, const uint32 pRegs[48],
 }
 
 // leave __fastcall here!
-void __fastcall _LoadPixelAbsolute(const MPE* const __restrict mpe, const void* const __restrict memPtr)
+void __fastcall _LoadPixelAbsolute(MPE* const __restrict mpe, const void* const __restrict memPtr)
 {
   const uint32 control = mpe->ba_control;
-  uint32* const regs = mpe->ba_regs;
+  uint32* const __restrict regs = mpe->ba_regs;
   const uint32 pixType = BilinearInfo_XYType(control);
   const bool bChnorm = BilinearInfo_XYChnorm(control);
 
@@ -676,7 +672,7 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
 void __fastcall _LoadPixelZAbsolute(const MPE* const __restrict mpe, const void* const __restrict memPtr)
 {
   const uint32 control = mpe->ba_control;
-  uint32* const regs = mpe->ba_regs;
+  uint32* const __restrict regs = mpe->ba_regs;
   const uint32 pixType = BilinearInfo_XYType(control);
   const bool bChnorm = BilinearInfo_XYChnorm(control);
 
@@ -1273,7 +1269,7 @@ void Execute_StoreVectorControlRegisterAbsolute(MPE &mpe, const uint32 pRegs[48]
 void __fastcall _StorePixelAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr)
 {
   const uint32 control = mpe->ba_control;
-  const uint32 * const regs = mpe->ba_regs;
+  const uint32 * const __restrict regs = mpe->ba_regs;
   const uint32 pixType = BilinearInfo_XYType(control);
   const uint32 ChnormOffset = BilinearInfo_XYChnorm(control) ? 1024 : 0;
 
@@ -1385,7 +1381,7 @@ void Execute_StorePixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
 void __fastcall _StorePixelZAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr)
 {
   const uint32 control = mpe->ba_control;
-  const uint32 * const regs = mpe->ba_regs;
+  const uint32 * const __restrict regs = mpe->ba_regs;
   const uint32 pixType = BilinearInfo_XYType(control);
   const uint32 ChnormOffset = BilinearInfo_XYChnorm(control) ? 1024 : 0;
 
@@ -1406,9 +1402,9 @@ void __fastcall _StorePixelZAbsolute(const MPE* const __restrict mpe, void* cons
     case 0x5:
     {
       //16 bit + 16bitZ
-      const uint16 z16 = SwapBytes((uint16)(regs[3] >> 16));
+      const uint32 z = SwapBytes(regs[3]);
       ((uint16 *)memPtr)[0] = SaturateColorComponents16bitSwapped(regs[0], regs[1], regs[2], ChnormOffset);
-      ((uint16 *)memPtr)[1] = z16;
+      ((uint16 *)memPtr)[1] = (uint16)z;
       return;
     }
     case 0x3:
@@ -1498,9 +1494,9 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance 
     case 0x5:
     {
       //16 bit+16bitZ
-      const uint16 z16 = SwapBytes((uint16)(pRegs[src+3] >> 16));
+      const uint32 z = SwapBytes(pRegs[src+3]);
       ((uint16 *)memPtr)[0] = SaturateColorComponents16bitSwapped(pRegs[src], pRegs[src+1], pRegs[src+2], ChnormOffset);
-      ((uint16 *)memPtr)[1] = z16;
+      ((uint16 *)memPtr)[1] = (uint16)z;
       return;
     }
     case 0x3:

@@ -7,8 +7,8 @@ void GenerateMirrorLookupTable();
 void GenerateSaturateColorTables();
 
 // leave all these __fastcalls alone, as these are used by the JIT to pass data in/out via registers
-void __fastcall _LoadPixelAbsolute(const MPE* const __restrict mpe, const void* const __restrict memPtr);
-void __fastcall _LoadPixelZAbsolute(const MPE* const __restrict mpe, const void* const __restrict memPtr);
+void __fastcall _LoadPixelAbsolute(MPE* const __restrict mpe, const void* const __restrict memPtr);
+void __fastcall _LoadPixelZAbsolute(MPE* const __restrict mpe, const void* const __restrict memPtr);
 void __fastcall _StorePixelAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr);
 void __fastcall _StorePixelZAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr);
 
