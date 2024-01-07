@@ -155,7 +155,7 @@ void Emit_LoadByteLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFF00000, x86Reg::x86Reg_ebx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x20500000, x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MPE_CTRL_BASE, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NZ, l_not_control_reg);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
@@ -165,9 +165,9 @@ void Emit_LoadByteLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -193,7 +193,7 @@ void Emit_LoadByteBilinearXY(EmitterVariables * const vars, const Nuance &nuance
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
@@ -208,9 +208,9 @@ void Emit_LoadByteBilinearXY(EmitterVariables * const vars, const Nuance &nuance
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -234,7 +234,7 @@ void Emit_LoadByteBilinearUV(EmitterVariables * const vars, const Nuance &nuance
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
@@ -249,9 +249,9 @@ void Emit_LoadByteBilinearUV(EmitterVariables * const vars, const Nuance &nuance
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -292,7 +292,7 @@ void Emit_LoadWordLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFF00000, x86Reg::x86Reg_ebx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x20500000, x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MPE_CTRL_BASE, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NZ, l_not_control_reg);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
@@ -302,9 +302,9 @@ void Emit_LoadWordLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -331,7 +331,7 @@ void Emit_LoadWordBilinearXY(EmitterVariables * const vars, const Nuance &nuance
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
@@ -346,9 +346,9 @@ void Emit_LoadWordBilinearXY(EmitterVariables * const vars, const Nuance &nuance
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -373,7 +373,7 @@ void Emit_LoadWordBilinearUV(EmitterVariables * const vars, const Nuance &nuance
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
@@ -388,9 +388,9 @@ void Emit_LoadWordBilinearUV(EmitterVariables * const vars, const Nuance &nuance
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -447,7 +447,7 @@ void Emit_LoadScalarLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFF00000, x86Reg::x86Reg_ebx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x20500000, x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MPE_CTRL_BASE, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NZ, l_not_control_reg);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
@@ -457,9 +457,9 @@ void Emit_LoadScalarLinear(EmitterVariables * const vars, const Nuance &nuance)
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -488,7 +488,7 @@ void Emit_LoadScalarBilinearXY(EmitterVariables * const vars, const Nuance &nuan
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
@@ -503,9 +503,9 @@ void Emit_LoadScalarBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -533,7 +533,7 @@ void Emit_LoadScalarBilinearUV(EmitterVariables * const vars, const Nuance &nuan
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
@@ -548,9 +548,9 @@ void Emit_LoadScalarBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -604,9 +604,9 @@ void Emit_LoadShortVectorLinear(EmitterVariables * const vars, const Nuance &nua
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -649,7 +649,7 @@ void Emit_LoadShortVectorBilinearXY(EmitterVariables * const vars, const Nuance 
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
@@ -664,9 +664,9 @@ void Emit_LoadShortVectorBilinearXY(EmitterVariables * const vars, const Nuance 
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -709,7 +709,7 @@ void Emit_LoadShortVectorBilinearUV(EmitterVariables * const vars, const Nuance 
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
@@ -724,9 +724,9 @@ void Emit_LoadShortVectorBilinearUV(EmitterVariables * const vars, const Nuance 
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -805,7 +805,7 @@ void Emit_LoadVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFF00000, x86Reg::x86Reg_ebx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x20500000, x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MPE_CTRL_BASE, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NZ, l_not_control_reg);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
@@ -815,9 +815,9 @@ void Emit_LoadVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -857,7 +857,7 @@ void Emit_LoadVectorBilinearXY(EmitterVariables * const vars, const Nuance &nuan
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
@@ -872,9 +872,9 @@ void Emit_LoadVectorBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -912,7 +912,7 @@ void Emit_LoadVectorBilinearUV(EmitterVariables * const vars, const Nuance &nuan
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
@@ -927,9 +927,9 @@ void Emit_LoadVectorBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1001,9 +1001,9 @@ void Emit_LoadPixelLinear(EmitterVariables * const vars, const Nuance &nuance)
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1038,9 +1038,9 @@ void Emit_LoadPixelZLinear(EmitterVariables * const vars, const Nuance &nuance)
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1072,7 +1072,7 @@ void Emit_LoadPixelBilinearUV(EmitterVariables * const vars, const Nuance &nuanc
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelAbsolute
@@ -1090,9 +1090,9 @@ void Emit_LoadPixelBilinearUV(EmitterVariables * const vars, const Nuance &nuanc
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1124,7 +1124,7 @@ void Emit_LoadPixelZBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelZAbsolute
@@ -1141,9 +1141,9 @@ void Emit_LoadPixelZBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1175,7 +1175,7 @@ void Emit_LoadPixelBilinearXY(EmitterVariables * const vars, const Nuance &nuanc
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelAbsolute
@@ -1193,9 +1193,9 @@ void Emit_LoadPixelBilinearXY(EmitterVariables * const vars, const Nuance &nuanc
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1227,7 +1227,7 @@ void Emit_LoadPixelZBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelZAbsolute
@@ -1244,9 +1244,9 @@ void Emit_LoadPixelZBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1319,7 +1319,7 @@ void Emit_StoreScalarLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, destRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFF00000, x86Reg::x86Reg_ebx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x20500000, x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MPE_CTRL_BASE, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NZ, l_not_control_reg);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
@@ -1329,9 +1329,9 @@ void Emit_StoreScalarLinear(EmitterVariables * const vars, const Nuance &nuance)
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1361,7 +1361,7 @@ void Emit_StoreScalarBilinearXY(EmitterVariables * const vars, const Nuance &nua
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
@@ -1376,9 +1376,9 @@ void Emit_StoreScalarBilinearXY(EmitterVariables * const vars, const Nuance &nua
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1407,7 +1407,7 @@ void Emit_StoreScalarBilinearUV(EmitterVariables * const vars, const Nuance &nua
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
@@ -1422,9 +1422,9 @@ void Emit_StoreScalarBilinearUV(EmitterVariables * const vars, const Nuance &nua
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1480,9 +1480,9 @@ void Emit_StoreShortVectorLinear(EmitterVariables * const vars, const Nuance &nu
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1524,7 +1524,7 @@ void Emit_StoreShortVectorBilinearXY(EmitterVariables * const vars, const Nuance
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
@@ -1539,9 +1539,9 @@ void Emit_StoreShortVectorBilinearXY(EmitterVariables * const vars, const Nuance
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1582,7 +1582,7 @@ void Emit_StoreShortVectorBilinearUV(EmitterVariables * const vars, const Nuance
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
@@ -1597,9 +1597,9 @@ void Emit_StoreShortVectorBilinearUV(EmitterVariables * const vars, const Nuance
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1679,7 +1679,7 @@ void Emit_StoreVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, destRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFF00000, x86Reg::x86Reg_ebx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x20500000, x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MPE_CTRL_BASE, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NZ, l_not_control_reg);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->interpretNextPacket));
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr::x86MemPtr_dword, (uint32)&(vars->mpe->pcexec));
@@ -1689,9 +1689,9 @@ void Emit_StoreVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1750,7 +1750,7 @@ void Emit_StoreVectorBilinearXY(EmitterVariables * const vars, const Nuance &nua
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp);
@@ -1765,9 +1765,9 @@ void Emit_StoreVectorBilinearXY(EmitterVariables * const vars, const Nuance &nua
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1808,7 +1808,7 @@ void Emit_StoreVectorBilinearUV(EmitterVariables * const vars, const Nuance &nua
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp);
@@ -1823,9 +1823,9 @@ void Emit_StoreVectorBilinearUV(EmitterVariables * const vars, const Nuance &nua
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1886,9 +1886,9 @@ void Emit_StorePixelLinear(EmitterVariables * const vars, const Nuance &nuance)
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1922,9 +1922,9 @@ void Emit_StorePixelZLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -1951,7 +1951,7 @@ void Emit_StorePixelBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelAbsolute
@@ -1968,9 +1968,9 @@ void Emit_StorePixelBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -2001,7 +2001,7 @@ void Emit_StorePixelZBilinearUV(EmitterVariables * const vars, const Nuance &nua
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, ruRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ruRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, rvRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rvRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, uvctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, uvctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelZAbsolute
@@ -2018,9 +2018,9 @@ void Emit_StorePixelZBilinearUV(EmitterVariables * const vars, const Nuance &nua
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -2052,7 +2052,7 @@ void Emit_StorePixelBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelAbsolute
@@ -2069,9 +2069,9 @@ void Emit_StorePixelBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -2103,7 +2103,7 @@ void Emit_StorePixelZBilinearXY(EmitterVariables * const vars, const Nuance &nua
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rxRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rxRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ryRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ryRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, xyctlRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, xyctlRegDisp); // passed directly into GetBilinearAddress
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF0000u, x86Reg::x86Reg_ecx); // pack upper 16bits into ECX
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelZAbsolute
@@ -2120,9 +2120,9 @@ void Emit_StorePixelZBilinearXY(EmitterVariables * const vars, const Nuance &nua
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.systemBusDRAM), x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.flashEEPROM.GetBasePointer()), x86Reg::x86Reg_ebp);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x40000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(MAIN_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ecx);
-  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0x80000000, x86Reg::x86Reg_eax);
+  //vars->mpe->nativeCodeCache.X86Emit_CMPIR(SYSTEM_BUS_BASE, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
   //vars->mpe->nativeCodeCache.X86Emit_CMPIR(0xF0000000, x86Reg::x86Reg_eax);
   //vars->mpe->nativeCodeCache.X86Emit_CMOVNBRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_ebp);
@@ -2389,10 +2389,13 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
   {
     case (0x00 >> 4):
       //mpectl
+      break;
     case (0x10 >> 4):
       //excepsrc
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->excepsrc)));
       break;
     case (0x20 >> 4):
+      //excepclr: always reads as zero
       vars->mpe->nativeCodeCache.X86Emit_XORRR(destReg, destReg);
       break;
     case (0x30 >> 4):
@@ -2440,17 +2443,25 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       break;
     case (0xD0 >> 4):
       //intsrc
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->intsrc)));
       break;
     case (0xE0 >> 4):
-      //intclr
+      //intclr: always reads as zero
       vars->mpe->nativeCodeCache.X86Emit_XORRR(destReg, destReg);
       break;
     case (0xF0 >> 4):
       //intctl
+      break;
     case (0x100 >> 4):
       //inten1
     case (0x110 >> 4):
       //inten1set
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->inten1)));
+      break;
+    case (0x120 >> 4):
+      //inten1clr: always reads as zero
+      vars->mpe->nativeCodeCache.X86Emit_XORRR(destReg, destReg);
+      break;
     case (0x130 >> 4):
       //inten2sel
       break;
@@ -2604,6 +2615,7 @@ void EmitControlRegisterStore(EmitterVariables * const vars, const uint32 addres
       //excepsrc
       break;
     case (0x20 >> 4):
+      //excepclr: clear corresponding bits in excepsrc
       vars->mpe->nativeCodeCache.X86Emit_NOTR(srcReg);
       vars->mpe->nativeCodeCache.X86Emit_ANDRM(srcReg,((uint32)&(vars->mpe->excepsrc)));
       break;

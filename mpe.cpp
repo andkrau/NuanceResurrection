@@ -880,7 +880,7 @@ void MPE::Reset()
   intctl = 0;
   //reset all interrupt sources
   intsrc = 0;
-  //reset interupt enable registers
+  //reset interrupt enable registers
   inten1 = 0;
   //set level 2 selector to software
   inten2sel = 1;

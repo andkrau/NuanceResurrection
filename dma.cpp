@@ -1684,7 +1684,7 @@ void DMABiLinear(MPE &mpe)
   const uint32 intaddr = mpe.regs[4];
 
   //For the BIOS call, simulate the latency of the call assuming
-  //25 cycles of setup time plus 1 cycle per pixel transfered (xlen * ylen)
+  //25 cycles of setup time plus 1 cycle per pixel transferred (xlen * ylen)
   nuonEnv.cycleCounter += (25 + (((xinfo >> 16) & 0x3FFUL) * ((yinfo >> 16) & 0x3FFUL)));
 
   DMABiLinear(mpe,flags,baseaddr,xinfo,yinfo,intaddr);
@@ -1753,6 +1753,7 @@ void DMADo(MPE &mpe)
   }
 }
 
+// as none of the games seem to use waitFlag == 1 above, AND all dma is immediate at the moment, just return
 void DMAWait(MPE &mpe)
 {
   return;
