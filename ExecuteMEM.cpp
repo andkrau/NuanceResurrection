@@ -146,7 +146,7 @@ inline void SaturateColorComponentsOrg(uint32 &Y, uint32 &Cr, uint32 &Cb, const 
   }
 }
 
-__forceinline void SaturateColorComponents32bit(uint32& Y, uint32& Cr, uint32& Cb, const uint32 ChnormOffset)
+__forceinline uint32 SaturateColorComponents32bit(uint32 Y, uint32 Cr, uint32 Cb, const uint32 ChnormOffset)
 {
   /*uint32 Y2 = Y;
   uint32 Cr2 = Cr;
@@ -160,6 +160,12 @@ __forceinline void SaturateColorComponents32bit(uint32& Y, uint32& Cr, uint32& C
   /*assert(Y2 == Y);
   assert(Cr2 == Cr);
   assert(Cb2 == Cb);*/
+
+#ifdef LITTLE_ENDIAN
+  return Y | (Cr << 8) | (Cb << 16);
+#else
+  return (Y << 24) | (Cr << 16) | (Cb << 8);
+#endif
 }
 
 __forceinline uint16 SaturateColorComponents16bitSwapped(uint32 Y, uint32 Cr, uint32 Cb, const uint32 ChnormOffset)
@@ -169,12 +175,10 @@ __forceinline uint16 SaturateColorComponents16bitSwapped(uint32 Y, uint32 Cr, ui
   Cb = satColCrCb16[(Cb >> 22) + ChnormOffset];
 
 #ifdef LITTLE_ENDIAN
-  uint16 pixelData16 = SwapBytes((uint16)((Cr << 5) | Cb));
-  pixelData16 |= Y;
+  return (uint16)Y | SwapBytes((uint16)((Cr << 5) | Cb));
 #else
-  uint16 pixelData16 = SwapBytes((uint16)((Y << 8) | (Cr << 5) | Cb));
+  return (uint16)((Y << 8) | (Cr << 5) | Cb);
 #endif
-  return pixelData16;
 }
 
 void GenerateSaturateColorTables()
@@ -669,7 +673,7 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
 }
 
 // leave __fastcall here!
-void __fastcall _LoadPixelZAbsolute(const MPE* const __restrict mpe, const void* const __restrict memPtr)
+void __fastcall _LoadPixelZAbsolute(MPE* const __restrict mpe, const void* const __restrict memPtr)
 {
   const uint32 control = mpe->ba_control;
   uint32* const __restrict regs = mpe->ba_regs;
@@ -1295,20 +1299,11 @@ void __fastcall _StorePixelAbsolute(const MPE* const __restrict mpe, void* const
     case 0x6:
     {
       //32 bit
-      uint32 y32  = regs[0];
-      uint32 cr32 = regs[1];
-      uint32 cb32 = regs[2];
-      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
-
-      uint32 pixelData32 = *((uint32*)memPtr);
 #ifdef LITTLE_ENDIAN
-      pixelData32 = y32 | (cr32 << 8) | (cb32 << 16) | (pixelData32 & 0xFF000000u);
+      *((uint32 *)memPtr) = SaturateColorComponents32bit(regs[0], regs[1], regs[2], ChnormOffset) | (*((uint32*)memPtr) & 0xFF000000u);
 #else
-      SwapScalarBytes(&pixelData32);
-      pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (pixelData32 & 0xFF);
-      SwapScalarBytes(&pixelData32);
+      *((uint32 *)memPtr) = SaturateColorComponents32bit(regs[0], regs[1], regs[2], ChnormOffset) | (*((uint32*)memPtr) & 0xFFu);
 #endif
-      *((uint32 *)memPtr) = pixelData32;
     }
   }
 }
@@ -1359,20 +1354,11 @@ void Execute_StorePixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     case 0x6:
     {
       //32 bit
-      uint32 y32  = pRegs[src  ];
-      uint32 cr32 = pRegs[src+1];
-      uint32 cb32 = pRegs[src+2];
-      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
-
-      uint32 pixelData32 = *((uint32*)memPtr);
 #ifdef LITTLE_ENDIAN
-      pixelData32 = y32 | (cr32 << 8) | (cb32 << 16) | (pixelData32 & 0xFF000000u);
+      *((uint32 *)memPtr) = SaturateColorComponents32bit(pRegs[src], pRegs[src+1], pRegs[src+2], ChnormOffset) | (*((uint32*)memPtr) & 0xFF000000u);
 #else
-      SwapScalarBytes(&pixelData32);
-      pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (pixelData32 & 0xFF);
-      SwapScalarBytes(&pixelData32);
+      *((uint32 *)memPtr) = SaturateColorComponents32bit(pRegs[src], pRegs[src+1], pRegs[src+2], ChnormOffset) | (*((uint32*)memPtr) & 0xFFu);
 #endif
-      *((uint32 *)memPtr) = pixelData32;
     }
   }
 }
@@ -1394,57 +1380,33 @@ void __fastcall _StorePixelZAbsolute(const MPE* const __restrict mpe, void* cons
       //4 bit
       return;
     case 0x2:
-    {
-      //16 bit
-      *((uint16 *)memPtr) = SaturateColorComponents16bitSwapped(regs[0], regs[1], regs[2], ChnormOffset);
-      return;
-    }
     case 0x5:
     {
-      //16 bit + 16bitZ
-      const uint32 z = SwapBytes(regs[3]);
+      //16 bit
       ((uint16 *)memPtr)[0] = SaturateColorComponents16bitSwapped(regs[0], regs[1], regs[2], ChnormOffset);
-      ((uint16 *)memPtr)[1] = (uint16)z;
+      //+16Z
+      if(pixType == 0x5)
+        ((uint16 *)memPtr)[1] = (uint16)SwapBytes(regs[3]);
       return;
     }
     case 0x3:
       //8 bit
       return;
     case 0x4:
-    {
-      //32 bit
-      uint32 y32  = regs[0];
-      uint32 cr32 = regs[1];
-      uint32 cb32 = regs[2];
-      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
-
-#ifdef LITTLE_ENDIAN
-      const uint32 pixelData32 = y32 | (cr32 << 8) | (cb32 << 16) | (regs[3] & 0xFF000000u);
-#else
-      uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (regs[3] >> 24);
-      SwapScalarBytes(&pixelData32);
-#endif
-      *((uint32 *)memPtr) = pixelData32;
-      return;
-    }
     case 0x6:
     {
-      //32+32Z
-      uint32 y32  = regs[0];
-      uint32 cr32 = regs[1];
-      uint32 cb32 = regs[2];
-      //uint32 z32 = Regs[3];
-      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
-
+      //32 bit
+      uint32 pixelData32 = SaturateColorComponents32bit(regs[0], regs[1], regs[2], ChnormOffset);
+      if(pixType == 0x4)
 #ifdef LITTLE_ENDIAN
-      const uint32 pixelData32 = y32 | (cr32 << 8) | (cb32 << 16);
+        pixelData32 |= (regs[3] & 0xFF000000u);
 #else
-      uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8);
-      SwapScalarBytes(&pixelData32);
+        pixelData32 |= (regs[3] >> 24);
 #endif
-      //SwapScalarBytes(&z32);
-      *((uint32 *)memPtr) = pixelData32;
-      //*(((uint32 *)memPtr) + 1) = z32;
+      ((uint32 *)memPtr)[0] = pixelData32;
+      //+32Z
+      //if(pixType == 0x6)
+        //((uint32 *)memPtr)[1] = SwapBytes(regs[3]);
       return;
     }
   }
@@ -1486,57 +1448,33 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance 
       //4 bit
       return;
     case 0x2:
-    {
-      //16 bit
-      *((uint16 *)memPtr) = SaturateColorComponents16bitSwapped(pRegs[src], pRegs[src+1], pRegs[src+2], ChnormOffset);
-      return;
-    }
     case 0x5:
     {
-      //16 bit+16bitZ
-      const uint32 z = SwapBytes(pRegs[src+3]);
+      //16 bit
       ((uint16 *)memPtr)[0] = SaturateColorComponents16bitSwapped(pRegs[src], pRegs[src+1], pRegs[src+2], ChnormOffset);
-      ((uint16 *)memPtr)[1] = (uint16)z;
+      //+16Z
+      if(pixType == 0x5)
+        ((uint16 *)memPtr)[1] = (uint16)SwapBytes(pRegs[src+3]);
       return;
     }
     case 0x3:
       //8 bit
       return;
     case 0x4:
-    {
-      //32 bit
-      uint32 y32  = pRegs[src  ];
-      uint32 cr32 = pRegs[src+1];
-      uint32 cb32 = pRegs[src+2];
-      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
-
-#ifdef LITTLE_ENDIAN
-      const uint32 pixelData32 = y32 | (cr32 << 8) | (cb32 << 16) | (pRegs[src+3] & 0xFF000000u);
-#else
-      uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8) | (pRegs[src+3] >> 24);
-      SwapScalarBytes(&pixelData32);
-#endif
-      *((uint32 *)memPtr) = pixelData32;
-      return;
-    }
     case 0x6:
     {
-      //32+32Z
-      uint32 y32  = pRegs[src  ];
-      uint32 cr32 = pRegs[src+1];
-      uint32 cb32 = pRegs[src+2];
-      //uint32 z32 = pRegs[src+3];
-      SaturateColorComponents32bit(y32, cr32, cb32, ChnormOffset);
-
+      //32 bit
+      uint32 pixelData32 = SaturateColorComponents32bit(pRegs[src], pRegs[src+1], pRegs[src+2], ChnormOffset);
+      if(pixType == 0x4)
 #ifdef LITTLE_ENDIAN
-      const uint32 pixelData32 = y32 | (cr32 << 8) | (cb32 << 16);
+        pixelData32 |= (pRegs[src+3] & 0xFF000000u);
 #else
-      uint32 pixelData32 = (y32 << 24) | (cr32 << 16) | (cb32 << 8);
-      SwapScalarBytes(&pixelData32);
+        pixelData32 |= (pRegs[src+3] >> 24);
 #endif
-      //SwapScalarBytes(&z32);
-      *((uint32 *)memPtr) = pixelData32;
-      //*(((uint32 *)memPtr) + 1) = z32;
+      ((uint32 *)memPtr)[0] = pixelData32;
+      //+32Z
+      //if(pixType == 0x6)
+        //((uint32 *)memPtr)[1] = SwapBytes(pRegs[src+3]);
       return;
     }
   }
