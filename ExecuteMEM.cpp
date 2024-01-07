@@ -849,6 +849,7 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
       //8 bit
       return;
     case 0x4:
+    case 0x6:
     {
       //32 bit
       const uint32 pixelData32 = ((uint32*)memPtr)[0];
