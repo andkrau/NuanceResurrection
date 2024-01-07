@@ -2389,6 +2389,8 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
   {
     case (0x00 >> 4):
       //mpectl
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->mpectl)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(~(0xF0FF5555UL), destReg);
       break;
     case (0x10 >> 4):
       //excepsrc
@@ -2400,6 +2402,8 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       break;
     case (0x30 >> 4):
       //excephalten
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->excephalten)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x1FFFUL, destReg);
       break;
     case (0x40 >> 4):
       //cc
@@ -2407,6 +2411,7 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       const x86BaseReg baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x7FFUL, destReg);
       }
       break;
     case (0x80 >> 4):
@@ -2451,11 +2456,13 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       break;
     case (0xF0 >> 4):
       //intctl
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->intctl)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xAA, destReg);
       break;
     case (0x100 >> 4):
       //inten1
     case (0x110 >> 4):
-      //inten1set
+      //inten1set: always reads the same as inten1
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->inten1)));
       break;
     case (0x120 >> 4):
@@ -2464,6 +2471,8 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       break;
     case (0x130 >> 4):
       //inten2sel
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->inten2sel)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x1F, destReg);
       break;
     case (0x1E0 >> 4):
       //rc0
@@ -2471,6 +2480,7 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       const x86BaseReg baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC0);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RC0);
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF, destReg);
       }
       break;
     case (0x1F0 >> 4):
@@ -2479,6 +2489,7 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       const x86BaseReg baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RC1);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RC1);
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF, destReg);
       }
       break;
     case (0x200 >> 4):
@@ -2503,11 +2514,13 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       const x86BaseReg baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYRANGE);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_XYRANGE);
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(((0x3FFUL << 16) | 0x3FFUL), destReg);
       }
       break;
     case (0x230 >> 4):
       //xybase
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->xybase)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFCUL, destReg);
       break;
     case (0x240 >> 4):
       //xyctl
@@ -2515,6 +2528,7 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       const x86BaseReg baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYCTL);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_XYCTL);
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(~((1UL << 11) | (1UL << 27) | (1UL << 31)), destReg);
       }
       break;
     case (0x250 >> 4):
@@ -2539,11 +2553,13 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       const x86BaseReg baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVRANGE);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_UVRANGE);
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(((0x3FFUL << 16) | 0x3FFUL), destReg);
       }
       break;
     case (0x280 >> 4):
       //uvbase
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->uvbase)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFCUL, destReg);
       break;
     case (0x290 >> 4):
       //uvctl
@@ -2551,15 +2567,18 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       const x86BaseReg baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVCTL);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_UVCTL);
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(~((1UL << 11) | (1UL << 27) | (1UL << 31)), destReg);
       }
       break;
     case (0x2A0 >> 4):
       //linpixctl
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->linpixctl)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(((1UL << 28) | (15UL << 20)), destReg);
       break;
     case (0x2B0 >> 4):
       //clutbase
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->clutbase)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFC0UL, destReg);
       break;
     case (0x2C0 >> 4):
       //svshift
@@ -2567,6 +2586,7 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       const x86BaseReg baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_SVSHIFT);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_SVSHIFT);
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x03UL, destReg);
       }
       break;
     case (0x2D0 >> 4):
@@ -2575,11 +2595,14 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       const x86BaseReg baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_ACSHIFT);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_ACSHIFT);
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_SHLIR(destReg, 25);
+      vars->mpe->nativeCodeCache.X86Emit_SARIR(destReg, 25);
       }
       break;
     case (0x2E0 >> 4):
       //sp
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uint32)&(vars->mpe->sp)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFF0UL, destReg);
       break;
     case (0x500 >> 4):
       //odmactl
@@ -2598,6 +2621,7 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
     case (0x810 >> 4):
       //commrecv0 to commrecv3
     default:
+      assert(!"unhandled control register load");
       break;
   }
 }
@@ -2609,22 +2633,24 @@ void EmitControlRegisterStore(EmitterVariables * const vars, const uint32 addres
 
   switch((address & 0x1FF0) >> 4)
   {
-    case (0x00 >> 4):
+    //case (0x00 >> 4):
       //mpectl
-    case (0x10 >> 4):
+    //  break;
+    //case (0x10 >> 4):
       //excepsrc
-      break;
+    //  break;
     case (0x20 >> 4):
       //excepclr: clear corresponding bits in excepsrc
       vars->mpe->nativeCodeCache.X86Emit_NOTR(srcReg);
       vars->mpe->nativeCodeCache.X86Emit_ANDRM(srcReg,((uint32)&(vars->mpe->excepsrc)));
       break;
-    case (0x30 >> 4):
+    //case (0x30 >> 4):
       //excephalten
-      break;
+    //  break;
     case (0x40 >> 4):
       //cc
       {
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x7FFUL, srcReg);
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
       vars->mpe->nativeCodeCache.X86Emit_MOVRM(srcReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
@@ -2656,31 +2682,36 @@ void EmitControlRegisterStore(EmitterVariables * const vars, const uint32 addres
       break;
     case (0xB0 >> 4):
       //intvec1
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFEUL, srcReg);
       vars->mpe->nativeCodeCache.X86Emit_MOVRM(srcReg, ((uint32)&(vars->mpe->intvec1)));
       break;
     case (0xC0 >> 4):
       //intvec2
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFEUL, srcReg);
       vars->mpe->nativeCodeCache.X86Emit_MOVRM(srcReg, ((uint32)&(vars->mpe->intvec2)));
       break;
-    case (0xD0 >> 4):
+    //case (0xD0 >> 4):
       //intsrc
-      break;
+    //  break;
     case (0xE0 >> 4):
-      //intclr
+      //intclr: clears corresponding bit in intsrc
       vars->mpe->nativeCodeCache.X86Emit_NOTR(srcReg);
       vars->mpe->nativeCodeCache.X86Emit_ANDRM(srcReg, ((uint32)&(vars->mpe->intsrc)));
       break;
-    case (0xF0 >> 4):
+    //case (0xF0 >> 4):
       //intctl
-    case (0x100 >> 4):
+    //  break;
+    //case (0x100 >> 4):
       //inten1
-    case (0x110 >> 4):
+    //  break;
+    //case (0x110 >> 4):
       //inten1set
-    case (0x130 >> 4):
+    //  break;
+    //case (0x130 >> 4):
       //inten2sel
-      break;
+    //  break;
     case (0x1E0 >> 4):
-      //rc0
+      //rc0: lower 16 bits only
       {
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC0);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RC0);
@@ -2695,7 +2726,7 @@ void EmitControlRegisterStore(EmitterVariables * const vars, const uint32 addres
       }
       break;
     case (0x1F0 >> 4):
-      //rc1
+      //rc1: lower 16 bits only
       {
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC1);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RC1);
@@ -2734,8 +2765,8 @@ void EmitControlRegisterStore(EmitterVariables * const vars, const uint32 addres
       }
       break;
     case (0x230 >> 4):
-      //xybase
-      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFC, srcReg);
+      //xybase: always on scalar boundary
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFCUL, srcReg);
       vars->mpe->nativeCodeCache.X86Emit_MOVRM(srcReg, ((uint32)&(vars->mpe->xybase)));
       break;
     case (0x240 >> 4):
@@ -2840,6 +2871,7 @@ void EmitControlRegisterStore(EmitterVariables * const vars, const uint32 addres
       Emit_ExitBlock(vars);
       break;
     default:
+      assert(!"unhandled control register store");
       break;
   }
 }
@@ -2851,23 +2883,24 @@ void EmitControlRegisterStoreImmediate(EmitterVariables * const vars, const uint
 
   switch((address & 0x1FF0) >> 4)
   {
-    case (0x00 >> 4):
+    //case (0x00 >> 4):
       //mpectl
-    case (0x10 >> 4):
+    //  break;
+    //case (0x10 >> 4):
       //excepsrc
-      break;
+    //  break;
     case (0x20 >> 4):
       vars->mpe->nativeCodeCache.X86Emit_ANDIM(~imm, x86MemPtr::x86MemPtr_dword, ((uint32)&(vars->mpe->excepsrc)));
       break;
-    case (0x30 >> 4):
+    //case (0x30 >> 4):
       //excephalten
-      break;
+    //  break;
     case (0x40 >> 4):
       //cc
       {
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
-      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm, x86MemPtr::x86MemPtr_dword, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm & 0x7FFUL, x86MemPtr::x86MemPtr_dword, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
       }
       break;
     case (0x80 >> 4):
@@ -2896,42 +2929,40 @@ void EmitControlRegisterStoreImmediate(EmitterVariables * const vars, const uint
       break;
     case (0xB0 >> 4):
       //intvec1
-      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm, x86MemPtr::x86MemPtr_dword, ((uint32)&(vars->mpe->intvec1)));
+      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm & 0xFFFFFFFEUL, x86MemPtr::x86MemPtr_dword, ((uint32)&(vars->mpe->intvec1)));
       break;
     case (0xC0 >> 4):
       //intvec2
-      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm, x86MemPtr::x86MemPtr_dword, ((uint32)&(vars->mpe->intvec2)));
+      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm & 0xFFFFFFFEUL, x86MemPtr::x86MemPtr_dword, ((uint32)&(vars->mpe->intvec2)));
       break;
-    case (0xD0 >> 4):
+    //case (0xD0 >> 4):
       //intsrc
-      break;
+    //  break;
     case (0xE0 >> 4):
       //intclr
       vars->mpe->nativeCodeCache.X86Emit_ANDIM(~imm, x86MemPtr::x86MemPtr_dword, ((uint32)&(vars->mpe->intsrc)));
       break;
-    case (0xF0 >> 4):
+    //case (0xF0 >> 4):
       //intctl
-    case (0x100 >> 4):
+    //  break;
+    //case (0x100 >> 4):
       //inten1
-    case (0x110 >> 4):
+    //  break;
+    //case (0x110 >> 4):
       //inten1set
-    case (0x130 >> 4):
+    //  break;
+    //case (0x130 >> 4):
       //inten2sel
-      break;
+    //  break;
     case (0x1E0 >> 4):
       //rc0
       {
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC0);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RC0);
       vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm & 0xFFFF, x86MemPtr::x86MemPtr_dword, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_ORIM(CC_COUNTER0_ZERO, x86MemPtr::x86MemPtr_dword, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
       if(imm & 0xFFFF)
-      {
         vars->mpe->nativeCodeCache.X86Emit_ANDIM(~CC_COUNTER0_ZERO, x86MemPtr::x86MemPtr_dword, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
-      }
-      else
-      {
-        vars->mpe->nativeCodeCache.X86Emit_ORIM(CC_COUNTER0_ZERO, x86MemPtr::x86MemPtr_dword, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
-      }
       }
       break;
     case (0x1F0 >> 4):
@@ -2940,14 +2971,9 @@ void EmitControlRegisterStoreImmediate(EmitterVariables * const vars, const uint
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RC1);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RC1);
       vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm & 0xFFFF, x86MemPtr::x86MemPtr_dword, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_ORIM(CC_COUNTER1_ZERO, x86MemPtr::x86MemPtr_dword, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
       if(imm & 0xFFFF)
-      {
         vars->mpe->nativeCodeCache.X86Emit_ANDIM(~CC_COUNTER1_ZERO, x86MemPtr::x86MemPtr_dword, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
-      }
-      else
-      {
-        vars->mpe->nativeCodeCache.X86Emit_ORIM(CC_COUNTER1_ZERO, x86MemPtr::x86MemPtr_dword, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
-      }
       }
       break;
     case (0x200 >> 4):
@@ -3067,6 +3093,7 @@ void EmitControlRegisterStoreImmediate(EmitterVariables * const vars, const uint
     case (0x810 >> 4):
       //commrecv0 to commrecv3
     default:
+      assert(!"unhandled control register store immediate");
       break;
   }
 }
