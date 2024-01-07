@@ -123,23 +123,47 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   uint32 srcB = 0;
   uint32 destB = 0;
 
+  const bool bCompareZ2 = bCompareZ && (zcompare > 0) && (zcompare < 7);
+
   while(bCount--)
   {
     uint32 srcA = srcB;
     uint32 destA = destB;
     uint32 aCount = xlen;
 
+    if(!bCompareZ2)
+    {
+    while(aCount--)
+    {
+      if(zcompare == 7)
+      {
+        pDest16[destA + mapOffset] = ((uint16 *)(&pSrc16[srcA]))[0];
+      }
+      else
+      {
+        pDest16[destA + mapOffset] = ((uint16 *)(&pSrc32[srcA]))[0];
+        pDest16[destA + destZOffset] = ((uint16 *)(&pSrc32[srcA]))[1];
+      }
+
+      srcA += srcAStep;
+      destA += destAStep;
+    }
+    }
+    else
     while(aCount--)
     {
       bool bZTestResult = false;
 
-      if(bCompareZ)
+      //if(bCompareZ)
       {
         const int16 ztarget = SwapBytes(pDest16[destA + destZOffset]);
         const int16 ztransfer = SwapBytes(((uint16 *)(&pSrc32[srcA]))[1]);
 
         switch(zcompare)
         {
+          //case 0x0:
+            //bZTestResult = false;
+            //break;
           case 0x1:
             bZTestResult = (ztarget < ztransfer);
             break;
@@ -166,11 +190,11 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
 
       if(!bZTestResult)
       {
-        if(zcompare == 7)
-        {
-          pDest16[destA + mapOffset] = ((uint16 *)(&pSrc16[srcA]))[0];
-        }
-        else
+        //if(zcompare == 7)
+        //{
+        //  pDest16[destA + mapOffset] = ((uint16 *)(&pSrc16[srcA]))[0];
+        //}
+        //else
         {
           pDest16[destA + mapOffset] = ((uint16 *)(&pSrc32[srcA]))[0];
           pDest16[destA + destZOffset] = ((uint16 *)(&pSrc32[srcA]))[1];

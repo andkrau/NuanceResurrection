@@ -127,17 +127,30 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
   uint32 srcB = 0;
   uint32 destB = 0;
 
+  const bool bCompareZ2 = bCompareZ && (zcompare > 0) && (zcompare < 7);
+
   while(bCount--)
   {
     uint32 srcA = srcB;
     uint32 destA = destB;
     uint32 aCount = xlen;
 
+    if(!bCompareZ2)
+    {
+    while(aCount--)
+    {
+      pDestColor[destA] = pSrcColor[srcA];
+
+      srcA += srcAStep;
+      destA += destAStep;
+    }
+    }
+    else
     while(aCount--)
     {
       bool bZTestResult = false;
 
-      if(bCompareZ)
+      //if(bCompareZ)
       {
         const uint16 ztarget = SwapBytes(pDestColor[destA]);
         const uint16 ztransfer = SwapBytes(pSrcColor[srcA]);
