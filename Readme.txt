@@ -470,6 +470,8 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 History
 =======
 version 0.6.6:
+Implement (bi)linear address mirroring properly and enable it
+Optimize (bi)linear memory reads, and some memory stores
 
 01/04/2024 version 0.6.5:
 Fix loading of nuance.cfg when drag and drop is used
