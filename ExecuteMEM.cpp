@@ -562,7 +562,7 @@ void __fastcall _LoadPixelAbsolute(MPE* const __restrict mpe, const void* const 
       if (bChnorm)
       {
         tmp0 = _mm_sub_epi32(tmp0, _mm_set_epi32(0, 0x20000000UL, 0x20000000UL, 0));
-        tmp0 = _mm_and_epi32(tmp0, _mm_set_epi32(0xFFFFFFFFUL, 0xFFC00000UL, 0xFFC00000UL, 0xFFFFFFFFUL));
+        tmp0 = _mm_and_si128(tmp0, _mm_set_epi32(0xFFFFFFFFUL, 0xFFC00000UL, 0xFFC00000UL, 0xFFFFFFFFUL));
       }
 
       const unsigned int regs3 = regs[3]; //!! meh
@@ -746,7 +746,7 @@ void __fastcall _LoadPixelZAbsolute(MPE* const __restrict mpe, const void* const
       if (bChnorm)
       {
         tmp0 = _mm_sub_epi32(tmp0, _mm_set_epi32(0, 0x20000000UL, 0x20000000UL, 0));
-        tmp0 = _mm_and_epi32(tmp0, _mm_set_epi32(0xFFFFFFFFUL, 0xFFC00000UL, 0xFFC00000UL, 0xFFFFFFFFUL));
+        tmp0 = _mm_and_si128(tmp0, _mm_set_epi32(0xFFFFFFFFUL, 0xFFC00000UL, 0xFFC00000UL, 0xFFFFFFFFUL));
       }
 
       _mm_store_si128((__m128i*)regs, tmp0); //!! is this always aligned?
