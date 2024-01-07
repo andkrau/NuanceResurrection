@@ -503,7 +503,7 @@ void Execute_LoadVectorControlRegisterAbsolute(MPE &mpe, const uint32 pRegs[48],
 void __fastcall _LoadPixelAbsolute(MPE* const __restrict mpe, const void* const __restrict memPtr)
 {
   const uint32 control = mpe->ba_control;
-  uint32* const __restrict regs = mpe->ba_regs;
+  uint32* const __restrict regs = mpe->regs+mpe->ba_reg_offset;
   const uint32 pixType = BilinearInfo_XYType(control);
   const bool bChnorm = BilinearInfo_XYChnorm(control);
 
@@ -676,7 +676,7 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
 void __fastcall _LoadPixelZAbsolute(MPE* const __restrict mpe, const void* const __restrict memPtr)
 {
   const uint32 control = mpe->ba_control;
-  uint32* const __restrict regs = mpe->ba_regs;
+  uint32* const __restrict regs = mpe->regs+mpe->ba_reg_offset;
   const uint32 pixType = BilinearInfo_XYType(control);
   const bool bChnorm = BilinearInfo_XYChnorm(control);
 
@@ -1273,7 +1273,7 @@ void Execute_StoreVectorControlRegisterAbsolute(MPE &mpe, const uint32 pRegs[48]
 void __fastcall _StorePixelAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr)
 {
   const uint32 control = mpe->ba_control;
-  const uint32 * const __restrict regs = mpe->ba_regs;
+  const uint32 * const __restrict regs = mpe->regs+mpe->ba_reg_offset;
   const uint32 pixType = BilinearInfo_XYType(control);
   const uint32 ChnormOffset = BilinearInfo_XYChnorm(control) ? 1024 : 0;
 
@@ -1367,7 +1367,7 @@ void Execute_StorePixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
 void __fastcall _StorePixelZAbsolute(const MPE* const __restrict mpe, void* const __restrict memPtr)
 {
   const uint32 control = mpe->ba_control;
-  const uint32 * const __restrict regs = mpe->ba_regs;
+  const uint32 * const __restrict regs = mpe->regs+mpe->ba_reg_offset;
   const uint32 pixType = BilinearInfo_XYType(control);
   const uint32 ChnormOffset = BilinearInfo_XYChnorm(control) ? 1024 : 0;
 

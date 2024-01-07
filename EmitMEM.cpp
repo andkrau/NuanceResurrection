@@ -960,7 +960,7 @@ void Emit_LoadPixelAbsolute(EmitterVariables * const vars, const Nuance &nuance)
   //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, (uint32)&vars->mpe->linpixctl);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(destRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_control);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
@@ -975,7 +975,7 @@ void Emit_LoadPixelZAbsolute(EmitterVariables * const vars, const Nuance &nuance
   //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, (uint32)&vars->mpe->linpixctl);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(destRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, (uint32)&vars->mpe->ba_control);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
@@ -994,7 +994,7 @@ void Emit_LoadPixelLinear(EmitterVariables * const vars, const Nuance &nuance)
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(destRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->ba_control);
 
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg::x86Reg_ebx); //!! in case of needing this again: the eax in here was replaced for all the other code with edx (first emit line above)
@@ -1031,7 +1031,7 @@ void Emit_LoadPixelZLinear(EmitterVariables * const vars, const Nuance &nuance)
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(destRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->ba_control);
 
   //vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg::x86Reg_ebx); //!! in case of needing this again: the eax in here was replaced for all the other code with edx (first emit line above)
@@ -1076,7 +1076,7 @@ void Emit_LoadPixelBilinearUV(EmitterVariables * const vars, const Nuance &nuanc
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelAbsolute
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(destRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
 
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -1128,7 +1128,7 @@ void Emit_LoadPixelZBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelZAbsolute
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(destRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
 
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -1179,7 +1179,7 @@ void Emit_LoadPixelBilinearXY(EmitterVariables * const vars, const Nuance &nuanc
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelAbsolute
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(destRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
 
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -1231,7 +1231,7 @@ void Emit_LoadPixelZBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _LoadPixelZAbsolute
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + destRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(destRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
 
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -1725,7 +1725,7 @@ void Emit_StorePixelAbsolute(EmitterVariables * const vars, const Nuance &nuance
   //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(srcRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->ba_control);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
@@ -1859,7 +1859,7 @@ void Emit_StorePixelZAbsolute(EmitterVariables * const vars, const Nuance &nuanc
   //const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(srcRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->ba_control);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe);
@@ -1878,7 +1878,7 @@ void Emit_StorePixelLinear(EmitterVariables * const vars, const Nuance &nuance)
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, destRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(srcRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->ba_control);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
 
@@ -1916,7 +1916,7 @@ void Emit_StorePixelZLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, destRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->linpixctl);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, (uint32)&vars->mpe->ba_control);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(srcRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(vars->mpe->dtrom), x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVIR((uint32)(nuonEnv.mainBusDRAM), x86Reg::x86Reg_ecx);
@@ -1955,7 +1955,7 @@ void Emit_StorePixelBilinearUV(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelAbsolute
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(srcRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
 
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -2005,7 +2005,7 @@ void Emit_StorePixelZBilinearUV(EmitterVariables * const vars, const Nuance &nua
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelZAbsolute
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(srcRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
 
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -2056,7 +2056,7 @@ void Emit_StorePixelBilinearXY(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelAbsolute
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(srcRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
 
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax
@@ -2107,7 +2107,7 @@ void Emit_StorePixelZBilinearXY(EmitterVariables * const vars, const Nuance &nua
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,16);
   vars->mpe->nativeCodeCache.X86Emit_ORRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uint32)&vars->mpe->ba_control); // needed by _StorePixelZAbsolute
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32)(((uint32 *)&(vars->mpe->regs)) + srcRegIndex), x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_regs);
+  vars->mpe->nativeCodeCache.X86Emit_MOVIM(srcRegIndex, x86MemPtr::x86MemPtr_dword, (uint32)&vars->mpe->ba_reg_offset);
 
   vars->mpe->nativeCodeCache.X86Emit_CALLI((uint32)GetBilinearAddress,0);
   // returns result in eax

@@ -362,7 +362,7 @@ public:
   uint32 mpeIndex;
 
   // these are only used to communicate data into the _LoadPixelAbsolute,_LoadPixelZAbsolute,_StorePixelAbsolute,_StorePixelZAbsolute calls, but never back to anything else
-  uint32* ba_regs;
+  uint32 ba_reg_offset;
   uint32 ba_control;
   // this one is used to pass data from GetBilinearAddress into the single 4bit case in _LoadPixelAbsolute, but never back to anything else
   uint32 ba_mipped_xoffset; // note that only the lowest or the highest bit is used in _LoadPixelAbsolute later-on
