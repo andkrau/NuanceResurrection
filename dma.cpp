@@ -1579,17 +1579,30 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
     uint32 srcB = srcBStart;
     uint32 destB = destBStart;
 
+    const bool bCompareZ2 = bCompareZ && (zcompare > 0) && (zcompare < 7);
+
     while(bCount--)
     {
       uint32 srcA = srcAStart + srcB;
       uint32 destA = destAStart + destB;
       uint32 aCount = aCountInit;
 
+      if(!bCompareZ2)
+      {
+      while(aCount--)
+      {
+        pDest32[destA] = pSrc32[srcA];
+
+        srcA += srcAStep;
+        destA += destAStep;
+      }
+      }
+      else
       while(aCount--)
       {
         bool bZTestResult = false;
 
-        if(bCompareZ)
+        //if(bCompareZ2)
         {
           const uint16 ztarget = SwapBytes(((uint16 *)&pDest32[destA])[1]);
           const uint16 ztransfer = SwapBytes(((uint16 *)&pSrc32[srcA])[1]);

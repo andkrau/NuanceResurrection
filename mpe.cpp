@@ -2000,7 +2000,7 @@ bool MPE::FetchDecodeExecute()
     {
       if (!only_find_icache_entry)
       {
-//check_compile_threshhold:
+//check_compile_threshold:
         if(!(pInstructionCacheEntry->packetInfo & (PACKETINFO_COMPILED | PACKETINFO_NEVERCOMPILE)) && (pInstructionCacheEntry->frequencyCount >= COMPILE_THRESHOLD))
         {
           if(nativeCodeCache.IsBeyondThreshold())
