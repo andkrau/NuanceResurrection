@@ -52,9 +52,7 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
     if(bDirect)
     {
       //Direct and Dup: intaddr is data.
-      directValue = intaddr;
-      //swap back to big endian format
-      SwapScalarBytes(&directValue);
+      directValue = SwapBytes(intaddr);
     }
     else
     {
@@ -104,11 +102,8 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
 
     while(aCount--)
     {
-      uint32 pix32 = pSrc32[srcA];
-      SwapScalarBytes(&pix32);
-      uint16 pix16 = ((pix32 >> 16) & 0xFC00UL) | ((pix32 >> 14) & 0x03E0UL) | ((pix32 >> 11) & 0x001FUL);
-      SwapWordBytes(&pix16);
-      pDest16[destA] = pix16;
+      const uint32 pix32 = SwapBytes(pSrc32[srcA]);
+      pDest16[destA] = SwapBytes((uint16)(((pix32 >> 16) & 0xFC00UL) | ((pix32 >> 14) & 0x03E0UL) | ((pix32 >> 11) & 0x001FUL)));
 
       srcA += srcAStep;
       destA += destAStep;

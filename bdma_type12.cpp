@@ -90,9 +90,7 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
     if(bDirect)
     {
       //Direct and Dup: intaddr is data.
-      directColor = intaddr >> 16;
-      //swap back to big endian format
-      SwapWordBytes(&directColor);
+      directColor = SwapBytes((uint16)(intaddr >> 16));
     }
     else
     {
@@ -141,10 +139,8 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
 
       if(bCompareZ)
       {
-        uint16 ztarget = pDestColor[destA];
-        uint16 ztransfer = pSrcColor[srcA];
-        SwapWordBytes(&ztarget);
-        SwapWordBytes(&ztransfer);
+        const uint16 ztarget = SwapBytes(pDestColor[destA]);
+        const uint16 ztransfer = SwapBytes(pSrcColor[srcA]);
 
         switch(zcompare)
         {

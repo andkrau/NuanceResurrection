@@ -185,16 +185,14 @@ void TimeElapsed(MPE &mpe)
   if(ptrSecs)
   {
     uint32 *const memPtr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,ptrSecs,true);
-    *memPtr = (uint32)seconds;
-    SwapScalarBytes(memPtr);
+    *memPtr = SwapBytes((uint32)seconds);
   }
 
   //Store microseconds if pointer is not NULL
   if(ptrUSecs)
   {
     uint32 *const memPtr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,ptrUSecs,true);
-    *memPtr = (uint32)useconds;
-    SwapScalarBytes(memPtr);
+    *memPtr = SwapBytes((uint32)useconds);
   }
 
   mpe.regs[0] = (uint32)mseconds;

@@ -147,8 +147,7 @@ void DoCommBusController(void)
           if((cmdValue >= 0x200) && (cmdValue < 0x300))
           {
             //write VDG clut entry
-            vdgCLUT[cmdValue - 0x200] = nuonEnv.mpe[currentTransmitID].commxmit[1];
-            SwapScalarBytes(&vdgCLUT[cmdValue - 0x200]);
+            vdgCLUT[cmdValue - 0x200] = SwapBytes(nuonEnv.mpe[currentTransmitID].commxmit[1]);
           }
           break;
       }

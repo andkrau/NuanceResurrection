@@ -22,6 +22,11 @@ __forceinline void SwapWordBytes(uint16 * const toswap)
 #endif
 }
 
+__forceinline uint16 SwapBytes(const uint16 toswap)
+{
+  return _byteswap_ushort(toswap);
+}
+
 __forceinline void SwapScalarBytes(uint32 * const toswap)
 {
 #if 0 // old __fastcall dependent code
@@ -36,7 +41,12 @@ __forceinline void SwapScalarBytes(uint32 * const toswap)
 #endif
 }
 
-__forceinline void SwapShortVectorBytes(uint16 * const toswap)
+__forceinline uint32 SwapBytes(const uint32 toswap)
+{
+  return _byteswap_ulong(toswap);
+}
+
+__forceinline void SwapShortVectorBytes(uint16 toswap[4])
 {
 #if 0 // old __fastcall dependent code
   __asm
@@ -62,7 +72,7 @@ __forceinline void SwapShortVectorBytes(uint16 * const toswap)
 #endif
 }
 
-__forceinline void SwapVectorBytes(uint32 * const toswap)
+__forceinline void SwapVectorBytes(uint32 toswap[4])
 {
 #if 0 // old __fastcall dependent code
   __asm
@@ -94,6 +104,8 @@ __forceinline void SwapVectorBytes(uint32 * const toswap)
 #define SwapScalarBytes(x) 
 #define SwapShortVectorBytes(x) 
 #define SwapVectorBytes(x) 
+
+#define SwapBytes(x) (x) 
 
 #endif
 

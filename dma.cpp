@@ -629,8 +629,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
     {
       if(bRead)
       {
-        directValue = nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].ReadControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.reg_union);
-        SwapScalarBytes(&directValue);
+        directValue = SwapBytes(nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].ReadControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.reg_union));
 
         if(bRemote)
         {
@@ -732,8 +731,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false);
       }
       const uint32* const pSrc32 = (uint32 *)intMemory;
-      uint32 tempScalar = *pSrc32;
-      SwapScalarBytes(&tempScalar);
+      const uint32 tempScalar = SwapBytes(*pSrc32);
       nuonEnv.flashEEPROM.WriteData(baseaddr - 0xF0000000,tempScalar);
     }
     return;
@@ -1593,10 +1591,8 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
 
         if(bCompareZ)
         {
-          uint16 ztarget = ((uint16 *)&pDest32[destA])[1];
-          uint16 ztransfer = ((uint16 *)&pSrc32[srcA])[1];
-          SwapWordBytes(&ztarget);
-          SwapWordBytes(&ztransfer);
+          const uint16 ztarget = SwapBytes(((uint16 *)&pDest32[destA])[1]);
+          const uint16 ztransfer = SwapBytes(((uint16 *)&pSrc32[srcA])[1]);
 
           switch(zcompare)
           {
@@ -1708,12 +1704,9 @@ void DMADo(MPE &mpe)
     {
       //other bus DMA is enabled so do it!
       const uint32* const cmdptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,cmdBlock);
-      uint32 dmaflags = cmdptr[0];
-      uint32 baseaddr = cmdptr[1];
-      uint32 intaddr = cmdptr[2];
-      SwapScalarBytes(&dmaflags);
-      SwapScalarBytes(&baseaddr);
-      SwapScalarBytes(&intaddr);
+            uint32 dmaflags = SwapBytes(cmdptr[0]);
+      const uint32 baseaddr = SwapBytes(cmdptr[1]);
+      const uint32 intaddr = SwapBytes(cmdptr[2]);
       //clear all bits except bits 13, 16 - 23, and 28
       dmaflags &= ((1UL << 13) | (0xFFUL << 16) | (1UL << 28));
       DMALinear(mpe,dmaflags,baseaddr,intaddr);
@@ -1726,12 +1719,9 @@ void DMADo(MPE &mpe)
 
     while(true) {
     const uint32* const cmdptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,cmdBlock,false);
-    uint32 dmaflags = cmdptr[0];
-    uint32 baseaddr = cmdptr[1];
-    uint32 intaddr = cmdptr[2];
-    SwapScalarBytes(&dmaflags);
-    SwapScalarBytes(&baseaddr);
-    SwapScalarBytes(&intaddr);
+    const uint32 dmaflags = SwapBytes(cmdptr[0]);
+    const uint32 baseaddr = SwapBytes(cmdptr[1]);
+          uint32 intaddr = SwapBytes(cmdptr[2]);
 
     switch((dmaflags >> 14) & 0x03UL)
     {
@@ -1743,10 +1733,8 @@ void DMADo(MPE &mpe)
       {
         //bilinear pixel DMA
         const uint32 xptr = intaddr;
-        uint32 yptr = cmdptr[3];
-        intaddr = cmdptr[4];
-        SwapScalarBytes(&yptr);
-        SwapScalarBytes(&intaddr);
+        const uint32 yptr = SwapBytes(cmdptr[3]);
+        intaddr = SwapBytes(cmdptr[4]);
         DMABiLinear(mpe,dmaflags,baseaddr,xptr,yptr,intaddr);
         break;
       }

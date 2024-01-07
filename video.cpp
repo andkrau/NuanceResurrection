@@ -390,8 +390,7 @@ void IncrementVideoFieldCounter()
 {
   //if(nuonEnv.systemBusDRAM)
   {
-    uint32 fieldCounter = *((uint32 *)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
-    SwapScalarBytes(&fieldCounter);
+    uint32 fieldCounter = SwapBytes(*((uint32 *)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]));
     fieldCounter++;
     SwapScalarBytes(&fieldCounter);
     *((uint32 *)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]) = fieldCounter;
@@ -1282,8 +1281,7 @@ void VidSetup(MPE &mpe)
 
 void VidSync(MPE& mpe) // should wait (as seen by the app) for mpe.regs[0] fields (= mpe.regs[0] * 1/60 or 1/50 second), if 0 or -1 just return internal field counter, -2 is internal only
 {
-  uint32 fieldCounter = *((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
-  SwapScalarBytes(&fieldCounter);
+  uint32 fieldCounter = SwapBytes(*((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]));
 
   if ((int)mpe.regs[0] > 0)
   {

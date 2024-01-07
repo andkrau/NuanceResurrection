@@ -1005,12 +1005,11 @@ bool OnDisplayResize(uint16 width, uint16 height)
   return false;
 }
 
-static void ApplyControllerState(unsigned int controllerIdx, uint16 buttons)
+static void ApplyControllerState(const unsigned int controllerIdx, const uint16 buttons)
 {
     if (controller)
     {
-        SwapWordBytes(&buttons);
-        controller[controllerIdx].buttons = buttons;
+        controller[controllerIdx].buttons = SwapBytes(buttons);
     }
 }
 
@@ -1201,8 +1200,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
           nuonEnv.trigger_render_video = true;
 
           // check if the vsync that has passed allows the MPE3 now to continue (if it was blocked by VidSync)
-          uint32 fieldCounter = *((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]);
-          SwapScalarBytes(&fieldCounter);
+          const uint32 fieldCounter = SwapBytes(*((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]));
           if (fieldCounter >= nuonEnv.MPE3wait_fieldCounter)
             nuonEnv.MPE3wait_fieldCounter = 0;
 

@@ -1829,8 +1829,7 @@ void MPE::ScheduleInstructionQuartet(InstructionCacheEntry &destEntry, const uin
 
 void LogMemoryLocation(FILE *outFile, const char * const varname, const uint32 address, const MPE &mpe)
 {
-  uint32 value = *((uint32 *)nuonEnv.GetPointerToMemory(mpe,address));
-  SwapScalarBytes(&value);
+  const uint32 value = SwapBytes(*((uint32 *)nuonEnv.GetPointerToMemory(mpe,address)));
   fprintf(outFile,"%s = $%8.8lx\n",varname,value);
 }
 
@@ -2316,8 +2315,7 @@ uint8 MPE::DecodeSingleInstruction(const uint8 *const iPtr, InstructionCacheEntr
     else
     {
       //32 bit extension (preceeding 48/64 bit instruction)
-      *immExt = *((uint32 *)iPtr);
-      SwapScalarBytes(immExt);
+      *immExt = SwapBytes(*((uint32 *)iPtr));
       bTerminating = false;
       return 4;
     }

@@ -226,19 +226,17 @@ void WillNotImplement(MPE &mpe)
 
 void SetISRExitHook(MPE &mpe)
 {
-  uint32 newvec = mpe.regs[0];
-  SwapScalarBytes(&newvec);
+  const uint32 newvec = SwapBytes(mpe.regs[0]);
   *((uint32 *)nuonEnv.GetPointerToMemory(mpe,ISR_EXIT_HOOK_ADDRESS)) = newvec;
 }
 
 bool InstallCommHandler(MPE &mpe, uint32 address, uint32 *handlerList, uint32 *nHandlers)
 {
-  uint32 numHandlers = *((uint32 *)nuonEnv.GetPointerToMemory(mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS));
+  uint32 numHandlers = SwapBytes(*((uint32 *)nuonEnv.GetPointerToMemory(mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS)));
   uint32 *pHandlers = handlerList;
   bool bFound = false;
 
   SwapScalarBytes(&address);
-  SwapScalarBytes(&numHandlers);
 
   uint32 i;
   for(i = 0; i < numHandlers; i++)
@@ -264,8 +262,7 @@ bool InstallCommHandler(MPE &mpe, uint32 address, uint32 *handlerList, uint32 *n
     *pHandlers = address;
     i++;
     *nHandlers = i;
-    SwapScalarBytes(&i);
-    *((uint32 *)nuonEnv.GetPointerToMemory(mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS)) = i;
+    *((uint32 *)nuonEnv.GetPointerToMemory(mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS)) = SwapBytes(i);
     return true;
   }
 
@@ -280,8 +277,7 @@ bool InstallCommHandler(MPE &mpe, uint32 address, uint32 *handlerList, uint32 *n
   
   numHandlers--;
   *nHandlers = numHandlers;
-  SwapScalarBytes(&numHandlers);
-  *((uint32 *)nuonEnv.GetPointerToMemory(mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS)) = numHandlers;
+  *((uint32 *)nuonEnv.GetPointerToMemory(mpe,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS)) = SwapBytes(numHandlers);
   return false;
 }
 
@@ -292,8 +288,7 @@ void IntGetVector(MPE &mpe)
   if(which < 32)
   {
     const uint32* const InterruptVectors = (uint32 *)nuonEnv.GetPointerToMemory(mpe,INTERRUPT_VECTOR_ADDRESS);
-    mpe.regs[0] = InterruptVectors[which];
-    SwapScalarBytes(&(mpe.regs[0]));
+    mpe.regs[0] = SwapBytes(InterruptVectors[which]);
   }
   else
     mpe.regs[0] = 0;
@@ -342,8 +337,7 @@ void IntSetVector(MPE &mpe)
         mpe.inten1 |= (1UL << which);
       }
 
-      InterruptVectors[which] = newvec;
-      SwapScalarBytes(&InterruptVectors[which]);
+      InterruptVectors[which] = SwapBytes(newvec);
     }
   }
 }
@@ -689,23 +683,21 @@ enum NuonPrintfType {
 };
 
 
-static int32 GetStackInt(MPE& mpe, uint32& stackPtr)
+static int32 GetStackInt(const MPE& mpe, uint32& stackPtr)
 {
-  int32 val = *((int32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true)));
-  SwapScalarBytes((uint32*)&val);
+  const int32 val = SwapBytes(*((uint32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true))));
   stackPtr += 4;
   return val;
 }
 
-static uint32 GetStackUInt(MPE& mpe, uint32& stackPtr)
+static uint32 GetStackUInt(const MPE& mpe, uint32& stackPtr)
 {
-  uint32 val = *((uint32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true)));
-  SwapScalarBytes(&val);
+  const uint32 val = SwapBytes(*((uint32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true))));
   stackPtr += 4;
   return val;
 }
 
-static double GetStackDouble(MPE& mpe, uint32& stackPtr)
+static double GetStackDouble(const MPE& mpe, uint32& stackPtr)
 {
   const uint8* bytes = (const uint8*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
   double val;
@@ -725,7 +717,7 @@ static double GetStackDouble(MPE& mpe, uint32& stackPtr)
   return val;
 }
 
-static uint64 GetStackUInt64(MPE& mpe, uint32& stackPtr)
+static uint64 GetStackUInt64(const MPE& mpe, uint32& stackPtr)
 {
   const uint8* bytes = (const uint8*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
   uint64 val;
@@ -745,7 +737,7 @@ static uint64 GetStackUInt64(MPE& mpe, uint32& stackPtr)
   return val;
 }
 
-static uint64 GetStackInt64(MPE& mpe, uint32& stackPtr)
+static uint64 GetStackInt64(const MPE& mpe, uint32& stackPtr)
 {
   const uint8* bytes = (const uint8*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
   int64 val;
@@ -765,10 +757,9 @@ static uint64 GetStackInt64(MPE& mpe, uint32& stackPtr)
   return val;
 }
 
-static const void* GetStackPtr(MPE& mpe, uint32& stackPtr)
+static const void* GetStackPtr(const MPE& mpe, uint32& stackPtr)
 {
-  uint32 ptr = *(uint32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true));
-  SwapScalarBytes(&ptr);
+  const uint32 ptr = SwapBytes(*(uint32*)(nuonEnv.GetPointerToMemory(mpe, stackPtr, true)));
   const void* ret = (nuonEnv.GetPointerToMemory(mpe, ptr, true));
   stackPtr += 4;
   return ret;
@@ -1054,11 +1045,10 @@ static void NuonSprintf(MPE &mpe, uint32 stackPtr, char* buf, size_t bufSize, co
 
 void KPrintf(MPE &mpe)
 {
-  uint32 stackPtr = mpe.regs[31];
+  const uint32 stackPtr = mpe.regs[31];
 
-  uint32 pStr = *((uint32 *)(nuonEnv.GetPointerToMemory(mpe,stackPtr,true)));
+  const uint32 pStr = SwapBytes(*((uint32 *)(nuonEnv.GetPointerToMemory(mpe,stackPtr,true))));
 
-  SwapScalarBytes(&pStr);
   if(pStr)
   {
     const char* const str = (const char *)(nuonEnv.GetPointerToMemory(mpe,pStr,true));

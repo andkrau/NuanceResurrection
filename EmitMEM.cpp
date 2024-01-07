@@ -1266,9 +1266,8 @@ void Emit_LoadPixelZBilinearXY(EmitterVariables * const vars, const Nuance &nuan
 void Emit_StoreScalarImmediate(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 destAddress = nuance.fields[FIELD_MEM_POINTER];
-  uint32 imm = nuance.fields[FIELD_MEM_FROM];
+  const uint32 imm = SwapBytes((uint32)nuance.fields[FIELD_MEM_FROM]);
 
-  SwapScalarBytes(&imm);
   vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm, x86MemPtr::x86MemPtr_dword, destAddress);
 }
 

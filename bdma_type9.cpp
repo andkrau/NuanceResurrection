@@ -76,9 +76,7 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
     if(bDirect)
     {
       //Direct and Dup: intaddr is data.
-      directValue = intaddr;
-      //swap back to big endian format
-      SwapScalarBytes(&directValue);
+      directValue = SwapBytes(intaddr);
     }
     else
     {
@@ -137,10 +135,8 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
 
       if(bCompareZ)
       {
-        int16 ztarget = pDest16[destA + destZOffset];
-        int16 ztransfer = ((uint16 *)(&pSrc32[srcA]))[1];
-        SwapWordBytes((uint16 *)&ztarget);
-        SwapWordBytes((uint16 *)&ztransfer);
+        const int16 ztarget = SwapBytes(pDest16[destA + destZOffset]);
+        const int16 ztransfer = SwapBytes(((uint16 *)(&pSrc32[srcA]))[1]);
 
         switch(zcompare)
         {

@@ -96,10 +96,8 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
     if(bDirect)
     {
       //Direct and Dup: intaddr is data.
-      directColor = intaddr >> 16;
-      directZ = intaddr & 0xFFFFUL;
-      SwapWordBytes(&directColor);
-      SwapWordBytes(&directZ);
+      directColor = SwapBytes((uint16)(intaddr >> 16));
+      directZ = SwapBytes((uint16)(intaddr & 0xFFFFUL));
     }
     else
     {
@@ -152,10 +150,8 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
 
       if(bCompareZ)
       {
-        uint16 ztarget = pDestZ[destA];
-        uint16 ztransfer = pSrcZ[srcA];
-        SwapWordBytes(&ztarget);
-        SwapWordBytes(&ztransfer);
+        const uint16 ztarget = SwapBytes(pDestZ[destA]);
+        const uint16 ztransfer = SwapBytes(pSrcZ[srcA]);
 
         switch(zcompare)
         {

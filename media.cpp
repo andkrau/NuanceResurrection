@@ -178,8 +178,7 @@ void MediaOpen(MPE &mpe)
       uint32 * const pBlockSize = (uint32 *)nuonEnv.GetPointerToMemory(mpe,mpe.regs[3]);
       if(pBlockSize)
       {
-        *pBlockSize = BLOCK_SIZE_DVD; 
-        SwapScalarBytes(pBlockSize);
+        *pBlockSize = SwapBytes((uint32)BLOCK_SIZE_DVD);
       }
 
       const char * const baseString = nuonEnv.GetDVDBase();
@@ -229,13 +228,9 @@ void MediaGetInfo(MPE &mpe)
     {
       MediaDevInfo * const pDevInfo = (MediaDevInfo*)nuonEnv.GetPointerToMemory(mpe,devInfo);
 
-      uint32 id = handle;
-      uint32 datarate = DATA_RATE_DVD;
-      uint32 sectorsize = BLOCK_SIZE_DVD;
-
-      SwapScalarBytes(&sectorsize);
-      SwapScalarBytes(&datarate);
-      SwapScalarBytes(&id);          
+      const uint32 id = SwapBytes((uint32)handle);
+      const uint32 datarate = SwapBytes((uint32)DATA_RATE_DVD);
+      const uint32 sectorsize = SwapBytes((uint32)BLOCK_SIZE_DVD);
 
       pDevInfo->sectorsize = BLOCK_SIZE_DVD;
       pDevInfo->datarate = DATA_RATE_DVD;
@@ -380,8 +375,7 @@ void MediaIoctl(MPE &mpe)
             //!! For now, return physical sector zero, but in the future there needs to be some sort
             //of TOC to allow for loading from image files in which case the base file sector will
             //be non-zero
-            *ptr = 0;
-            SwapScalarBytes(ptr);
+            *ptr = SwapBytes(0u);
           }
           //return DVD layer 0 (should this be zero-based or one-based?)
           mpe.regs[0] = 0;
@@ -409,8 +403,7 @@ void SpinWait(MPE &mpe)
 
   uint32 result = 0;
   if((status >> 30) == 0x03)
-    result = status;
+    result = SwapBytes(status);
 
-  SwapScalarBytes(&result);
   *pMediaWaiting = result;
 }

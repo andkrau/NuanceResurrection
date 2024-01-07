@@ -29,8 +29,7 @@ public:
 
       //If host machine is little endian, convert crc to big endian
 
-      SwapScalarBytes(&crc);
-      crctab[i] = crc;
+      crctab[i] = SwapBytes(crc);
     }*/
 
     overlayLength = 0;

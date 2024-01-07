@@ -173,12 +173,10 @@ __forceinline uint16 SaturateColorComponents16bitSwapped(uint32 Y, uint32 Cr, ui
   Cb = satColCrCb16[(Cb >> 22) + ChnormOffset];
 
 #ifdef LITTLE_ENDIAN
-  uint16 pixelData16 = (Cr << 5) | Cb;
-  SwapWordBytes(&pixelData16);
+  uint16 pixelData16 = SwapBytes((uint16)((Cr << 5) | Cb));
   pixelData16 |= Y;
 #else
-  uint16 pixelData16 = (Y << 8) | (Cr << 5) | Cb;
-  SwapWordBytes(&pixelData16);
+  uint16 pixelData16 = SwapBytes((uint16)((Y << 8) | (Cr << 5) | Cb));
 #endif
   return pixelData16;
 }
@@ -445,9 +443,7 @@ void Execute_LoadWordAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &nu
 
 void Execute_LoadScalarAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
-  uint32 data = *((uint32 *)nuance.fields[FIELD_MEM_POINTER]);
-  SwapScalarBytes(&data);
-  mpe.regs[nuance.fields[FIELD_MEM_TO]] = data;
+  mpe.regs[nuance.fields[FIELD_MEM_TO]] = SwapBytes(*((uint32 *)nuance.fields[FIELD_MEM_POINTER]));
 }
 
 void Execute_LoadScalarLinear(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
@@ -463,8 +459,7 @@ void Execute_LoadScalarLinear(MPE &mpe, const uint32 pRegs[48], const Nuance &nu
     //the epilogue code
     if(address >= MPE_ADDR_SPACE_BASE)
     {
-      data = *((uint32 *)(nuonEnv.GetPointerToMemory(mpe,address & 0xFFFFFFFC)));
-      SwapScalarBytes(&data);
+      data = SwapBytes(*((uint32 *)(nuonEnv.GetPointerToMemory(mpe,address & 0xFFFFFFFC))));
     }
     else
     {
@@ -534,8 +529,7 @@ void __fastcall _LoadPixelAbsolute(const MPE* const __restrict mpe, const void* 
     case 0x5:
     {
       //16+16Z
-      uint16 pixelData16 = *((uint16*)memPtr);
-      SwapWordBytes(&pixelData16);
+      const uint16 pixelData16 = SwapBytes(*((uint16*)memPtr));
       regs[0] = ((uint32)pixelData16 << 14) & (0xFCUL << 22);
       regs[1] = ((uint32)pixelData16 << 20) & (0xF8UL << 22);
       regs[2] = ((uint32)pixelData16 << 25) & (0xF8UL << 22);
@@ -629,8 +623,7 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
     case 0x5:
     {
       //16+16Z
-      uint16 pixelData16 = *((uint16*)memPtr);
-      SwapWordBytes(&pixelData16);
+      const uint16 pixelData16 = SwapBytes(*((uint16*)memPtr));
       mpe.regs[dest  ] = ((uint32)pixelData16 << 14) & (0xFCUL << 22);
       mpe.regs[dest+1] = ((uint32)pixelData16 << 20) & (0xF8UL << 22);
       mpe.regs[dest+2] = ((uint32)pixelData16 << 25) & (0xF8UL << 22);
@@ -698,8 +691,7 @@ void __fastcall _LoadPixelZAbsolute(const MPE* const __restrict mpe, const void*
     case 0x2:
     {
       //16
-      uint16 pixelData16 = *((uint16*)memPtr);
-      SwapWordBytes(&pixelData16);
+      const uint16 pixelData16 = SwapBytes(*((uint16*)memPtr));
       regs[0] = ((uint32)pixelData16 << 14) & (0xFCUL << 22);
       regs[1] = ((uint32)pixelData16 << 20) & (0xF8UL << 22);
       regs[2] = ((uint32)pixelData16 << 25) & (0xF8UL << 22);
@@ -715,8 +707,7 @@ void __fastcall _LoadPixelZAbsolute(const MPE* const __restrict mpe, const void*
     case 0x5:
     {
       //16+16Z
-      uint32 pixelData32 = *((uint32*)memPtr);
-      SwapScalarBytes(&pixelData32);
+      const uint32 pixelData32 = SwapBytes(*((uint32*)memPtr));
       regs[0] = (pixelData32 >> 2) & (0xFCUL << 22);
       regs[1] = (pixelData32 << 4) & (0xF8UL << 22);
       regs[2] = (pixelData32 << 9) & (0xF8UL << 22);
@@ -762,8 +753,7 @@ void __fastcall _LoadPixelZAbsolute(const MPE* const __restrict mpe, const void*
     {
       //32 + 32Z
       const uint32 pixelData32 = ((uint32*)memPtr)[0];
-      uint32 zData32     = ((uint32*)memPtr)[1];
-      SwapScalarBytes(&zData32);
+      const uint32 zData32     = SwapBytes(((uint32*)memPtr)[1]);
 #ifdef LITTLE_ENDIAN
       regs[0] = (pixelData32 << 22) & (0xFFUL << 22);
       regs[1] = (pixelData32 << 14) & (0xFFUL << 22);
@@ -821,8 +811,7 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     case 0x2:
     {
       //16
-      uint16 pixelData16 = *((uint16*)memPtr);
-      SwapWordBytes(&pixelData16);
+      const uint16 pixelData16 = SwapBytes(*((uint16*)memPtr));
       mpe.regs[dest  ] = ((uint32)pixelData16 << 14) & (0xFCUL << 22);
       mpe.regs[dest+1] = ((uint32)pixelData16 << 20) & (0xF8UL << 22);
       mpe.regs[dest+2] = ((uint32)pixelData16 << 25) & (0xF8UL << 22);
@@ -838,8 +827,7 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     case 0x5:
     {
       //16+16Z
-      uint32 pixelData32 = *((uint32*)memPtr);
-      SwapScalarBytes(&pixelData32);
+      const uint32 pixelData32 = SwapBytes(*((uint32*)memPtr));
       mpe.regs[dest  ] = (pixelData32 >> 2) & (0xFCUL << 22);
       mpe.regs[dest+1] = (pixelData32 << 4) & (0xF8UL << 22);
       mpe.regs[dest+2] = (pixelData32 << 9) & (0xF8UL << 22);
@@ -885,8 +873,7 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
     {
       //32 + 32Z
       const uint32 pixelData32 = ((uint32*)memPtr)[0];
-      uint32 zData32     = ((uint32*)memPtr)[1];
-      SwapScalarBytes(&zData32);
+      const uint32 zData32     = SwapBytes(((uint32*)memPtr)[1]);
 #ifdef LITTLE_ENDIAN
       mpe.regs[dest  ] = (pixelData32 << 22) & (0xFFUL << 22);
       mpe.regs[dest+1] = (pixelData32 << 14) & (0xFFUL << 22);
@@ -1197,15 +1184,13 @@ void Execute_LoadPixelZBilinearXY(MPE &mpe, const uint32 pRegs[48], const Nuance
 void Execute_StoreScalarImmediate(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
   uint32 * const destPtr = (uint32 *)nuance.fields[FIELD_MEM_POINTER];
-  *destPtr = nuance.fields[FIELD_MEM_FROM];
-  SwapScalarBytes(destPtr);
+  *destPtr = SwapBytes((uint32)nuance.fields[FIELD_MEM_FROM]);
 }
 
 void Execute_StoreScalarAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
   uint32 * const destPtr = (uint32 *)nuance.fields[FIELD_MEM_POINTER];
-  *destPtr = pRegs[nuance.fields[FIELD_MEM_FROM]];
-  SwapScalarBytes(destPtr);
+  *destPtr = SwapBytes(pRegs[nuance.fields[FIELD_MEM_FROM]]);
 }
 
 void Execute_StoreScalarControlRegisterImmediate(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
@@ -1221,8 +1206,7 @@ void Execute_StoreScalarLinear(MPE &mpe, const uint32 pRegs[48], const Nuance &n
   if((address < MPE_ITAGS_BASE) || (address >= MPE_RESV_BASE))
   {
     uint32* const destPtr = (uint32 *)(nuonEnv.GetPointerToMemory(mpe,address));
-    *destPtr = pRegs[nuance.fields[FIELD_MEM_FROM]];
-    SwapScalarBytes(destPtr);
+    *destPtr = SwapBytes(pRegs[nuance.fields[FIELD_MEM_FROM]]);
   }
   else
   {
@@ -1422,8 +1406,7 @@ void __fastcall _StorePixelZAbsolute(const MPE* const __restrict mpe, void* cons
     case 0x5:
     {
       //16 bit + 16bitZ
-      uint16 z16 = regs[3] >> 16;
-      SwapWordBytes(&z16);
+      const uint16 z16 = SwapBytes((uint16)(regs[3] >> 16));
       ((uint16 *)memPtr)[0] = SaturateColorComponents16bitSwapped(regs[0], regs[1], regs[2], ChnormOffset);
       ((uint16 *)memPtr)[1] = z16;
       return;
@@ -1515,8 +1498,7 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance 
     case 0x5:
     {
       //16 bit+16bitZ
-      uint16 z16 = pRegs[src+3] >> 16;
-      SwapWordBytes(&z16);
+      const uint16 z16 = SwapBytes((uint16)(pRegs[src+3] >> 16));
       ((uint16 *)memPtr)[0] = SaturateColorComponents16bitSwapped(pRegs[src], pRegs[src+1], pRegs[src+2], ChnormOffset);
       ((uint16 *)memPtr)[1] = z16;
       return;

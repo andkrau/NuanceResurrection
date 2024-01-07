@@ -28,9 +28,7 @@ void ControllerInitialize(MPE &mpe)
   }
 
   const uint32 properties = KEYBOARD_JOYSTICK_PROPERTIES;
-  uint32 config = CONTROLLER_CHANGED_BIT | properties;
-  SwapScalarBytes(&config);
-  controller[1].config = config;
+  controller[1].config = SwapBytes((uint32)CONTROLLER_CHANGED_BIT | properties);
 }
 
 void DeviceDetect(MPE &mpe)
@@ -39,8 +37,7 @@ void DeviceDetect(MPE &mpe)
 
   if(slot == 1)
   {
-    uint32 config = controller[1].config;
-    SwapScalarBytes(&config);
+    uint32 config = SwapBytes(controller[1].config);
 
     if((config & CONTROLLER_CHANGED_BIT) == 0)
     {
@@ -50,8 +47,7 @@ void DeviceDetect(MPE &mpe)
 
     if(controller)
     {
-      config = CONTROLLER_STATUS_BIT | KEYBOARD_JOYSTICK_PROPERTIES;
-      SwapScalarBytes(&config);
+      config = SwapBytes((uint32)CONTROLLER_STATUS_BIT | (uint32)KEYBOARD_JOYSTICK_PROPERTIES);
 
       controller[1].config = config;
     }
