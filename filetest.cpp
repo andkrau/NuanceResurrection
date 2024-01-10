@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <cstdio>
 
 //struct __sFILE {
 //  unsigned char *_p;	/* current position in (some) buffer */
