@@ -730,6 +730,33 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
   // continue with the standard case (see above), everything else returned before
   //
 
+  const bool bFlushCache = bRead &&
+    ((intaddr & MPE_LOCAL_MEMORY_MASK) >= MPE_IRAM_BASE) &&
+    ((intaddr & MPE_LOCAL_MEMORY_MASK) < MPE_DTAGS_BASE);
+
+  // T3K special cases to optimize perf for these tiny batches (usually overall just ~1-64 values to write)
+  // Note that these could be removed again, as also handled with the 'standard' pipeline, its just a much simpler codepath/early-out
+  // Note that these obviously also work for all other apps that trigger these
+  const uint32 flags_mlength = (flags & (~(0xFFu << 16))); // mask out length
+  if(!bFlushCache
+    && (flags_mlength == 8192 // Rem 0 Dir 0 Dup 0 Read 1
+     || flags_mlength == 268443648 // Rem 1 Dir 0 Dup 0 Read 1
+     || flags_mlength == 0)) // Rem 0 Dir 0 Dup 0 Read 0
+  {
+    void* const pTmp = nuonEnv.GetPointerToMemory(bRemote ? nuonEnv.mpe[(intaddr >> 23) & 0x1FUL] : mpe, (intaddr & 0x207FFFFC));
+    const uint32* pSrc32 = (uint32*)(bRead ? baseMemory : pTmp);
+    uint32* pDest32 = (uint32*)(bRead ? pTmp : baseMemory);
+    while(length--)
+    {
+      *pDest32 = *pSrc32;
+      pSrc32++;
+      pDest32++;
+    }
+
+    return;
+  }
+  // continue with more complicated non-specialized DMA cases:
+
   //wordSize is the size of the atomic data transfer unit as a multiple of a 16-bit word: (word = 1, scalar = 2)
 
   //source stride specifies the spacing between each atomic data item to be transferred from the source
@@ -797,10 +824,6 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
   {
     //Read: base -> internal
     pSrc = baseMemory;
-
-    const bool bFlushCache =
-      ((intaddr & MPE_LOCAL_MEMORY_MASK) >= MPE_IRAM_BASE) &&
-      ((intaddr & MPE_LOCAL_MEMORY_MASK) < MPE_DTAGS_BASE);
 
     if(bRemote)
     {
