@@ -1569,17 +1569,15 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       }
     }*/
 
-    const uint32* const pSrc32 = ((uint32*)pSrc) + srcOffset;
-    uint32* const pDest32 = ((uint32*)pDest) + destOffset;
-    uint32 srcB = srcBStart;
-    uint32 destB = destBStart;
+    const uint32* pSrc32 = ((uint32*)pSrc) + (srcOffset+srcAStart+srcBStart);
+    uint32* pDest32 = ((uint32*)pDest) + (destOffset+destAStart+destBStart);
 
     const bool bCompareZ2 = bCompareZ && (zcompare > 0) && (zcompare < 7);
 
     while(bCount--)
     {
-      uint32 srcA = srcAStart + srcB;
-      uint32 destA = destAStart + destB;
+      uint32 srcA = 0;
+      uint32 destA = 0;
       uint32 aCount = aCountInit;
 
       if(!bCompareZ2)
@@ -1638,8 +1636,8 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
         destA += destAStep;
       }
 
-      srcB += srcBStep;
-      destB += destBStep;
+      pSrc32 += srcBStep;
+      pDest32 += destBStep;
     }
   }
   else
@@ -1658,15 +1656,13 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
       }
     }*/
 
-    const uint16* const pSrc16 = ((uint16*)pSrc) + srcOffset;
-    uint16* const pDest16 = ((uint16*)pDest) + destOffset;
-    uint32 srcB = srcBStart;
-    uint32 destB = destBStart;
+    const uint16* pSrc16 = ((uint16*)pSrc) + (srcOffset+srcAStart+srcBStart);
+    uint16* pDest16 = ((uint16*)pDest) + (destOffset+destAStart+destBStart);
 
     while(bCount--)
     {
-      uint32 srcA = srcAStart + srcB;
-      uint32 destA = destAStart + destB;
+      uint32 srcA = 0;
+      uint32 destA = 0;
       uint32 aCount = aCountInit;
 
       while(aCount--)
@@ -1677,8 +1673,8 @@ void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint
         destA += destAStep;
       }
 
-      srcB += srcBStep;
-      destB += destBStep;
+      pSrc16 += srcBStep;
+      pDest16 += destBStep;
     }
   }
 }
