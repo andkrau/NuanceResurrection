@@ -621,15 +621,19 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         uint32 length = (flags >> 16) & 0xFF; //Only 1-127 is valid according to docs but field is 8 bits
   const bool bRead = flags & (1UL << 13);
 
-  void* intMemory, * baseMemory;
-  uint32 directValue;
+  void *baseMemory;
   if(baseaddr < 0xF0000000)
   {
-    if((baseaddr & 0xF0700000) == MPE_CTRL_BASE)
+    if((baseaddr & 0xF0700000) != MPE_CTRL_BASE) // this is the standard case here for the vast majority of linear DMAs and the only path that continues with the different copy cases below
+    {
+      assert(((baseaddr >> 23) & 0x1FUL) < 4);
+      baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL], (baseaddr & 0xFFFFFFFC));
+    }
+    else // handle control register read/write and exit
     {
       if(bRead)
       {
-        directValue = SwapBytes(nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].ReadControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.reg_union));
+        const uint32 directValue = SwapBytes(nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].ReadControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,mpe.reg_union));
 
         if(bRemote)
         {
@@ -640,8 +644,8 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
           else
           {
             assert(((intaddr >> 23) & 0x1FUL) < 4);
-            intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
-            *((uint32 *)intMemory) = directValue;
+            uint32* intMemory = (uint32*)nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
+            *intMemory = directValue;
           }
         }
         else
@@ -652,13 +656,14 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
           }
           else
           {
-            intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC));
-            *((uint32 *)intMemory) = directValue;
+            uint32* intMemory = (uint32*)nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC));
+            *intMemory = directValue;
           }
         }
       }
       else
       {
+        uint32 directValue;
         if(bRemote)
         {
           if((intaddr & 0xF0700000) == MPE_CTRL_BASE)
@@ -668,11 +673,9 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
           else
           {
             assert(((intaddr >> 23) & 0x1FUL) < 4);
-            intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
-            directValue = *((uint32 *)intMemory);
+            uint32* intMemory = (uint32*)nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
+            directValue = *intMemory;
           }
-          SwapScalarBytes(&directValue);
-          nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].WriteControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE, directValue);
         }
         else
         {
@@ -682,60 +685,50 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
           }
           else
           {
-            intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC));
-            directValue = *((uint32 *)intMemory);
+            uint32* intMemory = (uint32*)nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC));
+            directValue = *intMemory;
           }
-          SwapScalarBytes(&directValue);
-          nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].WriteControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,directValue);
         }
+        SwapScalarBytes(&directValue);
+        nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL].WriteControlRegister((baseaddr & 0x207FFFFC) - MPE_CTRL_BASE,directValue);
       }
 
       return;
     }
+  }
+  else // handle flashEEPROM read/write and exit
+  {
+    uint32* intMemory;
+    if(bRemote)
+    {
+      //internal address is system address (but still in MPE memory)
+      assert(((intaddr >> 23) & 0x1FUL) < 4);
+      intMemory = (uint32*)nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
+    }
     else
     {
-      assert(((baseaddr >> 23) & 0x1FUL) < 4);
-      baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(baseaddr >> 23) & 0x1FUL], (baseaddr & 0xFFFFFFFC));
+      //internal address is local to MPE
+      intMemory = (uint32*)nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false);
     }
-  }
-  else
-  {
+
     if(bRead)
     {
-      if(bRemote)
-      {
-        //internal address is system address (but still in MPE memory)
-        assert(((intaddr >> 23) & 0x1FUL) < 4);
-        intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
-      }
-      else
-      {
-        //internal address is local to MPE
-        intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false);
-      }
-      uint32* const pDest32 = (uint32 *)intMemory;
+      uint32* const pDest32 = intMemory;
       nuonEnv.flashEEPROM.ReadData(baseaddr - 0xF0000000,pDest32);
       SwapScalarBytes(pDest32);
     }
     else
     {
-      if(bRemote)
-      {
-        //internal address is system address (but still in MPE memory)
-        assert(((intaddr >> 23) & 0x1FUL) < 4);
-        intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
-      }
-      else
-      {
-        //internal address is local to MPE
-        intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false);
-      }
-      const uint32* const pSrc32 = (uint32 *)intMemory;
+      const uint32* const pSrc32 = intMemory;
       const uint32 tempScalar = SwapBytes(*pSrc32);
       nuonEnv.flashEEPROM.WriteData(baseaddr - 0xF0000000,tempScalar);
     }
     return;
   }
+
+  //
+  // continue with the standard case (see above), everything else returned before
+  //
 
   //wordSize is the size of the atomic data transfer unit as a multiple of a 16-bit word: (word = 1, scalar = 2)
 
@@ -749,7 +742,6 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
   uint32 destStride, wordSize;
   bool bByteMode = false;
 
-  uint32 srcStride = 1;
   switch(flags & 0x07)
   {
     //Determine stride in scalars, or in words for byte mode
@@ -796,8 +788,10 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
       break;
   }
 
+  uint32 srcStride = 1;
   const void* pSrc;
   void* pDest;
+  uint32 directValue;
 
   if(bRead)
   {
@@ -870,6 +864,8 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
   else
   {
     //Write: internal -> base
+    pDest = baseMemory;
+
     if(bDup)
     {
       if(bDirect)
@@ -884,7 +880,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
           directValue >>= 16;
         }
 #endif
-        intMemory = (void *)&directValue;
+        pSrc = (void *)&directValue;
       }
       else
       {
@@ -903,13 +899,13 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
 
         //change srcStride to 0 to keep pSrc pointed at directValue
         srcStride = 0;
-        intMemory = (void *)&directValue;
+        pSrc = (void *)&directValue;
 
 #ifndef LITTLE_ENDIAN
         if(wordSize == 1)
         {
           directValue >>= 16;
-          intMemory = (void *)((uint8 *)&directValue + 2);
+          pSrc = (void *)((uint8 *)&directValue + 2);
         }
 #endif
       }
@@ -920,20 +916,19 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
       {
         //internal address is system address (but still in MPE memory)
         assert(((intaddr >> 23) & 0x1FUL) < 4);
-        intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
+        pSrc = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(intaddr >> 23) & 0x1FUL], (intaddr & 0x207FFFFC));
       }
       else
       {
         //internal address is local to MPE
-        intMemory = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false);
+        pSrc = nuonEnv.GetPointerToMemory(mpe, (intaddr & 0x207FFFFC), false);
       }
     }
-
-    pSrc = intMemory;
-    pDest = baseMemory;
   }
 
-  if(!bByteMode)
+  const bool cw = (((flags >> 3) & 0x3) == 3); //Contiguous words
+
+  if(!bByteMode || cw)
   {
     if(wordSize == 2)
     {
@@ -980,9 +975,9 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
         mask = 0xFF00;
 #endif
         break;
-      case 3: //Contiguous words
-        mask = 0xFFFF;
-        break;
+      //case 3: //Contiguous words (handled above)
+      //  mask = 0xFFFF;
+      //  break;
     }
 
     const uint16* pSrc16 = (uint16*)pSrc;
@@ -1766,7 +1761,7 @@ void DMADo(MPE &mpe)
   }
 }
 
-// as none of the games seem to use waitFlag == 1 above, AND all dma is immediate at the moment, just return
+// as none of the games seem to use waitFlag == 0 above, AND all DMA emulation code is immediate at the moment, just return
 void DMAWait(MPE &mpe)
 {
   return;
