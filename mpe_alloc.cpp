@@ -162,7 +162,8 @@ void MPERun(MPE &mpe)
     //nuonEnv.mpe[which].sp = 0x20102000;
     //Invalidate cached instruction packets
     //nuonEnv.mpe[which].InvalidateICache();
-    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[which]);
+
+    //nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[which]); //!! this one here was enabled, but why would it be needed?
     nuonEnv.mpe[which].Go();
     nuonEnv.bProcessorStartStopChange = true;
     //Let MPERunMediaMPE set a comm packet to the media MPE to start it
@@ -180,13 +181,14 @@ void MPERun(MPE &mpe)
     nuonEnv.mpe[which].ecuSkipCounter = 0;
     //Clear exceptions 
     nuonEnv.mpe[which].excepsrc = 0;
-    //Mask level1 and level2 interupts
+    //Mask level1 and level2 interrupts
     nuonEnv.mpe[which].intctl = 0x88;
     nuonEnv.mpe[which].sp = 0x20101000;
     //Invalidate cached instruction packets
     //nuonEnv.mpe[which].InvalidateICache();
     //nuonEnv.mpe[which].nativeCodeCache->Flush();
-    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[which]);
+
+    //nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[which]); //!! this one here was enabled, but why would it be needed?
     //Sets mpego bit
     nuonEnv.mpe[which].Go();
     nuonEnv.bProcessorStartStopChange = true;
@@ -215,7 +217,8 @@ void MPERunThread(MPE &mpe)
     //Invalidate cached instruction packets
     //nuonEnv.mpe[which].InvalidateICache();
     //nuonEnv.mpe[which].nativeCodeCache->Flush();
-    nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[which]);
+
+    //nuonEnv.mpe[which].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[which]); //!! this one here was enabled, but why would it be needed?
     nuonEnv.mpe[which].rz = MPE_THREAD_RETURN_ADDRESS;
     //Set up entry point
     nuonEnv.mpe[which].pcexec = funcptr;
@@ -228,7 +231,7 @@ void MPERunThread(MPE &mpe)
     //** Stuff done by MPERun
     //Clear exceptions 
     nuonEnv.mpe[which].excepsrc = 0;
-    //Mask level1 and level2 interupts
+    //Mask level1 and level2 interrupts
     nuonEnv.mpe[which].intctl = 0x88;
 
     //** Stuff done by MPERunThread bootcode
