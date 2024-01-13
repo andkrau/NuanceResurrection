@@ -1007,6 +1007,61 @@ void DMALinear(MPE &mpe)
 
 void DMABiLinear(MPE &mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+  // T3K special cases to optimize perf for these tiny batches (usually overall just ~16-64 values to write)
+  // Note that these could be removed again, as also handled with the 'standard' pipeline, its just a much simpler codepath/early-out
+  // Note that these obviously also work for all other apps that trigger these
+  const uint32 flags_mxsize = (flags & (~(0x7F8UL << 13))); // mask out xsize
+  if (flags_mxsize == 67160128 || flags_mxsize == 51264 || flags_mxsize == 59456)
+  {
+    const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
+    //internal address is local to MPE
+    void* const intMemory = nuonEnv.GetPointerToMemory(mpe, mpeBase, false);
+    const uint32 sdramBase = baseaddr & 0x7FFFFFFEUL;
+    void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
+
+    const uint32 xlen = (xinfo >> 16) & 0x3FFUL;
+    const uint32 xpos = xinfo & 0x7FFUL;
+          uint32 ylen = (yinfo >> 16) & 0x3FFUL;
+    const uint32 ypos = yinfo & 0x7FFUL;
+    const int32 xsize = (flags >> 13) & 0x7F8UL;
+
+    uint32* const pTmp = ((uint32*)baseMemory) + (ypos * (uint32)xsize + xpos);
+
+    if (flags_mxsize == 67160128) // whichroutine = 64 => 4, Rem 0 Dir 0 Dup 1 Read 0 xs 360 zc 0 pix 4 bva 0, wordsize 2
+    {
+      //Dup but not Direct: read scalar from memory, no need to swap
+      const uint32 directValue = *((uint32 *)intMemory);
+      uint32* __restrict pDest32 = pTmp;
+
+      while (ylen--)
+      {
+        for (uint32 A = 0; A < xlen; ++A)
+          pDest32[A] = directValue;
+
+        pDest32 += xsize;
+      }
+    }
+    else //if (flags_mxsize == 51264) // whichroutine = 64 => 4, Rem 0 Dir 0 Dup 0 Read 0 xs 360 zc 0 pix 4 bva 0, wordsize 2
+         //|| (flags_mxsize == 59456) // whichroutine = 72 => 4, Rem 0 Dir 0 Dup 0 Read 1 xs 360 zc 0 pix 4 bva 0, wordsize 2
+    {
+      const bool f51264 = (flags_mxsize == 51264);
+      const uint32* pSrc32 = f51264 ? ((uint32*)intMemory) : pTmp;
+      uint32* pDest32 = f51264 ? pTmp : ((uint32*)intMemory);
+
+      while (ylen--)
+      {
+        for (uint32 A = 0; A < xlen; ++A)
+          pDest32[A] = pSrc32[A];
+
+        pSrc32 += f51264 ? xlen : xsize;
+        pDest32 += f51264 ? xsize : xlen;
+      }
+    }
+
+    return;
+  }
+  // continue with non-special-optimized DMA path:
+
   uint32 whichRoutine;
 
   //pixel flags + backwards flag a (PPPP):(xxxA) 
