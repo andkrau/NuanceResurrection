@@ -26,7 +26,7 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
   const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
   const uint32 xlen = (xinfo >> 16) & 0x3FFUL;
   const uint32 xpos = xinfo & 0x7FFUL;
-  const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
+        uint32 ylen = (yinfo >> 16) & 0x3FFUL;
   const uint32 ypos = yinfo & 0x7FFUL;
 
   uint32 map = 0;
@@ -83,8 +83,8 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
   const uint16* pSrcColor = (uint16 *)intMemory;
   const uint16* pSrcZ = pSrcColor+1;
 
-  uint16* const pDestColor = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * map + destOffset);
-  uint16* const pDestZ = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * zmap + destOffset);
+  uint16* pDestColor = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * map + destOffset);
+  uint16* pDestZ = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * zmap + destOffset);
 
   //if(bDirect && !bDup)
   //  bDirect = true;
@@ -130,17 +130,11 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
     nuonEnv.bOverlayBufferModified = true;
   }*/
 
-  uint32 srcB = 0;
-  uint32 destB = 0;
-  uint32 bCount = ylen;
-
   const bool bCompareZ2 = bCompareZ && (zcompare > 0) && (zcompare < 7);
 
-  while(bCount--)
+  while(ylen--)
   {
-    uint32 srcA = srcB;
-    uint32 destA = destB;
-    uint32 aCount = xlen;
+    uint32 srcA = 0;
 
     //BVA = 000 (horizontal DMA, x increment, y increment)
     constexpr int32 destAStep = 1;
@@ -148,18 +142,17 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
 
     if(!bCompareZ2)
     {
-    while(aCount--)
+    for(uint32 destA = 0; destA < xlen; destA++) // as destAStep == 1
     {
       pDestColor[destA] = pSrcColor[srcA];
       if(bUpdateZ)
         pDestZ[destA] = pSrcZ[srcA];
 
       srcA += srcAStep;
-      destA += destAStep;
     }
     }
     else
-    while(aCount--)
+    for(uint32 destA = 0; destA < xlen; destA++) // as destAStep == 1
     {
       bool bZTestResult = false;
 
@@ -205,11 +198,12 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
       }
 
       srcA += srcAStep;
-      destA += destAStep;
     }
 
-    srcB += srcBStep;
-    destB += destBStep;
+    pSrcColor += srcBStep;
+    pSrcZ += srcBStep;
+    pDestColor += destBStep;
+    pDestZ += destBStep;
   }
 }
 
@@ -268,7 +262,7 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
   const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
   const uint32 xlen = (xinfo >> 16) & 0x3FFUL;
   const uint32 xpos = xinfo & 0x7FFUL;
-  const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
+        uint32 ylen = (yinfo >> 16) & 0x3FFUL;
   const uint32 ypos = yinfo & 0x7FFUL;
 
   uint32 map = 0;
@@ -350,56 +344,37 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
   const int32 destBStep = xlen;
 
   const uint32 srcOffset = ypos * (uint32)xsize + xpos;
-  const uint16* const pSrcColor = (uint16*)pSrc + (xsize * structMainChannel.src_height * map + srcOffset);
-  const uint16* const pSrcZ = (uint16 *)pSrc + (xsize * structMainChannel.src_height * zmap + srcOffset);
+  const uint16* pSrcColor = (uint16*)pSrc + (xsize * structMainChannel.src_height * map + srcOffset);
 
-  //const uint32 destOffset = 0;
-  uint16* const pDest16 = (uint16 *)pDest;
-  //pDest16 += destOffset;
-
-  uint32 srcB = 0;
-  uint32 destB = 0;
-  uint32 bCount = ylen;
+  constexpr uint32 destOffset = 0;
+  uint16* pDest16 = (uint16 *)pDest + destOffset;
 
   if(zcompare == 7)
   {
-    while(bCount--)
+    while(ylen--)
     {
-      uint32 srcA = srcB;
-      uint32 destA = destB;
-      uint32 aCount = xlen;
+      for(uint32 A = 0; A < xlen; ++A) // as both srcAStep and destAStep == 1
+        pDest16[A] = pSrcColor[A];
 
-      while(aCount--)
-      {
-        pDest16[destA] = pSrcColor[srcA];
-
-        srcA += srcAStep;
-        destA += destAStep;
-      }
-
-      srcB += srcBStep;
-      destB += destBStep;
+      pSrcColor += srcBStep;
+      pDest16 += destBStep;
     }
   }
   else
   {
-    while(bCount--)
+    const uint16* pSrcZ = (uint16 *)pSrc + (xsize * structMainChannel.src_height * zmap + srcOffset);
+
+    while(ylen--)
     {
-      uint32 srcA = srcB;
-      uint32 destA = destB;
-      uint32 aCount = xlen;
-
-      while(aCount--)
+      for(uint32 A = 0; A < xlen; ++A) // as both srcAStep and destAStep == 1
       {
-        pDest16[destA] = pSrcColor[srcA];
-        pDest16[destA + 1] = pSrcZ[srcA];
-
-        srcA += srcAStep;
-        destA += (destAStep << 1);
+        pDest16[A*2] = pSrcColor[A];
+        pDest16[A*2 + 1] = pSrcZ[A];
       }
 
-      srcB += srcBStep;
-      destB += destBStep;
+      pSrcColor += srcBStep;
+      pSrcZ += srcBStep;
+      pDest16 += destBStep;
     }
   }
 }

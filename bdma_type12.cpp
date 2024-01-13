@@ -26,7 +26,7 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
   const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
   const uint32 xlen = (xinfo >> 16) & 0x3FFUL;
   const uint32 xpos = xinfo & 0x7FFUL;
-  const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
+        uint32 ylen = (yinfo >> 16) & 0x3FFUL;
   const uint32 ypos = yinfo & 0x7FFUL;
 
   //uint32 map = 0;
@@ -79,7 +79,7 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
   constexpr uint32 srcOffset = 0;
   const uint32 destOffset = ypos * (uint32)xsize + xpos;
   const uint16* pSrcColor = ((uint16 *)intMemory) + (1 + srcOffset);
-  uint16* const pDestColor = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * zmap + destOffset);
+  uint16* pDestColor = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * zmap + destOffset);
 
   int32 srcAStep, srcBStep;
   uint16 directColor;
@@ -123,30 +123,23 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
   constexpr int32 destAStep = 1;
   const int32 destBStep = xsize;
 
-  uint32 bCount = ylen;
-  uint32 srcB = 0;
-  uint32 destB = 0;
-
   const bool bCompareZ2 = bCompareZ && (zcompare > 0) && (zcompare < 7);
 
-  while(bCount--)
+  while(ylen--)
   {
-    uint32 srcA = srcB;
-    uint32 destA = destB;
-    uint32 aCount = xlen;
+    uint32 srcA = 0;
 
     if(!bCompareZ2)
     {
-    while(aCount--)
+    for(uint32 destA = 0; destA < xlen; ++destA) // as destAStep == 1
     {
       pDestColor[destA] = pSrcColor[srcA];
 
       srcA += srcAStep;
-      destA += destAStep;
     }
     }
     else
-    while(aCount--)
+    for(uint32 destA = 0; destA < xlen; ++destA) // as destAStep == 1
     {
       bool bZTestResult = false;
 
@@ -188,11 +181,10 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
         pDestColor[destA] = pSrcColor[srcA];
 
       srcA += srcAStep;
-      destA += destAStep;
     }
 
-    srcB += srcBStep;
-    destB += destBStep;
+    pSrcColor += srcBStep;
+    pDestColor += destBStep;
   }
 }
 
@@ -251,7 +243,7 @@ void BDMA_Type12_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
   const uint32 xlen = (xinfo >> 16) & 0x3FFUL;
   const uint32 xpos = xinfo & 0x7FFUL;
-  const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
+        uint32 ylen = (yinfo >> 16) & 0x3FFUL;
   const uint32 ypos = yinfo & 0x7FFUL;
 
   /*uint32 map = 0;
@@ -335,54 +327,36 @@ void BDMA_Type12_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
 
   const uint32 srcOffset = ypos * (uint32)xsize + xpos;
   constexpr uint32 destOffset = 0;
-  const uint32* const pSrc32 = ((uint32 *)pSrc) + srcOffset;
-  const uint16* const pSrc16 = ((uint16 *)pSrc) + srcOffset;
-  uint32* const pDest32 = ((uint32 *)pDest) + destOffset;
-  uint16* const pDest16 = ((uint16 *)pDest) + destOffset;
-
-  uint32 srcB = 0;
-  uint32 destB = 0;
-  uint32 bCount = ylen;
 
   if(zcompare == 7)
   {
-    while(bCount--)
+    const uint16* pSrc16 = ((uint16 *)pSrc) + srcOffset;
+    uint16* pDest16 = ((uint16 *)pDest) + destOffset;
+
+    while(ylen--)
     {
-      uint32 srcA = srcB;
-      uint32 destA = destB;
-      uint32 aCount = xlen;
+      for(uint32 A = 0; A < xlen; ++A) // as both destAStep and srcAStep == 1
+        pDest16[A] = pSrc16[A];
 
-      while(aCount--)
-      {
-        pDest16[destA] = pSrc16[srcA];
-
-        srcA += srcAStep;
-        destA += destAStep;
-      }
-
-      srcB += srcBStep;
-      destB += destBStep;
+      pSrc16 += srcBStep;
+      pDest16 += destBStep;
     }
   }
   else
   {
-    while(bCount--)
+    const uint32* pSrc32 = ((uint32 *)pSrc) + srcOffset;
+    uint32* pDest32 = ((uint32 *)pDest) + destOffset;
+
+    while(ylen--)
     {
-      uint32 srcA = srcB;
-      uint32 destA = destB;
-      uint32 aCount = xlen;
-
-      while(aCount--)
+      for (uint32 A = 0; A < xlen; ++A) // as both destAStep and srcAStep == 1
       {
-        pDest32[destA] = pSrc32[srcA];
-        //((uint16 *)(&pDest32[destA]))[0] = ((uint16 *)(&pSrc32[srcA]))[0];
-
-        srcA += srcAStep;
-        destA += destAStep;
+        pDest32[A] = pSrc32[A];
+        //((uint16 *)(&pDest32[A]))[0] = ((uint16 *)(&pSrc32[A]))[0];
       }
 
-      srcB += srcBStep;
-      destB += destBStep;
+      pSrc32 += srcBStep;
+      pDest32 += destBStep;
     }
   }
 }

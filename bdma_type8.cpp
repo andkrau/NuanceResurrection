@@ -22,7 +22,7 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
   const uint32 xlen = (xinfo >> 16) & 0x3FFUL;
   const uint32 xpos = xinfo & 0x7FFUL;
-  const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
+        uint32 ylen = (yinfo >> 16) & 0x3FFUL;
   const uint32 ypos = yinfo & 0x7FFUL;
 
   void* intMemory;
@@ -87,30 +87,24 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   //BVA = 000 (horizontal DMA, x increment, y increment)
   constexpr int32 destAStep = 1;
   const int32 destBStep = xsize;
-  uint32 bCount = ylen;
 
-  const uint32* const pSrc32 = ((uint32 *)pSrc) + srcOffset;
-  uint16* const pDest16 = ((uint16 *)pDest) + destOffset;
-  uint32 srcB = 0;
-  uint32 destB = 0;
+  const uint32* pSrc32 = ((uint32 *)pSrc) + srcOffset;
+  uint16* pDest16 = ((uint16 *)pDest) + destOffset;
 
-  while(bCount--)
+  while(ylen--)
   {
-    uint32 srcA = srcB;
-    uint32 destA = destB;
-    uint32 aCount = xlen;
+    uint32 srcA = 0;
 
-    while(aCount--)
+    for(uint32 destA = 0; destA < xlen; ++destA) // as destAStep==1
     {
       const uint32 pix32 = SwapBytes(pSrc32[srcA]);
       pDest16[destA] = SwapBytes((uint16)(((pix32 >> 16) & 0xFC00UL) | ((pix32 >> 14) & 0x03E0UL) | ((pix32 >> 11) & 0x001FUL)));
 
       srcA += srcAStep;
-      destA += destAStep;
     }
 
-    srcB += srcBStep;
-    destB += destBStep;
+    pSrc32 += srcBStep;
+    pDest16 += destBStep;
   }
 }
 

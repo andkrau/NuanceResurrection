@@ -1,5 +1,5 @@
 #include "basetypes.h"
-#include <assert.h>
+#include <cassert>
 #include "byteswap.h"
 #include "NuonEnvironment.h"
 #include "video.h"
@@ -24,7 +24,7 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   const uint32 mpeBase = intaddr & 0x7FFFFFFCUL;
   const uint32 xlen = (xinfo >> 16) & 0x3FFUL;
   const uint32 xpos = xinfo & 0x7FFUL;
-  const uint32 ylen = (yinfo >> 16) & 0x3FFUL;
+        uint32 ylen = (yinfo >> 16) & 0x3FFUL;
   const uint32 ypos = yinfo & 0x7FFUL;
 
   //pixel+Z write (16 + 16Z)
@@ -115,29 +115,23 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   const uint32 destZOffset = xsize * structMainChannel.src_height * zmap;
   const uint32 mapOffset = xsize * structMainChannel.src_height * map;
 
-  const uint32* const pSrc32 = ((uint32*)pSrc) + srcOffset;
-  const uint16* const pSrc16 = ((uint16*)pSrc) + srcOffset;
-  uint16* const pDest16 = ((uint16*)pDest) + destOffset;
-
-  uint32 bCount = ylen;
-  uint32 srcB = 0;
-  uint32 destB = 0;
+  const uint32* pSrc32 = ((uint32*)pSrc) + srcOffset;
+  const uint16* pSrc16 = ((uint16*)pSrc) + srcOffset;
+  uint16* pDest16 = ((uint16*)pDest) + destOffset;
 
   const bool bCompareZ2 = bCompareZ && (zcompare > 0) && (zcompare < 7);
 
-  while(bCount--)
+  while(ylen--)
   {
-    uint32 srcA = srcB;
-    uint32 destA = destB;
-    uint32 aCount = xlen;
+    uint32 srcA = 0;
 
     if(!bCompareZ2)
     {
-    while(aCount--)
+    for(uint32 destA = 0; destA < xlen; ++destA) // as destAStep == 1
     {
       if(zcompare == 7)
       {
-        pDest16[destA + mapOffset] = ((uint16 *)(&pSrc16[srcA]))[0];
+        pDest16[destA + mapOffset] = pSrc16[srcA];
       }
       else
       {
@@ -146,11 +140,10 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
       }
 
       srcA += srcAStep;
-      destA += destAStep;
     }
     }
     else
-    while(aCount--)
+    for(uint32 destA = 0; destA < xlen; ++destA) // as destAStep == 1
     {
       bool bZTestResult = false;
 
@@ -192,7 +185,7 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
       {
         //if(zcompare == 7)
         //{
-        //  pDest16[destA + mapOffset] = ((uint16 *)(&pSrc16[srcA]))[0];
+        //  pDest16[destA + mapOffset] = pSrc16[srcA]; // handled above
         //}
         //else
         {
@@ -202,11 +195,11 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
       }
 
       srcA += srcAStep;
-      destA += destAStep;
     }
 
-    srcB += srcBStep;
-    destB += destBStep;
+    pSrc32 += srcBStep;
+    pSrc16 += srcBStep;
+    pDest16 += destBStep;
   }
 }
 
