@@ -472,6 +472,9 @@ History
 version 0.6.6:
 Implement (bi)linear address mirroring properly and enable it
 Optimize (bi)linear memory reads, and some memory stores
+Optimize DMA transfers (especially all that are triggered by T3K)
+Fix missing 0x7F mask for shifts in certain mul/shift ops when using the dynamic recompiler
+Implement BDMA_Type8_Read_0 which fixes Space Invaders 'Overlay' play mode
 
 01/04/2024 version 0.6.5:
 Fix loading of nuance.cfg when drag and drop is used

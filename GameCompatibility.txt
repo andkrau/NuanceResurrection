@@ -12,7 +12,7 @@ Playable, BUT rarely hangs in Battle Mode and Time Attack.
 
 The Next Tetris
 -----------------
-Playable, distorted music.
+Playable, distorted music/speech.
 
 Merlin Racing
 -------------
