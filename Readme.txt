@@ -473,8 +473,11 @@ version 0.6.6:
 Implement (bi)linear address mirroring properly and enable it
 Optimize (bi)linear memory reads, and some memory stores
 Optimize DMA transfers (especially all that are triggered by T3K)
+Fix linear DMA if Write & Dup & Direct mode
+Fix linear DMA when writing to local control register
 Fix missing 0x7F mask for shifts in certain mul/shift ops when using the dynamic recompiler
-Implement BDMA_Type8_Read_0 which fixes Space Invaders 'Overlay' play mode
+Implement BDMA_Type8_Read_0 (e.g. fixes Space Invaders 'Overlay' play mode)
+Add zero 'area' return to GetPointerToMemory(), as some games read 'invalid' mem regions (like $0 which returns 0 on Nuon HW)
 
 01/04/2024 version 0.6.5:
 Fix loading of nuance.cfg when drag and drop is used
