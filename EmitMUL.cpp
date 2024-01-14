@@ -185,7 +185,8 @@ mulscalarshiftacshift_exit:
   {
     vars->mpe->nativeCodeCache.X86Emit_ANDIM(~(FLAG_DEPENDENCIES(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)), x86MemPtr::x86MemPtr_dword, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   }
-  
+
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x7F, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_IMULRR(x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_TESTIR(0x40,x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_Z,l_pos);
@@ -506,6 +507,8 @@ mulscalarshiftacshift_exit:
   vars->mpe->nativeCodeCache.X86Emit_ANDIM(~(FLAG_DEPENDENCIES(vars->pInstructionEntry->miscOutputDependencies)), x86MemPtr::x86MemPtr_dword, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, acshiftReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, acshiftDisp);
   vars->mpe->nativeCodeCache.X86Emit_IMULMR(x86MemPtr::x86MemPtr_dword, src2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x7F, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_TESTIR(0x40,x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_Z,l_pos);
   vars->mpe->nativeCodeCache.X86Emit_NEGR(x86Reg::x86Reg_ecx);
@@ -663,6 +666,7 @@ mulscalarshiftacshift_exit:
   vars->mpe->nativeCodeCache.X86Emit_ANDIM(~(FLAG_DEPENDENCIES(vars->pInstructionEntry->miscOutputDependencies)), x86MemPtr::x86MemPtr_dword, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, shiftRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, shiftRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_IMULMR(x86MemPtr::x86MemPtr_dword, src2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x7F, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_TESTIR(0x40,x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_Z,l_pos);
@@ -821,6 +825,8 @@ mulscalarshiftacshift_exit:
   vars->mpe->nativeCodeCache.X86Emit_ANDIM(~(FLAG_DEPENDENCIES(vars->pInstructionEntry->miscOutputDependencies)), x86MemPtr::x86MemPtr_dword, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, shiftRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, shiftRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_IMULMR(x86MemPtr::x86MemPtr_dword, src2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src2RegDisp);
+
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x7F, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_TESTIR(0x40,x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_Z,l_pos);
   vars->mpe->nativeCodeCache.X86Emit_NEGR(x86Reg::x86Reg_ecx);
