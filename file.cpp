@@ -153,7 +153,7 @@ void FileOpen(MPE &mpe)
     //Windows will set the read-only flag after opening the file if _S_IWRITE is not specified within the mode bits
     mode = ConvertFlags(mode) | _S_IWRITE;
 
-    char* pPath = (char*)nuonEnv.GetPointerToMemory(mpe, path);
+    char* pPath = (char*)nuonEnv.GetPointerToMemory(mpe.mpeIndex, path);
     if(!strncmp("/iso9660/",pPath,9))
     {
       pPath += 9;
@@ -178,7 +178,7 @@ void FileOpen(MPE &mpe)
     }
   }
 
-  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,errnum);
+  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, errnum);
   *pErr = errno;
   SwapScalarBytes(pErr);
   mpe.regs[0] = -1;
@@ -201,7 +201,7 @@ void FileClose(MPE &mpe)
     }
   }
 
-  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
+  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, errnum);
   *pErr = EINVAL;
   SwapScalarBytes(pErr);
   mpe.regs[0] = -1;
@@ -217,7 +217,7 @@ void FileRead(MPE &mpe)
   int32 index;
   if((index = FindFileDescriptorIndex(fd)) >= 0)
   {
-    void* pBuf = nuonEnv.GetPointerToMemory(mpe, buf);
+    void* pBuf = nuonEnv.GetPointerToMemory(mpe.mpeIndex, buf);
     int32 result = _read(fileDescriptors[index], pBuf, len);
     if(result != -1)
     {
@@ -226,7 +226,7 @@ void FileRead(MPE &mpe)
     }
   }
 
-  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
+  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, errnum);
   *pErr = EBADF;
   SwapScalarBytes(pErr);
   mpe.regs[0] = -1;
@@ -249,7 +249,7 @@ void FileWrite(MPE &mpe)
     int32 index;
     if((index = FindFileDescriptorIndex(fd)) >= 0)
     {
-      const void *pBuf = nuonEnv.GetPointerToMemory(mpe, buf);
+      const void *pBuf = nuonEnv.GetPointerToMemory(mpe.mpeIndex, buf);
       int32 result = _write(fileDescriptors[index], pBuf, len);
       if(result != -1)
       {
@@ -258,7 +258,7 @@ void FileWrite(MPE &mpe)
       }
     }
 
-    uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
+    uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, errnum);
     *pErr = errno;
     SwapScalarBytes(pErr);
     mpe.regs[0] = -1;
@@ -283,7 +283,7 @@ void FileFstat(MPE &mpe)
   const uint32 buf = mpe.regs[1];
   const uint32 errnum = mpe.regs[2];
 
-  nuon_stat *pBuf = (nuon_stat *)nuonEnv.GetPointerToMemory(mpe,buf);
+  nuon_stat *pBuf = (nuon_stat *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, buf);
 
   if(fd <= NUON_FD_STDERR)
   {
@@ -358,7 +358,7 @@ void FileFstat(MPE &mpe)
       }
     }
 
-    uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
+    uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, errnum);
     *pErr = errno;
     SwapScalarBytes(pErr);
     mpe.regs[0] = -1;
@@ -372,7 +372,7 @@ void FileStat(MPE &mpe)
   //uint32 errnum = mpe.regs[2];
 
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
-  const char * const pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
+  const char * const pPath = (char *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, path);
   MessageBox(NULL,pPath,"Unimplemented File Call: FileStat",MB_OK);
 #endif
 
@@ -385,7 +385,7 @@ void FileIsatty(MPE &mpe)
   //uint32 errnum = mpe.regs[1];
 
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
-  const char * const pPath = (char *)nuonEnv.GetPointerToMemory(mpe,path);
+  const char * const pPath = (char *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, path);
   MessageBox(NULL,pPath,"Unimplemented File Call: FileIsatty",MB_OK);
 #endif
 }
@@ -407,7 +407,7 @@ void FileLseek(MPE &mpe)
     }
   }
 
-  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe, errnum);
+  uint32* pErr = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, errnum);
   *pErr = EBADF;
   SwapScalarBytes(pErr);
   mpe.regs[0] = -1;
@@ -431,7 +431,7 @@ void FileLstat(MPE &mpe)
   //uint32 errnum = mpe.regs[2];
 
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
-  const char * const pFilename = (char *)nuonEnv.GetPointerToMemory(mpe,file_name);
+  const char * const pFilename = (char *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, file_name);
   MessageBox(NULL,pFilename,"Unimplemented File Call: FileLstat",MB_OK);
 #endif
 }
@@ -442,7 +442,7 @@ void FileUnlink(MPE &mpe)
   //uint32 errnum = mpe.regs[1];
 
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
-  const char * const pPathname = (char *)nuonEnv.GetPointerToMemory(mpe,pathname);
+  const char * const pPathname = (char *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, pathname);
   MessageBox(NULL,pPathname,"Unimplemented File Call: FileUnlink",MB_OK);
 #endif
 }

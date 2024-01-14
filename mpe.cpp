@@ -1829,7 +1829,7 @@ void MPE::ScheduleInstructionQuartet(InstructionCacheEntry &destEntry, const uin
 
 void LogMemoryLocation(FILE *outFile, const char * const varname, const uint32 address, const MPE &mpe)
 {
-  const uint32 value = SwapBytes(*((uint32 *)nuonEnv.GetPointerToMemory(mpe,address)));
+  const uint32 value = SwapBytes(*((uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, address)));
   fprintf(outFile,"%s = $%8.8lx\n",varname,value);
 }
 

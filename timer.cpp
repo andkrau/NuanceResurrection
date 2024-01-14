@@ -103,7 +103,7 @@ void TimeOfDay(MPE &mpe)
   {
     const uint32 ptrNuonTime = mpe.regs[0];
 
-    _currenttime *nuonTime = (_currenttime *)nuonEnv.GetPointerToMemory(mpe,ptrNuonTime,true);
+    _currenttime *nuonTime = (_currenttime *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, ptrNuonTime,true);
 
     //Get time and fill time structure
 
@@ -184,14 +184,14 @@ void TimeElapsed(MPE &mpe)
   //Store seconds if pointer is not NULL
   if(ptrSecs)
   {
-    uint32 *const memPtr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,ptrSecs,true);
+    uint32 *const memPtr = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, ptrSecs,true);
     *memPtr = SwapBytes((uint32)seconds);
   }
 
   //Store microseconds if pointer is not NULL
   if(ptrUSecs)
   {
-    uint32 *const memPtr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,ptrUSecs,true);
+    uint32 *const memPtr = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, ptrUSecs,true);
     *memPtr = SwapBytes((uint32)useconds);
   }
 

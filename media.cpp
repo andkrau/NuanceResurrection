@@ -175,7 +175,7 @@ void MediaOpen(MPE &mpe)
 
     if(handle)
     {    
-      uint32 * const pBlockSize = (uint32 *)nuonEnv.GetPointerToMemory(mpe,mpe.regs[3]);
+      uint32 * const pBlockSize = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, mpe.regs[3]);
       if(pBlockSize)
       {
         *pBlockSize = SwapBytes((uint32)BLOCK_SIZE_DVD);
@@ -184,7 +184,7 @@ void MediaOpen(MPE &mpe)
       const char * const baseString = nuonEnv.GetDVDBase();
 
       //Treat iso9660 device reads as DVD device reads
-      const char * name = (char *)nuonEnv.GetPointerToMemory(mpe, mpe.regs[1]);
+      const char * name = (char *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, mpe.regs[1]);
       if(!strncmp("/iso9660/",name,9))
       {
         name = &name[9];
@@ -226,7 +226,7 @@ void MediaGetInfo(MPE &mpe)
   {
     if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD))
     {
-      MediaDevInfo * const pDevInfo = (MediaDevInfo*)nuonEnv.GetPointerToMemory(mpe,devInfo);
+      MediaDevInfo * const pDevInfo = (MediaDevInfo*)nuonEnv.GetPointerToMemory(mpe.mpeIndex, devInfo);
 
       const uint32 id = SwapBytes((uint32)handle);
       const uint32 datarate = SwapBytes((uint32)DATA_RATE_DVD);
@@ -263,7 +263,7 @@ void MediaRead(MPE &mpe)
       FILE* inFile;
       if(fopen_s(&inFile,fileNameArray[handle].c_str(),"rb") == 0)
       {
-        void* pBuf = nuonEnv.GetPointerToMemory(mpe,buffer);
+        void* pBuf = nuonEnv.GetPointerToMemory(mpe.mpeIndex, buffer);
         fseek(inFile,startblock*BLOCK_SIZE_DVD,SEEK_SET);
         const uint32 readCount = (uint32)fread(pBuf,BLOCK_SIZE_DVD,blockcount,inFile);
         if(readCount >= (blockcount - 1))
@@ -308,7 +308,7 @@ void MediaWrite(MPE &mpe)
 
       if(outFile)
       {
-        const void* pBuf = nuonEnv.GetPointerToMemory(mpe,buffer);
+        const void* pBuf = nuonEnv.GetPointerToMemory(mpe.mpeIndex, buffer);
         fseek(outFile,startblock*BLOCK_SIZE_DVD,SEEK_SET);
         const uint32 writeCount = (uint32)fwrite(pBuf,BLOCK_SIZE_DVD,blockcount,outFile);
         if(writeCount >= (blockcount - 1))
@@ -371,7 +371,7 @@ void MediaIoctl(MPE &mpe)
         case eMedia::MEDIA_IOCTL_GET_PHYSICAL:
           if(value)
           {
-            uint32* const ptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe,value);
+            uint32* const ptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, value);
             //!! For now, return physical sector zero, but in the future there needs to be some sort
             //of TOC to allow for loading from image files in which case the base file sector will
             //be non-zero
@@ -399,7 +399,7 @@ void MediaIoctl(MPE &mpe)
 void SpinWait(MPE &mpe)
 {
   const uint32 status = mpe.regs[0];
-  uint32 * const pMediaWaiting = (uint32 *)nuonEnv.GetPointerToMemory(mpe,MEDIAWAITING_ADDRESS,false);
+  uint32 * const pMediaWaiting = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, MEDIAWAITING_ADDRESS,false);
 
   uint32 result = 0;
   if((status >> 30) == 0x03)

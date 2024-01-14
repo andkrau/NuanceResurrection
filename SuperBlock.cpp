@@ -880,7 +880,7 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
     InstructionCacheEntry packet;
     packet.pcexec = packetAddress;
 
-    pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(*pMPE,packetAddress,false),packet, decodeOptions);
+    pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(pMPE->mpeIndex, packetAddress, false), packet, decodeOptions);
     packetAddress = packet.pcroute;
 
     packetsProcessed++;
@@ -919,12 +919,12 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
             InstructionCacheEntry packetDelaySlot1;
             //Delayed branch with explicit delay slot instructions
             packetDelaySlot1.pcexec = packetAddress;
-            pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(*pMPE,packetAddress,false),packetDelaySlot1, decodeOptions);
+            pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(pMPE->mpeIndex, packetAddress, false), packetDelaySlot1, decodeOptions);
             packetAddress = packetDelaySlot1.pcroute;
 
             InstructionCacheEntry packetDelaySlot2;
             packetDelaySlot2.pcexec = packetAddress;
-            pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(*pMPE,packetAddress,false),packetDelaySlot2, decodeOptions);
+            pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(pMPE->mpeIndex, packetAddress, false), packetDelaySlot2, decodeOptions);
             packetAddress = packetDelaySlot2.pcroute;
 
             packet.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;

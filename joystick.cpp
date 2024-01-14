@@ -13,7 +13,7 @@ void ControllerInitialize(MPE &mpe)
 {
   //return the last 144 bytes of the BIOS region
   mpe.regs[0] = CONTROLLER_ADDRESS;
-  controller = (ControllerData *)(nuonEnv.GetPointerToMemory(mpe,CONTROLLER_ADDRESS));
+  controller = (ControllerData *)(nuonEnv.GetPointerToMemory(mpe.mpeIndex, CONTROLLER_ADDRESS));
   for(uint32 i = 0; i < NUM_CONTROLLER_ENTRIES; i++)
   {
     controller[i].config = 0;

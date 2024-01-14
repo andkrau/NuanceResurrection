@@ -162,48 +162,38 @@ void NuonEnvironment::SetAudioVolume(uint32 volume)
   }
 }
 
-void *NuonEnvironment::GetPointerToMemory(const MPE &_mpe, const uint32 address, const bool bCheckAddress)
+void *NuonEnvironment::GetPointerToMemory(const uint32 mpe_idx, const uint32 address, const bool bCheckAddress)
 {
-  if(address < MAIN_BUS_BASE)
+  if(address < MPE_ADDR_SPACE_BASE)
+  {
+    //The reserved area from $00000000 to $1FFFFFFF might always return zero
+    //Freefall has a routine which will purposely read from $0 instead of skipping directly to
+    //the epilogue code
+    static const __m128 zero = _mm_setzero_ps(); //!! meh, should be the full area :/
+    return (void*)&zero;
+  }
+  else if(address < MAIN_BUS_BASE)
   {
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
-    if(bCheckAddress)
+    if(bCheckAddress && ((address < MPE_ADDR_SPACE_BASE) || (address >= MPE1_ADDR_BASE)))
     {
-      if((address < MPE_ADDR_SPACE_BASE) || (address >= MPE1_ADDR_BASE))
-      {
-        char textBuf[1024];
-        sprintf_s(textBuf, sizeof(textBuf),"MPE%u Illegal Memory Address Operand (MAIN) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
-          _mpe.mpeIndex,
-          address,
-          mpe[0].pcexec,
-          mpe[1].pcexec,
-          mpe[2].pcexec,
-          mpe[3].pcexec);
-
-        MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
-      }
+      char textBuf[1024];
+      sprintf_s(textBuf, sizeof(textBuf),"MPE%u Illegal Memory Address Operand (MAIN) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+        mpe_idx, address, mpe[0].pcexec, mpe[1].pcexec, mpe[2].pcexec, mpe[3].pcexec);
+      MessageBox(NULL, textBuf, "GetPointerToMemory error", MB_OK);
     }
 #endif
-    return (void *)(((uint8 *)_mpe.dtrom) + (address & MPE_VALID_MEMORY_MASK));
+    return &mpe[mpe_idx].dtrom[address & MPE_VALID_MEMORY_MASK];
   }
   else if(address < SYSTEM_BUS_BASE)
   {
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
-    if(bCheckAddress)
+    if(bCheckAddress && ((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK))))
     {
-      if((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK)))
-      {
-        char textBuf[1024];
-        sprintf_s(textBuf, sizeof(textBuf), "MPE%u Illegal Memory Address Operand (SYSTEM) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
-          _mpe.mpeIndex,
-          address,
-          mpe[0].pcexec,
-          mpe[1].pcexec,
-          mpe[2].pcexec,
-          mpe[3].pcexec);
-
-        MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
-      }
+      char textBuf[1024];
+      sprintf_s(textBuf, sizeof(textBuf), "MPE%u Illegal Memory Address Operand (SYSTEM) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+        mpe_idx, address, mpe[0].pcexec, mpe[1].pcexec, mpe[2].pcexec, mpe[3].pcexec);
+      MessageBox(NULL, textBuf, "GetPointerToMemory error", MB_OK);
     }
 #endif
     return &mainBusDRAM[address & MAIN_BUS_VALID_MEMORY_MASK];
@@ -211,29 +201,18 @@ void *NuonEnvironment::GetPointerToMemory(const MPE &_mpe, const uint32 address,
   else if(address < ROM_BIOS_BASE)
   {
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
-    if(bCheckAddress)
+    if(bCheckAddress && ((address > (SYSTEM_BUS_BASE + SYSTEM_BUS_VALID_MEMORY_MASK))))
     {
-      if((address > (SYSTEM_BUS_BASE + SYSTEM_BUS_VALID_MEMORY_MASK)))
-      {
-        char textBuf[1024];
-        sprintf_s(textBuf,sizeof(textBuf), "MPE%u Illegal Memory Address Operand (ROM_BIOS) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
-          _mpe.mpeIndex,
-          address,
-          mpe[0].pcexec,
-          mpe[1].pcexec,
-          mpe[2].pcexec,
-          mpe[3].pcexec);
-
-        MessageBox( NULL, textBuf, "GetPointerToMemory error", MB_OK);
-      }
+      char textBuf[1024];
+      sprintf_s(textBuf,sizeof(textBuf), "MPE%u Illegal Memory Address Operand (ROM_BIOS) %8.8X\nMPE0 pcexec: %8.8X\nMPE1 pcexec: %8.8X\nMPE2 pcexec: %8.8X\nMPE3 pcexec: %8.8X\n",
+        mpe_idx, address, mpe[0].pcexec, mpe[1].pcexec, mpe[2].pcexec, mpe[3].pcexec);
+      MessageBox(NULL, textBuf, "GetPointerToMemory error", MB_OK);
     }
 #endif
     return &systemBusDRAM[address & SYSTEM_BUS_VALID_MEMORY_MASK];
   }
   else
-  {
     return flashEEPROM.GetBasePointer() + ((address - ROM_BIOS_BASE) & (DEFAULT_EEPROM_SIZE - 1));
-  }
 }
 
 // copy of above, specialized to not need a MPE
@@ -247,15 +226,11 @@ void *NuonEnvironment::GetPointerToSystemMemory(const uint32 address, const bool
   else if(address < SYSTEM_BUS_BASE)
   {
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
-    if(bCheckAddress)
+    if(bCheckAddress && ((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK))))
     {
-      if((address > (MAIN_BUS_BASE + MAIN_BUS_VALID_MEMORY_MASK)))
-      {
-        char textBuf[1024];
-        sprintf_s(textBuf,sizeof(textBuf),"Illegal Memory Address Operand (SYSTEM) %8.8X\n",address);
-
-        MessageBox( NULL, textBuf, "GetPointerToSystemMemory error", MB_OK);
-      }
+      char textBuf[1024];
+      sprintf_s(textBuf,sizeof(textBuf),"Illegal Memory Address Operand (SYSTEM) %8.8X\n",address);
+      MessageBox(NULL, textBuf, "GetPointerToSystemMemory error", MB_OK);
     }
 #endif
     return &mainBusDRAM[address & MAIN_BUS_VALID_MEMORY_MASK];
@@ -275,7 +250,7 @@ void *NuonEnvironment::GetPointerToSystemMemory(const uint32 address, const bool
 
 void NuonEnvironment::WriteFile(MPE &MPE, uint32 fd, uint32 buf, uint32 len)
 {
-  char * const pBuf = (char *)GetPointerToMemory(MPE, buf, false);
+  char * const pBuf = (char *)GetPointerToMemory(MPE.mpeIndex, buf, false);
   const char tempChar = pBuf[len];
   pBuf[len] = '\0';
 

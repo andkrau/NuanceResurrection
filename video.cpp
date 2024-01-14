@@ -849,7 +849,7 @@ void UpdateBufferLengths()
 
 void VidQueryConfig(MPE &mpe)
 {
-  VidDisplay * const displayStruct = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe,mpe.regs[0]);
+  VidDisplay * const displayStruct = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, mpe.regs[0]);
 
   displayStruct->dispwidth = structMainDisplay.dispwidth;
   displayStruct->dispheight = structMainDisplay.dispheight;
@@ -888,7 +888,7 @@ void VidConfig(MPE &mpe)
   VidDisplay maindisplay;
   if(display_addr)
   {
-    const VidDisplay *const pMainDisplay = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe, display_addr);
+    const VidDisplay *const pMainDisplay = (VidDisplay *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, display_addr);
     memcpy(&maindisplay,pMainDisplay,sizeof(VidDisplay));
     SwapScalarBytes((uint32 *)&maindisplay.bordcolor);
   }
@@ -921,7 +921,7 @@ void VidConfig(MPE &mpe)
   VidChannel mainchannel;
   if(main)
   {
-    const VidChannel * const pMainChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, main);
+    const VidChannel * const pMainChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, main);
     memcpy(&mainchannel,pMainChannel,sizeof(VidChannel));
     SwapVectorBytes((uint32 *)&mainchannel.dmaflags);
     SwapVectorBytes((uint32 *)&mainchannel.dest_width);
@@ -935,7 +935,7 @@ void VidConfig(MPE &mpe)
   VidChannel osdchannel;
   if(osd)
   {
-    const VidChannel * const pOSDChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe, osd);
+    const VidChannel * const pOSDChannel = (VidChannel *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, osd);
     memcpy(&osdchannel,pOSDChannel,sizeof(VidChannel));
     SwapVectorBytes((uint32 *)&osdchannel.dmaflags);
     SwapVectorBytes((uint32 *)&osdchannel.dest_width);
@@ -1457,7 +1457,7 @@ void VidSetCLUTRange(MPE &mpe)
   if(colors)
   {
     uint32 index = mpe.regs[0];
-    const uint32 * const pColors = (uint32 *)nuonEnv.GetPointerToMemory(mpe, colors);
+    const uint32 * const pColors = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, colors);
 
     for(; (index < 256) && (count < numColors); index++, count++)
     {

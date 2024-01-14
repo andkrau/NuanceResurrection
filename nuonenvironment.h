@@ -98,7 +98,7 @@ public:
   ~NuonEnvironment();
 
   void WriteFile(MPE &mpe, uint32 fd, uint32 buf, uint32 len);
-  void *GetPointerToMemory(const MPE &mpe, const uint32 address, const bool bCheckAddress = true);
+  void *GetPointerToMemory(const uint32 mpe_idx, const uint32 address, const bool bCheckAddress = true);
   void *GetPointerToSystemMemory(const uint32 address, const bool bCheckAddress = true);
   void InitBios();
   void InitAudio();

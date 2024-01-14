@@ -283,7 +283,7 @@ void MPELoad(MPE &mpe)
         systemMemPtr = nuonEnv.systemBusDRAM + (linkaddr & SYSTEM_BUS_VALID_MEMORY_MASK);
       }
 
-      uint8 *mpeMemPtr = ((uint8 *)(nuonEnv.mpe[which].GetPointerToMemory())) + (mpeaddr & MPE_VALID_MEMORY_MASK);
+      uint8 *mpeMemPtr = (uint8 *)nuonEnv.mpe[which].GetPointerToMemory() + (mpeaddr & MPE_VALID_MEMORY_MASK);
       memcpy(mpeMemPtr, systemMemPtr, size);
 
       //nuonEnv.mpe[which].InvalidateICacheRegion(mpeaddr, mpeaddr + size - 1);

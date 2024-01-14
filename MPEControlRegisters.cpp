@@ -465,7 +465,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       //odmacptr: writing triggers Other BUS DMA
       odmacptr = data & 0x207FFFF0UL;
       //Call GetPointerToMemory to warn if the address is invalid
-      nuonEnv.GetPointerToMemory(*this,odmacptr & 0xFFFFFFF0);
+      nuonEnv.GetPointerToMemory(this->mpeIndex, odmacptr & 0xFFFFFFF0);
 
       if(odmactl & 0x60UL)
       {
@@ -548,7 +548,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       //mdmacptr: writing triggers Main BUS DMA
       mdmacptr = data & 0x207FFFF0UL;
       //Call GetPointerToMemory to warn if the address is invalid
-      nuonEnv.GetPointerToMemory(*this,data & 0xFFFFFFF0);
+      nuonEnv.GetPointerToMemory(this->mpeIndex, data & 0xFFFFFFF0);
 do_mdmacmd: // for batch commands
       const uint32* const dmacmd = (uint32 *)(&dtrom[mdmacptr & MPE_VALID_MEMORY_MASK]);
       const uint32 dmaflags = SwapBytes(dmacmd[0]);

@@ -45,41 +45,27 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
 
   bool bCompareZ/*, bUpdatePixel, bUpdateZ*/;
   if(zcompare != 7)
-  {
-    bCompareZ = (zcompare != 0);
     //Z write, no pixel (16Z)
-    //bUpdatePixel = false;
-    //bUpdateZ = true;
-  }
+    bCompareZ = (zcompare != 0);
   else
-  {
     //Z write, no pixel (16Z, no compare?)
     bCompareZ = false;
-    //bUpdatePixel = false;
-    //bUpdateZ = true;
-  }
+  //bUpdatePixel = false;
+  //bUpdateZ = true;
 
-  void* intMemory;
   if(bRemote)
-  {
-    //internal address is system address (but still in MPE memory)
-    assert(((mpeBase >> 23) & 0x1FUL) < 4);
-    intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
-  }
-  else
-  {
-    //internal address is local to MPE
-    intMemory = nuonEnv.GetPointerToMemory(mpe, mpeBase & 0x207FFFFF, false);
-  }
+    assert(((mpeBase >> 23) & 0x1Fu) < 4);
+  //internal address is: bRemote ? system address (but still in MPE memory) : local to MPE
+  void* const intMemory = nuonEnv.GetPointerToMemory(bRemote ? (mpeBase >> 23) & 0x1Fu : mpe.mpeIndex, mpeBase & 0x207FFFFF, false);
 
   //base address is always a system address (absolute)
-  assert(((sdramBase >> 23) & 0x1FUL) < 4);
-  void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
+  assert(((sdramBase >> 23) & 0x1Fu) < 4);
+  void* const baseMemory = nuonEnv.GetPointerToMemory((sdramBase >> 23) & 0x1Fu, sdramBase, false);
 
   constexpr uint32 srcOffset = 0;
   const uint32 destOffset = ypos * (uint32)xsize + xpos;
-  const uint16* pSrcColor = ((uint16 *)intMemory) + (1 + srcOffset);
-  uint16* pDestColor = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * zmap + destOffset);
+  const uint16* pSrcColor = (uint16 *)intMemory + (1 + srcOffset);
+  uint16* pDestColor = (uint16 *)baseMemory + (xsize * structMainChannel.src_height * zmap + destOffset);
 
   int32 srcAStep, srcBStep;
   uint16 directColor;
@@ -261,43 +247,32 @@ void BDMA_Type12_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   }*/
 
   /*
-  bool bCompareZ, bUpdatePixel;
+  bool bCompareZ;//, bUpdatePixel;
   bool bUpdateZ = (zcompare != 7);
   uint32 srcStrideShift;
   if(bUpdateZ)
   {
     //pixel+Z write (16 + 16Z)
     bCompareZ = (zcompare != 0);
-    bUpdatePixel = true;
+    //bUpdatePixel = true;
     srcStrideShift = 1;
   }
   else
   {
     //pixel only write (16 bit)
     bCompareZ = false;
-    bUpdatePixel = true;
+    //bUpdatePixel = true;
     srcStrideShift = 0;
   }*/
 
-  void* intMemory;
   if(bRemote)
-  {
-    //internal address is system address (but still in MPE memory)
-    assert(((mpeBase >> 23) & 0x1FUL) < 4);
-    intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
-  }
-  else
-  {
-    //internal address is local to MPE
-    intMemory = nuonEnv.GetPointerToMemory(mpe, mpeBase, false);
-  }
+    assert(((mpeBase >> 23) & 0x1Fu) < 4);
+  //internal address is: bRemote ? system address (but still in MPE memory) : local to MPE
+  void* const intMemory = nuonEnv.GetPointerToMemory(bRemote ? (mpeBase >> 23) & 0x1Fu : mpe.mpeIndex, mpeBase & 0x207FFFFF, false);
 
   //base address is always a system address (absolute)
-  assert(((sdramBase >> 23) & 0x1FUL) < 4);
-  void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
-
-  const void* const pSrc = (void *)baseMemory;
-  void* const pDest = (void *)intMemory;
+  assert(((sdramBase >> 23) & 0x1Fu) < 4);
+  void* const baseMemory = nuonEnv.GetPointerToMemory((sdramBase >> 23) & 0x1Fu, sdramBase, false);
 
   if(((intaddr & MPE_LOCAL_MEMORY_MASK) >= MPE_IRAM_BASE) &&
     ((intaddr & MPE_LOCAL_MEMORY_MASK) < MPE_DTAGS_BASE))
@@ -305,18 +280,10 @@ void BDMA_Type12_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
     //Maintain cache coherency!  This assumes that code will not be
     //dynamically created in the dtrom/dtram section, bypassing the need
     //to flush the cache on data writes.
-    if(bRemote)
-    {
-      //nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL].InvalidateICache();
-      //nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL].nativeCodeCache.Flush();
-      nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL].UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[(mpeBase >> 23) & 0x1FUL]);
-    }
-    else
-    {
-      //mpe.InvalidateICache();
-      //mpe.nativeCodeCache.Flush();
-      mpe.UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[mpe.mpeIndex]);
-    }
+    MPE& m = bRemote ? nuonEnv.mpe[(mpeBase >> 23) & 0x1Fu] : mpe;
+    //m.InvalidateICache();
+    //m.nativeCodeCache.Flush();
+    m.UpdateInvalidateRegion(MPE_IRAM_BASE, MPE::overlayLengths[bRemote ? (mpeBase >> 23) & 0x1Fu : mpe.mpeIndex]);
   }
 
   constexpr int32 destAStep = 1;
@@ -330,8 +297,8 @@ void BDMA_Type12_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
 
   if(zcompare == 7)
   {
-    const uint16* pSrc16 = ((uint16 *)pSrc) + srcOffset;
-    uint16* pDest16 = ((uint16 *)pDest) + destOffset;
+    const uint16* pSrc16 = (uint16 *)baseMemory + srcOffset;
+    uint16* pDest16 = (uint16 *)intMemory + destOffset;
 
     while(ylen--)
     {
@@ -344,8 +311,8 @@ void BDMA_Type12_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   }
   else
   {
-    const uint32* pSrc32 = ((uint32 *)pSrc) + srcOffset;
-    uint32* pDest32 = ((uint32 *)pDest) + destOffset;
+    const uint32* pSrc32 = (uint32 *)baseMemory + srcOffset;
+    uint32* pDest32 = (uint32 *)intMemory + destOffset;
 
     while(ylen--)
     {

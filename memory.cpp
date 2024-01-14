@@ -18,7 +18,7 @@ void MemLocalScratch(MPE &mpe)
     //MML2D will corrupt memory in most commercial games if a size greater than 3968 is returned.
     //The address and size returned in this implementation are identical to the values returned by
     //the VMLabs BIOS
-    uint32* const pMem = (uint32 *)nuonEnv.GetPointerToMemory(mpe, pSize);
+    uint32* const pMem = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, pSize);
     *pMem = SwapBytes(512u);
   }
 }

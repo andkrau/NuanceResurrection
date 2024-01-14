@@ -26,22 +26,14 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
         uint32 ylen = (yinfo >> 16) & 0x3FFUL;
   const uint32 ypos = yinfo & 0x7FFUL;
 
-  void* intMemory;
   if(bRemote)
-  {
-    //internal address is system address (but still in MPE memory)
-    assert(((mpeBase >> 23) & 0x1FUL) < 4);
-    intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
-  }
-  else
-  {
-    //internal address is local to MPE
-    intMemory = nuonEnv.GetPointerToMemory(mpe, mpeBase & 0x207FFFFF, false);
-  }
+    assert(((mpeBase >> 23) & 0x1Fu) < 4);
+  //internal address is: bRemote ? system address (but still in MPE memory) : local to MPE
+  void* const intMemory = nuonEnv.GetPointerToMemory(bRemote ? (mpeBase >> 23) & 0x1Fu : mpe.mpeIndex, mpeBase & 0x207FFFFF, false);
 
   //base address is always a system address (absolute)
-  assert(((sdramBase >> 23) & 0x1FUL) < 4);
-  void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
+  assert(((sdramBase >> 23) & 0x1Fu) < 4);
+  void* const baseMemory = nuonEnv.GetPointerToMemory((sdramBase >> 23) & 0x1Fu, sdramBase, false);
 
   const void* pSrc = intMemory;
 
@@ -159,22 +151,14 @@ void BDMA_Type8_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
         uint32 ylen = (yinfo >> 16) & 0x3FFUL;
   const uint32 ypos = yinfo & 0x7FFUL;
 
-  void* intMemory;
   if(bRemote)
-  {
-    //internal address is system address (but still in MPE memory)
-    assert(((mpeBase >> 23) & 0x1FUL) < 4);
-    intMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(mpeBase >> 23) & 0x1FUL], mpeBase & 0x207FFFFF, false);
-  }
-  else
-  {
-    //internal address is local to MPE
-    intMemory = nuonEnv.GetPointerToMemory(mpe, mpeBase & 0x207FFFFF, false);
-  }
+    assert(((mpeBase >> 23) & 0x1Fu) < 4);
+  //internal address is: bRemote ? system address (but still in MPE memory) : local to MPE
+  void* const intMemory = nuonEnv.GetPointerToMemory(bRemote ? (mpeBase >> 23) & 0x1Fu : mpe.mpeIndex, mpeBase & 0x207FFFFF, false);
 
   //base address is always a system address (absolute)
   assert(((sdramBase >> 23) & 0x1FUL) < 4);
-  void* const baseMemory = nuonEnv.GetPointerToMemory(nuonEnv.mpe[(sdramBase >> 23) & 0x1FUL], sdramBase, false);
+  void* const baseMemory = nuonEnv.GetPointerToMemory((sdramBase >> 23) & 0x1Fu, sdramBase, false);
 
   constexpr int32 srcAStep = 1;
   const int32 srcBStep = xsize;

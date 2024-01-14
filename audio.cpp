@@ -100,5 +100,5 @@ void AudioSetDMABuffer(MPE &mpe)
   //}
 
   if((pAudioBuffer >= MPE_ADDR_SPACE_BASE) && (pAudioBuffer < SRAM_0_BASE))
-    nuonEnv.pNuonAudioBuffer = (uint8 *)(nuonEnv.GetPointerToMemory(mpe,pAudioBuffer,false));
+    nuonEnv.pNuonAudioBuffer = (uint8 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, pAudioBuffer, false);
 }
