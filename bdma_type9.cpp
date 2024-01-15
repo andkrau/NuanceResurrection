@@ -197,61 +197,106 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
 
 void BDMA_Type9_Write_1(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Write_1", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Write_2(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Write_2", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Write_3(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Write_3", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Write_4(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Write_4", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Write_5(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Write_5", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Write_6(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Write_6", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Write_7(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Write_7", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Read_0", "Error", MB_OK);
+#endif
   mpe.regs[0] = 0;
 }
 
 void BDMA_Type9_Read_1(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Read_1", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Read_2(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Read_2", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Read_3(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Read_3", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Read_4(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Read_4", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Read_5(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Read_5", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Read_6(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Read_6", "Error", MB_OK);
+#endif
 }
 
 void BDMA_Type9_Read_7(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+  MessageBox(NULL, "BDMA_Type9_Read_7", "Error", MB_OK);
+#endif
 }
