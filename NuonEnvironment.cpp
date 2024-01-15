@@ -100,7 +100,7 @@ void NuonEnvironment::CloseAudio()
     {
       FSOUND_Stream_Stop(audioStream);
       FSOUND_Stream_Close(audioStream);
-      audioStream = 0;
+      audioStream = nullptr;
     }
   }
 }
@@ -344,7 +344,7 @@ void NuonEnvironment::Init()
   //and initializes the boot timestamp
   InitializeTimingMethod();
 
-  pNuonAudioBuffer = 0;
+  pNuonAudioBuffer = nullptr;
   audio_buffer_offset = 0;
   audio_buffer_played = 0;
   oldNuonAudioChannelMode = nuonAudioChannelMode = 0;

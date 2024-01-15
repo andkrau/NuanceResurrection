@@ -323,8 +323,8 @@ public:
   uint32 commctl;
   uint32 commxmit[4];
   uint32 commrecv[4];
-  uint32 configa;
-  uint32 configb;
+  uint32 configa; // constant
+  uint32 configb; // constant
   uint32 dcachectl;
   uint32 icachectl;
   uint32 vdmactla;

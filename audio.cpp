@@ -20,7 +20,7 @@ void AudioMute(MPE &mpe)
 void AudioReset(MPE &mpe)
 {
   nuonEnv.RestartAudio();
-  nuonEnv.pNuonAudioBuffer = 0;
+  nuonEnv.pNuonAudioBuffer = nullptr;
   nuonEnv.MuteAudio(true);
 }
 
@@ -72,6 +72,13 @@ void AudioQueryChannelMode(MPE &mpe)
 void AudioSetChannelMode(MPE &mpe)
 {
   const uint32 newMode = mpe.regs[0];
+
+  // if only these 2 flags change, do not re-init things
+  if((nuonEnv.nuonAudioChannelMode & ~(ENABLE_WRAP_INT | ENABLE_HALF_INT)) == (newMode & ~(ENABLE_WRAP_INT | ENABLE_HALF_INT)))
+  {
+    nuonEnv.nuonAudioChannelMode = newMode;
+    return;
+  }
 
   // NISE always triggers 16bit stereo at 32kHz per its spec
 

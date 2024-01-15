@@ -37,7 +37,7 @@ class MPE;
 #define ENABLE_SAMP_INT	(0x0400UL)
 #define ENABLE_DMA_SKIP	(0x0800UL)
 #define ENABLE_DMA_STALL (0x1000UL)
-
+#define ENABLE_LATER_COUNT_WAIT (0x100000UL)
 
 void AudioMute(MPE& mpe);
 void AudioReset(MPE& mpe);
