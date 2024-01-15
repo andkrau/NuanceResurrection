@@ -617,7 +617,7 @@ void DMALinear(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32
 {
   const bool bRemote = flags & (1UL << 28);
   const bool bDirect = flags & (1UL << 27);
-  const bool bDup = (flags & (3UL << 26));
+  const bool bDup = (flags & (3UL << 26)); //bDup = dup | direct
         uint32 length = (flags >> 16) & 0xFF; //Only 1-127 is valid according to docs but field is 8 bits
   const bool bRead = flags & (1UL << 13);
 

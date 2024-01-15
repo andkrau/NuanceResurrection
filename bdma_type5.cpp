@@ -78,9 +78,6 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
   uint16* pDestColor = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * map + destOffset);
   uint16* pDestZ = ((uint16 *)baseMemory) + (xsize * structMainChannel.src_height * zmap + destOffset);
 
-  //if(bDirect && !bDup)
-  //  bDirect = true;
-
   uint16 directZ, directColor;
   int32 srcAStep, srcBStep;
   if(bDup)

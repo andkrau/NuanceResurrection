@@ -69,8 +69,6 @@ void BDMA_Type12_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, co
 
   int32 srcAStep, srcBStep;
   uint16 directColor;
-  /*if(bDirect && !bDup)
-    bDirect = true;*/
   if(bDup)
   {
     if(bDirect)
