@@ -56,7 +56,7 @@ vec3 texture2D_main(vec2 uv_org)
       uv.x += 1.;
     if(i > 1)
       uv.y += 1.;
-    uv = clamp(uv,vec2(0.,0.),vec2((720-1)*scaleInternal.x,(resy-1.)*scaleInternal.y));
+    uv = clamp(uv,vec2(0.,0.),vec2((720.0-1.0)*scaleInternal.x,(resy-1.)*scaleInternal.y));
     uv *= vec2(0.0013888889,1./resy); // 1./720
 
     LUT[i] = texture2D(mainChannelSampler, uv).yx;
@@ -75,7 +75,7 @@ vec3 texture2D_main(vec2 uv_org)
         uv.x += 1.;
       if(i > 1)
         uv.y += 1.;
-      uv = clamp(uv,vec2(0.,0.),vec2((720-1)*scaleInternal.x,(resy-1.)*scaleInternal.y));
+      uv = clamp(uv,vec2(0.,0.),vec2((720.0-1.0)*scaleInternal.x,(resy-1.)*scaleInternal.y));
       uv *= vec2(0.0013888889,1./resy); // 1./720
 
       mainColor = texture2D(mainChannelSampler, uv).bgr; //!! throws away alpha, but should not matter as this is the final displayed buffer anyway!
@@ -105,7 +105,7 @@ vec4 texture2D_overlay(vec2 uv_org)
       uv.x += 1.;
     if(i > 1)
       uv.y += 1.;
-    uv = clamp(uv,vec2(0.,0.),vec2((720-1)*scaleInternal.z,(resy-1.)*scaleInternal.w));
+    uv = clamp(uv,vec2(0.,0.),vec2((720.0-1.0)*scaleInternal.z,(resy-1.)*scaleInternal.w));
     uv *= vec2(0.0013888889,1./resy); // 1./720
 
     LUT[i] = texture2D(overlayChannelSampler, uv).yx;
@@ -124,7 +124,7 @@ vec4 texture2D_overlay(vec2 uv_org)
         uv.x += 1.;
       if(i > 1)
         uv.y += 1.;
-      uv = clamp(uv,vec2(0.,0.),vec2((720-1)*scaleInternal.z,(resy-1.)*scaleInternal.w));
+      uv = clamp(uv,vec2(0.,0.),vec2((720.0-1.0)*scaleInternal.z,(resy-1.)*scaleInternal.w));
       uv *= vec2(0.0013888889,1./resy); // 1./720
 
       overlayColor = texture2D(overlayChannelSampler, uv).bgra;
