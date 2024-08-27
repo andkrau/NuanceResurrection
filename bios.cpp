@@ -998,7 +998,7 @@ static void NuonSprintf(MPE &mpe, uint32 stackPtr, char* buf, size_t bufSize, co
     case NPF_TYPE_INT:
     {
       int32 val = GetStackInt(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      buf += snprintf(buf, (bufEnd - buf), subFmtStr, val);
       break;
     }
     case NPF_TYPE_UCHAR:
@@ -1006,31 +1006,31 @@ static void NuonSprintf(MPE &mpe, uint32 stackPtr, char* buf, size_t bufSize, co
     case NPF_TYPE_UINT:
     {
       uint32 val = GetStackUInt(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      buf += snprintf(buf, (bufEnd - buf), subFmtStr, val);
       break;
     }
     case NPF_TYPE_DOUBLE:
     {
       double val = GetStackDouble(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      buf += snprintf(buf, (bufEnd - buf), subFmtStr, val);
       break;
     }
     case NPF_TYPE_STRING:
     {
       const char* val = (const char *)GetStackPtr(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      buf += snprintf(buf, (bufEnd - buf), subFmtStr, val);
       break;
     }
     case NPF_TYPE_INT64:
     {
       int64 val = GetStackInt64(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      buf += snprintf(buf, (bufEnd - buf), subFmtStr, val);
       break;
     }
     case NPF_TYPE_UINT64:
     {
       uint64 val = GetStackUInt64(mpe, stackPtr);
-      buf += snprintf(buf, (bufEnd - buf) + 1, subFmtStr, val);
+      buf += snprintf(buf, (bufEnd - buf), subFmtStr, val);
       break;
     }
     default:
@@ -1053,7 +1053,7 @@ void KPrintf(MPE &mpe)
   {
     const char* const str = (const char *)(nuonEnv.GetPointerToMemory(mpe.mpeIndex,pStr,true));
 
-    char buf[2048];
+    char buf[4096];
     NuonSprintf(mpe, stackPtr + 4, buf, sizeof(buf), str);
 
     if (nuonEnv.debugLogFile)
