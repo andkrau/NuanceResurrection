@@ -469,7 +469,7 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 
 History
 =======
-version 0.6.6:
+03/21/2025 version 0.6.6:
 Implement (bi)linear address mirroring properly and enable it
 Optimize (bi)linear memory reads, and some memory stores
 Optimize DMA transfers (especially all that are triggered by T3K)
