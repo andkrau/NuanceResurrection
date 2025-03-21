@@ -1,4 +1,4 @@
-Nuance 0.6.6
+Nuance 0.6.7
 Copyright 2002 - 2007 Mike Perry and 2020 - 2025 all the open source contributors (see separate license.txt)
 Continued using the released source in honour of the original author by Carsten Waechter (toxie at ainc.de) in 2020
 NUON is a trademark of Genesis Microchip, Inc.
@@ -469,6 +469,8 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 
 History
 =======
+version 0.6.7:
+
 03/21/2025 version 0.6.6:
 Implement (bi)linear address mirroring properly and enable it
 Optimize (bi)linear memory reads, and some memory stores
