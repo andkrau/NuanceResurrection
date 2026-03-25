@@ -2,7 +2,7 @@
 #define SHADERPROGRAM_H
 
 #include "basetypes.h"
-#include "external\glew-2.2.0\include\GL\glew.h"
+#include <GL/glew.h>
 
 class ShaderProgram
 {

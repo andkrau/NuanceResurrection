@@ -1,7 +1,7 @@
 #include "basetypes.h"
 #include <windows.h>
 #include <mutex>
-#include "external\glew-2.2.0\include\GL\glew.h"
+#include <GL/glew.h>
 
 #include "GLWindow.h"
 #include "Bios.h"
@@ -400,7 +400,12 @@ void IncrementVideoFieldCounter()
 void RenderVideo(const int winwidth, const int winheight)
 {
   if(!bCanDisplayVideo)
+  {
+    static int dbgCount = 0;
+    if(dbgCount++ % 600 == 0)
+      fprintf(stderr, "RenderVideo: bCanDisplayVideo=false (waiting for VidConfig/VidSetup)\n");
     return;
+  }
 
   if(!bTexturesInitialized)
   {
@@ -813,7 +818,10 @@ render_main_buffer:
 
   glCallList(videoTexInfo.displayListName[activeChannels]);
   //glFlush();
+#ifdef _WIN32
   SwapBuffers(display.hDC);
+#endif
+  // On Linux, swap is done in OnDisplayPaint after ImGui overlay render
 
   if(bUseSeparateThread) gfx_lock.unlock();
 }

@@ -8,6 +8,9 @@
 #include "mpe_alloc.h"
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
+#ifndef _WIN32
+#include "iso9660.h"
+#endif
 
 extern NuonEnvironment nuonEnv;
 extern uint32 mpeFlags[];
@@ -58,7 +61,7 @@ void MediaInitMPE(const uint32 i)
       char tmp[1024];
       GetModuleFileName(NULL, tmp, 1024);
       string tmps(tmp);
-      size_t idx = tmps.find_last_of('\\');
+      size_t idx = tmps.find_last_of("/\\");
       if (idx != string::npos)
         tmps = tmps.substr(0, idx+1);
       loadStatus = nuonEnv.mpe[i].LoadCoffFile((tmps+"minibios.cof").c_str(),false);
@@ -197,6 +200,32 @@ void MediaOpen(MPE &mpe)
       fileNameArray[handle] = baseString;
       fileNameArray[handle] += name;
       fileModeArray[handle] = mode;
+
+#ifndef _WIN32
+      // Case-insensitive file open: if file not found, try lowercase name
+      {
+        FILE* testf = fopen(fileNameArray[handle].c_str(), "rb");
+        if (!testf) {
+          // Try lowercasing the filename part
+          std::string dir = baseString;
+          std::string lname = name;
+          for (auto& c : lname) c = tolower(c);
+          std::string tryPath = dir + lname;
+          testf = fopen(tryPath.c_str(), "rb");
+          if (testf) {
+            fileNameArray[handle] = tryPath;
+          } else {
+            // Try uppercasing
+            std::string uname = name;
+            for (auto& c : uname) c = toupper(c);
+            tryPath = dir + uname;
+            testf = fopen(tryPath.c_str(), "rb");
+            if (testf) fileNameArray[handle] = tryPath;
+          }
+        }
+        if (testf) fclose(testf);
+      }
+#endif
     }
   }
 
@@ -260,8 +289,53 @@ void MediaRead(MPE &mpe)
   {
     if(!fileNameArray[handle].empty() && buffer && ((eMedia)fileModeArray[handle] != eMedia::MEDIA_WRITE))
     {
-      FILE* inFile;
-      if(fopen_s(&inFile,fileNameArray[handle].c_str(),"rb") == 0)
+      FILE* inFile = nullptr;
+      fopen_s(&inFile,fileNameArray[handle].c_str(),"rb");
+
+#ifndef _WIN32
+      // If file not found on disk, try reading from ISO
+      if (!inFile) {
+        extern std::string g_ISOPath;
+        extern std::string g_ISOPrefix;
+        if (!g_ISOPath.empty()) {
+          // Extract filename from full path
+          std::string fname = fileNameArray[handle];
+          size_t lastSlash = fname.find_last_of("/\\");
+          if (lastSlash != std::string::npos) fname = fname.substr(lastSlash + 1);
+
+          ISO9660Reader isoReader;
+          if (isoReader.open(g_ISOPath.c_str())) {
+            // Find file in ISO — try various case combinations
+            std::string isoPath = g_ISOPrefix + "/" + fname;
+            uint32_t lba, fsize;
+            if (isoReader.findFile(isoPath.c_str(), lba, fsize)) {
+              // Read directly from ISO into NUON memory
+              void* pBuf = nuonEnv.GetPointerToMemory(mpe.mpeIndex, buffer);
+              FILE* isoFp = fopen64(g_ISOPath.c_str(), "rb");
+              if (isoFp) {
+                off64_t byteOffset = (off64_t)lba * 2048 + (off64_t)startblock * BLOCK_SIZE_DVD;
+                fseeko64(isoFp, byteOffset, SEEK_SET);
+                uint32_t readCount = (uint32)fread(pBuf, BLOCK_SIZE_DVD, blockcount, isoFp);
+                fclose(isoFp);
+                if (readCount >= (blockcount - 1)) {
+                  mpe.regs[0] = mode;
+                  mpe.regs[1] = blockcount;
+                  if (callback) {
+                    mpe.pcexec = callback;
+                    bCallingMediaCallback = true;
+                  }
+                }
+                isoReader.close();
+                return; // handled via ISO
+              }
+            }
+            isoReader.close();
+          }
+        }
+      }
+#endif
+
+      if(inFile)
       {
         void* pBuf = nuonEnv.GetPointerToMemory(mpe.mpeIndex, buffer);
         fseek(inFile,startblock*BLOCK_SIZE_DVD,SEEK_SET);

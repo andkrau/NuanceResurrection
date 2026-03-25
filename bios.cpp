@@ -570,7 +570,7 @@ void InitBios(MPE &mpe)
     char tmp[1024];
     GetModuleFileName(NULL, tmp, 1024);
     string tmps(tmp);
-    size_t idx = tmps.find_last_of('\\');
+    size_t idx = tmps.find_last_of("/\\");
     if (idx != string::npos)
       tmps = tmps.substr(0, idx+1);
     loadStatus = nuonEnv.mpe[3].LoadCoffFile((tmps+"bios.cof").c_str(),false);

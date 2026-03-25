@@ -3,11 +3,14 @@
 
 #define COMPILE_THRESHOLD 50UL
 
-//#define COMPILE_TYPE SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK
+#if defined(_WIN64) || (defined(__x86_64__) && !defined(_WIN32))
+#define COMPILE_TYPE SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK
+#define ALLOW_NATIVE_CODE_EMIT false
+#else
 #define COMPILE_TYPE SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK
-#define COMPILE_SINGLE_PACKET false
-
 #define ALLOW_NATIVE_CODE_EMIT true
+#endif
+#define COMPILE_SINGLE_PACKET false
 
 //#define LOG_COMM
 //#define LOG_PROGRAM_FLOW
@@ -234,7 +237,14 @@ typedef void (* NativeCodeBlockFunction)();
 extern const NuanceHandler nuanceHandlers[];
 
 // This assumes emulation of a Aries 2 MPE (for now), e.g. due to how the overlay code caching works (see OverlayManager)
-__declspec(align(16)) class MPE
+#ifdef _MSC_VER
+__declspec(align(16))
+#endif
+class
+#ifndef _MSC_VER
+__attribute__((aligned(16)))
+#endif
+MPE
 {
 public:
   union {

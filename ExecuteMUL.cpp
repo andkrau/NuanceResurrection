@@ -51,16 +51,16 @@ void Execute_MULScalarShiftAcshift(MPE &mpe, const uint32 pRegs[48], const Nuanc
   }
 
   mpe.cc &= (~CC_MUL_OVERFLOW);
-  if((result & 0x0000000080000000i64) == 0i64)
+  if((result & 0x0000000080000000LL) == 0LL)
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
   }
   else
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0xFFFFFFFF00000000i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0xFFFFFFFF00000000LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
@@ -76,16 +76,16 @@ void Execute_MULScalarShiftRightImmediate(MPE &mpe, const uint32 pRegs[48], cons
   const int64 result = (((mulop1 << 32) >> 32) * ((mulop2 << 32) >> 32)) >> nuance.fields[FIELD_MUL_INFO];
 
   mpe.cc &= (~CC_MUL_OVERFLOW);
-  if((result & 0x0000000080000000i64) == 0i64)
+  if((result & 0x0000000080000000LL) == 0LL)
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
   }
   else
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0xFFFFFFFF00000000i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0xFFFFFFFF00000000LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
@@ -101,16 +101,16 @@ void Execute_MULScalarShiftLeftImmediate(MPE &mpe, const uint32 pRegs[48], const
   const int64 result = (((mulop1 << 32) >> 32) * ((mulop2 << 32) >> 32)) << nuance.fields[FIELD_MUL_INFO];
 
   mpe.cc &= (~CC_MUL_OVERFLOW);
-  if((result & 0x0000000080000000i64) == 0i64)
+  if((result & 0x0000000080000000LL) == 0LL)
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
   }
   else
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0xFFFFFFFF00000000i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0xFFFFFFFF00000000LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
@@ -139,16 +139,16 @@ void Execute_MULImmediateShiftAcshift(MPE &mpe, const uint32 pRegs[48], const Nu
   }
 
   mpe.cc &= (~CC_MUL_OVERFLOW);
-  if((result & 0x0000000080000000i64) == 0i64)
+  if((result & 0x0000000080000000LL) == 0LL)
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
   }
   else
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0xFFFFFFFF00000000i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0xFFFFFFFF00000000LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
@@ -177,16 +177,16 @@ void Execute_MULScalarShiftScalar(MPE &mpe, const uint32 pRegs[48], const Nuance
   }
 
   mpe.cc &= (~CC_MUL_OVERFLOW);
-  if((result & 0x0000000080000000i64) == 0i64)
+  if((result & 0x0000000080000000LL) == 0LL)
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
   }
   else
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0xFFFFFFFF00000000i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0xFFFFFFFF00000000LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
@@ -215,16 +215,16 @@ void Execute_MULImmediateShiftScalar(MPE &mpe, const uint32 pRegs[48], const Nua
   }
 
   mpe.cc &= (~CC_MUL_OVERFLOW);
-  if((result & 0x0000000080000000i64) == 0i64)
+  if((result & 0x0000000080000000LL) == 0LL)
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
   }
   else
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0xFFFFFFFF00000000i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0xFFFFFFFF00000000LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
@@ -240,16 +240,16 @@ void Execute_MULImmediateShiftRightImmediate(MPE &mpe, const uint32 pRegs[48], c
   const int64 result = (((mulop1 << 32) >> 32) * ((mulop2 << 32) >> 32)) >> nuance.fields[FIELD_MUL_INFO];
 
   mpe.cc &= (~CC_MUL_OVERFLOW);
-  if((result & 0x0000000080000000i64) == 0i64)
+  if((result & 0x0000000080000000LL) == 0LL)
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
   }
   else
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0xFFFFFFFF00000000i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0xFFFFFFFF00000000LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
@@ -265,16 +265,16 @@ void Execute_MULImmediateShiftLeftImmediate(MPE &mpe, const uint32 pRegs[48], co
   const int64 result = (((mulop1 << 32) >> 32) * ((mulop2 << 32) >> 32)) << nuance.fields[FIELD_MUL_INFO];
 
   mpe.cc &= (~CC_MUL_OVERFLOW);
-  if((result & 0x0000000080000000i64) == 0i64)
+  if((result & 0x0000000080000000LL) == 0LL)
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }
   }
   else
   {
-    if((result & 0xFFFFFFFF00000000i64) != 0xFFFFFFFF00000000i64)
+    if((result & 0xFFFFFFFF00000000LL) != 0xFFFFFFFF00000000LL)
     {
       mpe.cc |= CC_MUL_OVERFLOW;
     }

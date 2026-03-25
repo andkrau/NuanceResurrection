@@ -17,8 +17,8 @@ public:
     bT3KCompilerHack = false;
     bConstantPropagation = false;
     bDeadCodeElimination = false;
-#ifdef _WIN64
-    bAllowCompile = false; //!!
+#if defined(_WIN64) || (defined(__x86_64__) && !defined(_WIN32))
+    bAllowCompile = false; //!! on 64bit this is always force disabled for now, as no x64 code can be emitted
 #else
     bAllowCompile = true;
 #endif

@@ -292,27 +292,27 @@ void FileFstat(MPE &mpe)
     switch(fd)
     {
       case NUON_FD_STDIN:
-        pBuf->st_mode = NUON_IFCHR | NUON_S_IRUSR | NUON_S_IRGRP | NUON_S_IROTH;
-        pBuf->st_dev = pBuf->st_rdev = NUON_FD_STDIN;
-        SwapWordBytes((uint16 *)&pBuf->st_dev);
-        SwapWordBytes((uint16 *)&pBuf->st_rdev);
-        SwapScalarBytes((uint32 *)&pBuf->st_mode);
+        pBuf->nuon_st_mode = NUON_IFCHR | NUON_S_IRUSR | NUON_S_IRGRP | NUON_S_IROTH;
+        pBuf->nuon_st_dev = pBuf->nuon_st_rdev = NUON_FD_STDIN;
+        SwapWordBytes((uint16 *)&pBuf->nuon_st_dev);
+        SwapWordBytes((uint16 *)&pBuf->nuon_st_rdev);
+        SwapScalarBytes((uint32 *)&pBuf->nuon_st_mode);
         mpe.regs[0] = 0;
         break;
       case NUON_FD_STDOUT:
-        pBuf->st_mode = NUON_IFCHR | NUON_S_IWUSR | NUON_S_IWGRP | NUON_S_IWOTH;
-        pBuf->st_dev = pBuf->st_rdev = NUON_FD_STDOUT;
-        SwapWordBytes((uint16 *)&pBuf->st_dev);
-        SwapWordBytes((uint16 *)&pBuf->st_rdev);
-        SwapScalarBytes((uint32 *)&pBuf->st_mode);
+        pBuf->nuon_st_mode = NUON_IFCHR | NUON_S_IWUSR | NUON_S_IWGRP | NUON_S_IWOTH;
+        pBuf->nuon_st_dev = pBuf->nuon_st_rdev = NUON_FD_STDOUT;
+        SwapWordBytes((uint16 *)&pBuf->nuon_st_dev);
+        SwapWordBytes((uint16 *)&pBuf->nuon_st_rdev);
+        SwapScalarBytes((uint32 *)&pBuf->nuon_st_mode);
         mpe.regs[0] = 0;
         break;
       case NUON_FD_STDERR:
-        pBuf->st_mode = NUON_IFCHR | NUON_S_IWUSR | NUON_S_IWGRP | NUON_S_IWOTH;
-        pBuf->st_dev = pBuf->st_rdev = NUON_FD_STDERR;
-        SwapWordBytes((uint16 *)&pBuf->st_dev);
-        SwapWordBytes((uint16 *)&pBuf->st_rdev);
-        SwapScalarBytes((uint32 *)&pBuf->st_mode);
+        pBuf->nuon_st_mode = NUON_IFCHR | NUON_S_IWUSR | NUON_S_IWGRP | NUON_S_IWOTH;
+        pBuf->nuon_st_dev = pBuf->nuon_st_rdev = NUON_FD_STDERR;
+        SwapWordBytes((uint16 *)&pBuf->nuon_st_dev);
+        SwapWordBytes((uint16 *)&pBuf->nuon_st_rdev);
+        SwapScalarBytes((uint32 *)&pBuf->nuon_st_mode);
         mpe.regs[0] = 0;
         break;
     }
@@ -321,37 +321,42 @@ void FileFstat(MPE &mpe)
   {
     if((/*index =*/ FindFileDescriptorIndex(fd)) >= 0)
     {
+#ifdef _WIN32
       struct _stat32 st;
       int32 result = _fstat32(fd, &st);
+#else
+      struct stat st;
+      int32 result = fstat(fd, &st);
+#endif
       if(result != -1)
       {
-        pBuf->st_atime = st.st_atime;
-        pBuf->st_blksize = 1;
-        pBuf->st_blocks = st.st_size;
-        pBuf->st_ctime = st.st_ctime;
-        pBuf->st_dev = st.st_dev;
-        pBuf->st_gid = st.st_gid;
-        pBuf->st_ino = st.st_ino;
-        pBuf->st_mode = ConvertIFMT(st.st_mode);
-        pBuf->st_mtime = st.st_mtime;
-        pBuf->st_nlink = st.st_nlink;
-        pBuf->st_rdev = st.st_rdev;
-        pBuf->st_size = st.st_size;
-        pBuf->st_uid = st.st_uid;
+        pBuf->nuon_st_atime = st.st_atime;
+        pBuf->nuon_st_blksize = 1;
+        pBuf->nuon_st_blocks = st.st_size;
+        pBuf->nuon_st_ctime = st.st_ctime;
+        pBuf->nuon_st_dev = st.st_dev;
+        pBuf->nuon_st_gid = st.st_gid;
+        pBuf->nuon_st_ino = st.st_ino;
+        pBuf->nuon_st_mode = ConvertIFMT(st.st_mode);
+        pBuf->nuon_st_mtime = st.st_mtime;
+        pBuf->nuon_st_nlink = st.st_nlink;
+        pBuf->nuon_st_rdev = st.st_rdev;
+        pBuf->nuon_st_size = st.st_size;
+        pBuf->nuon_st_uid = st.st_uid;
 
-        SwapWordBytes((uint16 *)&pBuf->st_dev);
-        SwapWordBytes((uint16 *)&pBuf->st_nlink);
-        SwapWordBytes((uint16 *)&pBuf->st_gid);
-        SwapWordBytes((uint16 *)&pBuf->st_uid);
-        SwapWordBytes((uint16 *)&pBuf->st_rdev);
-        SwapScalarBytes((uint32 *)&pBuf->st_atime);
-        SwapScalarBytes((uint32 *)&pBuf->st_ctime);
-        SwapScalarBytes((uint32 *)&pBuf->st_mtime);
-        SwapScalarBytes((uint32 *)&pBuf->st_ino);
-        SwapScalarBytes((uint32 *)&pBuf->st_mode);
-        SwapScalarBytes((uint32 *)&pBuf->st_size);
-        SwapScalarBytes((uint32 *)&pBuf->st_blocks);
-        SwapScalarBytes((uint32 *)&pBuf->st_blksize);
+        SwapWordBytes((uint16 *)&pBuf->nuon_st_dev);
+        SwapWordBytes((uint16 *)&pBuf->nuon_st_nlink);
+        SwapWordBytes((uint16 *)&pBuf->nuon_st_gid);
+        SwapWordBytes((uint16 *)&pBuf->nuon_st_uid);
+        SwapWordBytes((uint16 *)&pBuf->nuon_st_rdev);
+        SwapScalarBytes((uint32 *)&pBuf->nuon_st_atime);
+        SwapScalarBytes((uint32 *)&pBuf->nuon_st_ctime);
+        SwapScalarBytes((uint32 *)&pBuf->nuon_st_mtime);
+        SwapScalarBytes((uint32 *)&pBuf->nuon_st_ino);
+        SwapScalarBytes((uint32 *)&pBuf->nuon_st_mode);
+        SwapScalarBytes((uint32 *)&pBuf->nuon_st_size);
+        SwapScalarBytes((uint32 *)&pBuf->nuon_st_blocks);
+        SwapScalarBytes((uint32 *)&pBuf->nuon_st_blksize);
         mpe.regs[0] = 0;
 
         return;

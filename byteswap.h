@@ -1,12 +1,18 @@
 #ifndef BYTESWAP_H
 #define BYTESWAP_H
 
-#define LITTLE_ENDIAN
+#define NUANCE_LITTLE_ENDIAN
 
 #include "basetypes.h"
+#ifdef _MSC_VER
 #include <intrin.h>
+#else
+#include <byteswap.h>
+#define _byteswap_ushort(x) __builtin_bswap16(x)
+#define _byteswap_ulong(x) __builtin_bswap32(x)
+#endif
 
-#ifdef LITTLE_ENDIAN
+#ifdef NUANCE_LITTLE_ENDIAN
 
 __forceinline void SwapWordBytes(uint16 * const toswap)
 {
@@ -98,15 +104,15 @@ __forceinline void SwapVectorBytes(uint32 toswap[4])
 #endif
 }
 
-#else
+#else // !NUANCE_LITTLE_ENDIAN
 
-#define SwapWordBytes(x) 
-#define SwapScalarBytes(x) 
-#define SwapShortVectorBytes(x) 
-#define SwapVectorBytes(x) 
+#define SwapWordBytes(x)
+#define SwapScalarBytes(x)
+#define SwapShortVectorBytes(x)
+#define SwapVectorBytes(x)
 
-#define SwapBytes(x) (x) 
+#define SwapBytes(x) (x)
 
-#endif
+#endif // NUANCE_LITTLE_ENDIAN
 
 #endif

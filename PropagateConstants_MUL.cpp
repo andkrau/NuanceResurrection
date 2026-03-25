@@ -139,16 +139,16 @@ void PropagateConstants_MULImmediateShiftRightImmediate(SuperBlockConstants &con
     const int64 mulop2 = constants.GetScalarRegisterConstant(src2Index);
     const int64 result = (((mulop1 << 32) >> 32) * ((mulop2 << 32) >> 32)) >> constants.nuance->fields[FIELD_MUL_INFO];
     uint32 flagValue = 0;
-    if((result & 0x0000000080000000i64) == 0i64)
+    if((result & 0x0000000080000000LL) == 0LL)
     {
-      if((result & 0xFFFFFFFF00000000i64) != 0i64)
+      if((result & 0xFFFFFFFF00000000LL) != 0LL)
       {
         flagValue = CC_MUL_OVERFLOW;
       }
     }
     else
     {
-      if((result & 0xFFFFFFFF00000000i64) != 0xFFFFFFFF00000000i64)
+      if((result & 0xFFFFFFFF00000000LL) != 0xFFFFFFFF00000000LL)
       {
         flagValue = CC_MUL_OVERFLOW;
       }
@@ -181,16 +181,16 @@ void PropagateConstants_MULImmediateShiftLeftImmediate(SuperBlockConstants &cons
     const int64 mulop2 = constants.GetScalarRegisterConstant(src2Index);
     const int64 result = (((mulop1 << 32) >> 32) * ((mulop2 << 32) >> 32)) << constants.nuance->fields[FIELD_MUL_INFO];
     uint32 flagValue = 0;
-    if((result & 0x0000000080000000i64) == 0i64)
+    if((result & 0x0000000080000000LL) == 0LL)
     {
-      if((result & 0xFFFFFFFF00000000i64) != 0i64)
+      if((result & 0xFFFFFFFF00000000LL) != 0LL)
       {
         flagValue = CC_MUL_OVERFLOW;
       }
     }
     else
     {
-      if((result & 0xFFFFFFFF00000000i64) != 0xFFFFFFFF00000000i64)
+      if((result & 0xFFFFFFFF00000000LL) != 0xFFFFFFFF00000000LL)
       {
         flagValue = CC_MUL_OVERFLOW;
       }

@@ -7,8 +7,13 @@
 
 extern NuonEnvironment nuonEnv;
 
+#ifdef _MSC_VER
 #define bswap32(n) _byteswap_ulong(n)
 #define bswap16(n) _byteswap_ushort(n)
+#else
+#define bswap32(n) __builtin_bswap32(n)
+#define bswap16(n) __builtin_bswap16(n)
+#endif
 
 struct FILHDR
 {

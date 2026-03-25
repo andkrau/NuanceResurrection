@@ -6,7 +6,7 @@
 #include <windows.h>
 #include <string>
 #include <cstdio>
-#include "external\fmod-3.75\api\inc\fmod.h"
+#include <fmod.h>
 #include "audio.h"
 #include "mpe.h"
 #include "InputManager.h"

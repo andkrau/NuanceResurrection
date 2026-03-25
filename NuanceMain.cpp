@@ -6,7 +6,7 @@
 #include <Commctrl.h>
 #include <tchar.h>
 #include <commdlg.h>
-#include "external\glew-2.2.0\include\GL\glew.h"
+#include <GL/glew.h>
 #include <GL/gl.h>
 #include <mutex>
 

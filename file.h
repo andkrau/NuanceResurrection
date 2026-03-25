@@ -65,23 +65,23 @@ void FileUnlink(MPE &mpe);
 
 struct nuon_stat
 {
-  __int16	st_dev; //short: drive number of disk or handle if file is on a device
-  unsigned __int32	st_ino; //unsigned long
-  __int32 st_mode; //int: bitmasked info about file mode
-  __int16	st_nlink; //short
-  __int16	st_uid; //short
-  __int16	st_gid; //short
-  __int16 st_rdev; //short
-  __int32 st_size; //long: size of file in bytes
-  __int32 st_atime; //long
-  __int32 st_spare1;
-  __int32 st_mtime; //long
-  __int32 st_spare2;
-  __int32 st_ctime; //long
-  __int32 st_spare3;
-  __int32 st_blksize;
-  __int32 st_blocks;
-  __int32 st_spare4[2];
+  int16 nuon_st_dev;
+  uint32 nuon_st_ino;
+  int32 nuon_st_mode;
+  int16 nuon_st_nlink;
+  int16 nuon_st_uid;
+  int16 nuon_st_gid;
+  int16 nuon_st_rdev;
+  int32 nuon_st_size;
+  int32 nuon_st_atime;
+  int32 nuon_st_spare1;
+  int32 nuon_st_mtime;
+  int32 nuon_st_spare2;
+  int32 nuon_st_ctime;
+  int32 nuon_st_spare3;
+  int32 nuon_st_blksize;
+  int32 nuon_st_blocks;
+  int32 nuon_st_spare4[2];
 };
 
 #endif

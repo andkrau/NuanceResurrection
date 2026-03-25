@@ -497,7 +497,7 @@ void NuonEnvironment::SetDVDBaseFromFileName(const char * const filename)
   strcpy_s(dvdBase,i+1,filename);
   while(i >= 0)
   {
-     if(dvdBase[i] == '\\')
+     if(dvdBase[i] == '\\' || dvdBase[i] == '/')
        break;
    
      dvdBase[i] = '\0';
@@ -731,12 +731,21 @@ bool NuonEnvironment::SaveConfigFile(const char* const fileName)
 
   fprintf_s(configFile, "[Controller1GUID]\n");
 
+#ifdef _WIN32
   LPOLESTR guidWStr;
   char guidStr[100];
   StringFromCLSID(controller1Di8Dev, &guidWStr);
   size_t convSize;
   wcstombs_s(&convSize, guidStr, _countof(guidStr), guidWStr, _countof(guidStr) - 1);
   CoTaskMemFree(guidWStr);
+#else
+  char guidStr[100];
+  snprintf(guidStr, sizeof(guidStr), "{%08X-%04X-%04X-%02X%02X-%02X%02X%02X%02X%02X%02X}",
+    controller1Di8Dev.Data1, controller1Di8Dev.Data2, controller1Di8Dev.Data3,
+    controller1Di8Dev.Data4[0], controller1Di8Dev.Data4[1], controller1Di8Dev.Data4[2],
+    controller1Di8Dev.Data4[3], controller1Di8Dev.Data4[4], controller1Di8Dev.Data4[5],
+    controller1Di8Dev.Data4[6], controller1Di8Dev.Data4[7]);
+#endif
 
   fprintf_s(configFile, "%s\n", guidStr);
 
@@ -854,11 +863,22 @@ bool NuonEnvironment::LoadConfigFile(const std::string& fileName)
         }
         else if (_strnicmp(&line[1], "Controller1GUID]", sizeof("Controller1GUID]")) == 0)
         {
-          wchar_t guidStr[100];
           tokenType = ReadConfigLine(configFile, line);
+#ifdef _WIN32
+          wchar_t guidStr[100];
           size_t convLen;
           mbstowcs_s(&convLen, guidStr, line, _countof(guidStr) - 1);
           CLSIDFromString(guidStr, &controller1Di8Dev);
+#else
+          // Parse GUID from string on Linux
+          memset(&controller1Di8Dev, 0, sizeof(controller1Di8Dev));
+          sscanf(line, "{%8x-%4hx-%4hx-%2hhx%2hhx-%2hhx%2hhx%2hhx%2hhx%2hhx%2hhx}",
+            &controller1Di8Dev.Data1, &controller1Di8Dev.Data2, &controller1Di8Dev.Data3,
+            &controller1Di8Dev.Data4[0], &controller1Di8Dev.Data4[1],
+            &controller1Di8Dev.Data4[2], &controller1Di8Dev.Data4[3],
+            &controller1Di8Dev.Data4[4], &controller1Di8Dev.Data4[5],
+            &controller1Di8Dev.Data4[6], &controller1Di8Dev.Data4[7]);
+#endif
         }
 
 #ifdef _WIN64

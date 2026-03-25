@@ -14,17 +14,17 @@ you lose unsaved data while playing with it, don't say that I didn't warn you.
 
 Requirements
 ============
-This emulator requires SSE2 instruction support, at least 200 Megabytes 
+This emulator requires SSE2 instruction support, at least 200 Megabytes
 of free RAM, and an OpenGL 1.5 implementation with support for GLSL.
 
-The emulator is completely and utterly CPU bound.  Machines 
-that do not meet minimum requirements may even suffer reduced performance when 
+The emulator is completely and utterly CPU bound.  Machines
+that do not meet minimum requirements may even suffer reduced performance when
 running the less demanding SDK demos, or may hang on certain game situations
 (in the latter case try disabling AudioInterrupts in the 'nuance.cfg', at
 the cost of missing or screwed up sound).
 
-Installation
-============
+Installation (Windows)
+======================
 Extract the distribution files into a new directory, click on Nuance.exe and you're
 good to go.  The bios.cof, minibios.cof and minibiosX.cof files contain Aries assembly
 implementations of some BIOS routines and a complete miniBIOS.  These files must be
@@ -34,6 +34,44 @@ distribution but may not always be the most recent version of the DLL.  For this
 reason, the Glew32 DLL should be kept in the same directory as Nuance unless your
 system already has a more recent version of the DLL somewhere in the standard DLL
 search path, in which case the Nuance provided Glew32 DLL may be safely deleted.
+
+Installation (Linux)
+====================
+A 32-bit build is required for the x86 JIT dynamic recompiler.
+
+  sudo apt install gcc-multilib g++-multilib libgl1-mesa-dev:i386 libx11-dev:i386 libpulse0:i386
+  mkdir build32 && cd build32
+  cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-m32" -DCMAKE_CXX_FLAGS="-m32" -DCMAKE_EXE_LINKER_FLAGS="-m32"
+  make -j$(nproc)
+
+The bios.cof, minibios.cof, minibiosX.cof, nuance.cfg and shader files are
+automatically copied to the build directory by CMake.
+
+The Linux version can load games directly from ISO or ZIP files:
+
+  ./nuance /path/to/game.zip
+  ./nuance /path/to/game.iso
+  ./nuance /path/to/NUON/nuon.run
+
+Audio output uses miniaudio (bundled) which auto-detects PulseAudio or ALSA.
+Video uses X11/GLX with GLEW (bundled source).  ZIP/ISO files are mounted
+via FUSE (fuse-zip/archivemount) for instant loading without extraction.
+
+Linux keyboard shortcuts:
+
+  F1         Toggle fullscreen
+  F2         Load game (native file dialog via kdialog/zenity)
+  F3         Show status (MPE, comm bus, compiler stats)
+  F4         Show MPE3 registers
+  F5         Show kprintf log
+  F6         Dump MPE memory to .bin files
+  F7         Configure input (interactive key assignment)
+  F8         Reset all MPEs
+  F9         Pause / Resume emulation
+  F10        Single step (execute one cycle on all MPEs)
+  F11        Show disassembly of current packet
+
+The window title bar shows Kc/s and FPS in real time.
 
 The emulator uses configuration files for initializing options.  The configuration
 file to use can be specified by passing in the file name as a parameter to the 
@@ -272,8 +310,10 @@ emulate using a timer based approach.  It may be possible to use a performance t
 
 Sound support:
 
-Audio is implemented using the FMOD library.  The emulator supports all DAC
-configurations made possible through the Nuon BIOS audio routines.
+On Windows, audio is implemented using the FMOD library.  On Linux, audio uses
+the miniaudio library (bundled) which auto-detects PulseAudio, ALSA or other
+available backends.  The emulator supports all DAC configurations made possible
+through the Nuon BIOS audio routines.
 
 Multi-cycle instructions:
 
@@ -470,6 +510,9 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip
 History
 =======
 version 0.6.7:
+Add Linux port with CMake build system, X11/GLX backend and miniaudio audio output.
+32-bit build supports the x86 JIT dynamic recompiler on Linux via __attribute__((fastcall)).
+Can load games directly from ZIP/ISO files. Case-insensitive file matching for DVD data files.
 
 03/21/2025 version 0.6.6:
 Implement (bi)linear address mirroring properly and enable it

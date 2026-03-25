@@ -9,8 +9,8 @@
 
 //---------------------------------------------------------------------------
 typedef bool (* GLWINDOW_CALLBACK)(WPARAM wparam, LPARAM lparam);
-typedef bool (* GLWINDOW_RESIZECALLBACK)(unsigned __int16 width, unsigned __int16 height);
-typedef bool (* GLWINDOW_KEYCALLBACK)(__int16 vkey, unsigned __int32 keydata);
+typedef bool (* GLWINDOW_RESIZECALLBACK)(uint16 width, uint16 height);
+typedef bool (* GLWINDOW_KEYCALLBACK)(int16 vkey, uint32 keydata);
 
 #define WM_TOGGLEFULLSCREEN (WM_USER+1)
 
@@ -48,11 +48,12 @@ public:
   GLWINDOW_CALLBACK paintHandler;
   InputManager::CONTROLLER_CALLBACK applyControllerState;
 
+  void CleanUp();
+
 private:
   void OnResize(int _width, int _height);
   bool CreateWindowGL();
   bool RegisterWindowClass();
-  void CleanUp();
   bool ChangeScreenResolution(int width, int height);
 
   static unsigned WINAPI GLWindowMain(void *glWindow);
