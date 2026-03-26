@@ -17,3 +17,5 @@ build32/
 GLWindow.h
 NuonEnvironment.h
 NativeCodeCache.h
+build-libretro/
+build-libretro64/

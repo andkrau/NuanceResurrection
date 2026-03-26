@@ -103,9 +103,22 @@ set(NUANCE_SOURCES
     $<IF:$<PLATFORM_ID:Windows>,,NuanceUI.cpp>
 )
 
-add_executable(nuance ${NUANCE_SOURCES})
+option(BUILD_LIBRETRO "Build libretro core instead of standalone" OFF)
 
-target_include_directories(nuance PRIVATE
+if(BUILD_LIBRETRO)
+    # Libretro core - shared library
+    # Remove standalone-specific files for libretro build
+    list(FILTER NUANCE_SOURCES EXCLUDE REGEX "NuanceMain|GLWindow|InputManager|NuanceUI")
+    add_library(nuance_libretro SHARED ${NUANCE_SOURCES} libretro.cpp)
+    set_target_properties(nuance_libretro PROPERTIES PREFIX "" OUTPUT_NAME "nuance_libretro")
+    target_compile_definitions(nuance_libretro PRIVATE LIBRETRO)
+    set(NUANCE_TARGET nuance_libretro)
+else()
+    add_executable(nuance ${NUANCE_SOURCES})
+    set(NUANCE_TARGET nuance)
+endif()
+
+target_include_directories(${NUANCE_TARGET} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/compat
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/external
@@ -115,14 +128,14 @@ target_include_directories(nuance PRIVATE
     ${SDL2_INCLUDE_DIRS}
 )
 
-target_compile_definitions(nuance PRIVATE
+target_compile_definitions(${NUANCE_TARGET} PRIVATE
     GLEW_STATIC
     GLEW_NO_GLU
     _CRT_SECURE_NO_WARNINGS
     _LARGEFILE64_SOURCE
 )
 
-target_link_libraries(nuance PRIVATE
+target_link_libraries(${NUANCE_TARGET} PRIVATE
     glew_static
     fmod_stub
     murmurhash
@@ -135,7 +148,7 @@ target_link_libraries(nuance PRIVATE
 
 # For 32-bit static SDL2, provide samplerate stub and GLX
 if(EXISTS "/tmp/libsamplerate.a" AND CMAKE_SIZEOF_VOID_P EQUAL 4)
-    target_link_libraries(nuance PRIVATE /tmp/libsamplerate.a -lGLX)
+    target_link_libraries(${NUANCE_TARGET} PRIVATE /tmp/libsamplerate.a -lGLX)
 endif()
 
 # Copy required data files to build directory
@@ -150,7 +163,7 @@ foreach(f ${NUANCE_DATA_FILES})
 endforeach()
 
 # Compiler flags
-target_compile_options(nuance PRIVATE
+target_compile_options(${NUANCE_TARGET} PRIVATE
     -msse2
     -Wno-multichar
     -Wno-write-strings

@@ -4,6 +4,15 @@
 #define ISO9660_H
 
 #include <cstdio>
+
+// Large file support for 32-bit builds
+#if defined(__i386__) || defined(_M_IX86)
+#define ISO_FOPEN fopen64
+#define ISO_FSEEK(f, off, w) fseeko64(f, (off64_t)(off), w)
+#else
+#define ISO_FOPEN fopen
+#define ISO_FSEEK(f, off, w) fseek(f, (long)(off), w)
+#endif
 #include <cstring>
 #include <cstdint>
 #include <string>
@@ -26,7 +35,7 @@ class ISO9660Reader {
     std::vector<ISO9660Entry> readDir(uint32_t lba, uint32_t size) {
         std::vector<ISO9660Entry> entries;
         std::vector<uint8_t> buf(size);
-        fseeko64(fp, (off64_t)lba * 2048, SEEK_SET);
+        ISO_FSEEK(fp, (long long)lba * 2048, SEEK_SET);
         fread(buf.data(), 1, size, fp);
 
         uint32_t pos = 0;
@@ -67,12 +76,12 @@ public:
     ~ISO9660Reader() { close(); }
 
     bool open(const char* isoPath) {
-        fp = fopen64(isoPath, "rb");
+        fp = ISO_FOPEN(isoPath, "rb");
         if (!fp) { fprintf(stderr, "ISO9660: cannot open %s (errno=%d)\n", isoPath, errno); return false; }
 
         // Read primary volume descriptor at sector 16
         uint8_t pvd[2048];
-        fseeko64(fp, 16 * 2048, SEEK_SET);
+        ISO_FSEEK(fp, 16 * 2048, SEEK_SET);
         if (fread(pvd, 1, 2048, fp) != 2048) { fprintf(stderr, "ISO9660: cannot read PVD\n"); close(); return false; }
         if (pvd[0] != 1 || memcmp(&pvd[1], "CD001", 5) != 0) { fprintf(stderr, "ISO9660: invalid PVD signature\n"); close(); return false; }
 
@@ -129,13 +138,15 @@ public:
 
     // Extract a file to disk
     bool extractFile(const char* isoPath, const char* destPath) {
+        fprintf(stderr, "ISO9660: extractFile '%s' -> '%s'\n", isoPath, destPath); fflush(stderr);
         uint32_t lba, size;
-        if (!findFile(isoPath, lba, size)) return false;
+        if (!findFile(isoPath, lba, size)) { fprintf(stderr, "ISO9660: file not found\n"); return false; }
+        fprintf(stderr, "ISO9660: found at LBA=%u size=%u, writing...\n", lba, size); fflush(stderr);
 
         FILE* out = fopen(destPath, "wb");
-        if (!out) return false;
+        if (!out) { fprintf(stderr, "ISO9660: cannot create %s\n", destPath); return false; }
 
-        fseeko64(fp, (off64_t)lba * 2048, SEEK_SET);
+        ISO_FSEEK(fp, (long long)lba * 2048, SEEK_SET);
         uint8_t buf[65536];
         uint32_t remaining = size;
         while (remaining > 0) {
