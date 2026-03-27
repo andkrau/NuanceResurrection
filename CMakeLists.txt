@@ -24,6 +24,22 @@ add_library(fmod_stub STATIC external/fmod_stub.cpp)
 target_include_directories(fmod_stub PUBLIC external)
 target_compile_definitions(fmod_stub PUBLIC F_API= DLL_API=)
 
+# asmjit (for 64-bit JIT)
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+    file(GLOB_RECURSE ASMJIT_SRC
+        external/asmjit/asmjit/core/*.cpp
+        external/asmjit/asmjit/x86/*.cpp
+        external/asmjit/asmjit/support/*.cpp
+        external/asmjit/asmjit/ujit/*.cpp
+    )
+    add_library(asmjit_static STATIC ${ASMJIT_SRC})
+    target_include_directories(asmjit_static PUBLIC external/asmjit)
+    target_compile_definitions(asmjit_static PUBLIC ASMJIT_STATIC ASMJIT_NO_AARCH64)
+    if(BUILD_LIBRETRO)
+        target_compile_options(asmjit_static PRIVATE -fPIC)
+    endif()
+endif()
+
 # MurmurHash3
 add_library(murmurhash STATIC external/MurmurHash3.cpp)
 target_include_directories(murmurhash PUBLIC external)
@@ -101,6 +117,7 @@ set(NUANCE_SOURCES
     Utility.cpp
     video.cpp
     $<IF:$<PLATFORM_ID:Windows>,,NuanceUI.cpp>
+    $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:asmjit_emit.cpp>
 )
 
 option(BUILD_LIBRETRO "Build libretro core instead of standalone" OFF)
@@ -125,6 +142,7 @@ target_include_directories(${NUANCE_TARGET} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/external/glew-2.2.0/include
     ${CMAKE_CURRENT_SOURCE_DIR}/external/fmod-3.75/api/inc
     ${CMAKE_CURRENT_SOURCE_DIR}/external/imgui
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/asmjit
     ${SDL2_INCLUDE_DIRS}
 )
 
@@ -133,12 +151,14 @@ target_compile_definitions(${NUANCE_TARGET} PRIVATE
     GLEW_NO_GLU
     _CRT_SECURE_NO_WARNINGS
     _LARGEFILE64_SOURCE
+    $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:USE_ASMJIT>
 )
 
 target_link_libraries(${NUANCE_TARGET} PRIVATE
     glew_static
     fmod_stub
     murmurhash
+    $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:asmjit_static>
     OpenGL::GL
     ${SDL2_LIBRARIES}
     pthread

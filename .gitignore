@@ -12,10 +12,11 @@ Nuance.aps
 [Rr]elease/
 build/
 build32/
+build64/
+build-libretro/
+build-libretro64/
 
 # Case-sensitivity symlinks (Linux only)
 GLWindow.h
 NuonEnvironment.h
 NativeCodeCache.h
-build-libretro/
-build-libretro64/

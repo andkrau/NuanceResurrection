@@ -343,6 +343,11 @@ bool Load(const char* file)
 
 int main(int argc, char* argv[])
 {
+#ifdef USE_ASMJIT
+  extern bool asmjit_selftest();
+  asmjit_selftest();
+#endif
+
   init_supported_CPU_extensions();
 
   GenerateMirrorLookupTable();
