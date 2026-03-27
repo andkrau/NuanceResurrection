@@ -17,3 +17,4 @@ build32/
 GLWindow.h
 NuonEnvironment.h
 NativeCodeCache.h
+build64/
