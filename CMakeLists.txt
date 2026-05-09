@@ -124,9 +124,17 @@ set(NUANCE_SOURCES
     src/timer.cpp
     src/Utility.cpp
     src/video.cpp
+    src/mpx_decoder.cpp
     $<IF:$<PLATFORM_ID:Windows>,,src/NuanceUI.cpp>
     $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:src/asmjit_emit.cpp>
 )
+
+# FFmpeg (libavcodec / libavutil / libswscale) for .mpx (NUON-MOVIELIB)
+# cutscene playback. Required for the standalone Linux/Mac build.
+if(NOT WIN32)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(FFMPEG REQUIRED IMPORTED_TARGET libavcodec libavutil libswscale)
+endif()
 
 add_executable(nuance ${NUANCE_SOURCES})
 set(NUANCE_TARGET nuance)
@@ -155,6 +163,7 @@ target_link_libraries(${NUANCE_TARGET} PRIVATE
     #miniz_impl
     #murmurhash # unused — see add_library above
     $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:asmjit_static>
+    $<$<NOT:$<PLATFORM_ID:Windows>>:PkgConfig::FFMPEG>
     OpenGL::GL
     ${SDL2_LIBRARIES}
     pthread

@@ -397,8 +397,107 @@ void IncrementVideoFieldCounter()
   }
 }
 
+// Simple textured-quad path for .mpx decoded frames. We can't go through
+// the full NUON video pipeline because that depends on state set by
+// VidConfig/VidSetup which fmv.run never reaches. So when an .mpx
+// decoder is active, upload the latest YCrCbA frame to a dedicated
+// texture and draw it directly with a tiny BT.601 → RGB shader.
+static GLuint g_mpxTex = 0;
+static uint32 g_mpxTexW = 0, g_mpxTexH = 0;
+static GLuint g_mpxProg = 0;
+
+static void RenderMpxOverlay(int winwidth, int winheight,
+                             const uint8* ycrcba, uint32 w, uint32 h)
+{
+  if (g_mpxTex == 0) {
+    glGenTextures(1, &g_mpxTex);
+    glBindTexture(GL_TEXTURE_2D, g_mpxTex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  } else {
+    glBindTexture(GL_TEXTURE_2D, g_mpxTex);
+  }
+
+  if (g_mpxTexW != w || g_mpxTexH != h) {
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, (GLsizei)w, (GLsizei)h, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, ycrcba);
+    g_mpxTexW = w; g_mpxTexH = h;
+  } else {
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, (GLsizei)w, (GLsizei)h,
+                    GL_RGBA, GL_UNSIGNED_BYTE, ycrcba);
+  }
+
+  glViewport(0, 0, winwidth, winheight);
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  if (g_mpxProg == 0) {
+    static const char* vs =
+      "#version 120\n"
+      "varying vec2 vTexCoord;\n"
+      "void main(){ vTexCoord = gl_MultiTexCoord0.xy; gl_Position = gl_Vertex; }\n";
+    static const char* fs =
+      "#version 120\n"
+      "uniform sampler2D tex;\n"
+      "varying vec2 vTexCoord;\n"
+      "void main(){\n"
+      "  vec4 t = texture2D(tex, vTexCoord);\n"
+      "  float Y  = (t.r * 255.0 - 16.0)  / 219.0;\n"
+      "  float Cb = (t.g * 255.0 - 128.0) / 224.0;\n"
+      "  float Cr = (t.b * 255.0 - 128.0) / 224.0;\n"
+      "  float r = Y + 1.402   * Cr;\n"
+      "  float g = Y - 0.34414 * Cb - 0.71414 * Cr;\n"
+      "  float b = Y + 1.772   * Cb;\n"
+      "  gl_FragColor = vec4(r, g, b, 1.0);\n"
+      "}\n";
+    GLuint v = glCreateShader(GL_VERTEX_SHADER);
+    GLuint f = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(v, 1, &vs, nullptr); glCompileShader(v);
+    glShaderSource(f, 1, &fs, nullptr); glCompileShader(f);
+    g_mpxProg = glCreateProgram();
+    glAttachShader(g_mpxProg, v); glAttachShader(g_mpxProg, f);
+    glLinkProgram(g_mpxProg);
+    glDeleteShader(v); glDeleteShader(f);
+  }
+  glUseProgram(g_mpxProg);
+  glUniform1i(glGetUniformLocation(g_mpxProg, "tex"), 0);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, g_mpxTex);
+
+  glBegin(GL_TRIANGLE_STRIP);
+    glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 1.0f); glVertex2f(-1.0f, -1.0f);
+    glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 1.0f); glVertex2f( 1.0f, -1.0f);
+    glMultiTexCoord2f(GL_TEXTURE0, 0.0f, 0.0f); glVertex2f(-1.0f,  1.0f);
+    glMultiTexCoord2f(GL_TEXTURE0, 1.0f, 0.0f); glVertex2f( 1.0f,  1.0f);
+  glEnd();
+  glUseProgram(0);
+}
+
 void RenderVideo(const int winwidth, const int winheight)
 {
+  // .mpx cutscene playback hijack: when a libavcodec decoder is active
+  // for a .mpx file the game opened, draw the latest decoded frame
+  // directly and skip the NUON video pipeline (which fmv.run never
+  // initializes anyway because the FMV hardware isn't emulated).
+  extern bool MpxDecoderActive_Probe(uint32*, uint32*);
+  extern bool MpxDecoderActive_GetLatestFrame(uint8*, uint32, uint32, uint32);
+  {
+    uint32 mpxW = 0, mpxH = 0;
+    if (MpxDecoderActive_Probe(&mpxW, &mpxH) && mpxW && mpxH) {
+      static int firstHit = 1;
+      if (firstHit) { firstHit = 0; fprintf(stderr, "[MPX] render path active %ux%u\n", mpxW, mpxH); }
+      static uint8* sbuf = nullptr;
+      static uint32 sbufSz = 0;
+      const uint32 needed = mpxW * mpxH * 4;
+      if (sbufSz < needed) { delete[] sbuf; sbuf = new uint8[needed]; sbufSz = needed; }
+      MpxDecoderActive_GetLatestFrame(sbuf, mpxW * 4, mpxW, mpxH);
+      RenderMpxOverlay(winwidth, winheight, sbuf, mpxW, mpxH);
+      return;
+    }
+  }
+
   if(!bCanDisplayVideo)
     return;
 

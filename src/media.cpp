@@ -144,10 +144,87 @@ void MediaInitMPE(MPE &mpe)
 }
 
 static std::string fileNameArray[] = {"stdin","stdout","stderr","","","","","","","","","","","","","","","","",""};
+// Per-handle flag: skip .mpx (NUON-MOVIELIB) reads so games like
+// Iron Soldier 3 / Freefall 3050 / Crayon Shin-chan don't hang waiting
+// for an MPEG decoder we don't have. MediaRead returns 0 blocks read
+// for these handles; the game treats it as end-of-stream and proceeds.
+// See andkrau/NuanceResurrection#36.
+static bool mpxSkipArray[20] = {false};
 static uint32 fileModeArray[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 #define FIRST_DVD_FD (3)
 #define LAST_DVD_FD (19)
+
+// libavcodec decoder for .mpx (NUON-MOVIELIB) cutscenes. When MediaOpen
+// sees an .mpx file we spin up a background MPEG-2 decoder; the render
+// path in video.cpp pulls decoded frames for direct on-screen display.
+// MediaRead still feeds the real bytes to the game so its NUON-MOVIELIB
+// parser makes forward progress, even though the FMV hardware acks
+// fmv.run polls for never come (no real FMV emulation). The end result:
+// the cutscene is visible to the player. See nuance-stuck-loading.md.
+#include "mpx_decoder.h"
+static MpxDecoder* g_mpxDecoder[LAST_DVD_FD + 1] = {};
+
+static bool IsMpxFilename(const std::string& path) {
+  if (path.size() < 4) return false;
+  const char* ext = path.c_str() + path.size() - 4;
+  return (ext[0] == '.') &&
+         (ext[1] == 'm' || ext[1] == 'M') &&
+         (ext[2] == 'p' || ext[2] == 'P') &&
+         (ext[3] == 'x' || ext[3] == 'X');
+}
+
+static MpxDecoder* FindActiveDecoder() {
+  for (int i = FIRST_DVD_FD; i <= LAST_DVD_FD; i++)
+    if (g_mpxDecoder[i] && g_mpxDecoder[i]->IsOpen())
+      return g_mpxDecoder[i];
+  return nullptr;
+}
+
+bool MpxDecoderActive_Probe(uint32* outSrcWidth, uint32* outSrcHeight)
+{
+  MpxDecoder* d = FindActiveDecoder();
+  if (!d) return false;
+  if (outSrcWidth)  *outSrcWidth  = d->Width();
+  if (outSrcHeight) *outSrcHeight = d->Height();
+  return true;
+}
+
+bool MpxDecoderActive_GetLatestFrame(uint8* dst, uint32 dstPitchBytes,
+                                     uint32 dstWidth, uint32 dstHeight)
+{
+  MpxDecoder* d = FindActiveDecoder();
+  if (!d) return false;
+  return d->CopyLatestYCrCbA32(dst, dstPitchBytes, dstWidth, dstHeight);
+}
+
+bool MpxDecoderActive_IsAtEnd()
+{
+  MpxDecoder* d = FindActiveDecoder();
+  return d && d->IsAtEnd();
+}
+
+// Best-effort "skip cutscene" hotkey: when an .mpx is being played and
+// fmv.run is stuck waiting on FMV-hardware acks we can't deliver, the
+// player can press F12 to forcibly halt the FMV state. We tear down the
+// libavcodec decoder, mark per-handle slots inert (close them), and
+// (separately, in NuanceMain) halt MPE3 by clearing MPECTRL_MPEGO so the
+// game's containing function — usually mcp.run on its own MPE — sees
+// the FMV pipeline stop and may advance. This is a hack: many games
+// will simply hang in a different place after the halt. Best for
+// IS3-style "play logo, then continue" cutscenes where the game's only
+// FMV interaction is "wait for the cutscene to end."
+void MpxSkipCutscene()
+{
+  for (int i = FIRST_DVD_FD; i <= LAST_DVD_FD; i++) {
+    if (g_mpxDecoder[i]) {
+      fprintf(stderr, "[MPX-SKIP] tearing down decoder for handle %d (%s)\n",
+              i, fileNameArray[i].c_str());
+      delete g_mpxDecoder[i];
+      g_mpxDecoder[i] = nullptr;
+    }
+  }
+}
 
 #define NUON_FD_BOOT_DEVICE (3)
 #define NUON_FD_DVD (4)
@@ -199,6 +276,21 @@ void MediaOpen(MPE &mpe)
       fileNameArray[handle] += name;
       fileModeArray[handle] = mode;
 
+      // Flag .mpx (NUON-MOVIELIB containers) so MediaRead can short-
+      // circuit them — see mpxSkipArray comment.
+      mpxSkipArray[handle] = false;
+      const size_t nlen = strlen(name);
+      if (nlen >= 4) {
+        const char* ext = name + nlen - 4;
+        if ((ext[0]=='.' || ext[0]==0) &&
+            (ext[1]=='m'||ext[1]=='M') &&
+            (ext[2]=='p'||ext[2]=='P') &&
+            (ext[3]=='x'||ext[3]=='X'))
+        {
+          mpxSkipArray[handle] = true;
+        }
+      }
+
 #ifndef _WIN32
       // Case-insensitive file open: if file not found, try lowercase name
       {
@@ -224,6 +316,25 @@ void MediaOpen(MPE &mpe)
         if (testf) fclose(testf);
       }
 #endif
+
+      // .mpx → spin up a libavcodec MPEG-2 decoder for host-side
+      // visual playback. fmv.run still polls for FMV-hardware acks
+      // we can't deliver, so the game's cutscene state machine won't
+      // advance past the cutscene — but the player at least sees the
+      // decoded frames on screen instead of a black window.
+      // fileNameArray[handle] is now resolved (case-fixed if needed).
+      if (mpxSkipArray[handle] && IsMpxFilename(fileNameArray[handle])) {
+        if (g_mpxDecoder[handle]) { delete g_mpxDecoder[handle]; g_mpxDecoder[handle] = nullptr; }
+        MpxDecoder* dec = new MpxDecoder();
+        if (dec->Open(fileNameArray[handle].c_str())) {
+          g_mpxDecoder[handle] = dec;
+          fprintf(stderr, "[MPX] decoding %s\n", fileNameArray[handle].c_str());
+        } else {
+          delete dec;
+          fprintf(stderr, "[MPX] failed to open %s — falling back to EOF skip\n",
+                  fileNameArray[handle].c_str());
+        }
+      }
     }
   }
 
@@ -234,8 +345,14 @@ void MediaClose(MPE &mpe)
 {
   const int32 handle = mpe.regs[0];
 
-  if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD))
+  if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD)) {
+    if (g_mpxDecoder[handle]) {
+      delete g_mpxDecoder[handle];
+      g_mpxDecoder[handle] = nullptr;
+    }
     fileNameArray[handle].clear();
+    mpxSkipArray[handle] = false;
+  }
 }
 
 void MediaGetDevicesAvailable(MPE &mpe)
@@ -285,6 +402,55 @@ void MediaRead(MPE &mpe)
 
   if((handle >= FIRST_DVD_FD) && (handle <= LAST_DVD_FD))
   {
+    // .mpx → host-side libavcodec decodes the file in parallel for
+    // on-screen display. We still need to satisfy the game's own MPX
+    // streaming reads though — fmv.run's NUON-MOVIELIB parser feeds
+    // bytes from these reads into a ring buffer that drives the FMV
+    // hardware. Without real hardware nothing visibly happens with
+    // those bytes, but the parser at least makes forward progress and
+    // doesn't spin trying to interpret garbage. Returning success
+    // with byte count keeps the polling loop happy; reaching real
+    // EOF on the file (or our decoder finishing) reports zero blocks
+    // so the game moves past the cutscene.
+    if (g_mpxDecoder[handle] && !fileNameArray[handle].empty() && buffer) {
+      // Serve the real file bytes to the game's NUON-MOVIELIB parser;
+      // libavcodec runs in parallel for on-screen display. EOF is
+      // signalled the same way as the normal direct-read path:
+      // regs[0] stays at -1 (failure) and regs[1] = 0 blocks read.
+      void* pBuf = nuonEnv.GetPointerToMemory(mpe.mpeIndex, buffer);
+      uint32 readCount = 0;
+      if (pBuf) {
+        FILE* f = nullptr;
+        if (fopen_s(&f, fileNameArray[handle].c_str(), "rb") == 0 && f) {
+          fseek(f, (long)startblock * BLOCK_SIZE_DVD, SEEK_SET);
+          readCount = (uint32)fread(pBuf, BLOCK_SIZE_DVD, blockcount, f);
+          fclose(f);
+        }
+      }
+      if (readCount >= (blockcount - 1)) {
+        mpe.regs[0] = mode;
+        mpe.regs[1] = readCount;
+      } else {
+        mpe.regs[1] = readCount;
+      }
+      if (callback) {
+        mpe.pcexec = callback;
+        bCallingMediaCallback = true;
+      }
+      return;
+    }
+    // No decoder (open failed) → behave like the old skip path so the
+    // game still sees EOF and proceeds.
+    if (mpxSkipArray[handle]) {
+      mpe.regs[0] = mode;
+      mpe.regs[1] = 0;
+      if (callback) {
+        mpe.pcexec = callback;
+        bCallingMediaCallback = true;
+      }
+      return;
+    }
+
     if(!fileNameArray[handle].empty() && buffer && ((eMedia)fileModeArray[handle] != eMedia::MEDIA_WRITE))
     {
       FILE* inFile = nullptr;
