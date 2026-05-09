@@ -165,6 +165,12 @@ static uint32 fileModeArray[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 #include "mpx_decoder.h"
 static MpxDecoder* g_mpxDecoder[LAST_DVD_FD + 1] = {};
 
+// Decoder spun up via NUANCE_FORCE_MPX (or `./nuance file.mpx` standalone
+// path). When set, the probe / pull APIs find this decoder first; the
+// per-handle slots above still serve in-game playback.
+static MpxDecoder* g_mpxStandaloneDecoder = nullptr;
+extern "C" void RegisterStandaloneMpxDecoder(MpxDecoder* d) { g_mpxStandaloneDecoder = d; }
+
 static bool IsMpxFilename(const std::string& path) {
   if (path.size() < 4) return false;
   const char* ext = path.c_str() + path.size() - 4;
@@ -175,6 +181,8 @@ static bool IsMpxFilename(const std::string& path) {
 }
 
 static MpxDecoder* FindActiveDecoder() {
+  if (g_mpxStandaloneDecoder && g_mpxStandaloneDecoder->IsOpen())
+    return g_mpxStandaloneDecoder;
   for (int i = FIRST_DVD_FD; i <= LAST_DVD_FD; i++)
     if (g_mpxDecoder[i] && g_mpxDecoder[i]->IsOpen())
       return g_mpxDecoder[i];

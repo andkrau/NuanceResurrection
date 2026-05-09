@@ -2,9 +2,12 @@
 #ifndef _WIN32
 
 #include "basetypes.h"
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <string>
+#include <thread>
 #include <vector>
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -125,9 +128,44 @@ static void Run()
   bRun = true;
 }
 
+// Standalone .mpx (NUON-MOVIELIB) playback — bypass NUON loading entirely.
+// MediaOpen never gets called by a game in this mode, so we wire up the
+// decoder directly and fake a "running" state so the main render loop's
+// MPX hijack in video.cpp picks up our frames.
+#include "mpx_decoder.h"
+extern MpxDecoder* g_mpxStandalone;
+MpxDecoder* g_mpxStandalone = nullptr;
+
+extern "C" void RegisterStandaloneMpxDecoder(MpxDecoder* d);
+
+static bool LoadMpxStandalone(const char* path)
+{
+  g_mpxStandalone = new MpxDecoder();
+  if (!g_mpxStandalone->Open(path)) {
+    delete g_mpxStandalone; g_mpxStandalone = nullptr;
+    fprintf(stderr, "Cannot open .mpx: %s\n", path);
+    return false;
+  }
+  RegisterStandaloneMpxDecoder(g_mpxStandalone);
+  bRun = true;
+  return true;
+}
+
 bool Load(const char* file)
 {
   if (!file) return false;
+
+  // .mpx → standalone cutscene viewer, no NUON program loaded.
+  const size_t flen = strlen(file);
+  if (flen >= 4) {
+    const char* ext = file + flen - 4;
+    if ((ext[0] == '.') &&
+        (ext[1] == 'm' || ext[1] == 'M') &&
+        (ext[2] == 'p' || ext[2] == 'P') &&
+        (ext[3] == 'x' || ext[3] == 'X')) {
+      return LoadMpxStandalone(file);
+    }
+  }
 
   const std::string actualFile = ResolveGameFile(file);
   if (actualFile.empty()) {
@@ -183,7 +221,22 @@ int main(int argc, char* argv[])
       load4firsttime = false;
   } else {
     printf("Usage: nuance <rom_file>\n");
-    printf("  Supported formats: .nuon, .cof\n");
+    printf("  Supported formats: .nuon, .cof, .mpx\n");
+  }
+
+  // NUANCE_FORCE_MPX=<path> attaches an .mpx decoder on top of whatever
+  // ROM is loaded — useful for verifying that the in-game render hook
+  // displays cutscene frames on a game that doesn't open .mpx itself
+  // (e.g. testing on a fast-booting game while pretending Iron Soldier
+  // 3's intro is playing).
+  if (const char* forced = getenv("NUANCE_FORCE_MPX")) {
+    g_mpxStandalone = new MpxDecoder();
+    if (g_mpxStandalone->Open(forced)) {
+      RegisterStandaloneMpxDecoder(g_mpxStandalone);
+      fprintf(stderr, "[MPX-FORCE] %s\n", forced);
+    } else {
+      delete g_mpxStandalone; g_mpxStandalone = nullptr;
+    }
   }
 
   nuonEnv.videoDisplayCycleCount = 0;
@@ -194,6 +247,19 @@ int main(int argc, char* argv[])
     display.MessagePump();
 
     uint64 cycles = 0;
+    // Standalone .mpx mode: no NUON program is loaded, drive a 25 fps
+    // render tick directly so the host-side decoder's frames reach the
+    // shader path without going through the NUON video timer.
+    if (g_mpxStandalone) {
+      static uint64 last_render = 0;
+      const uint64 now = useconds_since_start();
+      if (last_render == 0 || (now - last_render) >= 40000 /* 40 ms = 25 fps */) {
+        last_render = now;
+        nuonEnv.trigger_render_video = true;
+      } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
+      }
+    }
     while (bRun && !nuonEnv.trigger_render_video)
     {
       cycles++;
