@@ -1,4 +1,7 @@
-// NuanceMain implementation for Linux
+// Standalone Linux frontend for the NUON emulator. The emulator loop,
+// globals and load/init helpers live in EmulatorCore (shared with the
+// libretro core in libretro.cpp); this file only handles the X11/SDL2
+// window and the title-bar FPS readout.
 #ifndef _WIN32
 
 #include "basetypes.h"
@@ -18,6 +21,7 @@
 #include "GLWindow.h"
 #include "audio.h"
 #include "mpe.h"
+#include "EmulatorCore.h"
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
 #include "NuanceRes.h"
@@ -29,8 +33,6 @@
 #include "NuanceUI.h"
 #include "archive.h"
 
-NuonEnvironment nuonEnv;
-
 extern ControllerData *controller;
 extern std::mutex gfx_lock;
 extern VidChannel structMainChannel, structOverlayChannel;
@@ -39,10 +41,6 @@ extern vidTexInfo videoTexInfo;
 
 extern void SDL2_SwapWindow();
 
-bool bQuit = false;
-bool bRun = false;
-std::string g_ISOPath;   // path to mounted ISO (for reading data files)
-std::string g_ISOPrefix; // NUON directory name inside ISO (e.g. "NUON")
 static bool load4firsttime = true;
 
 GLWindow display;
@@ -68,11 +66,6 @@ static void ExecuteSingleStep()
   nuonEnv.mpe[0].ExecuteSingleStep();
   if(nuonEnv.pendingCommRequests)
     DoCommBusController();
-}
-
-void StopEmulation(int mpeIndex)
-{
-  bRun = false;
 }
 
 bool OnDisplayPaint(WPARAM, LPARAM)
@@ -108,8 +101,7 @@ bool OnDisplayResize(uint16 width, uint16 height)
 
 static void ApplyControllerState(const unsigned int controllerIdx, const uint16 buttons)
 {
-  if (controller)
-    controller[controllerIdx].buttons = SwapBytes(buttons);
+  EmulatorCore::ApplyController(controllerIdx, buttons);
 }
 
 static void Run()
@@ -135,24 +127,14 @@ bool Load(const char* file)
     return false;
   }
 
-  // Try loading as NUONROM-DISK/Bles first, then as raw COFF
-  bool bSuccess = nuonEnv.mpe[3].LoadNuonRomFile(actualFile.c_str());
-  if (!bSuccess) {
-    bSuccess = nuonEnv.mpe[3].LoadCoffFile(actualFile.c_str());
-    if (!bSuccess) {
-      fprintf(stderr, "Cannot open file or Invalid COFF/NUONROM-DISK/Bles file: %s\n", actualFile.c_str());
-      return false;
-    }
+  if (!EmulatorCore::LoadGame(actualFile.c_str())) {
+    fprintf(stderr, "Cannot open file or Invalid COFF/NUONROM-DISK/Bles file: %s\n", actualFile.c_str());
+    return false;
   }
   fprintf(stderr, "Loaded successfully: %s\n", actualFile.c_str());
 
-  if (bSuccess) {
-    nuonEnv.SetDVDBaseFromFileName(actualFile.c_str());
-    nuonEnv.mpe[3].Go();
-    Run();
-    return true;
-  }
-  return false;
+  Run();
+  return true;
 }
 
 int main(int argc, char* argv[])
@@ -162,12 +144,7 @@ int main(int argc, char* argv[])
   asmjit_selftest();
 #endif
 
-  init_supported_CPU_extensions();
-
-  GenerateMirrorLookupTable();
-  GenerateSaturateColorTables();
-
-  nuonEnv.Init();
+  EmulatorCore::Init();
 
   display.applyControllerState = ApplyControllerState;
   display.resizeHandler = OnDisplayResize;
@@ -193,67 +170,11 @@ int main(int argc, char* argv[])
   {
     display.MessagePump();
 
-    uint64 cycles = 0;
-    while (bRun && !nuonEnv.trigger_render_video)
-    {
-      cycles++;
-
-      for (int i = 3; i >= 0; --i)
-        if (i != 3 || nuonEnv.MPE3wait_fieldCounter == 0)
-          nuonEnv.mpe[i].FetchDecodeExecute();
-
-      if (nuonEnv.pendingCommRequests)
-        DoCommBusController();
-
-      if ((cycles % 500) == 0)
-      {
-        static uint64 last_time0 = useconds_since_start();
-        static uint64 last_time1 = useconds_since_start();
-        static uint64 last_time2 = useconds_since_start();
-        static uint64 last_time3 = useconds_since_start();
-        const uint64 new_time = useconds_since_start();
-
-        if (nuonEnv.timer_rate[0] > 0) {
-          if (new_time >= last_time0 + (uint64)nuonEnv.timer_rate[0]) {
-            nuonEnv.ScheduleInterrupt(INT_SYSTIMER0);
-            last_time0 = new_time;
-          }
-        } else last_time0 = new_time;
-
-        if (nuonEnv.timer_rate[1] > 0) {
-          if (new_time >= last_time1 + (uint64)nuonEnv.timer_rate[1]) {
-            nuonEnv.ScheduleInterrupt(INT_SYSTIMER1);
-            last_time1 = new_time;
-          }
-        } else last_time1 = new_time;
-
-        if (nuonEnv.timer_rate[2] > 0) {
-          if (new_time >= last_time2 + (uint64)nuonEnv.timer_rate[2]) {
-            IncrementVideoFieldCounter();
-            nuonEnv.TriggerVideoInterrupt();
-            nuonEnv.trigger_render_video = true;
-            const uint32 fieldCounter = SwapBytes(*((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]));
-            if (fieldCounter >= nuonEnv.MPE3wait_fieldCounter)
-              nuonEnv.MPE3wait_fieldCounter = 0;
-            last_time2 = new_time;
-          }
-        } else last_time2 = new_time;
-
-        // audTimer - push one Nuon audio period into the host audio ring (byte-swapped), advance the
-        // DMA half pointer, fire INT_AUDIO. Ring full -> skip this iteration
-        if (nuonEnv.timer_rate[2] > 0) {
-          if (nuonEnv.pNuonAudioBuffer &&
-              (new_time >= last_time3 + (uint64)nuonEnv.timer_rate[2]) &&
-              ((nuonEnv.nuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT)) != (nuonEnv.oldNuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT))) &&
-              ((((nuonEnv.mpe[0].intsrc & nuonEnv.mpe[0].inten1) | (nuonEnv.mpe[1].intsrc & nuonEnv.mpe[1].inten1) | (nuonEnv.mpe[2].intsrc & nuonEnv.mpe[2].inten1) | (nuonEnv.mpe[3].intsrc & nuonEnv.mpe[3].inten1)) & INT_AUDIO) == 0)) {
-            if (nuonEnv.TryPushAudioPeriod())
-              last_time3 = new_time;
-          }
-        } else last_time3 = new_time;
-      }
-
-      nuonEnv.TriggerScheduledInterrupts();
-    }
+    // Run the shared emulator loop until the next video field.
+    // Standalone: no time budget (budget_us=0), push audio periods so
+    // miniaudio's worker thread can consume them.
+    const uint64 cycles = EmulatorCore::RunUntilVideoFrame(/*budget_us=*/0,
+                                                           /*push_audio=*/true);
 
     if (nuonEnv.trigger_render_video)
     {
@@ -283,9 +204,8 @@ int main(int argc, char* argv[])
     }
   }
 
-  VideoCleanup();
   display.CleanUp();
-  CleanupArchives();
+  EmulatorCore::Shutdown();
 
   return 0;
 }

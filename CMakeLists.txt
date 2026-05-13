@@ -99,6 +99,7 @@ set(NUANCE_SOURCES
     src/MPEControlRegisters.cpp
     src/mpe_alloc.cpp
     src/nativecodecache.cpp
+    src/EmulatorCore.cpp
     $<IF:$<PLATFORM_ID:Windows>,src/NuanceMain.cpp,src/NuanceMain_linux.cpp>
     src/NuonEnvironment.cpp
     src/NuonMemoryManager.cpp

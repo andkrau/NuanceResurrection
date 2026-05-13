@@ -119,6 +119,11 @@ public:
   // try again on the next loop iteration
   bool TryPushAudioPeriod();
 
+  // Pull up to maxFrames stereo 16-bit frames from the host audio ring into dst, byte-
+  // swapped to little-endian PCM. Returns frames actually written. Used by the libretro
+  // core which doesn't run miniaudio's pull callback.
+  uint32 DrainAudioRing(int16_t* dst, uint32 maxFrames);
+
   bool IsAudioHalfInterruptEnabled() const
   {
     return (nuonAudioChannelMode & ENABLE_HALF_INT);
