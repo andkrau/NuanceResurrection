@@ -63,6 +63,20 @@ bool IsZipPath(const std::string& s)
   return HasExtensionICase(s, ".zip");
 }
 
+// CHD detection probes the first 8 bytes for the "MComprHD" magic rather than
+// trusting the .chd extension, so renamed files (or extensions like .gz/.bin
+// that some tools default to) still resolve.
+bool IsChdPath(const std::string& s)
+{
+  if (HasExtensionICase(s, ".chd")) return true;
+  FILE* fp = fopen(s.c_str(), "rb");
+  if (!fp) return false;
+  char magic[8] = {};
+  const size_t n = fread(magic, 1, 8, fp);
+  fclose(fp);
+  return n == 8 && memcmp(magic, "MComprHD", 8) == 0;
+}
+
 #ifndef _WIN32
 bool IsOtherArchivePath(const std::string& s)
 {
@@ -134,6 +148,36 @@ std::string MakeTempDir()
   char* dir = mkdtemp(tmpl);
   return dir ? std::string(dir) : std::string();
 #endif
+}
+
+// Shell out to MAME's chdman to extract a CHD-DVD image to a plain ISO in
+// tempDir. NUON discs are single-track DVD-Video so `chdman extractdvd`
+// produces a flat 2048-byte-sector ISO that ISO9660Reader can open. CD-format
+// CHDs (BIN/CUE) are not supported here — they would need `extractcd` plus
+// a CUE-to-ISO conversion which isn't worth carrying when no NUON dumps use
+// that format. Returns the path to the produced ISO, or "" on failure. The
+// caller is responsible for adding the path to g_tempPaths so it gets cleaned
+// up on shutdown.
+std::string ExtractChdToIso(const char* chdPath, const std::string& tempDir)
+{
+  const std::string isoPath = tempDir + PATH_SEP + "extracted.iso";
+  // Quote both paths so spaces in the source path survive the shell. -f
+  // (force) lets the call succeed even if a stale extracted.iso exists.
+#ifdef _WIN32
+  const std::string redirect = " > NUL 2>&1";
+#else
+  const std::string redirect = " >/dev/null 2>&1";
+#endif
+  const std::string cmd =
+      std::string("chdman extractdvd -i \"") + chdPath + "\" -o \"" + isoPath +
+      "\" -f" + redirect;
+  const int ret = system(cmd.c_str());
+  if (ret != 0) {
+    fprintf(stderr, "chdman extractdvd failed (exit %d). Is `chdman` (from MAME tools) on PATH?\n", ret);
+    return "";
+  }
+  fprintf(stderr, "Extracted CHD: %s -> %s\n", chdPath, isoPath.c_str());
+  return isoPath;
 }
 
 #ifdef _WIN32 // ZIP handling via miniz
@@ -356,6 +400,20 @@ std::string ResolveGameFile(const char* inputPath)
 {
   if (!inputPath || !*inputPath) return "";
   const std::string input(inputPath);
+
+  // CHD: extract to a temp ISO via `chdman extractdvd` and then handle the
+  // produced ISO exactly like a regular ISO input. Same code path on Windows
+  // and Linux because chdman is cross-platform; on Linux we deliberately skip
+  // the FUSE-mount path (no point mounting a flat ISO we just produced).
+  if (IsChdPath(input)) {
+    const std::string tempDir = MakeTempDir();
+    if (tempDir.empty()) return "";
+    g_tempPaths.push_back(tempDir);
+    const std::string iso = ExtractChdToIso(inputPath, tempDir);
+    if (iso.empty()) return "";
+    g_tempPaths.push_back(iso);
+    return ExtractIsoBootAndArmDataReads(iso.c_str(), tempDir);
+  }
 
 #ifdef _WIN32
   if (!IsIsoPath(input) && !IsZipPath(input)) return input; // pass through
