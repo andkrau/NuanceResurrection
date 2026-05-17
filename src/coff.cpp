@@ -1,5 +1,9 @@
 #include <io.h>
 #include <fcntl.h>
+#ifdef _WIN32
+#include <share.h>    // _SH_DENYWR
+#include <sys/stat.h> // _S_IREAD
+#endif
 #include "mpe.h"
 #include "coff.h"
 #include "NuonEnvironment.h"

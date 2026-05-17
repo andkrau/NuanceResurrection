@@ -2,6 +2,9 @@
 #include <io.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#ifdef _WIN32
+#include <share.h> // _SH_DENYWR
+#endif
 #include <cstring>
 #include <cstdio>
 #include "byteswap.h"

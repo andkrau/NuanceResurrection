@@ -4,6 +4,9 @@
 #include <cerrno>
 #include <fcntl.h>
 #include <io.h>
+#ifdef _WIN32
+#include <share.h> // _SH_DENYNO
+#endif
 #include <cstdlib>
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
 #include <windows.h>

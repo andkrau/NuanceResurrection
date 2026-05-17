@@ -28,6 +28,10 @@
 #include <string>
 #include <vector>
 
+#include <cstddef>
+
+using ssize_type = std::make_signed_t<size_t>;
+
 struct ISO9660Entry {
     std::string name;
     uint32_t lba;      // logical block address
@@ -164,10 +168,10 @@ public:
         if (!out) { char o[1024]; sprintf(o, "ISO9660: cannot create %s\n", destPath); logout(o); return false; }
 
         ISO_FSEEK(fp, (long long)lba * 2048, SEEK_SET);
-        uint8_t buf[65536];
-        SSIZE_T remaining = size;
+        ssize_type remaining = size;
         while (remaining > 0) {
-            SSIZE_T chunk = remaining < sizeof(buf) ? remaining : sizeof(buf);
+            uint8_t buf[65536];
+            ssize_type chunk = remaining < sizeof(buf) ? remaining : sizeof(buf);
             size_t rd = fread(buf, 1, chunk, fp);
             if (rd == 0) break;
             fwrite(buf, 1, rd, out);

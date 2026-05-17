@@ -2,8 +2,9 @@
 #define MEMORY_MANAGER_H
 
 #include <vector>
-
-using namespace std;
+#include <string>
+using std::vector;
+using std::string;
 
 struct FreeMemoryBlock
 {

@@ -7,7 +7,11 @@ void init_supported_CPU_extensions();
 
 __forceinline uint32 OnesCount(const uint32 x)
 {
+#ifdef _MSC_VER
     return __popcnt(x);
+#else
+    return __builtin_popcount(x);
+#endif
     /*x -= ((x >> 1) & 0x55555555);
     x = (((x >> 2) & 0x33333333) + (x & 0x33333333));
     x = (((x >> 4) + x) & 0x0f0f0f0f);

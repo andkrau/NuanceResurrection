@@ -942,8 +942,8 @@ bool NuonEnvironment::LoadConfigFile(const std::string& fileName)
 #endif
         }
 
-#ifdef _WIN64
-        compilerOptions.bAllowCompile = false; //!!
+#if defined(_WIN64) && !defined(USE_ASMJIT) // 64-bit Windows builds without asmjit cannot generate native x64 code, so force interpreter
+        compilerOptions.bAllowCompile = false;
 #endif
         break;
       default:
