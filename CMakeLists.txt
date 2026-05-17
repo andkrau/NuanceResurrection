@@ -145,13 +145,22 @@ endif()
 
 target_include_directories(${NUANCE_TARGET} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/compat
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/external
     ${CMAKE_CURRENT_SOURCE_DIR}/external/glew-2.2.0/include
     ${CMAKE_CURRENT_SOURCE_DIR}/external/asmjit
     ${SDL2_INCLUDE_DIRS}
 )
+
+# compat/ contains Linux shims for Win32 headers (windows.h, dinput.h, etc.).
+# On Windows, NTFS is case-insensitive, so #include <windows.h> would resolve
+# to the lowercase compat/windows.h shim before the real MinGW SDK header and
+# break the build (see issue #48).
+if(NOT WIN32)
+    target_include_directories(${NUANCE_TARGET} PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/compat
+    )
+endif()
 
 target_compile_definitions(${NUANCE_TARGET} PRIVATE
     GLEW_STATIC
