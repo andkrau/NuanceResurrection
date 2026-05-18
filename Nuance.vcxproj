@@ -103,7 +103,7 @@
       <AssemblerOutput />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>external\glew-2.2.0\lib\Release\Win32\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -134,7 +134,7 @@
       </AssemblerOutput>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>external\glew-2.2.0\lib\Release\x64\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -172,7 +172,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <StringPooling>true</StringPooling>
-      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>external\glew-2.2.0\lib\Release\Win32\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -214,7 +214,7 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <StringPooling>true</StringPooling>
-      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>external\glew-2.2.0\lib\Release\x64\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -233,8 +233,23 @@
   <ItemGroup>
     <ClCompile Include="external\miniaudio_impl.cpp">
     </ClCompile>
-    <ClCompile Include="external\miniz.c">
-    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_bitstream.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_cdrom.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_chd.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_cdfl.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_cdlz.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_cdzl.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_cdzs.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_flac.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_huff.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_lzma.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_zlib.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_zstd.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_flac.c" />
+    <ClCompile Include="third_party\libchdr\src\libchdr_huffman.c" />
+    <ClCompile Include="third_party\libchdr\deps\lzma-25.01\src\LzmaDec.c" />
+    <ClCompile Include="third_party\libchdr\deps\miniz-3.1.1\miniz.c" />
+    <ClCompile Include="third_party\libchdr\deps\zstd-1.5.7\zstddeclib.c" />
     <ClCompile Include="src\archive.cpp">
     </ClCompile>
     <ClCompile Include="src\audio.cpp">
@@ -382,7 +397,7 @@
     <ClInclude Include="src\ExecuteMUL.h" />
     <ClInclude Include="src\ExecuteRCU.h" />
     <ClInclude Include="external\miniaudio.h" />
-    <ClInclude Include="external\miniz.h" />
+    <ClInclude Include="third_party\libchdr\include\libchdr\chd.h" />
     <ClInclude Include="src\archive.h" />
     <ClInclude Include="external\glew-2.2.0\include\GL\glew.h" />
     <ClInclude Include="external\glew-2.2.0\include\GL\wglew.h" />

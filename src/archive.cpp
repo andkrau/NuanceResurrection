@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 
+#include "libchdr/chd.h"
+
 #ifdef _WIN32
   #include <windows.h>
   #include <shellapi.h>
@@ -150,33 +152,64 @@ std::string MakeTempDir()
 #endif
 }
 
-// Shell out to MAME's chdman to extract a CHD-DVD image to a plain ISO in
-// tempDir. NUON discs are single-track DVD-Video so `chdman extractdvd`
-// produces a flat 2048-byte-sector ISO that ISO9660Reader can open. CD-format
-// CHDs (BIN/CUE) are not supported here — they would need `extractcd` plus
-// a CUE-to-ISO conversion which isn't worth carrying when no NUON dumps use
-// that format. Returns the path to the produced ISO, or "" on failure. The
-// caller is responsible for adding the path to g_tempPaths so it gets cleaned
-// up on shutdown.
+// Decompress a CHD-DVD into a plain ISO under tempDir using vendored libchdr
+// (third_party/libchdr/). NUON discs are single-track DVD-Video, so the CHD
+// hunks decompress straight into 2048-byte-sector ISO data that
+// ISO9660Reader opens unchanged. CD-format CHDs are intentionally not handled
+// — no NUON dumps use that format and the de-interleave step would mean
+// pulling in libchdr's CD frontend on top of the raw codec layer. Returns
+// the path to the produced ISO, or "" on failure. The caller is responsible
+// for adding the path to g_tempPaths so it gets cleaned up on shutdown.
 std::string ExtractChdToIso(const char* chdPath, const std::string& tempDir)
 {
-  const std::string isoPath = tempDir + PATH_SEP + "extracted.iso";
-  // Quote both paths so spaces in the source path survive the shell. -f
-  // (force) lets the call succeed even if a stale extracted.iso exists.
-#ifdef _WIN32
-  const std::string redirect = " > NUL 2>&1";
-#else
-  const std::string redirect = " >/dev/null 2>&1";
-#endif
-  const std::string cmd =
-      std::string("chdman extractdvd -i \"") + chdPath + "\" -o \"" + isoPath +
-      "\" -f" + redirect;
-  const int ret = system(cmd.c_str());
-  if (ret != 0) {
-    fprintf(stderr, "chdman extractdvd failed (exit %d). Is `chdman` (from MAME tools) on PATH?\n", ret);
+  chd_file* chd = nullptr;
+  const chd_error openErr = chd_open(chdPath, CHD_OPEN_READ, nullptr, &chd);
+  if (openErr != CHDERR_NONE) {
+    fprintf(stderr, "chd_open(%s) failed: %s\n", chdPath, chd_error_string(openErr));
     return "";
   }
-  fprintf(stderr, "Extracted CHD: %s -> %s\n", chdPath, isoPath.c_str());
+
+  const chd_header* hdr = chd_get_header(chd);
+  if (!hdr || hdr->hunkbytes == 0 || hdr->logicalbytes == 0) {
+    fprintf(stderr, "chd_get_header(%s) returned an unusable header\n", chdPath);
+    chd_close(chd);
+    return "";
+  }
+
+  const std::string isoPath = tempDir + PATH_SEP + "extracted.iso";
+  FILE* out = fopen(isoPath.c_str(), "wb");
+  if (!out) {
+    fprintf(stderr, "Cannot create %s\n", isoPath.c_str());
+    chd_close(chd);
+    return "";
+  }
+
+  std::vector<uint8_t> hunk(hdr->hunkbytes);
+  uint64_t remaining = hdr->logicalbytes;
+  for (uint32_t i = 0; i < hdr->hunkcount && remaining > 0; i++) {
+    const chd_error readErr = chd_read(chd, i, hunk.data());
+    if (readErr != CHDERR_NONE) {
+      fprintf(stderr, "chd_read(hunk %u) failed: %s\n", i, chd_error_string(readErr));
+      fclose(out);
+      chd_close(chd);
+      return "";
+    }
+    // Last hunk may overshoot logicalbytes; clip to the declared size so the
+    // produced ISO matches the original byte-for-byte.
+    const size_t writeBytes = (remaining < hdr->hunkbytes) ? (size_t)remaining : hdr->hunkbytes;
+    if (fwrite(hunk.data(), 1, writeBytes, out) != writeBytes) {
+      fprintf(stderr, "Short write to %s\n", isoPath.c_str());
+      fclose(out);
+      chd_close(chd);
+      return "";
+    }
+    remaining -= writeBytes;
+  }
+
+  fclose(out);
+  chd_close(chd);
+  fprintf(stderr, "Extracted CHD: %s -> %s (%llu bytes)\n",
+          chdPath, isoPath.c_str(), (unsigned long long)hdr->logicalbytes);
   return isoPath;
 }
 
