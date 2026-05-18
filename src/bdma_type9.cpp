@@ -49,13 +49,10 @@ void BDMA_Type9_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
   //The formula (framebuffer width * framebuffer size * (zmap - map)) specifies the pixel
   //offset that is added to the pixel address to obtain the address of the associated z-value
 
-  if(bRemote)
-    assert(((mpeBase >> 23) & 0x1Fu) < 4);
   //internal address is: bRemote ? system address (but still in MPE memory) : local to MPE
   void* const intMemory = nuonEnv.GetPointerToMemory(bRemote ? (mpeBase >> 23) & 0x1Fu : mpe.mpeIndex, mpeBase & 0x207FFFFF, false);
 
   //base address is always a system address (absolute)
-  assert(((sdramBase >> 23) & 0x1Fu) < 4);
   void* const baseMemory = nuonEnv.GetPointerToMemory((sdramBase >> 23) & 0x1Fu, sdramBase, false);
 
   const void *pSrc = intMemory;
