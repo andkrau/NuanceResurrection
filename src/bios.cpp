@@ -542,6 +542,7 @@ WillNotImplement, //_VidSetOutputType (147)
 NullBiosHandler, //_LoadDefaultSystemSettings (148)
 SetISRExitHook, //_SetISRExitHook (149)
 NullBiosHandler //_CompatibilityMode (150)
+//!! 151 is abused(!) for MediaCallbackReturnShim, see MEDIA_CB_SHIM_INDEX
 };
 
 

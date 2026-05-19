@@ -11,23 +11,18 @@ Playable, BUT rarely hangs in Battle Mode and Time Attack.
 
 The Next Tetris
 ---------------
-Playable, distorted music/speech.
+Playable, very distorted music/speech.
 
 Merlin Racing
 -------------
 Playable, BUT some screen corruption when watching the Adventure intro, 
 and minor gfx glitches during the race.
-And most noticeably: AI karts are driving around more or less randomly (NOT when JIT compiler turned off).
+And most noticeably: AI karts are driving around more or less randomly (only if dynamic compilation enabled).
 
 Tempest 3000
 ------------
-Playable, BUT
-1) hangs most of the time when starting a game from certain levels (level 1 as prominent example).
-   WORKAROUND enter options->music test before, and play a different music track (or disable AudioInterrupts in nuance.cfg :/ )
-2) hangs (only if dynamic compilation enabled) on entering level select
-   WORKAROUND enter options->vector test before
-(so best is to do 1) and 2) first before starting the game at all)
-Also music does not loop correctly (loops waaaaaay too early, another indication that something is fishy with the somehow special T3K audio handling).
+Playable, BUT hangs (only if dynamic compilation enabled) on entering level select.
+WORKAROUND: Just enter 'options'->'vector test' first, before doing anything else.
 
 Ballistic
 ---------
@@ -43,8 +38,8 @@ Unreleased so far, but exists. Thus not tested.
 
 Freefall 3050 A.D.
 ------------------
-Unplayable.  Will require MPEG playback.
+Unplayable.  Will require MPEG playback, and proper reloading of code, etc.
 
 Iron Soldier 3
 --------------
-Unplayable.  Will require MPEG playback.
+Unplayable.  Will require MPEG playback, and proper reloading of code, etc.

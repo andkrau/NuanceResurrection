@@ -332,13 +332,13 @@ In the kprintf Log status and the debug log file, if configured.
 ### Compiler issues
 
 The constant propagation optimizations are still being debugged.  Some programs can
-be safely run with constant propagation turned on while others cannot.  Dead code
+be safely run with constant propagation turned on while others may not.  Dead code
 elimination is extremely buggy.  Some programs will appear to be working smoothly only
 to freeze unexpectedly later on.  Play around with compiler options to determine the best
-setting for a particular program.  The T3KCompilerHack option must be enabled in order for
+setting for a particular program.  The T3KCompilerHack option might be an option to enable in order for
 T3K to avoid crashing during level selection, even if compiler optimizations are disabled.
 NOTE: This hack does not seem to work anymore on nowadays systems, so please use the
-recommendation in GameCompatibility.txt instead
+recommendation in GameCompatibility.txt instead!
 
 ### Pixel shader issues
 
@@ -577,6 +577,7 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 ## History
 
 **version 0.6.7:**
+- FINALLY, T3K can be played with no hangs on music transitions, and with proper music looping (see GameCompatibility.txt though for the caveats)!
 - Add Linux port with CMake build system, X11/GLX backend and miniaudio audio output.
 - Add libretro port.
 - 32-bit build supports the x86 JIT dynamic recompiler on Linux via `__attribute__((fastcall))`.
@@ -598,6 +599,9 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 - Fix "_MPEAlloc()" logic to match original BIOS
 - Correct Audio Buffer sizes used for all configurations (via GetBufferSize()).
 - Unfortunately, Tetris now sounds even worse than before.
+- To make (at least) T3K work better, the whole MediaRead (and partially MediaWrite) implementation has been redone
+  to better match the spec (incl. proper return values, proper callback mode handling, and not filling up buffers too early),
+  at the tradeoff that now the loads actually need some time to arrive (incl. potential stutter).
 - instructiontest.cof has been updated with more tests (verified to match real HW / Samsung N501).
 
 **03/21/2025 version 0.6.6:**

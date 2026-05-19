@@ -48,6 +48,7 @@ extern const char *BiosRoutineNames[];
 extern void NullBiosHandler(MPE& mpe);
 extern void WillNotImplement(MPE& mpe);
 extern void AssemblyBiosHandler(MPE& mpe);
+extern void TickMediaCallbacks(MPE& mpe); // media.cpp: drains the per-MPE delayed-callback FIFO for MediaRead
 extern void UnimplementedCacheHandler(MPE& mpe);
 extern void UnimplementedMediaHandler(MPE& mpe);
 extern bool bCallingMediaCallback;
@@ -2211,6 +2212,16 @@ bool MPE::FetchDecodeExecute()
         pcexec = pcfetchnext;
       }
     }
+
+    // Drain any (delayed) media callbacks. Done HERE - after the
+    // ecuSkipCounter delay-slot resolution, as that
+    // block can overwrite pcexec with pcfetchnext when a pending branch
+    // finally retires, which would silently undo our pcexec = callback
+    // and leave s_asyncCbActive stuck forever, hanging the app/game.
+    // Skip while the MPE is halted or has an exception pending, as there's
+    // no user code to interrupt in those states
+    if(!(excephalten & excepsrc) && (mpectl & MPECTRL_MPEGO))
+      TickMediaCallbacks(*this);
 
     if (pcexec == breakpointAddress)
       StopEmulation(mpeIndex);
