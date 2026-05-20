@@ -5,7 +5,7 @@
 #include "NuonMemoryMap.h"
 
 //Table to map 16/48 bit condition code enumeration to 32/64 bit sequence
-//uint32 CC16To32[32] = {0,4,8,12,16,20,24,28,1,5,9,13,17,21,17,29,2,6,10,14,18,22,17,30,3,7,11,15,19,17,27,31};
+//static constexpr uint32 CC16To32[32] = {0,4,8,12,16,20,24,28,1,5,9,13,17,21,17,29,2,6,10,14,18,22,17,30,3,7,11,15,19,17,27,31};
 
 #define braConditionalFlags 0
 #define braConditionalNOPFlags 0

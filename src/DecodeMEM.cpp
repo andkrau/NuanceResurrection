@@ -173,7 +173,7 @@ void MPE::DecodeInstruction_MEM16(const uint8 * const iPtr, InstructionCacheEntr
       else
       {
         //#n: sign extend
-        entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] = ((int32)(field_1F << 27)) >> 27;
+        entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] = ((int32)(field_1F << 27)) >> 27; // "0..31" -> -16..15
         //dest is 0x3E0
         entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] = field_3E0;
       }

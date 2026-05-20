@@ -274,7 +274,7 @@ bool InstallCommHandler(MPE &mpe, uint32 address, uint32 *handlerList, uint32 *n
     i++;
   }
   *pHandlers = 0;
-  
+
   numHandlers--;
   *nHandlers = numHandlers;
   *((uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex,NUM_INSTALLED_COMMRECV_HANDLERS_ADDRESS)) = SwapBytes(numHandlers);
