@@ -135,6 +135,10 @@ bool Load(const char* file)
     return false;
   }
 
+  static bool s_loadedOnce = false;
+  if (s_loadedOnce)
+    nuonEnv.ResetForReload();
+
   // Try loading as NUONROM-DISK/Bles first, then as raw COFF
   bool bSuccess = nuonEnv.mpe[3].LoadNuonRomFile(actualFile.c_str());
   if (!bSuccess) {
@@ -149,6 +153,7 @@ bool Load(const char* file)
   if (bSuccess) {
     nuonEnv.SetDVDBaseFromFileName(actualFile.c_str());
     nuonEnv.mpe[3].Go();
+    s_loadedOnce = true;
     Run();
     return true;
   }

@@ -99,6 +99,7 @@ public:
   }
 
   void Init();
+  void ResetForReload();
   ~NuonEnvironment();
 
   void WriteFile(MPE &mpe, uint32 fd, uint32 buf, uint32 len);

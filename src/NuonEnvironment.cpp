@@ -132,6 +132,38 @@ void NuonEnvironment::InitAudio()
   }
 }
 
+// Tear down audio + MPE state to "fresh boot" before loading a new game.
+// Without this, the second game inherits stale audio rate/mode/buffer
+// from the first; AudioSetSampleRate/ChannelMode short-circuit when the
+// new game requests the same values, the device is never re-init'd, and
+// pNuonAudioBuffer stays pointing at the previous game's memory — so the
+// new game runs silent (andkrau issue #53: Ballistic-as-2nd-game).
+void NuonEnvironment::ResetForReload()
+{
+  // Drop the audio device. The new game's BIOS calls will lazily
+  // re-create it from cleared rate/mode/buffer below.
+  CloseAudio();
+
+  // Mirror Init()'s audio-block defaults exactly.
+  pNuonAudioBuffer = nullptr;
+  oldNuonAudioChannelMode = nuonAudioChannelMode = 0;
+  nuonAudioPlaybackRate = 0;
+  nuonAudioBufferSize = 0;
+  audioInterruptCycleCount = cyclesPerAudioInterrupt;
+  whichAudioInterrupt = false;
+  audioMuted.store(false, std::memory_order_relaxed);
+
+  // Full MPE reset: clears registers, comm-bus state, JIT cache, intsrc.
+  for(uint32 i = 0; i < 4; i++)
+    mpe[i].Reset();
+  pendingCommRequests = 0;
+
+  // Re-install BIOS dispatch tables (the NuanceMain.cpp reload path
+  // already did this standalone as "hacky but seems to work" — now
+  // it's part of the reset).
+  InitBios();
+}
+
 void NuonEnvironment::CloseAudio()
 {
   if(audioDevice)

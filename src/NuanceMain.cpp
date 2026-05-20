@@ -484,6 +484,10 @@ bool Load(const char* file = nullptr)
     }
     const char* loadPath = resolved.c_str();
 
+    static bool s_loadedOnce = false;
+    if(s_loadedOnce)
+      nuonEnv.ResetForReload();
+
     bool bSuccess = nuonEnv.mpe[3].LoadNuonRomFile(loadPath);
     if(!bSuccess)
     {
@@ -501,6 +505,7 @@ bool Load(const char* file = nullptr)
     {
       nuonEnv.SetDVDBaseFromFileName(loadPath);
       nuonEnv.mpe[3].Go();
+      s_loadedOnce = true;
       UpdateControlPanelDisplay();
       SetWindowPos(display.hWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
       Run();
@@ -916,9 +921,6 @@ INT_PTR CALLBACK ControlPanelDialogProc(HWND hwndDlg,UINT msg,WPARAM wParam,LPAR
           }
           else if((HWND)lParam == cbLoadFile)
           {
-            if (!load4firsttime)
-              nuonEnv.InitBios(); //!! hacky, but seems to work
-
             if (Load())
               load4firsttime = false;
 
