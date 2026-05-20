@@ -343,13 +343,9 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, const bool bContainsB
     if(numInstructions > 0)
     {
       codeCache.X86Emit_PUSHAD();
-#ifdef USE_ASMJIT
       codeCache.X86Emit_MOVIR_Ptr((uintptr_t)&(codeCache.emitVars.mpe->cc), x86Reg::x86Reg_esi);
       codeCache.X86Emit_MOVIR_Ptr((uintptr_t)&(codeCache.emitVars.mpe->tempCC), x86Reg::x86Reg_edi);
-#else
-      codeCache.X86Emit_MOVIR((uintptr_t)&(codeCache.emitVars.mpe->cc), x86Reg::x86Reg_esi);
-      codeCache.X86Emit_MOVIR((uintptr_t)&(codeCache.emitVars.mpe->tempCC), x86Reg::x86Reg_edi);
-#endif
+
       if(bContainsBranch)
       {
         codeCache.X86Emit_MOVIM(exitAddress, x86MemPtr::x86MemPtr_dword, (uintptr_t)&(codeCache.emitVars.mpe->pcfetchnext));
