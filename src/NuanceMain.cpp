@@ -1210,6 +1210,49 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
       if(nuonEnv.pendingCommRequests)
         DoCommBusController();
 
+      // NUANCE_FREEZE_DETECT=[<mpe>:]<sec> — when the selected MPE's pcexec
+      // stays inside a 256-byte window for <sec> wall-clock seconds, dump
+      // full state once. Catches hung-but-alive freezes like the T3K
+      // Level Select stall with JIT enabled (andkrau issue #17, where
+      // toxie's vector-test workaround flushes the JIT and unblocks it).
+      // Default MPE is 3 if only <sec> is given.
+      if((cycles % 2048) == 0)
+      {
+        static int fd_inited = 0;
+        static int fd_mpe = 3;
+        static int fd_sec = 0;
+        static uint32 fd_last_bucket = 0xFFFFFFFFu;
+        static uint64 fd_last_change_us = 0;
+        static bool fd_armed = true;
+        static uint64 fd_fires = 0;
+        if(!fd_inited) {
+          fd_inited = 1;
+          if(const char* s = getenv("NUANCE_FREEZE_DETECT")) {
+            const char* colon = strchr(s, ':');
+            if(colon) { fd_mpe = atoi(s) & 3; fd_sec = atoi(colon + 1); }
+            else      { fd_mpe = 3;           fd_sec = atoi(s); }
+          }
+        }
+        if(fd_sec > 0) {
+          const uint32 cur_bucket = nuonEnv.mpe[fd_mpe].pcexec & 0xFFFFFF00u;
+          const uint64 now = useconds_since_start();
+          if(cur_bucket != fd_last_bucket) {
+            fd_last_bucket = cur_bucket;
+            fd_last_change_us = now;
+            fd_armed = true;
+          } else if(fd_armed && fd_last_change_us > 0 &&
+                    (now - fd_last_change_us) > (uint64)fd_sec * 1000000ull) {
+            char reasonBuf[96];
+            fd_fires++;
+            sprintf_s(reasonBuf, sizeof(reasonBuf),
+                      "MPE%d PC stuck in 0x%08X.. for %ds (fire #%llu)",
+                      fd_mpe, cur_bucket, fd_sec, (unsigned long long)fd_fires);
+            nuonEnv.mpe[fd_mpe].DumpFreezeState(stderr, reasonBuf);
+            fd_armed = false;
+          }
+        }
+      }
+
       // handle the sysTimer0, sysTimer1 and vidTimer (video refresh at 50/60Hz)
       // note that these all run at the real hostCPU time rate, NOT the actual emulated time/cycles!
       if ((cycles % 500) == 0) // only pull hostCPU timer from time to time, otherwise too costly

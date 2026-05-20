@@ -409,6 +409,7 @@ public:
   void ScheduleInstructionQuartet(InstructionCacheEntry &destEntry, const uint32 baseSlot, const InstructionCacheEntry &srcEntry);
   bool FetchDecodeExecute();
   void ExecuteSingleStep();
+  void DumpFreezeState(FILE* out, const char* reason);
 
   void ExecuteNuances(const InstructionCacheEntry& entry)
   {

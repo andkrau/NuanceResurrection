@@ -2380,3 +2380,56 @@ void MPE::ExecuteSingleStep()
   nativeCodeCache.FlushRegion(pcexec, pcexec);
   FetchDecodeExecute();
 }
+
+// Dump everything useful for diagnosing a hung MPE: pcexec + register file,
+// stack contents, disasm of 16 packets around pcexec, and JIT-cache stats.
+// Triggered from NUANCE_FREEZE_DETECT (see the main loops) but safe to call
+// from anywhere — pure read of MPE/memory state.
+void MPE::DumpFreezeState(FILE* out, const char* reason)
+{
+  if(!out) out = stderr;
+  fprintf(out, "\n[FREEZE-DETECT mpe%u] %s\n", mpeIndex, reason ? reason : "stuck");
+  fprintf(out, "  pc=0x%08X rz=0x%08X sp=0x%08X cc=0x%08X\n",
+          pcexec, rz, regs[31], cc);
+  fprintf(out, "  rzi1=0x%08X rzi2=0x%08X intvec1=0x%08X intvec2=0x%08X\n",
+          rzi1, rzi2, intvec1, intvec2);
+  fprintf(out, "  mpectl=0x%08X intsrc=0x%08X intctl=0x%08X inten1=0x%08X inten2sel=0x%08X\n",
+          mpectl, intsrc, intctl, inten1, inten2sel);
+  fprintf(out, "  commctl=0x%08X commxmit0=0x%08X comminfo=0x%08X\n",
+          commctl, commxmit[0], comminfo);
+  fprintf(out, "  regs:\n");
+  for(int i = 0; i < 32; i += 4)
+    fprintf(out, "    r%-2d: %08X %08X %08X %08X\n",
+            i, regs[i], regs[i+1], regs[i+2], regs[i+3]);
+
+  // 64 bytes of stack starting at SP.
+  fprintf(out, "  stack@sp(0x%08X):", regs[31]);
+  for(uint32 off = 0; off < 64; off += 4) {
+    uint32* p = (uint32*)nuonEnv.GetPointerToMemory(mpeIndex, regs[31] + off, false);
+    fprintf(out, " %08X", p ? SwapBytes(*p) : 0xDEADDEAD);
+  }
+  fprintf(out, "\n");
+
+  // 16 packets around pcexec (8 before, 8 from pcexec onwards). The "before"
+  // disasm walks forward from pcexec-64 so packet boundaries may be off if
+  // there's variable-length code earlier, but the "from pcexec" half is
+  // always accurate.
+  fprintf(out, "  disasm around pc:\n");
+  uint32 dPc = (pcexec >= 64) ? (pcexec - 64) : 0;
+  for(int i = 0; i < 16; i++) {
+    char buf[256] = {};
+    PrintInstructionCachePacket(buf, sizeof(buf), dPc);
+    fprintf(out, "    %s%08X: %s", (dPc == pcexec) ? "->" : "  ", dPc, buf);
+    if(buf[0] && buf[strlen(buf)-1] != '\n') fputc('\n', out);
+    uint8* mp = (uint8*)nuonEnv.GetPointerToMemory(mpeIndex, dPc, false);
+    if(!mp) break;
+    uint32 delta = GetPacketDelta(mp, 1);
+    if(delta == 0 || delta > 64) delta = 2;
+    dPc += delta;
+  }
+
+  fprintf(out, "  JIT: numNativeCodeCacheFlushes=%u numNonCompilablePackets=%u overlays=%u\n",
+          numNativeCodeCacheFlushes, numNonCompilablePackets,
+          overlayManager.GetOverlaysInUse());
+  fflush(out);
+}
