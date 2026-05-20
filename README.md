@@ -7,24 +7,25 @@ Copyright 2002 - 2007 Mike Perry and 2020 - 2026 all the open source contributor
 Continued using the released source/docs in honour of the original author by Carsten Waechter (toxie at ainc.de) in 2020.
 Linux/libretro port by WizzardSK in 2026.
 
-NUON is a trademark of Genesis Microchip, Inc.
+NUON is/was a trademark of Genesis Microchip, Inc.
 
 ## Disclaimer
 
 This emulator was developed in a clean room setting, using only the Nuon SDK
 architecture documentation, the llama assembler, vmdisasm disassembler, and
 lots of hand crafted automation tools to help generate assembly files and
-parse the output.  I cannot guarantee that this program will not blow up your
+parse the output.  We cannot guarantee that this program will not blow up your
 computer.  It is certainly capable of causing memory access violations.  If
-you lose unsaved data while playing with it, don't say that I didn't warn you.
+you lose unsaved data while playing with it, don't say that we didn't warn you.
 
 ## Requirements
 
 This emulator requires SSE2 instruction support, at least 200 Megabytes
-of free RAM, and an OpenGL 1.5 implementation with support for GLSL.
+of free RAM, and an OpenGL 1.5 implementation with support for GLSL,
+so basically any halfway recent machine can run it.
 
-The emulator is completely and utterly CPU bound.  Machines
-that do not meet minimum requirements may even suffer reduced performance when
+The emulator is completely and utterly CPU bound.  Some machines
+may even suffer reduced performance when
 running the less demanding SDK demos, or may hang on certain game situations
 (in the latter case try disabling AudioInterrupts in the `nuance.cfg`, at
 the cost of missing or screwed up sound).
@@ -34,16 +35,11 @@ the cost of missing or screwed up sound).
 Extract the distribution files into a new directory, click on Nuance.exe and you're
 good to go.  The bios.cof, minibios.cof and minibiosX.cof files contain Aries assembly
 implementations of some BIOS routines and a complete miniBIOS.  These files must be
-kept in the same directory as the main executable.  Nuance also makes use of the
-Glew OpenGL extensions library.  The Glew32 DLL is included with the Nuance
-distribution but may not always be the most recent version of the DLL.  For this
-reason, the Glew32 DLL should be kept in the same directory as Nuance unless your
-system already has a more recent version of the DLL somewhere in the standard DLL
-search path, in which case the Nuance provided Glew32 DLL may be safely deleted.
+kept in the same directory as the main executable, plus all the GLSL shader files (.vs, .fs).
 
 ## Installation (Linux)
 
-### 32-bit build (with x86 JIT, recommended)
+### 32-bit build
 
 The original x86 JIT dynamic recompiler requires a 32-bit build.
 
@@ -54,7 +50,9 @@ cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS="-m32" -DCMAKE_CXX_FLAGS="-m
 make -j$(nproc)
 ```
 
-### 64-bit build (interpreter only)
+### 64-bit build
+
+This one uses asmjit.
 
 ```bash
 sudo apt install build-essential cmake libgl1-mesa-dev libx11-dev libsdl2-dev
@@ -63,7 +61,7 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j$(nproc)
 ```
 
-The bios.cof, minibios.cof, minibiosX.cof, nuance.cfg and shader files are
+The bios.cof, minibios.cof, minibiosX.cof, nuance.cfg and GLSL shader files are
 automatically copied to the build directory by CMake.
 
 ## Project structure
@@ -73,6 +71,7 @@ NuanceResurrection/
   src/           - All C/C++ source and header files
   external/      - Bundled libraries (GLEW, miniaudio, MurmurHash3)
   compat/        - Windows API compatibility headers for Linux builds
+..thirdparty/    - Everything needed for .CHD support
   CMakeLists.txt - Build system
   *.cof, *.cfg   - BIOS and configuration files
   *.vs, *.fs     - GLSL shader files
@@ -80,7 +79,7 @@ NuanceResurrection/
 
 ## Usage (Linux)
 
-The Linux version can load games directly from ISO or ZIP/RAR/7z files:
+The Linux version can load games directly from ISO, CHD or ZIP/RAR/7z files (plus executables and .CD packages):
 
 ```bash
 ./nuance /path/to/game.zip
@@ -89,7 +88,7 @@ The Linux version can load games directly from ISO or ZIP/RAR/7z files:
 ```
 
 Audio output uses miniaudio (bundled) which auto-detects PulseAudio or ALSA.
-Video uses X11/GLX with GLEW (bundled source).  ZIP/RAR/7z/ISO files are mounted
+Video uses X11/GLX with GLEW (bundled source).  ZIP/RAR/7z/ISO/CHD files are mounted
 via FUSE (mount-zip/archivemount) for instant loading without extraction.
 
 ### Linux keyboard shortcuts
@@ -108,11 +107,11 @@ via FUSE (mount-zip/archivemount) for instant loading without extraction.
 | F10 | Single step (execute one cycle on all MPEs) |
 | F11 | Show disassembly of current packet |
 
-The window title bar shows Kc/s and FPS in real time.
+The window title bar shows Kc/s (emulated kilocycles per second) and FPS in real time.
 
 ## Usage (Windows)
 
-The Windows build can also load games directly from ISO and ZIP files
+The Windows build can also load games directly from ISO, CHD and ZIP files
 (no need to unpack these first):
 
 ```
@@ -121,12 +120,12 @@ Nuance.exe C:\path\to\game.iso
 Nuance.exe C:\path\to\NUON\nuon.run
 ```
 
-You can also drag-and-drop a `.run` / `.cd` / `.cof` / `.nuon` / `.iso` / `.img` / `.zip`
+You can also drag-and-drop a `.run` / `.cd` / `.cof` / `.nuon` / `.iso` / `.chd` / `.img` / `.zip`
 onto either the control panel window, or the game window - it will go through the
 same loader as the Load File button. The file dialog now filters by NUON-related
 extensions by default.
 
-ZIPs and ISOs are handled by bundled libraries (miniz + a built-in ISO9660 parser),
+ZIPs and ISOs/CHDs are handled by bundled libraries (miniz + libchdr + a built-in ISO9660 parser),
 so there are no external runtime dependencies. ZIPs containing an inner ISO have
 just the ISO extracted and read on the fly; ZIPs containing an extracted NUON
 folder have all entries unpacked to a temp directory. RAR and 7z are not
@@ -140,7 +139,7 @@ WinMM automatically.
 The emulator uses configuration files for initializing options.  The configuration
 file to use can be specified by passing in the file name as a parameter to the
 emulator executable.  If no parameter is specified, the default filename `nuance.cfg`
-is assumed.
+is used.
 
 Each configuration file must be updated to select an appropriate base path to be
 used for loading files from DVD.  The entry should point to the directory
@@ -163,8 +162,9 @@ currently running.  You can double click the LEDs to toggle the running state
 of each processor.  This should only be done while the main emulator loop is
 stopped.
 
-Use the Load File button to load a COFF executable or NUONROM-DISK file into
-memory.  If the load is successful the emulation loop will automatically be
+Use the Load File button to load a COFF executable or NUONROM-DISK file (or
+respective containers) into
+memory.  If the load is successful, the emulation loop will automatically be
 started as if the "Run" button were pressed.  Prior to starting the emulation
 loop, the pcexec register of MPE3 will be set to the entry point of the
 executable and the mpeGo bit of the mpectl register will be set.
@@ -213,32 +213,29 @@ The video display window may be resized to any desired size and the video
 output will be stretched to fit.  To quit the application, stop the processor
 emulation and then click the close button of the Control Panel window.
 
-## Loading commercial games
+## Loading games
 
-I know that many users are only going to care about playing the games.  This
-set of steps should serve as a foolproof method for successfully runnning a
-commercial game.  Then again, I'm sure theres a fool waiting to prove me wrong.
-
-1. If you want to run one of the supported commercial games from a DVD player,
+1. If you want to run one of the supported games from a DVD player,
    simply skip to step (3).  The emulator automatically sets the DVDBase variable to the
    directory containing the selected program.
 
-2. If you want to run of the supported commercial games from some other media
+2. If you want to run a supported game from some other media
    type, copy all files from the Nuon directory on the DVD to a directory on the
    media from which you wish to load the files.  Most games will only require the
    nuon.run and nuon.dat files found in the Nuon directory of the DVD.  Some games
    may have additional data files that are required, but if the nuon.run and nuon.dat
    files are not copied, you are doomed to certain failure.
 
-   The emulator does *not* support any form of image file.  The files must be
-   accessable via standard file system calls.  An image file mounted in a virtual
-   DVD device will work but the image must be a complete DVD image.
+   Easiest is to just use a container (.ISO,.CHD or .ZIP).
+
+   An image file mounted in a virtual
+   DVD device will also work but the image must be a complete DVD image.
 
 3. Click the "Load File" button.
 
 ## Dynamic Compilation Options
 
-Nuance is now capable of compiling basic blocks of code, performing optimizations
+Nuance is capable of re-compiling basic blocks of code (HLE), performing optimizations
 on the code block and interpreting the optimized instruction sequence.  This allows
 enhanced performance due to code optimization and reduction of dispatch loop overhead,
 particularly where multiprocessor synchronization and interrupt processing is involved.
@@ -254,7 +251,7 @@ The configuration entries applicable to dynamic compilation are:
 - **`[CompilerConstantPropagation]`** Enabled/Disabled: toggles constant propagation phase that is performed after fetching
   the block instructions. NOTE: Might still be a bit buggy in corner cases, but recommended: Enabled
 
-- **`[CompilerDeadCodeElimination]`** Enabled/Disabled: toggles dead code elimination phase that is performed after constant
+- **`[CompilerDeadCodeElimination]`** Enabled/Disabled: toggles a dead code elimination phase that is performed after constant
   propagation. NOTE: Still buggy, recommended: Disabled
 
 - **`[DumpCompiledBlocks]`** NOTE: This option is only available in custom builds, not released versions!
@@ -262,15 +259,12 @@ The configuration entries applicable to dynamic compilation are:
   enabled, the emulator will print the resulting optimized blocks in a readable format to
   the files SuperBlocks0.txt through SuperBlocks3.txt corresponding to MPE0 through MPE3.
   Note that these files can grow in size very quickly.  It is not uncommon for the files to
-  grow beyond 500 megabytes or even wrap around the maximum file size of 4 GB.  There are
-  not too many text editors that will successfully open a file greater than 400 MB and so
-  if a dump file grows this large it is not recommended to open it else the chances of
-  locking up your system is high, recommended: Disabled
+  grow beyond 500 megabytes or even wrap around the maximum file size of 4 GB, recommended: Disabled
 
 - **`[T3KCompilerHack]`** Enable/Disabled: toggles a compiler hack that avoids errors in T3K that occur even without
   optimization enabled.  The penalty is an increase in non-compilable instructions and less
-  chance for constant propagation. NOTE: This does not seem to be needed nowadays anymore, but i left it in for now, lets see, recommended: Disabled
-  (so please use the recommendation in GameCompatibility.txt instead)
+  chance for constant propagation. NOTE: This does not seem to be needed/working nowadays anymore, but we left it in for now, lets see, recommended: Disabled
+  (please use the recommendation in GameCompatibility.txt instead)
 
 ## Flash ROM Support
 
@@ -294,7 +288,7 @@ in any of the SDK headers, but is defined as follows:
 extern void kprintf(const char *fmt, ...);
 ```
 
-And behaves like one would expect printf to. Nuance implements this BIOS
+It behaves like one would expect printf to. Nuance implements this BIOS
 function by storing the generated text in a ring buffer that can be viewed in
 the status dialog by clicking the "kprintf Log" button. Additionally, Nuance
 can log the kprintf output to a file. To enable logging, include the
@@ -306,7 +300,7 @@ full path) of the desired log file on the next line, e.g.:
 nuance_debug.log
 ```
 
-Here is a small sample code listing demonstrating how to use the functionality
+Here's a small sample code listing demonstrating how to use the functionality
 in a Nuon program:
 
 ```c
@@ -325,13 +319,13 @@ Compiling and running this program in Nuance will output:
 Hello, world! 1 2 3
 ```
 
-In the kprintf Log status and the debug log file, if configured.
+in the kprintf Log status and the debug log file, if configured.
 
 ## Known Issues
 
 ### Compiler issues
 
-The constant propagation optimizations are still being debugged.  Some programs can
+The constant propagation optimizations are still being debugged.  Most programs can
 be safely run with constant propagation turned on while others may not.  Dead code
 elimination is extremely buggy.  Some programs will appear to be working smoothly only
 to freeze unexpectedly later on.  Play around with compiler options to determine the best
@@ -353,14 +347,14 @@ This is a CPU intensive emulator and there is no way around that.
 
 The emulator does not use a native implementation of the NISE mixer.  This means that
 if your system cannot run Nuance reasonably fast, you can expect audio to sound
-distorted, slow and possibly several octaves lower than expected.  When running with
+distorted and slow.  When running with
 dynamic recompilation enabled, sound output is reasonably good and so audio interrupts
 are enabled by default.  Audio interrupts can be disabled via the configuration file
 but some programs may not work correctly if audio interrupts are not enabled.  In
 particular, some games will wait for a particular sound to complete where the completion
 is determined by NISE having had played all samples.  If audio interrupts are disabled,
 NISE will never update the sample pointer and hence will never update the sound channel as
-being available.  This is observable in Chomp where running into a ghost will lock up the
+being available.  This is observable in Chomp, where running into a ghost will lock up the
 game as the "player died" sound never "finishes" causing a wait loop to execute indefinitely.
 
 ### SYNTH support
@@ -386,13 +380,15 @@ instructions.  Since code must be written to assume that there is no stall,
 this implementation choice is not a problem since code should not be accessing
 the destination register until two cycles after a dot product, multiply or
 load is issued.
+This can lead to problems though if code is optimized using the emulator,
+and then tested on real Nuon HW.
 
 ### BIOS calls
 
 The emulator supports BIOS calls but not all BIOS functions are implemented
 at this time.  It is safe to call unimplemented BIOS functions but they will
 not perform any useful actions.  Please read bios_support.txt for a list of
-implemented BIOS calls.  The current BIOS implementation does not passing
+implemented BIOS calls.  The current BIOS implementation does not pass
 pointer parameters that point to a remote MPE address.  For example, if
 MPE3 makes a BIOS call that takes a pointer parameter, the pointer must point
 to local memory on MPE3.
@@ -429,15 +425,14 @@ only reads and writes.
 
 DMA transfer is implemented as a loop of simple memory copies.  Transfers to
 and from control register memory areas will not trigger the standard register
-behavior that is obtained via load and store commands.  I could implement
-this feature but then I'd have to kill you.
+behavior that is obtained via load and store commands.
 
-Single and batch mode transfers are allowed but chained DMA transfers are not
+Single and batch mode transfers are allowed, but chained DMA transfers are not
 yet implemented.
 
 ### Interrupts
 
-Interrupts are fully supported but hardware specific interrupts such as
+Interrupts are fully supported, but hardware specific interrupts such as
 VDP interrupts are not emulated.  Comm, timer, VDG and software interrupts
 should behave as expected. Note though that timer, video and audio interrupts
 (and also VSyncs) are triggered (mostly) at an 'ideal'/PC-based-timing, so that the
@@ -447,6 +442,8 @@ of a syncing mechanism to not run too slow or fast. The benefit of doing emulati
 like this is, that sound and gameplay will (mostly) run at the intended speed even
 when running the emulator on a PC that will not be able to match 50/60 fps (full
 cycle emulation speed).
+In theory, this also matches the intended SDK philosophy that apps/games should
+be forwards compatible for newer/faster processors.
 
 ### Comm Bus support
 
@@ -478,7 +475,7 @@ than 3968 bytes.
 ### Framebuffer support
 
 The 8-bit, 16 bit, and 32 bit pixel formats are supported, with or without Z.
-A real Nuon system requires that the frame buffer reside in Main Bus SDRAM.
+A real Nuon system requires that the frame buffer resides in Main Bus SDRAM.
 The emulator can also handle frame buffers in System Bus DRAM.  You can also
 write directly to frame buffer memory when running emulated code but on a real
 Nuon system, the frame buffer should only be accessed via DMA.  The emulator
@@ -602,7 +599,7 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 - To make (at least) T3K work better, the whole MediaRead (and partially MediaWrite) implementation has been redone
   to better match the spec (incl. proper return values, proper callback mode handling, and not filling up buffers too early),
   at the tradeoff that now the loads actually need some time to arrive (incl. potential stutter).
-- instructiontest.cof has been updated with more tests (verified to match real HW / Samsung N501).
+- instructiontest.cof has been updated with more tests (verified to match real HW / Samsung DVD-N501).
 
 **03/21/2025 version 0.6.6:**
 - Implement (bi)linear address mirroring properly and enable it.

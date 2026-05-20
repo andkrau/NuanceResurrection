@@ -1,3 +1,5 @@
+;verified 05/2026 on Samsung DVD-N501
+
 ;r0 = test status register
 ;r1 = stack pointer (scratch buffer location, 256 bytes minimum)
 ;r2 = test number
