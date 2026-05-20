@@ -25,15 +25,19 @@ add_library(miniaudio_impl STATIC external/miniaudio_impl.cpp)
 target_include_directories(miniaudio_impl PUBLIC external)
 set_property(TARGET miniaudio_impl PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-# miniz (single-file ZIP reader). On Linux archive.cpp leans on external
-# FUSE tools to handle ZIPs, so miniz is only compiled in for the Windows
-# standalone build where archive.cpp's `#ifdef _WIN32` code path uses it
-# directly via mz_zip_reader_*.
-if(WIN32)
-    add_library(miniz_impl STATIC external/miniz.c)
-    target_include_directories(miniz_impl PUBLIC external)
-    set_property(TARGET miniz_impl PROPERTY POSITION_INDEPENDENT_CODE ON)
-endif()
+# libchdr (vendored CHD reader for archive.cpp). Also gives us a single
+# miniz copy that both libchdr's zlib codec and archive.cpp's Windows ZIP
+# path share — turning on miniz's archive APIs replaces the older inline
+# external/miniz copy we used to ship.
+set(MINIZ_ARCHIVE_APIS ON CACHE BOOL "" FORCE)
+set(MINIZ_STDIO        ON CACHE BOOL "" FORCE)
+set(WITH_LZMA_ASM      OFF CACHE BOOL "" FORCE)  # avoid MASM/arm64 asm path
+set(BUILD_SHARED_LIBS  OFF CACHE BOOL "" FORCE)
+add_subdirectory(third_party/libchdr EXCLUDE_FROM_ALL)
+set_property(TARGET chdr-static  PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET miniz        PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET chdr-lzma    PROPERTY POSITION_INDEPENDENT_CODE ON)
+set_property(TARGET zstd         PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # asmjit (only used by the 64-bit JIT path; 32-bit keeps the legacy x86 emitter)
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -137,8 +141,10 @@ option(BUILD_LIBRETRO "Build libretro core instead of standalone" OFF)
 
 if(BUILD_LIBRETRO)
     # Libretro core - shared library
-    # Remove standalone-specific files for libretro build
-    list(FILTER NUANCE_SOURCES EXCLUDE REGEX "NuanceMain|GLWindow|InputManager|NuanceUI")
+    # Remove standalone-specific files for libretro build. archive.cpp is also
+    # dropped because retroarch hands the core an already-resolved file path
+    # (and unpacks CHD itself), so the core doesn't need libchdr linked in.
+    list(FILTER NUANCE_SOURCES EXCLUDE REGEX "NuanceMain|GLWindow|InputManager|NuanceUI|archive")
     add_library(nuance_libretro SHARED ${NUANCE_SOURCES} src/libretro.cpp)
     set_target_properties(nuance_libretro PROPERTIES PREFIX "" OUTPUT_NAME "nuance_libretro")
     target_compile_definitions(nuance_libretro PRIVATE LIBRETRO)
@@ -161,6 +167,8 @@ target_include_directories(${NUANCE_TARGET} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/external
     ${CMAKE_CURRENT_SOURCE_DIR}/external/glew-2.2.0/include
     ${CMAKE_CURRENT_SOURCE_DIR}/external/asmjit
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/libchdr/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/libchdr/deps/miniz-3.1.1
     ${SDL2_INCLUDE_DIRS}
 )
 
@@ -195,9 +203,12 @@ endif()
 target_link_libraries(${NUANCE_TARGET} PRIVATE
     glew_static
     miniaudio_impl
-    # miniz is Windows-only (see add_library above) - archive.cpp uses it
-    # under #ifdef _WIN32 for inline ZIP archive extraction
-    $<$<PLATFORM_ID:Windows>:miniz_impl>
+    # libchdr (CHD reader) + its bundled miniz 3.1.1 (also doubles as the ZIP
+    # reader for archive.cpp's Windows #ifdef path - configured with
+    # MINIZ_ARCHIVE_APIS=ON above so mz_zip_reader_* is available). Standalone
+    # build only; the libretro core never sees a raw archive.
+    $<$<NOT:$<BOOL:${BUILD_LIBRETRO}>>:chdr-static>
+    $<$<NOT:$<BOOL:${BUILD_LIBRETRO}>>:miniz>
     #murmurhash # unused - see add_library above
     $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:asmjit_static>
     OpenGL::GL

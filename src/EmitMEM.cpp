@@ -2642,7 +2642,7 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
     case (0x810 >> 4):
       //commrecv0 to commrecv3
     default:
-      assert(!"unhandled control register load");
+      assert(!"unhandled control register load"); //!! Ballistic and Tetris trigger this
       break;
   }
 }

@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <cstring>
 
+#ifndef _WIN32
 // Self-test: generate a simple function that returns 42
 bool asmjit_selftest()
 {
@@ -77,6 +78,7 @@ bool asmjit_selftest()
 
     return true;
 }
+#endif
 
 // --- NativeCodeCache asmjit block management ---
 

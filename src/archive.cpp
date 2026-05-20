@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 
+#include "libchdr/chd.h"
+
 #ifdef _WIN32
   #include <windows.h>
   #include <shellapi.h>
@@ -61,6 +63,20 @@ bool IsIsoPath(const std::string& s)
 bool IsZipPath(const std::string& s)
 {
   return HasExtensionICase(s, ".zip");
+}
+
+// CHD detection probes the first 8 bytes for the "MComprHD" magic rather than
+// trusting the .chd extension, so renamed files (or extensions like .gz/.bin
+// that some tools default to) still resolve.
+bool IsChdPath(const std::string& s)
+{
+  if (HasExtensionICase(s, ".chd")) return true;
+  FILE* fp = fopen(s.c_str(), "rb");
+  if (!fp) return false;
+  char magic[8] = {};
+  const size_t n = fread(magic, 1, 8, fp);
+  fclose(fp);
+  return n == 8 && memcmp(magic, "MComprHD", 8) == 0;
 }
 
 #ifndef _WIN32
@@ -134,6 +150,67 @@ std::string MakeTempDir()
   char* dir = mkdtemp(tmpl);
   return dir ? std::string(dir) : std::string();
 #endif
+}
+
+// Decompress a CHD-DVD into a plain ISO under tempDir using vendored libchdr
+// (third_party/libchdr/). NUON discs are single-track DVD-Video, so the CHD
+// hunks decompress straight into 2048-byte-sector ISO data that
+// ISO9660Reader opens unchanged. CD-format CHDs are intentionally not handled
+// — no NUON dumps use that format and the de-interleave step would mean
+// pulling in libchdr's CD frontend on top of the raw codec layer. Returns
+// the path to the produced ISO, or "" on failure. The caller is responsible
+// for adding the path to g_tempPaths so it gets cleaned up on shutdown.
+std::string ExtractChdToIso(const char* chdPath, const std::string& tempDir)
+{
+  chd_file* chd = nullptr;
+  const chd_error openErr = chd_open(chdPath, CHD_OPEN_READ, nullptr, &chd);
+  if (openErr != CHDERR_NONE) {
+    fprintf(stderr, "chd_open(%s) failed: %s\n", chdPath, chd_error_string(openErr));
+    return "";
+  }
+
+  const chd_header* hdr = chd_get_header(chd);
+  if (!hdr || hdr->hunkbytes == 0 || hdr->logicalbytes == 0) {
+    fprintf(stderr, "chd_get_header(%s) returned an unusable header\n", chdPath);
+    chd_close(chd);
+    return "";
+  }
+
+  const std::string isoPath = tempDir + PATH_SEP + "extracted.iso";
+  FILE* out = fopen(isoPath.c_str(), "wb");
+  if (!out) {
+    fprintf(stderr, "Cannot create %s\n", isoPath.c_str());
+    chd_close(chd);
+    return "";
+  }
+
+  std::vector<uint8_t> hunk(hdr->hunkbytes);
+  uint64_t remaining = hdr->logicalbytes;
+  for (uint32_t i = 0; i < hdr->hunkcount && remaining > 0; i++) {
+    const chd_error readErr = chd_read(chd, i, hunk.data());
+    if (readErr != CHDERR_NONE) {
+      fprintf(stderr, "chd_read(hunk %u) failed: %s\n", i, chd_error_string(readErr));
+      fclose(out);
+      chd_close(chd);
+      return "";
+    }
+    // Last hunk may overshoot logicalbytes; clip to the declared size so the
+    // produced ISO matches the original byte-for-byte.
+    const size_t writeBytes = (remaining < hdr->hunkbytes) ? (size_t)remaining : hdr->hunkbytes;
+    if (fwrite(hunk.data(), 1, writeBytes, out) != writeBytes) {
+      fprintf(stderr, "Short write to %s\n", isoPath.c_str());
+      fclose(out);
+      chd_close(chd);
+      return "";
+    }
+    remaining -= writeBytes;
+  }
+
+  fclose(out);
+  chd_close(chd);
+  fprintf(stderr, "Extracted CHD: %s -> %s (%llu bytes)\n",
+          chdPath, isoPath.c_str(), (unsigned long long)hdr->logicalbytes);
+  return isoPath;
 }
 
 #ifdef _WIN32 // ZIP handling via miniz
@@ -356,6 +433,20 @@ std::string ResolveGameFile(const char* inputPath)
 {
   if (!inputPath || !*inputPath) return "";
   const std::string input(inputPath);
+
+  // CHD: extract to a temp ISO via `chdman extractdvd` and then handle the
+  // produced ISO exactly like a regular ISO input. Same code path on Windows
+  // and Linux because chdman is cross-platform; on Linux we deliberately skip
+  // the FUSE-mount path (no point mounting a flat ISO we just produced).
+  if (IsChdPath(input)) {
+    const std::string tempDir = MakeTempDir();
+    if (tempDir.empty()) return "";
+    g_tempPaths.push_back(tempDir);
+    const std::string iso = ExtractChdToIso(inputPath, tempDir);
+    if (iso.empty()) return "";
+    g_tempPaths.push_back(iso);
+    return ExtractIsoBootAndArmDataReads(iso.c_str(), tempDir);
+  }
 
 #ifdef _WIN32
   if (!IsIsoPath(input) && !IsZipPath(input)) return input; // pass through

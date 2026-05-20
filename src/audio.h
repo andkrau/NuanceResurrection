@@ -34,6 +34,8 @@ class MPE;
 #define ENABLE_AUDIO_DMA (0x0001U)
 #define ENABLE_WRAP_INT	(0x0100U)
 #define ENABLE_HALF_INT	(0x0200U)
+// At this point in time, libSYNTH is not supported.  Unlike libNISE, the synth code
+// configures the audio DAC to interrupt after each sample:
 #define ENABLE_SAMP_INT	(0x0400U)
 #define ENABLE_DMA_SKIP	(0x0800U)
 #define ENABLE_DMA_STALL (0x1000U)

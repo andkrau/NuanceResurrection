@@ -65,7 +65,7 @@ static void show_dialog_async(const std::string& text, const std::string& title)
 static void OpenFileDialog()
 {
     std::string path = popen_read(
-        "kdialog --getopenfilename ~ 'NUON files (*.run *.cof *.nuon *.cd *.zip *.7z *.iso *.img)' 2>/dev/null"
+        "kdialog --getopenfilename ~ 'NUON files (*.run *.cof *.nuon *.cd *.zip *.7z *.iso *.img *.chd)' 2>/dev/null"
         " || zenity --file-selection --title='Load NUON Game' 2>/dev/null");
 
     if (!path.empty()) {

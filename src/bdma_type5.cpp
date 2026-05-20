@@ -60,13 +60,10 @@ void BDMA_Type5_Write_0(MPE &mpe, const uint32 flags, const uint32 baseaddr, con
     srcStrideShift = 0;
   }
 
-  if(bRemote)
-    assert(((mpeBase >> 23) & 0x1Fu) < 4);
   //internal address is: bRemote ? system address (but still in MPE memory) : local to MPE
   void* const intMemory = nuonEnv.GetPointerToMemory(bRemote ? (mpeBase >> 23) & 0x1Fu : mpe.mpeIndex, mpeBase & 0x207FFFFF, false);
 
   //base address is always a system address (absolute)
-  assert(((sdramBase >> 23) & 0x1Fu) < 4);
   void* const baseMemory = nuonEnv.GetPointerToMemory((sdramBase >> 23) & 0x1Fu, sdramBase, false);
 
   //const uint32 srcOffset = 0;
@@ -308,18 +305,17 @@ void BDMA_Type5_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
     srcStrideShift = 0;
   }*/
 
-  if(bRemote)
-    assert(((mpeBase >> 23) & 0x1Fu) < 4);
   //internal address is: bRemote ? system address (but still in MPE memory) : local to MPE
   void* const intMemory = nuonEnv.GetPointerToMemory(bRemote ? (mpeBase >> 23) & 0x1Fu : mpe.mpeIndex, mpeBase & 0x207FFFFF, false);
 
   //base address is always a system address (absolute)
-  assert(((sdramBase >> 23) & 0x1Fu) < 4);
   void * const baseMemory = nuonEnv.GetPointerToMemory((sdramBase >> 23) & 0x1Fu, sdramBase, false);
 
   if(((intaddr & MPE_LOCAL_MEMORY_MASK) >= MPE_IRAM_BASE) &&
     ((intaddr & MPE_LOCAL_MEMORY_MASK) < MPE_DTAGS_BASE))
   {
+    if (bRemote)
+      assert(((mpeBase >> 23) & 0x1Fu) < 4);
     //Maintain cache coherency!  This assumes that code will not be
     //dynamically created in the dtrom/dtram section, bypassing the need
     //to flush the cache on data writes.
