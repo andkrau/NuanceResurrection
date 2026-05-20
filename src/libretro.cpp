@@ -1,5 +1,7 @@
-// NuanceResurrection libretro core
-// Wraps the NUON emulator for use in RetroArch
+// NuanceResurrection libretro core. The emulator loop, globals and
+// load/init helpers live in EmulatorCore (shared with the standalone
+// Linux frontend in NuanceMain_linux.cpp); this file only handles the
+// libretro API surface, input mapping and game-file discovery.
 
 #include "libretro.h"
 #include "basetypes.h"
@@ -21,6 +23,7 @@
 #include "comm.h"
 #include "audio.h"
 #include "mpe.h"
+#include "EmulatorCore.h"
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
 #include "joystick.h"
@@ -50,13 +53,6 @@ void GLWindow::MessagePump() {}
 void GLWindow::OnResize(int,int) {}
 unsigned GLWindow::GLWindowMain(void*) { return 0; }
 GLWindow display;
-
-// Globals
-NuonEnvironment nuonEnv;
-bool bQuit = false;
-bool bRun = false;
-std::string g_ISOPath;
-std::string g_ISOPrefix;
 
 extern ControllerData *controller;
 extern VidChannel structMainChannel, structOverlayChannel;
@@ -90,9 +86,6 @@ static void log_printf(const char* fmt, ...) {
     va_end(ap);
 }
 
-// Stub functions needed by other modules
-void StopEmulation(int) { bRun = false; }
-
 // InputManager stubs for libretro (input handled by retro_input_state)
 #include "InputManager.h"
 InputManager::~InputManager() {}
@@ -106,12 +99,6 @@ bool InputManager::StrToInputType(const char* str, InputType* type) {
 }
 const char* InputManager::InputTypeToStr(InputType type) {
     switch (type) { case KEY: return "KEY"; case JOYBUT: return "JOYBUT"; case JOYAXIS: return "JOYAXIS"; case JOYPOV: return "JOYPOV"; default: return ""; }
-}
-
-static void ApplyControllerState(unsigned int controllerIdx, uint16 buttons)
-{
-    if (controller)
-        controller[controllerIdx].buttons = SwapBytes(buttons);
 }
 
 static uint16 GetInputButtons()
@@ -149,15 +136,8 @@ static void context_reset(void)
 
     gl_initialized = true;
 
-    // Init CPU extensions and lookup tables (deferred from retro_load_game)
-    static bool tables_initialized = false;
-    if (!tables_initialized) {
-        init_supported_CPU_extensions();
-        GenerateMirrorLookupTable();
-        GenerateSaturateColorTables();
-        tables_initialized = true;
-        log_printf("libretro: tables initialized in context_reset\n");
-    }
+    // (CPU extensions, ALU lookup tables and nuonEnv.Init now happen
+    // unconditionally in retro_load_game via EmulatorCore::Init.)
 
     // Setup GL state
     glViewport(0, 0, FB_WIDTH, FB_HEIGHT);
@@ -389,21 +369,16 @@ bool retro_load_game(const struct retro_game_info *game)
         }
     }
 
-    log_printf("libretro: nuonEnv.Init()...\n"); fflush(stderr);
-    nuonEnv.Init();
-    log_printf("libretro: nuonEnv.Init() done\n"); fflush(stderr);
+    log_printf("libretro: EmulatorCore::Init()...\n"); fflush(stderr);
+    EmulatorCore::Init();
+    log_printf("libretro: EmulatorCore::Init() done\n"); fflush(stderr);
 
     // Load game
-    bool ok = nuonEnv.mpe[3].LoadNuonRomFile(gamePath.c_str());
-    if (!ok) ok = nuonEnv.mpe[3].LoadCoffFile(gamePath.c_str());
-    if (!ok) {
+    if (!EmulatorCore::LoadGame(gamePath.c_str())) {
         log_printf("libretro: failed to load %s\n", gamePath.c_str());
         return false;
     }
-
-    nuonEnv.SetDVDBaseFromFileName(gamePath.c_str());
     for(int i=0;i<4;i++) log_printf("libretro: mpe%d inten1=%08X inten2sel=%u intsrc=%08X intctl=%08X mpectl=%08X\n", i, nuonEnv.mpe[i].inten1, nuonEnv.mpe[i].inten2sel, nuonEnv.mpe[i].intsrc, nuonEnv.mpe[i].intctl, nuonEnv.mpe[i].mpectl); fflush(stderr);
-    nuonEnv.mpe[3].Go();
     // Process any pending comm requests from BIOS init before starting emulation
     while (nuonEnv.pendingCommRequests) {
         log_printf("libretro: processing %d pending comm requests from init\n", nuonEnv.pendingCommRequests); fflush(stderr);
@@ -422,7 +397,7 @@ void retro_unload_game(void)
 {
     bRun = false;
     game_loaded = false;
-    VideoCleanup();
+    EmulatorCore::Shutdown();
 }
 
 void retro_run(void)
@@ -431,67 +406,18 @@ void retro_run(void)
 
     // Input
     input_poll_cb();
-    uint16 buttons = GetInputButtons();
-    ApplyControllerState(1, buttons);
+    EmulatorCore::ApplyController(1, GetInputButtons());
 
-    // Run emulation until video trigger or real-time budget (~16ms for 60fps)
+    // Run shared emulator loop until the next video field, with a wall-time
+    // budget so we return control to retroarch on time for 60Hz pacing.
+    // During BIOS init (before video is configured) give the loop longer
+    // so init can finish. push_audio=false: libretro consumes via
+    // DrainAudioRing below.
     nuonEnv.trigger_render_video = false;
-    uint32 cycles = 0;
-    static uint64 last_time0 = useconds_since_start();
-    static uint64 last_time1 = useconds_since_start();
-    static uint64 last_time2 = useconds_since_start();
-    const uint64 frame_budget_start = useconds_since_start();
-    // During BIOS init (before video is configured), allow longer execution time
-    // Use 100ms budget for first 100 frames to allow BIOS init to complete
     static int init_frames = 0;
     const uint64 frame_budget_us = (init_frames < 100) ? 50000 : 16000;
     init_frames++;
-    while (bRun && !nuonEnv.trigger_render_video)
-    {
-        cycles++;
-
-        for (int i = 3; i >= 0; --i)
-            if (i != 3 || nuonEnv.MPE3wait_fieldCounter == 0)
-                nuonEnv.mpe[i].FetchDecodeExecute();
-
-        if (nuonEnv.pendingCommRequests)
-            DoCommBusController();
-
-        if ((cycles % 5000) == 0)
-        {
-            const uint64 new_time = useconds_since_start();
-            // Time-based frame budget: break after ~16ms to return control to retroarch
-            if ((new_time - frame_budget_start) >= frame_budget_us) {
-                static int flog = 0;
-                if (flog < 5) { fprintf(stderr, "FRAME[%d]: %u cycles in %lums budget=%lums\n", init_frames, cycles, (unsigned long)(new_time - frame_budget_start)/1000, (unsigned long)frame_budget_us/1000); flog++; }
-                break;
-            }
-
-            if (nuonEnv.timer_rate[0] > 0 && new_time >= last_time0 + (uint64)nuonEnv.timer_rate[0]) {
-                nuonEnv.ScheduleInterrupt(INT_SYSTIMER0); last_time0 = new_time;
-            } else if (nuonEnv.timer_rate[0] <= 0) last_time0 = new_time;
-
-            if (nuonEnv.timer_rate[1] > 0 && new_time >= last_time1 + (uint64)nuonEnv.timer_rate[1]) {
-                nuonEnv.ScheduleInterrupt(INT_SYSTIMER1); last_time1 = new_time;
-            } else if (nuonEnv.timer_rate[1] <= 0) last_time1 = new_time;
-
-            {
-                // Video field counter update: use timer_rate[2] if set, otherwise default ~60Hz (16667us)
-                const uint64 vidRate = (nuonEnv.timer_rate[2] > 0) ? (uint64)nuonEnv.timer_rate[2] : 16667;
-                if (new_time >= last_time2 + vidRate) {
-                    IncrementVideoFieldCounter();
-                    nuonEnv.TriggerVideoInterrupt();
-                    nuonEnv.trigger_render_video = true;
-                    const uint32 fieldCounter = SwapBytes(*((uint32*)&nuonEnv.systemBusDRAM[VIDEO_FIELD_COUNTER_ADDRESS & SYSTEM_BUS_VALID_MEMORY_MASK]));
-                    if (fieldCounter >= nuonEnv.MPE3wait_fieldCounter)
-                        nuonEnv.MPE3wait_fieldCounter = 0;
-                    last_time2 = new_time;
-                }
-            }
-        }
-
-        nuonEnv.TriggerScheduledInterrupts();
-    }
+    EmulatorCore::RunUntilVideoFrame(frame_budget_us, /*push_audio=*/false);
 
     // Render video
     if (gl_initialized) {
@@ -505,20 +431,13 @@ void retro_run(void)
         video_cb(framebuffer, FB_WIDTH, FB_HEIGHT, FB_WIDTH * 4);
     }
 
-    // Audio
-    if (nuonEnv.pNuonAudioBuffer && nuonEnv.nuonAudioBufferSize > 0) {
-        uint32 halfSize = nuonEnv.nuonAudioBufferSize >> 1;
-        uint32 frames = halfSize / 4; // 16-bit stereo = 4 bytes per frame
-        if (frames > AUDIO_BUFFER_SIZE / 2) frames = AUDIO_BUFFER_SIZE / 2;
-
-        const uint8* src = nuonEnv.pNuonAudioBuffer + nuonEnv.audio_buffer_offset;
-        // Byteswap from big-endian NUON to little-endian
-        for (uint32 i = 0; i < frames * 2; i++) {
-            audio_buffer[i] = (int16_t)((src[i*2+1]) | (src[i*2] << 8));
-        }
-        audio_batch_cb(audio_buffer, frames);
-        _InterlockedExchange(&nuonEnv.audio_buffer_played, 1);
-    }
+    // Audio: drain whatever the emulator has pushed into NuonEnvironment's
+    // ring buffer since the previous retro_run. Replaces the old direct
+    // double-buffer read + audio_buffer_played flag that disappeared when
+    // the audio path was generalized to miniaudio.
+    const uint32 framesOut = nuonEnv.DrainAudioRing(audio_buffer, AUDIO_BUFFER_SIZE / 2);
+    if (framesOut > 0)
+        audio_batch_cb(audio_buffer, framesOut);
 }
 
 size_t retro_serialize_size(void) { return 0; }

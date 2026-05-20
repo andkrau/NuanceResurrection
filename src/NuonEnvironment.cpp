@@ -228,6 +228,31 @@ bool NuonEnvironment::TryPushAudioPeriod()
   return true;
 }
 
+uint32 NuonEnvironment::DrainAudioRing(int16_t* dst, uint32 maxFrames)
+{
+  if(!audioRing || audioRingSize == 0 || maxFrames == 0)
+    return 0;
+
+  const uint32 w = audioRingWritePos.load(std::memory_order_acquire);
+  const uint32 r = audioRingReadPos.load(std::memory_order_relaxed);
+  uint32 available = w - r; // bytes
+  const uint32 maxBytes = maxFrames * 4; // 2ch * 2B per frame
+  if(available > maxBytes) available = maxBytes;
+  uint32 toCopy = available - (available % 4); // align to whole frame
+  if(toCopy == 0)
+    return 0;
+
+  for(uint32 i = 0; i < toCopy / 2; i++)
+  {
+    const uint32 byteIdx = (r + i*2) % audioRingSize;
+    const uint8 hi = audioRing[byteIdx];
+    const uint8 lo = audioRing[(byteIdx + 1) % audioRingSize];
+    dst[i] = (int16_t)(lo | (hi << 8));
+  }
+  audioRingReadPos.store(r + toCopy, std::memory_order_release);
+  return toCopy / 4;
+}
+
 void *NuonEnvironment::GetPointerToMemory(const uint32 mpe_idx, const uint32 address, const bool bCheckAddress)
 {
   if(address < MPE_ADDR_SPACE_BASE)
