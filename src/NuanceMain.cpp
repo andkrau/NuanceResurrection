@@ -1141,9 +1141,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   ofn.nMaxFile = sizeof(openFileName);
   // OPENFILENAME filter strings are double-NUL-terminated pairs of "label\0pattern\0..."
   ofn.lpstrFilter =
-    "NUON files (*.run;*.cd;*.cof;*.nuon;*.iso;*.img;*.zip)\0*.run;*.cd;*.cof;*.nuon;*.iso;*.img;*.zip\0"
+    "NUON files (*.run;*.cd;*.cof;*.nuon;*.iso;*.img;*.zip;*.chd)\0*.run;*.cd;*.cof;*.nuon;*.iso;*.img;*.zip;*.chd\0"
     "NUON executables (*.run;*.cd;*.cof;*.nuon)\0*.run;*.cd;*.cof;*.nuon\0"
-    "Disc images (*.iso;*.img)\0*.iso;*.img\0"
+    "Disc images (*.iso;*.img;*.chd)\0*.iso;*.img;*.chd\0"
     "ZIP archives (*.zip)\0*.zip\0"
     "All files (*.*)\0*.*\0";
   ofn.nFilterIndex = 1;

@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
       load4firsttime = false;
   } else {
     printf("Usage: nuance <rom_file>\n");
-    printf("  Supported formats: .run, .cd, .nuon, .cof, .iso, .img, .zip, .7z\n");
+    printf("  Supported formats: .run, .cd, .nuon, .cof, .iso, .img, .zip, .7z, .chd\n");
   }
 
   nuonEnv.videoDisplayCycleCount = 0;

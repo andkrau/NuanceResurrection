@@ -18,7 +18,55 @@
     <ClCompile Include="external\miniaudio_impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\miniz.c">
+    <ClCompile Include="third_party\libchdr\src\libchdr_bitstream.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_cdrom.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_chd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_cdfl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_cdlz.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_cdzl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_cdzs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_flac.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_huff.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_lzma.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_zlib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_codec_zstd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_flac.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\src\libchdr_huffman.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\deps\lzma-25.01\src\LzmaDec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\deps\miniz-3.1.1\miniz.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="third_party\libchdr\deps\zstd-1.5.7\zstddeclib.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\archive.cpp">
@@ -458,7 +506,7 @@
     <ClInclude Include="external\miniaudio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\miniz.h">
+    <ClInclude Include="third_party\libchdr\include\libchdr\chd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\archive.h">
