@@ -268,7 +268,7 @@ static int core_legacy_fseek(void* file, int64_t offset, int whence);
 static chd_error header_read(chd_file *chd);
 
 /* internal hunk read/write */
-static chd_error hunk_read_into_memory(chd_file *chd, uint32_t hunknum, uint8_t *dest);
+static chd_error hunk_read_into_memory(chd_file *chd, uint64_t hunknum, uint8_t *dest);
 
 /* internal map access */
 static chd_error map_read(chd_file *chd);
@@ -452,14 +452,14 @@ static CHDR_INLINE uint64_t get_bigendian_uint64_t(const uint8_t *base)
 
 static CHDR_INLINE void put_bigendian_uint64_t(uint8_t *base, uint64_t value)
 {
-	base[0] = value >> 56;
-	base[1] = value >> 48;
-	base[2] = value >> 40;
-	base[3] = value >> 32;
-	base[4] = value >> 24;
-	base[5] = value >> 16;
-	base[6] = value >> 8;
-	base[7] = value;
+	base[0] = (uint8_t)(value >> 56);
+	base[1] = (uint8_t)(value >> 48);
+	base[2] = (uint8_t)(value >> 40);
+	base[3] = (uint8_t)(value >> 32);
+	base[4] = (uint8_t)(value >> 24);
+	base[5] = (uint8_t)(value >> 16);
+	base[6] = (uint8_t)(value >> 8);
+	base[7] = (uint8_t)(value);
 }
 
 /*-------------------------------------------------
@@ -481,12 +481,12 @@ static CHDR_INLINE uint64_t get_bigendian_uint48(const uint8_t *base)
 static CHDR_INLINE void put_bigendian_uint48(uint8_t *base, uint64_t value)
 {
 	value &= 0xffffffffffff;
-	base[0] = value >> 40;
-	base[1] = value >> 32;
-	base[2] = value >> 24;
-	base[3] = value >> 16;
-	base[4] = value >> 8;
-	base[5] = value;
+	base[0] = (uint8_t)(value >> 40);
+	base[1] = (uint8_t)(value >> 32);
+	base[2] = (uint8_t)(value >> 24);
+	base[3] = (uint8_t)(value >> 16);
+	base[4] = (uint8_t)(value >> 8);
+	base[5] = (uint8_t)(value);
 }
 /*-------------------------------------------------
     get_bigendian_uint32_t - fetch a uint32_t from
@@ -551,8 +551,8 @@ static CHDR_INLINE uint16_t get_bigendian_uint16(const uint8_t *base)
 
 static CHDR_INLINE void put_bigendian_uint16(uint8_t *base, uint16_t value)
 {
-	base[0] = value >> 8;
-	base[1] = value;
+	base[0] = (uint8_t)(value >> 8);
+	base[1] = (uint8_t)(value);
 }
 
 /*-------------------------------------------------
@@ -649,7 +649,7 @@ static chd_error decompress_v5_map(chd_file* chd, chd_header* header)
 	uint32_t hunknum;
 	int repcount = 0;
 	uint8_t lastcomp = 0;
-	uint32_t last_self = 0;
+	uint64_t last_self = 0;
 	uint64_t last_parent = 0;
 	struct bitstream* bitbuf;
 	uint32_t mapbytes;
@@ -1114,10 +1114,10 @@ CHD_EXPORT chd_error chd_precache(chd_file *chd)
 {
 	if (chd->file_cache == NULL)
 	{
-		chd->file_cache = (uint8_t*)malloc(chd->file_size);
+		chd->file_cache = (uint8_t*)malloc((size_t)chd->file_size);
 		if (chd->file_cache == NULL)
 			return CHDERR_OUT_OF_MEMORY;
-		if (!seek_and_read(chd, 0, chd->file_cache, chd->file_size))
+		if (!seek_and_read(chd, 0, chd->file_cache, (size_t)chd->file_size))
 		{
 			free(chd->file_cache);
 			chd->file_cache = NULL;
@@ -1669,7 +1669,7 @@ static chd_error header_read(chd_file *chd)
 			header->hunkbytes      = get_bigendian_uint32_t(&rawheader[56]);
 			if (header->hunkbytes == 0)
 				return CHDERR_INVALID_DATA;
-			header->hunkcount      = (header->logicalbytes + header->hunkbytes - 1) / header->hunkbytes;
+			header->hunkcount      = (uint32_t)((header->logicalbytes + header->hunkbytes - 1) / header->hunkbytes);
 			header->unitbytes      = get_bigendian_uint32_t(&rawheader[60]);
 			if (header->unitbytes == 0)
 				return CHDERR_INVALID_DATA;
@@ -1802,7 +1802,7 @@ static chd_error hunk_read_uncompressed(chd_file *chd, uint64_t offset, size_t s
     memory at the given location
 -------------------------------------------------*/
 
-static chd_error hunk_read_into_memory(chd_file *chd, uint32_t hunknum, uint8_t *dest)
+static chd_error hunk_read_into_memory(chd_file *chd, uint64_t hunknum, uint8_t *dest)
 {
 	chd_error err;
 
@@ -1997,7 +1997,7 @@ static chd_error hunk_read_into_memory(chd_file *chd, uint32_t hunknum, uint8_t 
 					return hunk_read_into_memory(chd->parent, blockoffs / units_in_hunk, dest);
 				/* blockoffs is not aligned to units_in_hunk */
 				} else {
-					uint32_t unit_in_hunk = blockoffs % units_in_hunk;
+					uint32_t unit_in_hunk = (uint32_t)(blockoffs % units_in_hunk);
 					uint8_t *buf = (uint8_t*)malloc(chd->header.hunkbytes);
 					/* Read first half of hunk which contains blockoffs */
 					err = hunk_read_into_memory(chd->parent, blockoffs / units_in_hunk, buf);

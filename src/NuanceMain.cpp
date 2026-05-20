@@ -467,7 +467,7 @@ bool Load(const char* file = nullptr)
     if(file)
       ofn.lpstrFile = (char*)file;
 
-    // For .iso/.img/.zip, extract the boot file to a temp location and load from there.
+    // For .iso/.img/.zip/.chd, extract the boot file to a temp location and load from there.
     // For plain .run/.cd/.cof/.nuon this just returns the input unchanged.
     const std::string resolved = ResolveGameFile(ofn.lpstrFile);
     if(resolved.empty())
@@ -1097,7 +1097,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
   hDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_CONTROL_PANEL),NULL,ControlPanelDialogProc);
   const HWND hStatusDlg = CreateDialog(hInstance,MAKEINTRESOURCE(IDD_STATUS_DIALOG),NULL,StatusWindowDialogProc);
 
-  // Accept drag-and-dropped files (.run/.cd/.cof/.nuon/.iso/.img/.zip) on the control panel and
+  // Accept drag-and-dropped files (.run/.cd/.cof/.nuon/.iso/.img/.zip/.chd) on the control panel and
   // the GL display window. Both route through Load() -> ResolveGameFile().
   DragAcceptFiles(hDlg, TRUE);
   if (display.hWnd)

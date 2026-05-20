@@ -163,7 +163,7 @@ uint32_t flac_decoder_finish(flac_decoder* decoder)
 {
 	/* get the final decoding position and move forward */
 	drflac *flac = (drflac*)decoder->decoder;
-	uint64_t position = decoder->compressed_offset;
+	uint32_t position = decoder->compressed_offset;
 
 	/* ugh... there's no function to obtain bytes used in drflac :-/ */
 	position -= DRFLAC_CACHE_L2_LINES_REMAINING(&flac->bs) * sizeof(drflac_cache_t);
