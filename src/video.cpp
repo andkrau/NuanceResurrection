@@ -401,14 +401,8 @@ void RenderVideo(const int winwidth, const int winheight)
 {
   if(!bCanDisplayVideo)
   {
-    // No game frame yet — clear the back buffer to black and present so
-    // we don't display whatever uninitialised contents the GL driver left
-    // behind. In windowed mode the OS draws the desktop around the
-    // hbrBackground=NULL window so the undefined contents are invisible;
-    // in fullscreen they cover the screen as green/garbage (issue #29:
-    // "Command line not working" — command-line load triggers auto-
-    // fullscreen before the game has called VidConfig, so RenderVideo
-    // used to bail out without ever clearing+swapping).
+    // No rendered frame yet - so clear the back buffer to black and present so
+    // we don't display whatever uninitialised contents the video driver left behind
     if(bUseSeparateThread) gfx_lock.lock();
     glViewport(0, 0, winwidth, winheight);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -426,11 +420,11 @@ void RenderVideo(const int winwidth, const int winheight)
     bTexturesInitialized = true;
   }
 
-  // Re-bind the shader program every frame. In standalone the GL context
+  // Re-bind the shader program every frame: In standalone, the GL context
   // keeps the shader bound from InitTextures forever, but the libretro HW
-  // render path swaps GL state between frames (RetroArch may bind its own
-  // shader for menu/UI), so without this re-bind the YCrCbA → RGB pixel
-  // shader is missing and the textured quad shows up as black.
+  // render path can swap GL state between frames (RetroArch may bind its own
+  // shader for menu/UI), so without this re-bind the YCrCbA -> RGB pixel
+  // shader is missing
   if(bShadersInstalled)
     shaderProgram.StartShaderProgram();
 

@@ -472,13 +472,9 @@ bool Load(const char* file = nullptr)
     const std::string resolved = ResolveGameFile(ofn.lpstrFile);
     if(resolved.empty())
     {
+      MessageBox(NULL,"Cannot open or extract NUON game from file",ERROR,MB_ICONWARNING);
       if(file)
-      {
-        MessageBox(NULL,"Cannot open or extract NUON game from file",ERROR,MB_ICONWARNING);
         exit(0);
-      }
-      else
-        MessageBox(NULL,"Cannot open or extract NUON game from file",ERROR,MB_ICONWARNING);
 
       return false;
     }

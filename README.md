@@ -597,10 +597,12 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 - Fix "_MPEAlloc()" logic to match original BIOS.
 - Correct Audio Buffer sizes used for all configurations (via GetBufferSize()).
 - Unfortunately, Tetris now sounds even worse than before.
+- Fix (re)loading of 2ndary games: reset audio + MPE states.
 - To make (at least) T3K work better, the whole MediaRead (and partially MediaWrite) implementation has been redone
   to better match the spec (incl. proper return values, proper callback mode handling, and not filling up buffers too early),
   at the tradeoff that now the loads actually need some time to arrive (incl. potential stutter).
 - Fix "_MediaGetInfo()" byte-swapped fields.
+- Fix uninitialized framebuffer (e.g. when starting fullscreen from command line)
 - instructiontest.cof has been updated with more tests (verified to match real HW / Samsung DVD-N501).
 
 **03/21/2025 version 0.6.6:**
