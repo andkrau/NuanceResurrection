@@ -1,5 +1,6 @@
 #include "basetypes.h"
 #include "byteswap.h"
+#include "comm.h"
 #include "EmitMisc.h"
 #include "EmitMEM.h"
 #include "ExecuteMEM.h"
@@ -2627,20 +2628,53 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       break;
     case (0x500 >> 4):
       //odmactl
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->odmactl)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x60, destReg);
+      break;
     case (0x510 >> 4):
       //odmacptr
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->odmacptr)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x207FFFF0U, destReg);
+      break;
     case (0x600 >> 4):
       //mdmactl
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->mdmactl)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(~((3U << 14) | (1U << 8) | 0xFU), destReg);
+      break;
     case (0x610 >> 4):
       //mdmacptr
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->mdmacptr)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x207FFFF0U, destReg);
+      break;
     case (0x7E0 >> 4):
       //comminfo
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->comminfo)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(((0xFFU << 16) | 0xFFU), destReg);
+      break;
     case (0x7F0 >> 4):
       //commctl
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->commctl)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(((0x3U << 30) | (0xFFFU << 12) | 0xFFU), destReg);
+      break;
     case (0x800 >> 4):
+    {
       //commxmit0 to commxmit3
+      const uint32 idx = (address & 0x0F) >> 2;
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->commxmit[idx])));
+      break;
+    }
     case (0x810 >> 4):
-      //commrecv0 to commrecv3
+    {
+      //commrecv0 to commrecv3, with special case for commrecv3
+      const uint32 idx = (address & 0x0F) >> 2;
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->commrecv[idx])));
+      if (idx == 3)
+      {
+        // Reading commrecv3 clears COMM_RECV_BUFFER_FULL_BIT in commctl
+        vars->mpe->nativeCodeCache.X86Emit_ANDIM(~COMM_RECV_BUFFER_FULL_BIT, x86MemPtr::x86MemPtr_dword, ((uintptr_t)&(vars->mpe->commctl)));
+      }
+      break;
+    }
     default:
       assert(!"unhandled control register load"); //!! Ballistic and Tetris trigger this
       break;
