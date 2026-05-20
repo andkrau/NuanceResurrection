@@ -400,7 +400,25 @@ void IncrementVideoFieldCounter()
 void RenderVideo(const int winwidth, const int winheight)
 {
   if(!bCanDisplayVideo)
+  {
+    // No game frame yet — clear the back buffer to black and present so
+    // we don't display whatever uninitialised contents the GL driver left
+    // behind. In windowed mode the OS draws the desktop around the
+    // hbrBackground=NULL window so the undefined contents are invisible;
+    // in fullscreen they cover the screen as green/garbage (issue #29:
+    // "Command line not working" — command-line load triggers auto-
+    // fullscreen before the game has called VidConfig, so RenderVideo
+    // used to bail out without ever clearing+swapping).
+    if(bUseSeparateThread) gfx_lock.lock();
+    glViewport(0, 0, winwidth, winheight);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+#ifdef _WIN32
+    SwapBuffers(display.hDC);
+#endif
+    if(bUseSeparateThread) gfx_lock.unlock();
     return;
+  }
 
   if(!bTexturesInitialized)
   {
