@@ -477,9 +477,9 @@ void MediaGetInfo(MPE &mpe)
       const uint32 datarate = SwapBytes((uint32)DATA_RATE_DVD);
       const uint32 sectorsize = SwapBytes((uint32)BLOCK_SIZE_DVD);
 
-      pDevInfo->sectorsize = BLOCK_SIZE_DVD;
-      pDevInfo->datarate = DATA_RATE_DVD;
-      pDevInfo->id = handle;
+      pDevInfo->sectorsize = sectorsize;
+      pDevInfo->datarate = datarate;
+      pDevInfo->id = id;
       pDevInfo->type = 0;
       pDevInfo->bus = 0;
       pDevInfo->state = 0;

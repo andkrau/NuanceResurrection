@@ -593,12 +593,13 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 - Fix wrong flag setting for large numbers (highest bit set) in JIT versions of DECRc0 and DECRc1.
 - BTST is still not same as ISA spec (as apparently a real HW bug, at least on Aries 2 (=tested there)).
 - Multiple bugs in the "CompilerConstantPropagation"-enabled path fixed, so enabled by default now, leading to more performance.
-- Fix "_MPEAlloc()" logic to match original BIOS
+- Fix "_MPEAlloc()" logic to match original BIOS.
 - Correct Audio Buffer sizes used for all configurations (via GetBufferSize()).
 - Unfortunately, Tetris now sounds even worse than before.
 - To make (at least) T3K work better, the whole MediaRead (and partially MediaWrite) implementation has been redone
   to better match the spec (incl. proper return values, proper callback mode handling, and not filling up buffers too early),
   at the tradeoff that now the loads actually need some time to arrive (incl. potential stutter).
+- Fix "_MediaGetInfo()" byte-swapped fields.
 - instructiontest.cof has been updated with more tests (verified to match real HW / Samsung DVD-N501).
 
 **03/21/2025 version 0.6.6:**
