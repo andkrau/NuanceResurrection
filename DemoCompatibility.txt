@@ -3,6 +3,10 @@ Demo Compatibility:
 This list details the emulator compatibility level with homebrew applications
 and the Nuon SDK demos.
 
+Ring Flyer
+----------
+Untested.
+
 Doom
 ----
 Aries3:   Close to perfect.
