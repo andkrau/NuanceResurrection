@@ -837,7 +837,10 @@ void Emit_ANDImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_shl);
 
+  vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_calc_flags);
 
@@ -922,7 +925,10 @@ void Emit_ANDScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_shl);
 
+  vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_calc_flags);
 
@@ -1294,7 +1300,10 @@ void Emit_FTSTImmediateShiftScalar(EmitterVariables * const vars, const Nuance &
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_shl);
 
+  vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_calc_flags);
   
@@ -1374,7 +1383,10 @@ void Emit_FTSTScalarShiftScalar(EmitterVariables * const vars, const Nuance &nua
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_shl);
 
+  vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_calc_flags);
   
@@ -1736,7 +1748,10 @@ void Emit_ORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &nu
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_shl);
 
+  vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_calc_flags);
 
@@ -1821,7 +1836,10 @@ void Emit_ORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuanc
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_shl);
 
+  vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_calc_flags);
 
@@ -2203,7 +2221,10 @@ void Emit_EORImmediateShiftScalar(EmitterVariables * const vars, const Nuance &n
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_shl);
 
+  vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_calc_flags);
 
@@ -2288,7 +2309,10 @@ void Emit_EORScalarShiftScalar(EmitterVariables * const vars, const Nuance &nuan
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_shl);
 
+  vars->mpe->nativeCodeCache.X86Emit_XORRR(x86Reg::x86Reg_edx, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
+  vars->mpe->nativeCodeCache.X86Emit_CMPIR(32, x86Reg::x86Reg_ecx);
+  vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_edx);
 
   vars->mpe->nativeCodeCache.SetLabelPointer(l_calc_flags);
   

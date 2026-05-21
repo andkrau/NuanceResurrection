@@ -1228,7 +1228,8 @@ void PropagateConstants_ANDImmediateShiftScalar(SuperBlockConstants &constants)
     const uint32 src2 = (((int32)(constants.GetScalarRegisterConstant(src2Index) << 26)) >> 26) & 0x3FU;
     if(src2 & 0x20)
     {
-      src1 = (src1 << (64U - src2));
+      const uint32 shamt = 64U - src2;
+      src1 = (shamt < 32) ? (src1 << shamt) : 0;
     }
     else
     {
@@ -1344,7 +1345,7 @@ void PropagateConstants_ANDScalarRotateScalar(SuperBlockConstants &constants)
 
     if(src2 & 0x20)
     {
-      src1 = _lrotl(src1, 64U - src2);
+      src1 = _lrotl(src1, (64U - src2) & 31U);
     }
     else
     {
@@ -1449,7 +1450,8 @@ void PropagateConstants_FTSTImmediateShiftScalar(SuperBlockConstants &constants)
     const uint32 src2 = (((int32)(constants.GetScalarRegisterConstant(src2Index) << 26)) >> 26) & 0x3FU;
     if(src2 & 0x20)
     {
-      src1 = (src1 << (64U - src2));
+      const uint32 shamt = 64U - src2;
+      src1 = (shamt < 32) ? (src1 << shamt) : 0;
     }
     else
     {
@@ -1566,7 +1568,7 @@ void PropagateConstants_FTSTScalarRotateScalar(SuperBlockConstants &constants)
 
     if(src2 & 0x20)
     {
-      src1 = _lrotl(src1, 64U - src2);
+      src1 = _lrotl(src1, (64U - src2) & 31U);
     }
     else
     {
@@ -1674,7 +1676,8 @@ void PropagateConstants_ORImmediateShiftScalar(SuperBlockConstants &constants)
     const uint32 src2 = (((int32)(constants.GetScalarRegisterConstant(src2Index) << 26)) >> 26) & 0x3FU;
     if(src2 & 0x20)
     {
-      src1 = (src1 << (64U - src2));
+      const uint32 shamt = 64U - src2;
+      src1 = (shamt < 32) ? (src1 << shamt) : 0;
     }
     else
     {
@@ -1791,7 +1794,7 @@ void PropagateConstants_ORScalarRotateScalar(SuperBlockConstants &constants)
 
     if(src2 & 0x20)
     {
-      src1 = _lrotl(src1, 64U - src2);
+      src1 = _lrotl(src1, (64U - src2) & 31U);
     }
     else
     {
@@ -1911,7 +1914,8 @@ void PropagateConstants_EORImmediateShiftScalar(SuperBlockConstants &constants)
     const uint32 src2 = (((int32)(constants.GetScalarRegisterConstant(src2Index) << 26)) >> 26) & 0x3FU;
     if(src2 & 0x20)
     {
-      src1 = (src1 << (64U - src2));
+      const uint32 shamt = 64U - src2;
+      src1 = (shamt < 32) ? (src1 << shamt) : 0;
     }
     else
     {
@@ -2027,7 +2031,7 @@ void PropagateConstants_EORScalarRotateScalar(SuperBlockConstants &constants)
 
     if(src2 & 0x20)
     {
-      src1 = _lrotl(src1, 64U - src2);
+      src1 = _lrotl(src1, (64U - src2) & 31U);
     }
     else
     {

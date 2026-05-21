@@ -976,7 +976,8 @@ void Execute_ANDImmediateShiftScalar(MPE &mpe, const uint32 pRegs[48], const Nua
 
   if(src2 & 0x20)
   {
-    dest &= (src1 << (64U - src2));
+    const uint32 shamt = 64U - src2;
+    dest &= (shamt < 32) ? (src1 << shamt) : 0;
   }
   else
   {
@@ -1049,7 +1050,8 @@ void Execute_ANDScalarShiftScalar(MPE &mpe, const uint32 pRegs[48], const Nuance
 
   if(src2 & 0x20)
   {
-    dest &= (src1 << (64U - src2));
+    const uint32 shamt = 64U - src2;
+    dest &= (shamt < 32) ? (src1 << shamt) : 0;
   }
   else
   {
@@ -1078,7 +1080,7 @@ void Execute_ANDScalarRotateScalar(MPE &mpe, const uint32 pRegs[48], const Nuanc
 
   if(src2 & 0x20)
   {
-    dest &= _lrotl(src1, 64U - src2);
+    dest &= _lrotl(src1, (64U - src2) & 31U);
   }
   else
   {
@@ -1143,7 +1145,8 @@ void Execute_FTSTImmediateShiftScalar(MPE &mpe, const uint32 pRegs[48], const Nu
 
   if(src2 & 0x20)
   {
-    dest &= (src1 << (64U - src2));
+    const uint32 shamt = 64U - src2;
+    dest &= (shamt < 32) ? (src1 << shamt) : 0;
   }
   else
   {
@@ -1210,7 +1213,8 @@ void Execute_FTSTScalarShiftScalar(MPE &mpe, const uint32 pRegs[48], const Nuanc
 
   if(src2 & 0x20)
   {
-    dest &= (src1 << (64U - src2));
+    const uint32 shamt = 64U - src2;
+    dest &= (shamt < 32) ? (src1 << shamt) : 0;
   }
   else
   {
@@ -1237,7 +1241,7 @@ void Execute_FTSTScalarRotateScalar(MPE &mpe, const uint32 pRegs[48], const Nuan
 
   if(src2 & 0x20)
   {
-    dest &= _lrotl(src1, 64U - src2);
+    dest &= _lrotl(src1, (64U - src2) & 31U);
   }
   else
   {
@@ -1304,7 +1308,8 @@ void Execute_ORImmediateShiftScalar(MPE &mpe, const uint32 pRegs[48], const Nuan
 
   if(src2 & 0x20)
   {
-    dest |= (src1 << (64U - src2));
+    const uint32 shamt = 64U - src2;
+    dest |= (shamt < 32) ? (src1 << shamt) : 0;
   }
   else
   {
@@ -1377,7 +1382,8 @@ void Execute_ORScalarShiftScalar(MPE &mpe, const uint32 pRegs[48], const Nuance 
 
   if(src2 & 0x20)
   {
-    dest |= (src1 << (64U - src2));
+    const uint32 shamt = 64U - src2;
+    dest |= (shamt < 32) ? (src1 << shamt) : 0;
   }
   else
   {
@@ -1406,7 +1412,7 @@ void Execute_ORScalarRotateScalar(MPE &mpe, const uint32 pRegs[48], const Nuance
 
   if(src2 & 0x20)
   {
-    dest |= _lrotl(src1, 64U - src2);
+    dest |= _lrotl(src1, (64U - src2) & 31U);
   }
   else
   {
@@ -1475,7 +1481,8 @@ void Execute_EORImmediateShiftScalar(MPE &mpe, const uint32 pRegs[48], const Nua
 
   if(src2 & 0x20)
   {
-    dest ^= (src1 << (64U - src2));
+    const uint32 shamt = 64U - src2;
+    dest ^= (shamt < 32) ? (src1 << shamt) : 0;
   }
   else
   {
@@ -1548,7 +1555,8 @@ void Execute_EORScalarShiftScalar(MPE &mpe, const uint32 pRegs[48], const Nuance
 
   if(src2 & 0x20)
   {
-    dest ^= (src1 << (64U - src2));
+    const uint32 shamt = 64U - src2;
+    dest ^= (shamt < 32) ? (src1 << shamt) : 0;
   }
   else
   {
@@ -1577,7 +1585,7 @@ void Execute_EORScalarRotateScalar(MPE &mpe, const uint32 pRegs[48], const Nuanc
 
   if(src2 & 0x20)
   {
-    dest ^= _lrotl(src1, 64U - src2);
+    dest ^= _lrotl(src1, (64U - src2) & 31U);
   }
   else
   {
