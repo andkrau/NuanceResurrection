@@ -34,7 +34,7 @@ public:
   bool bT3KCompilerHack;
   bool bConstantPropagation;
   bool bDeadCodeElimination;
-  bool bAllowCompile; //!! on 64bit this is always force disabled for now, as no x64 code can be emitted
+  bool bAllowCompile;
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
   bool bDumpBlocks;
 #endif

@@ -1,5 +1,6 @@
 #include "basetypes.h"
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 #include <Objbase.h>

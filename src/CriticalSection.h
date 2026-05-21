@@ -1,6 +1,7 @@
 #ifndef CRITICALSECTION_H
 #define CRITICALSECTION_H
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
 class CriticalSection final

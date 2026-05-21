@@ -7,6 +7,7 @@
 #include <cerrno>
 
 #ifdef _MSC_VER
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define strncasecmp _strnicmp
 #define strcasecmp _stricmp

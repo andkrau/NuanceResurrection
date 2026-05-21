@@ -1,4 +1,5 @@
 #include "basetypes.h"
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <string>
 #include <deque>
@@ -36,7 +37,7 @@
 // block at a time and (optionally) fire user callbacks on the same schedule
 // (every-block and/or end, dependent on the mode bits the caller set).
 // Each block-delivery / callback is queued in a per-MPE FIFO that MPE::FetchDecodeExecute
-// drains via TickMediaCallbacks(), once cycleCounter passes the entry's fire time
+// drains via TickMediaCallbacks(), once s_tickCounter passes the entry's fire time
 //
 // If not defined, fall back to the previous tail-call shim: the callback fires
 // synchronously inside the BIOS handler, and the shim restores the caller's
@@ -92,7 +93,7 @@ struct PendingMediaCB
   uint32 callback;           // 0 = "delivery only", no user callback fires
   uint32 cbR0;               // reg0 handed to the callback (MCB_END/MCB_EVERY/MCB_ERROR)
   uint32 cbR1;               // reg1 handed to the callback (block index / -1 / count)
-  uint64 fireAtCycle;        // cycleCounter threshold at which to act
+  uint64 fireAtCycle;        // s_tickCounter threshold at which to act
   uint32 destAddr;           // NUON RAM address to copy data to (0 = no copy)
   std::vector<uint8_t> data; // intermediate buffer slice; empty = no copy
 };
@@ -564,7 +565,7 @@ void MediaRead(MPE &mpe)
 
   // Disc data is loaded into a host-side intermediate buffer directly here, then either:
   // - async path: schedule into the FIFO, so block 'i' of NUON memory is
-  //   written at cycleCounter + '(i+1)*MEDIA_CYCLES_PER_BLOCK', with optional
+  //   written at s_tickCounter + '(i+1)*MEDIA_CYCLES_PER_BLOCK', with optional
   //   MCB_EVERY/MCB_END callbacks per the mode bits
   // - sync path (legacy): copied directly to NUON memory and the (always single :/)
   //   callback is fired immediately via the tail-call shim
@@ -898,7 +899,7 @@ void MediaIoctl(MPE &mpe)
           break;
         case eMedia::MEDIA_IOCTL_SET_END:
           break;
-        case eMedia::MEDIA_IOCTL_GET_PHYSICAL:
+        case eMedia::MEDIA_IOCTL_GET_PHYSICAL: //!! Ballistic and Tetris trigger this
           if(value)
           {
             uint32* const ptr = (uint32 *)nuonEnv.GetPointerToMemory(mpe.mpeIndex, value);
