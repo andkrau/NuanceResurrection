@@ -1,4 +1,5 @@
 #include "basetypes.h"
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "mpe.h"
 #include "NativeCodeCache.h"
@@ -4398,6 +4399,25 @@ void NativeCodeCache::X86Emit_MOVSSMR(const x86Reg regDest, const uintptr_t base
   *pEmitLoc++ = 0x10;
 
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)((uint32)regDest & 0x07),base,index, scale, disp);
+}
+
+void NativeCodeCache::X86Emit_MOVDRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
+{
+  #ifdef USE_ASMJIT
+  if (asmjitAs) {
+    auto& a = *asmjitAs;
+    auto m = NuanceJit::buildMem(a, base, index, scale, disp, 4);
+    a.movd(m, NuanceJit::toXmm(regSrc));
+    return;
+  }
+  #endif
+
+  //SSE2
+  *pEmitLoc++ = 0x66;
+  *pEmitLoc++ = 0x0F;
+  *pEmitLoc++ = 0x7E;
+
+  X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)((uint32)regSrc & 0x07),base,index, scale, disp);
 }
 
 void NativeCodeCache::X86Emit_UNPCKLRR(const x86Reg regDest, const x86Reg regSrc)

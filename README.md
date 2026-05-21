@@ -592,7 +592,7 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 - Fix bug in JIT version of MULImmediateShiftLeftImmediate (wrong dependency used).
 - Fix bug in ANDImmediateShiftScalar, ANDScalarShiftScalar, FTSTImmediateShiftScalar, FTSTScalarShiftScalar, ORImmediateShiftScalar, ORScalarShiftScalar, EORImmediateShiftScalar, EORScalarShiftScalar (shift broken if left shift == 32 used).
 - Fix wrong flag setting for large numbers (highest bit set) in JIT versions of DECRc0 and DECRc1.
-- Fix missing JIT implementations for loading odmactl,odmacptr,mdmactl,mdmacptr,comminfo,commctl,commxmit0/1/2/3,commrecv0/1/2/3
+- Fix missing JIT implementations for loading odmactl,odmacptr,mdmactl,mdmacptr,comminfo,commctl,commxmit0/1/2/3,commrecv0/1/2/3 and configa/configb/dcachectl/icachectl.
 - BTST is still not same as ISA spec (as apparently a real HW bug, at least on Aries 2 (=tested there)).
 - Multiple bugs in the "CompilerConstantPropagation"-enabled path fixed, so enabled by default now, leading to more performance.
 - Fix "_MPEAlloc()" logic to match original BIOS.
@@ -603,7 +603,8 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
   to better match the spec (incl. proper return values, proper callback mode handling, and not filling up buffers too early),
   at the tradeoff that now the loads actually need some time to arrive (incl. potential stutter).
 - Fix "_MediaGetInfo()" byte-swapped fields.
-- Fix uninitialized framebuffer (e.g. when starting fullscreen from command line)
+- Fix uninitialized framebuffer (e.g. when starting fullscreen from command line).
+- Optimize most JIT code that needs to do bswap/endian change.
 - instructiontest.cof has been updated with more tests (verified to match real HW / Samsung DVD-N501).
 
 **03/21/2025 version 0.6.6:**

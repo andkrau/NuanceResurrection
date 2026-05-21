@@ -1455,8 +1455,8 @@ void Execute_StorePixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance 
 
 void Execute_StoreShortVectorAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
-  const int32* const srcPtr = (int32 *)&pRegs[nuance.fields[FIELD_MEM_FROM]];
-  int16 * const destPtr = (int16 *)nuance.fields[FIELD_MEM_POINTER];
+  const uint32* const srcPtr = &pRegs[nuance.fields[FIELD_MEM_FROM]];
+  uint16* const destPtr = (uint16 *)nuance.fields[FIELD_MEM_POINTER];
 
   destPtr[0] = srcPtr[0] >> 16U;
   destPtr[1] = srcPtr[1] >> 16U;
@@ -1470,7 +1470,7 @@ void Execute_StoreShortVectorLinear(MPE &mpe, const uint32 pRegs[48], const Nuan
   const uint32* const srcPtr = &pRegs[nuance.fields[FIELD_MEM_FROM]];
   uint16* const destPtr = (uint16 *)(nuonEnv.GetPointerToMemory(mpe.mpeIndex,pRegs[nuance.fields[FIELD_MEM_TO]] & 0xFFFFFFF8));
 
-  destPtr[0] = srcPtr[0] >> 16U; //!! why is this unsigned and above signed
+  destPtr[0] = srcPtr[0] >> 16U;
   destPtr[1] = srcPtr[1] >> 16U;
   destPtr[2] = srcPtr[2] >> 16U;
   destPtr[3] = srcPtr[3] >> 16U;

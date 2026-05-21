@@ -35,6 +35,8 @@ static inline void Emit_LoadBankPtr(EmitterVariables * const vars)
 }
 
 static const __m128i bswap_lut = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3); //_mm_setr_epi8(3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12);
+static const __m128i bswap_short_load_lut = _mm_set_epi8(6, 7, (char)0x80, (char)0x80, 4, 5, (char)0x80, (char)0x80, 2, 3, (char)0x80, (char)0x80, 0, 1, (char)0x80, (char)0x80);
+static const __m128i bswap_short_store_lut = _mm_set_epi8((char)0x80, (char)0x80, (char)0x80, (char)0x80, (char)0x80, (char)0x80, (char)0x80, (char)0x80, 14, 15, 10, 11, 6, 7, 2, 3);
 
 void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address, const x86Reg destReg);
 void EmitControlRegisterStore(EmitterVariables * const vars, const uint32 address, const x86Reg destReg);
@@ -593,6 +595,15 @@ void Emit_LoadShortVectorAbsolute(EmitterVariables * const vars, const Nuance &n
   const x86BaseReg destRegWriteBaseReg = GetScalarRegWriteBaseReg(vars,destRegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
+  if(SSSE3_supported)
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVQMR(x86Reg::x86Reg_xmm0, srcAddress);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm1, (uintptr_t)&bswap_short_load_lut);
+  vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcAddress);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, srcAddress+2);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, srcAddress+4);
@@ -610,6 +621,7 @@ void Emit_LoadShortVectorAbsolute(EmitterVariables * const vars, const Nuance &n
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
+  }
 }
 
 void Emit_LoadShortVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
@@ -1471,6 +1483,15 @@ void Emit_StoreShortVectorAbsolute(EmitterVariables * const vars, const Nuance &
   const x86BaseReg srcRegReadBaseReg_3 = GetScalarRegReadBaseReg(vars,srcRegIndex+3);
   const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
 
+  if (SSSE3_supported && (srcRegReadBaseReg_0 == srcRegReadBaseReg_1) && (srcRegReadBaseReg_2 == srcRegReadBaseReg_3) && (srcRegReadBaseReg_0 == srcRegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, srcRegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm1, (uintptr_t)&bswap_short_store_lut);
+  vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVQRM(x86Reg::x86Reg_xmm0, destAddress);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcRegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, srcRegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, srcRegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp+8);
@@ -1483,6 +1504,7 @@ void Emit_StoreShortVectorAbsolute(EmitterVariables * const vars, const Nuance &
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_bx, destAddress+2);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_cx, destAddress+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_dx, destAddress+6);
+  }
 }
 
 void Emit_StoreShortVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
@@ -2171,6 +2193,20 @@ void Emit_PushVector(EmitterVariables * const vars, const Nuance &nuance)
   const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uintptr_t)&(vars->mpe->sp));
+
+  if (SSSE3_supported && (srcRegReadBaseReg_0 == srcRegReadBaseReg_1) && (srcRegReadBaseReg_2 == srcRegReadBaseReg_3) && (srcRegReadBaseReg_0 == srcRegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, srcRegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SUBIR(16, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uintptr_t)&(vars->mpe->sp));
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(MPE_VALID_MEMORY_MASK, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_ADDIR((uintptr_t)vars->mpe->dtrom, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm1, (uintptr_t)&bswap_lut);
+  vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcRegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, srcRegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, srcRegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp+8);
@@ -2187,6 +2223,7 @@ void Emit_PushVector(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 8);
   vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 12);
+  }
 }
 
 void Emit_PushVectorRz(EmitterVariables * const vars, const Nuance &nuance)
@@ -2202,6 +2239,24 @@ void Emit_PushVectorRz(EmitterVariables * const vars, const Nuance &nuance)
   const int32 rzRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uintptr_t)&(vars->mpe->sp));
+
+  if (SSSE3_supported && (srcRegReadBaseReg_0 == srcRegReadBaseReg_1) && (srcRegReadBaseReg_0 == srcRegReadBaseReg_2))
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVQMR(x86Reg::x86Reg_xmm0, srcRegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVSSMR(x86Reg::x86Reg_xmm1, srcRegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp+8);
+  vars->mpe->nativeCodeCache.X86Emit_MOVSSMR(x86Reg::x86Reg_xmm2, rzRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_UNPCKLRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm2);
+  vars->mpe->nativeCodeCache.X86Emit_MOVLHRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_SUBIR(16, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uintptr_t)&(vars->mpe->sp));
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(MPE_VALID_MEMORY_MASK, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_ADDIR((uintptr_t)vars->mpe->dtrom, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm3, (uintptr_t)&bswap_lut);
+  vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm3);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcRegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, srcRegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, srcRegReadBaseReg_2, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp+8);
@@ -2218,6 +2273,7 @@ void Emit_PushVectorRz(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 8);
   vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 12);
+  }
 }
 
 void Emit_PushScalarRzi1(EmitterVariables * const vars, const Nuance &nuance)
@@ -2234,6 +2290,26 @@ void Emit_PushScalarRzi1(EmitterVariables * const vars, const Nuance &nuance)
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uintptr_t)&(vars->mpe->sp));
+
+  if (SSSE3_supported)
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVSSMR(x86Reg::x86Reg_xmm0, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVSSMR(x86Reg::x86Reg_xmm1, ccRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_UNPCKLRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVSSMR(x86Reg::x86Reg_xmm2, rzi1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVSSMR(x86Reg::x86Reg_xmm1, rzRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_UNPCKLRR(x86Reg::x86Reg_xmm2, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVLHRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm2);
+  vars->mpe->nativeCodeCache.X86Emit_SUBIR(16, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uintptr_t)&(vars->mpe->sp));
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(MPE_VALID_MEMORY_MASK, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_ADDIR((uintptr_t)vars->mpe->dtrom, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm1, (uintptr_t)&bswap_lut);
+  vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ccRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rzi1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi1RegDisp);
@@ -2250,6 +2326,7 @@ void Emit_PushScalarRzi1(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 8);
   vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 12);
+  }
 }
 
 void Emit_PushScalarRzi2(EmitterVariables * const vars, const Nuance &nuance)
@@ -2266,6 +2343,26 @@ void Emit_PushScalarRzi2(EmitterVariables * const vars, const Nuance &nuance)
   const int32 ccRegDisp = GetMiscRegEmitDisp(vars,REGINDEX_CC);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, (uintptr_t)&(vars->mpe->sp));
+
+  if (SSSE3_supported)
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVSSMR(x86Reg::x86Reg_xmm0, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVSSMR(x86Reg::x86Reg_xmm1, ccRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_UNPCKLRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVSSMR(x86Reg::x86Reg_xmm2, rzi2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVSSMR(x86Reg::x86Reg_xmm1, rzRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_UNPCKLRR(x86Reg::x86Reg_xmm2, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVLHRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm2);
+  vars->mpe->nativeCodeCache.X86Emit_SUBIR(16, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uintptr_t)&(vars->mpe->sp));
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(MPE_VALID_MEMORY_MASK, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_ADDIR((uintptr_t)vars->mpe->dtrom, x86Reg::x86Reg_edx);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm1, (uintptr_t)&bswap_lut);
+  vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, ccRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, rzi2RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi2RegDisp);
@@ -2282,6 +2379,7 @@ void Emit_PushScalarRzi2(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 8);
   vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 12);
+  }
 }
 
 void Emit_PopVector(EmitterVariables * const vars, const Nuance &nuance)
@@ -2296,6 +2394,16 @@ void Emit_PopVector(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, (uintptr_t)&(vars->mpe->sp));
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(MPE_VALID_MEMORY_MASK, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_ADDIR((uintptr_t)vars->mpe->dtrom, x86Reg::x86Reg_ebp);
+
+  if (SSSE3_supported)
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, x86BaseReg::x86BaseReg_ebp, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm1, (uintptr_t)&bswap_lut);
+  vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, x86BaseReg::x86BaseReg_ebp, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, x86BaseReg::x86BaseReg_ebp, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, x86BaseReg::x86BaseReg_ebp, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 8);
@@ -2308,6 +2416,7 @@ void Emit_PopVector(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
+  }
 }
 
 void Emit_PopVectorRz(EmitterVariables * const vars, const Nuance &nuance)
@@ -2323,6 +2432,23 @@ void Emit_PopVectorRz(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(MPE_VALID_MEMORY_MASK, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_ADDIR((uintptr_t)vars->mpe->dtrom, x86Reg::x86Reg_edx);
+
+  if (SSSE3_supported)
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm1, (uintptr_t)&bswap_lut);
+  vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+
+  vars->mpe->nativeCodeCache.X86Emit_MOVQRM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x0E); // xmm0 = [v2, v3, v0, v0]
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x01); // xmm0 = [v3, v2, v2, v2]
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 8);
@@ -2337,6 +2463,7 @@ void Emit_PopVectorRz(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
+  }
 }
 
 void Emit_PopScalarRzi1(EmitterVariables * const vars, const Nuance &nuance)
@@ -2356,6 +2483,25 @@ void Emit_PopScalarRzi1(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(MPE_VALID_MEMORY_MASK, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_ADDIR((uintptr_t)vars->mpe->dtrom, x86Reg::x86Reg_edx);
+
+  if (SSSE3_supported)
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm1, (uintptr_t)&bswap_lut);
+  vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x39); // [v1, v2, v3, v0]
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x39); // [v2, v3, v0, v1]
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, rzi1RegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi1RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x39); // [v3, v0, v1, v2]
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 8);
@@ -2370,6 +2516,7 @@ void Emit_PopScalarRzi1(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
+  }
 }
 
 void Emit_PopScalarRzi2(EmitterVariables * const vars, const Nuance &nuance)
@@ -2389,6 +2536,25 @@ void Emit_PopScalarRzi2(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(MPE_VALID_MEMORY_MASK, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_ADDIR((uintptr_t)vars->mpe->dtrom, x86Reg::x86Reg_edx);
+
+  if (SSSE3_supported)
+  {
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQUMR(x86Reg::x86Reg_xmm0, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
+  vars->mpe->nativeCodeCache.X86Emit_MOVDQAMR(x86Reg::x86Reg_xmm1, (uintptr_t)&bswap_lut);
+  vars->mpe->nativeCodeCache.X86Emit_PSHUFBRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
+
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x39); // [v1, v2, v3, v0]
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x39); // [v2, v3, v0, v1]
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, rzi2RegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi2RegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x39); // [v3, v0, v1, v2]
+  vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
+  vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
+  }
+  else
+  {
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 0);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 4);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 8);
@@ -2403,6 +2569,7 @@ void Emit_PopScalarRzi2(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
+  }
 }
 
 void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address, const x86Reg destReg)
@@ -2675,8 +2842,29 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
       }
       break;
     }
+    case (0xFF0 >> 4):
+      //configa/configb/dcachectl/icachectl
+      switch(address & 0x0F)
+      {
+        case 0x00:
+          vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->configa)));
+          break;
+        case 0x04:
+          vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->configb)));
+          break;
+        case 0x08:
+          vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->dcachectl)));
+          break;
+        case 0x0C:
+          vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->icachectl)));
+          break;
+        default:
+          vars->mpe->nativeCodeCache.X86Emit_XORRR(destReg, destReg);
+          break;
+      }
+      break;
     default:
-      assert(!"unhandled control register load"); //!! Ballistic and Tetris trigger this
+      assert(!"unhandled control register load");
       break;
   }
 }
