@@ -54,15 +54,16 @@
 #define X_TEXT1			(55)	// X-pos of "Y" value display
 #define Y_TEXT1_TOP		(25)	// Y-pos of top of "Y" value display area
 #define Y_TEXT1_BOTTOM	(70)	// Y-pos of bottom of "Y" value display area
-    
-#define SCREENWIDTH	(720)
+
+#define SCREENWIDTH		(720)
 #define SCREENHEIGHT	(480)
 
-mmlGC			gl_gc;
+mmlGC				gl_gc;
 mmlSysResources 	gl_sysRes;
 mmlDisplayPixmap	gl_screen;
 
 unsigned int nuontest(unsigned int *scratchBuffer);
+extern const char nuontest_version[];
 
 int DoInstructionTest(unsigned int *scratchBuffer)
 {
@@ -132,7 +133,10 @@ int main( )
 	  // Set all the pixels in the display pixmap
 		fill_background(&gl_gc, &gl_screen, 0, 0, 0);
 
-    msprintf(buf, "Testing instruction set (interpreter)\n");
+	msprintf(buf, "%s\n", nuontest_version);
+	DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP, clrWhite, buf );
+
+	msprintf(buf, "Testing instruction set (interpreter)\n");
 	  DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 10, clrWhite, buf );
 
 	  if((testResult = DoInstructionTest(testResults)) != 0)

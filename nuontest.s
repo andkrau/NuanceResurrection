@@ -155,9 +155,17 @@ expectedFlagsReg = r31
 .mend
 
 .export _nuontest
+.export _nuontest_version
 
 .text
 .align.v
+
+; Build version used by instructiontest.c's on-screen banner.
+; Bump when adding tests or changing semantics
+_nuontest_version:
+    .ascii  "nuontest v204 (lsl-32 + SIMD push/pop)"
+    .dc.b   0
+    .align.v
 
 _nuontest:
 
@@ -4770,6 +4778,288 @@ LoadTestReg 19, r4
 LoadFlags noflags
 cmp #5, >>#-2, r4             ; r4 - (5 << 2) = 19 - 20 = -1
 TestFlagsExact nf+cf
+
+`test_shift_left_by_32_edge_cases:
+
+;==================================================================
+; left-shift-by-32 in AND/OR/EOR/FTST
+; *ShiftScalar / *ImmediateShiftScalar variants.
+;
+; The shift count register holds a sign-extended 6-bit value where
+; negative = "shift src1 left by |amount|".  The encoded boundary is
+; -32.  Shifting a 32-bit value by 32 is UB; on x86 the SHL count
+; is masked to 5 bits so `<< 32` silently became `<< 0` and the
+; emitted JIT code merged the unshifted src1 instead of the
+; architectural zero.
+;==================================================================
+
+;-- and #n, >>Sj, Sk : r5 = -32 selects shift-left-by-32 = 0
+;n = -1, r5 = -32, r6 = $12345678: src1<<32 == 0, r6 &= 0 -> 0, zf set
+SetTestNumber 193
+LoadTestReg -32,r5
+LoadTestReg $12345678,r6
+LoadFlags nf+vf
+and #-1, >>r5, r6
+StoreResult r6
+TestFlags zf
+TestResult 0
+
+;Adjacent sanity: r5 = -31 (shift left by 31) must still work
+;n = 1, r5 = -31, r6 = $FFFFFFFF: src1<<31 == $80000000, nf set
+LoadTestReg -31,r5
+LoadTestReg $FFFFFFFF,r6
+LoadFlags zf+vf
+and #1, >>r5, r6
+StoreResult r6
+TestFlags nf
+TestResult $80000000
+
+;-- and Si, >>Sj, Sk : r5 = -32
+;r4 = -1, r5 = -32, r6 = $A55AA55A: r4<<32 == 0, r6 &= 0 -> 0, zf set
+SetTestNumber 194
+LoadTestReg -1,r4
+LoadTestReg -32,r5
+LoadTestReg $A55AA55A,r6
+LoadFlags nf+vf
+and r4, >>r5, r6
+StoreResult r6
+TestFlags zf
+TestResult 0
+
+;-- or #n, >>Sj, Sk : r5 = -32
+;n = -1, r5 = -32, r6 = $AAAAAAAA: src1<<32 == 0, r6 |= 0 -> $AAAAAAAA, nf set
+SetTestNumber 195
+LoadTestReg -32,r5
+LoadTestReg $AAAAAAAA,r6
+LoadFlags zf+vf
+or #-1, >>r5, r6
+StoreResult r6
+TestFlags nf
+TestResult $AAAAAAAA
+
+;-- or Si, >>Sj, Sk : r5 = -32
+;r4 = -1, r5 = -32, r6 = 0: r4<<32 == 0, r6 |= 0 -> 0, zf set
+SetTestNumber 196
+LoadTestReg -1,r4
+LoadTestReg -32,r5
+LoadTestReg 0,r6
+LoadFlags nf+vf
+or r4, >>r5, r6
+StoreResult r6
+TestFlags zf
+TestResult 0
+
+;-- eor #n, >>Sj, Sk : r5 = -32
+;n = -1, r5 = -32, r6 = $12345678: src1<<32 == 0, r6 ^= 0 -> $12345678, noflags
+SetTestNumber 197
+LoadTestReg -32,r5
+LoadTestReg $12345678,r6
+LoadFlags nf+zf+vf
+eor #-1, >>r5, r6
+StoreResult r6
+TestFlags noflags
+TestResult $12345678
+
+;-- eor Si, >>Sj, Sk : r5 = -32
+;r4 = -1, r5 = -32, r6 = $80000000: r4<<32 == 0, r6 ^= 0 -> $80000000, nf set
+SetTestNumber 198
+LoadTestReg -1,r4
+LoadTestReg -32,r5
+LoadTestReg $80000000,r6
+LoadFlags zf+vf
+eor r4, >>r5, r6
+StoreResult r6
+TestFlags nf
+TestResult $80000000
+
+;-- ftst #n, >>Sj, Sq : r5 = -32; r6 unchanged, flags = (r6 & (src1<<32)) = 0 -> zf set
+SetTestNumber 199
+LoadTestReg -32,r5
+LoadTestReg $12345678,r6
+LoadFlags nf+vf
+ftst #-1, >>r5, r6
+StoreResult r6
+TestFlags zf
+TestResult $12345678
+
+;-- ftst Si, >>Sj, Sq : r5 = -32; flags = (r6 & (r4<<32)) = 0 -> zf set
+SetTestNumber 200
+LoadTestReg -1,r4
+LoadTestReg -32,r5
+LoadTestReg $A55AA55A,r6
+LoadFlags nf+vf
+ftst r4, >>r5, r6
+StoreResult r6
+TestFlags zf
+TestResult $A55AA55A
+
+`test_simd_push_pop_roundtrip:
+
+;==================================================================
+; Validation for src/EmitMEM.cpp emitters (PushVector, PushVectorRz,
+;  PushScalarRzi1/2, PopVector, PopVectorRz, PopScalarRzi1/2, plus ld_sv/st_sv
+; absolute below).
+;
+; Strategy per test: stage known data, push+clobber+pop, verify the
+; round-trip restored everything byte-exactly.  rz/rzi1/rzi2 are
+; saved at the start and restored at the end so we don't corrupt
+; the C return path or subsequent tests.
+;==================================================================
+
+;-- push v / pop v : Emit_PushVector + Emit_PopVector --------------
+;Build v1 with 4 distinct values that have non-zero bytes in every
+;byte position (catches partial-lane shuffle bugs).  push v1, pop
+;into v3, verify each lane.  push/pop preserve cc.
+SetTestNumber 201
+LoadTestReg $A55AA55A, r4
+LoadTestReg $5AA55AA5, r5
+LoadTestReg $DEADBEEF, r6
+LoadTestReg $CAFEBABE, r7
+LoadTestReg 0, r12
+LoadTestReg 0, r13
+LoadTestReg 0, r14
+LoadTestReg 0, r15
+LoadFlags allflags
+push v1
+pop v3
+nop
+StoreResult r12
+TestFlags allflags
+TestResult $A55AA55A
+StoreResult r13
+TestResult $5AA55AA5
+StoreResult r14
+TestResult $DEADBEEF
+StoreResult r15
+TestResult $CAFEBABE
+
+;-- push v, rz / pop v, rz : Emit_PushVectorRz + Emit_PopVectorRz --
+;Only 3 lanes of v + the rz misc reg are pushed.  Save/restore rz
+;around the test to keep the C return register intact.
+SetTestNumber 202
+ld_s rz, r20
+nop
+LoadTestReg $11223344, r4
+LoadTestReg $55667788, r5
+LoadTestReg $99AABBCC, r6
+st_s #$FEEDC0DE, rz
+nop
+push v1, rz
+LoadTestReg 0, r4
+LoadTestReg 0, r5
+LoadTestReg 0, r6
+st_s #0, rz
+nop
+LoadFlags allflags
+pop v1, rz
+nop
+ld_s rz, r16
+nop
+st_s r20, rz
+nop
+StoreResult r4
+TestFlags allflags
+TestResult $11223344
+StoreResult r5
+TestResult $55667788
+StoreResult r6
+TestResult $99AABBCC
+StoreResult r16
+TestResult $FEEDC0DE
+
+;-- push r, cc, rz, rzi1 / pop : Emit_PushScalarRzi1 + Emit_PopScalarRzi1
+;Save/restore rz and rzi1.  Capture cc immediately after pop (before
+;any flag-modifying instruction) into a scalar so TestResult can
+;compare the popped cc value.
+SetTestNumber 203
+ld_s rz, r20
+nop
+ld_s rzi1, r21
+nop
+LoadTestReg $13572468, r4
+st_s #$ABCDEF01, rz
+nop
+st_s #$24681357, rzi1
+nop
+LoadFlags (nf+vf+cf+zf)
+push r4, cc, rzi1, rz
+LoadTestReg 0, r4
+st_s #0, rz
+nop
+st_s #0, rzi1
+nop
+LoadFlags noflags
+pop r4, cc, rzi1, rz
+nop
+ld_s cc, r18
+nop
+ld_s rz, r16
+nop
+ld_s rzi1, r17
+nop
+and #allflags, r18
+st_s r20, rz
+nop
+st_s r21, rzi1
+nop
+StoreResult r4
+TestResult $13572468
+StoreResult r16
+TestResult $ABCDEF01
+StoreResult r17
+TestResult $24681357
+StoreResult r18
+TestResult (nf+vf+cf+zf)
+
+;-- push r, cc, rz, rzi2 / pop : Emit_PushScalarRzi2 + Emit_PopScalarRzi2
+SetTestNumber 204
+ld_s rz, r20
+nop
+ld_s rzi2, r21
+nop
+LoadTestReg $0F0F0F0F, r4
+st_s #$F0F0F0F0, rz
+nop
+st_s #$AAAAAAAA, rzi2
+nop
+LoadFlags (nf+zf)
+push r4, cc, rzi2, rz
+LoadTestReg 0, r4
+st_s #0, rz
+nop
+st_s #0, rzi2
+nop
+LoadFlags noflags
+pop r4, cc, rzi2, rz
+nop
+ld_s cc, r18
+nop
+ld_s rz, r16
+nop
+ld_s rzi2, r17
+nop
+and #allflags, r18
+st_s r20, rz
+nop
+st_s r21, rzi2
+nop
+StoreResult r4
+TestResult $0F0F0F0F
+StoreResult r16
+TestResult $F0F0F0F0
+StoreResult r17
+TestResult $AAAAAAAA
+StoreResult r18
+TestResult (nf+zf)
+
+;NOTE: ld_sv $label/st_sv $label absolute-form coverage for
+;Emit_LoadShortVectorAbsolute / Emit_StoreShortVectorAbsolute is
+;intentionally omitted here for now.  The absolute encoding reaches only
+;MPE-local DTROM (0x20000000) / DTRAM (0x20100000), so the buffer
+;would have to be placed there via .section + .origin (the way
+;e.g. minibios.s does it), not in .text alongside the test code.  Adding
+;that section layout requires linker changes beyond nuontest.s's
+;current setup.
 
 allpass:
 
