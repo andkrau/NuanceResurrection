@@ -1,5 +1,6 @@
 #include "basetypes.h"
 #ifdef ENABLE_EMULATION_MESSAGEBOXES
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
 #include "bdma_type5.h"
@@ -969,7 +970,7 @@ void DMALinear(MPE &mpe)
   //For the BIOS call, simulate the latency of the call assuming
   //40 cycles of setup time (copying to command buffer, determining
   //which bus to write to, etc) plus one cycle per long transferred
-  nuonEnv.cycleCounter += (40 + (flags >> 16) & 0xFF); //Only 1-127 is valid according to docs but field is 8 bits
+  nuonEnv.cycleCounter += (40 + ((flags >> 16) & 0xFF)); //Only 1-127 is valid according to docs but field is 8 bits
 
   DMALinear(mpe,flags,baseaddr,intaddr);
 }
