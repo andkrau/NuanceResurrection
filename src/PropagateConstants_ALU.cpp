@@ -61,6 +61,8 @@ void PropagateConstants_BITSImmediate(SuperBlockConstants &constants)
 {
   const uint32 destIndex = (uint32_t)constants.nuance->fields[FIELD_ALU_DEST];
 
+  constants.SetMiscRegisterConstant(CONSTANT_REG_V, 0); // spec: bits clears v
+
   if(constants.IsScalarRegisterConstant(destIndex) && ALLOW_ALU_PROPAGATION)
   {
     const uint32 src1 = (uint32_t)constants.nuance->fields[FIELD_ALU_SRC1];
@@ -79,7 +81,7 @@ void PropagateConstants_BITSImmediate(SuperBlockConstants &constants)
     constants.nuance->fields[FIELD_CONSTANT_HANDLER] = Handler_StoreScalarRegisterConstant;
     constants.nuance->fields[FIELD_CONSTANT_ADDRESS] = destIndex;
     constants.nuance->fields[FIELD_CONSTANT_VALUE] = destValue;
-    constants.nuance->fields[FIELD_CONSTANT_FLAGMASK] = CC_ALU_NEGATIVE | CC_ALU_ZERO;
+    constants.nuance->fields[FIELD_CONSTANT_FLAGMASK] = CC_ALU_NEGATIVE | CC_ALU_ZERO | CC_ALU_OVERFLOW;
     constants.nuance->fields[FIELD_CONSTANT_FLAGVALUES] = flagValues;
     constants.ClearScalarInputDependency(destIndex);
     PropagateConstants_StoreScalarRegisterConstant(constants);
@@ -97,6 +99,8 @@ void PropagateConstants_BITSScalar(SuperBlockConstants &constants)
 {
   const uint32 src2Index = (uint32_t)constants.nuance->fields[FIELD_ALU_SRC2];
   const uint32 destIndex = (uint32_t)constants.nuance->fields[FIELD_ALU_DEST];
+
+  constants.SetMiscRegisterConstant(CONSTANT_REG_V, 0); // spec: bits clears v
 
   if(constants.IsScalarRegisterConstant(src2Index) && ALLOW_ALU_PROPAGATION)
   {
@@ -120,8 +124,7 @@ void PropagateConstants_BTST(SuperBlockConstants &constants)
   const uint32 src2Index = (uint32_t)constants.nuance->fields[FIELD_ALU_SRC2];
   const uint32 destIndex = (uint32_t)constants.nuance->fields[FIELD_ALU_DEST];
 
-  constants.SetMiscRegisterConstant(CONSTANT_REG_N, 0);
-  constants.SetMiscRegisterConstant(CONSTANT_REG_V, 0);
+  constants.SetMiscRegisterConstant(CONSTANT_REG_V, 0); // spec: btst clears v
 
   if(constants.IsScalarRegisterConstant(src2Index) && ALLOW_ALU_PROPAGATION)
   {
@@ -132,6 +135,11 @@ void PropagateConstants_BTST(SuperBlockConstants &constants)
     {
       flagValues = CC_ALU_ZERO;
     }
+    else
+    {
+      // spec: n set if the selected bit was bit 31 and it was not zero (equivalent to bit 31 of result)
+      flagValues = ((destValue >> 28) & CC_ALU_NEGATIVE);
+    }
     constants.nuance->fields[FIELD_CONSTANT_HANDLER] = Handler_StoreMiscRegisterConstant;
     constants.nuance->fields[FIELD_CONSTANT_ADDRESS] = CONSTANT_REG_DISCARD;
     constants.nuance->fields[FIELD_CONSTANT_FLAGMASK] = CC_ALU_NEGATIVE | CC_ALU_OVERFLOW | CC_ALU_ZERO;
@@ -141,6 +149,7 @@ void PropagateConstants_BTST(SuperBlockConstants &constants)
   }
   else
   {
+    constants.ClearMiscRegisterConstant(CONSTANT_REG_N);
     constants.ClearMiscRegisterConstant(CONSTANT_REG_Z);
     constants.ClearScalarRegisterConstant(destIndex);
     constants.status.status = PROPAGATE_CONSTANTS_STATUS_ALU_OK;
@@ -363,7 +372,7 @@ void PropagateConstants_ASR(SuperBlockConstants &constants)
   if(constants.IsScalarRegisterConstant(src2Index) && ALLOW_ALU_PROPAGATION)
   {
     const uint32 src2 = constants.GetScalarRegisterConstant(src2Index);
-    // carry = bit 31 of source
+    // spec (asr): c = bit 0 of source
     uint32 flagValues = ((src2 << 1) & CC_ALU_CARRY);
     const uint32 destValue = ((int32)src2) >> constants.nuance->fields[FIELD_ALU_SRC1];
 
@@ -441,7 +450,7 @@ void PropagateConstants_LSR(SuperBlockConstants &constants)
   if(constants.IsScalarRegisterConstant(src2Index) && ALLOW_ALU_PROPAGATION)
   {
     const uint32 src2 = constants.GetScalarRegisterConstant(src2Index);
-    // carry = bit 31 of source
+    // spec (lsr): c = bit 0 of source
     uint32 flagValues = ((src2 << 1) & CC_ALU_CARRY);
     const uint32 destValue = src2 >> constants.nuance->fields[FIELD_ALU_SRC1];
 
