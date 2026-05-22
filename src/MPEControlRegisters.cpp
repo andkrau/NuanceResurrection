@@ -279,13 +279,14 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       pcexec = data;
       return;
     case 0x8:
-      rz = data;
+      //rz/rzi1/rzi2 hold instruction addresses; hardware forces bit 0 to 0 (16-bit alignment)
+      rz = data & 0xFFFFFFFEU;
       return;
     case 0x9:
-      rzi1 = data;
+      rzi1 = data & 0xFFFFFFFEU;
       return;
     case 0xA:
-      rzi2 = data;
+      rzi2 = data & 0xFFFFFFFEU;
       return;
     case 0xB:
       intvec1 = data & 0xFFFFFFFEU;

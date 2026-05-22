@@ -319,7 +319,8 @@ void Execute_PopVectorRz(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
   destPtr[0] = dest_vector[0];
   destPtr[1] = dest_vector[1];
   destPtr[2] = dest_vector[2];
-  mpe.rz = dest_vector[3];
+  //rz holds an instruction address; hardware forces bit 0 to 0 (16-bit alignment)
+  mpe.rz = dest_vector[3] & 0xFFFFFFFEU;
 
   mpe.sp += 16;
 }
@@ -333,8 +334,9 @@ void Execute_PopScalarRzi1(MPE &mpe, const uint32 pRegs[48], const Nuance &nuanc
 
   mpe.regs[nuance.fields[FIELD_MEM_TO]] = dest_vector[0];
   mpe.cc = dest_vector[1];
-  mpe.rzi1 = dest_vector[2];
-  mpe.rz = dest_vector[3];
+  //rzi1/rz hold instruction addresses; hardware forces bit 0 to 0 (16-bit alignment)
+  mpe.rzi1 = dest_vector[2] & 0xFFFFFFFEU;
+  mpe.rz = dest_vector[3] & 0xFFFFFFFEU;
 
   mpe.sp += 16;
 }
@@ -348,8 +350,9 @@ void Execute_PopScalarRzi2(MPE &mpe, const uint32 pRegs[48], const Nuance &nuanc
 
   mpe.regs[nuance.fields[FIELD_MEM_TO]] = dest_vector[0];
   mpe.cc = dest_vector[1];
-  mpe.rzi2 = dest_vector[2];
-  mpe.rz = dest_vector[3];
+  //rzi2/rz hold instruction addresses; hardware forces bit 0 to 0 (16-bit alignment)
+  mpe.rzi2 = dest_vector[2] & 0xFFFFFFFEU;
+  mpe.rz = dest_vector[3] & 0xFFFFFFFEU;
 
   mpe.sp += 16;
 }

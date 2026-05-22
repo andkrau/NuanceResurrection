@@ -2444,8 +2444,8 @@ void Emit_PopVectorRz(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x01); // xmm0 = [v3, v2, v2, v2]
   vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
+  //rz holds an instruction address; hardware forces bit 0 to 0 (16-bit alignment)
+  vars->mpe->nativeCodeCache.X86Emit_ANDIM(0xFFFFFFFEU, x86MemPtr::x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   }
   else
   {
@@ -2460,10 +2460,13 @@ void Emit_PopVectorRz(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_eax);
+  //rz holds an instruction address; hardware forces bit 0 to 0 (16-bit alignment)
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFEU, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
+  }
+
   vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
-  }
 }
 
 void Emit_PopScalarRzi1(EmitterVariables * const vars, const Nuance &nuance)
@@ -2495,10 +2498,12 @@ void Emit_PopScalarRzi1(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x39); // [v2, v3, v0, v1]
   vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, rzi1RegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi1RegDisp);
+  //rzi1 holds an instruction address; hardware forces bit 0 to 0 (16-bit alignment)
+  vars->mpe->nativeCodeCache.X86Emit_ANDIM(0xFFFFFFFEU, x86MemPtr::x86MemPtr_dword, rzi1RegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x39); // [v3, v0, v1, v2]
   vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
+  //rz holds an instruction address; hardware forces bit 0 to 0 (16-bit alignment)
+  vars->mpe->nativeCodeCache.X86Emit_ANDIM(0xFFFFFFFEU, x86MemPtr::x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   }
   else
   {
@@ -2511,12 +2516,17 @@ void Emit_PopScalarRzi1(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 12);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
+  //rzi1 holds an instruction address; hardware forces bit 0 to 0 (16-bit alignment)
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFEU, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, rzi1RegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi1RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_eax);
+  //rz holds an instruction address; hardware forces bit 0 to 0 (16-bit alignment)
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFEU, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
+  }
+
   vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
-  }
 }
 
 void Emit_PopScalarRzi2(EmitterVariables * const vars, const Nuance &nuance)
@@ -2548,10 +2558,12 @@ void Emit_PopScalarRzi2(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x39); // [v2, v3, v0, v1]
   vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, rzi2RegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi2RegDisp);
+  //rzi2 holds an instruction address; hardware forces bit 0 to 0 (16-bit alignment)
+  vars->mpe->nativeCodeCache.X86Emit_ANDIM(0xFFFFFFFEU, x86MemPtr::x86MemPtr_dword, rzi2RegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi2RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm0, 0x39); // [v3, v0, v1, v2]
   vars->mpe->nativeCodeCache.X86Emit_MOVDRM(x86Reg::x86Reg_xmm0, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
+  //rz holds an instruction address; hardware forces bit 0 to 0 (16-bit alignment)
+  vars->mpe->nativeCodeCache.X86Emit_ANDIM(0xFFFFFFFEU, x86MemPtr::x86MemPtr_dword, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
   }
   else
   {
@@ -2564,12 +2576,17 @@ void Emit_PopScalarRzi2(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, x86BaseReg::x86BaseReg_edx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, 12);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, ccRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccRegDisp);
+  //rzi2 holds an instruction address; hardware forces bit 0 to 0 (16-bit alignment)
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFEU, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ecx, rzi2RegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzi2RegDisp);
   vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_eax);
+  //rz holds an instruction address; hardware forces bit 0 to 0 (16-bit alignment)
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFEU, x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, rzRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, rzRegDisp);
+  }
+
   vars->mpe->nativeCodeCache.X86Emit_ADDIR(16, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, (uintptr_t)&(vars->mpe->sp));
-  }
 }
 
 void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address, const x86Reg destReg)
@@ -2900,26 +2917,29 @@ void EmitControlRegisterStore(EmitterVariables * const vars, const uint32 addres
       }
       break;
     case (0x80 >> 4):
-      //rz
+      //rz: 16-bit instruction-address alignment
       {
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFEU, srcReg);
       vars->mpe->nativeCodeCache.X86Emit_MOVRM(srcReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
       }
       break;
     case (0x90 >> 4):
-      //rzi1
+      //rzi1: 16-bit instruction-address alignment
       {
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZI1);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFEU, srcReg);
       vars->mpe->nativeCodeCache.X86Emit_MOVRM(srcReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
       }
       break;
     case (0xA0 >> 4):
-      //rzi2
+      //rzi2: 16-bit instruction-address alignment
       {
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZI2);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFFFFFEU, srcReg);
       vars->mpe->nativeCodeCache.X86Emit_MOVRM(srcReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
       }
       break;
@@ -3147,27 +3167,27 @@ void EmitControlRegisterStoreImmediate(EmitterVariables * const vars, const uint
       }
       break;
     case (0x80 >> 4):
-      //rz
+      //rz: 16-bit instruction-address alignment
       {
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZ);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RZ);
-      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm, x86MemPtr::x86MemPtr_dword, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm & 0xFFFFFFFEU, x86MemPtr::x86MemPtr_dword, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
       }
       break;
     case (0x90 >> 4):
-      //rzi1
+      //rzi1: 16-bit instruction-address alignment
       {
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZI1);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
-      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm, x86MemPtr::x86MemPtr_dword, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm & 0xFFFFFFFEU, x86MemPtr::x86MemPtr_dword, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
       }
       break;
     case (0xA0 >> 4):
-      //rzi2
+      //rzi2: 16-bit instruction-address alignment
       {
       const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZI2);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
-      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm, x86MemPtr::x86MemPtr_dword, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
+      vars->mpe->nativeCodeCache.X86Emit_MOVIM(imm & 0xFFFFFFFEU, x86MemPtr::x86MemPtr_dword, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
       }
       break;
     case (0xB0 >> 4):

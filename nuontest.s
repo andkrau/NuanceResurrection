@@ -1,3 +1,7 @@
+;see intstructiontest.c for build instructions/directions
+
+;Bump _nuontest_version when adding tests or changing semantics!
+
 ;verified 05/2026 on Samsung DVD-N501
 
 ;r0 = test status register
@@ -161,9 +165,8 @@ expectedFlagsReg = r31
 .align.v
 
 ; Build version used by instructiontest.c's on-screen banner.
-; Bump when adding tests or changing semantics
 _nuontest_version:
-    .ascii  "nuontest v204 (lsl-32 + SIMD push/pop)"
+    .ascii  "nuontest v205 (rz/rzi1/rzi2 bit-0 mask)"
     .dc.b   0
     .align.v
 
@@ -4971,15 +4974,17 @@ TestResult $FEEDC0DE
 ;Save/restore rz and rzi1.  Capture cc immediately after pop (before
 ;any flag-modifying instruction) into a scalar so TestResult can
 ;compare the popped cc value.
+;rz/rzi1 hold instruction addresses; hardware masks bit 0 on write,
+;so the staged constants here are even.
 SetTestNumber 203
 ld_s rz, r20
 nop
 ld_s rzi1, r21
 nop
 LoadTestReg $13572468, r4
-st_s #$ABCDEF01, rz
+st_s #$ABCDEF00, rz
 nop
-st_s #$24681357, rzi1
+st_s #$24681356, rzi1
 nop
 LoadFlags (nf+vf+cf+zf)
 push r4, cc, rzi1, rz
@@ -5005,9 +5010,9 @@ nop
 StoreResult r4
 TestResult $13572468
 StoreResult r16
-TestResult $ABCDEF01
+TestResult $ABCDEF00
 StoreResult r17
-TestResult $24681357
+TestResult $24681356
 StoreResult r18
 TestResult (nf+vf+cf+zf)
 

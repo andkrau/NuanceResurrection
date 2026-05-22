@@ -605,6 +605,7 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 - Fix "_MediaGetInfo()" byte-swapped fields.
 - Fix uninitialized framebuffer (e.g. when starting fullscreen from command line).
 - Optimize most JIT code that needs to do bswap/endian change.
+- Enforce rz/rzi1/rzi2, matching the Nuon hardware, to have bit 0 as 0 (due to 16-bit alignment)
 - instructiontest.cof has been updated with more tests (verified to match real HW / Samsung DVD-N501).
 
 **03/21/2025 version 0.6.6:**

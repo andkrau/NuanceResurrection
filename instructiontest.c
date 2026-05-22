@@ -54,6 +54,7 @@
 #define X_TEXT1			(55)	// X-pos of "Y" value display
 #define Y_TEXT1_TOP		(25)	// Y-pos of top of "Y" value display area
 #define Y_TEXT1_BOTTOM	(70)	// Y-pos of bottom of "Y" value display area
+#define LINE_H			(18)	// vertical pitch between status-text rows (the DebugWS font is ~16 px tall)
 
 #define SCREENWIDTH		(720)
 #define SCREENHEIGHT	(480)
@@ -137,35 +138,35 @@ int main( )
 	DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP, clrWhite, buf );
 
 	msprintf(buf, "Testing instruction set (interpreter)\n");
-	  DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 10, clrWhite, buf );
+	  DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 1*LINE_H, clrWhite, buf );
 
 	  if((testResult = DoInstructionTest(testResults)) != 0)
-	  {			
+	  {
 	    msprintf(buf, "Instruction set test %d FAILED! (interpreter)\n", testResult);
-		  DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 20, clrRed, buf );
+		  DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 2*LINE_H, clrRed, buf );
 	    while(1);
     }
-    
+
     msprintf(buf, "All instruction set tests passed (interpreter)\n");
-    DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 30, clrWhite, buf );   
+    DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 3*LINE_H, clrWhite, buf );
     msprintf(buf, "Testing instruction set (compiler)\n");
-    DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 40, clrWhite, buf );
+    DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 4*LINE_H, clrWhite, buf );
     for(i = 0; i < 5000; i++)
     {
 	  	if((testResult = DoInstructionTest(testResults)) != 0)
       {
-        msprintf(buf, "Instruction set test #%d FAILED! (compiler)\n", testResult);                  
-	    	DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 60, clrRed, buf );
+        msprintf(buf, "Instruction set test #%d FAILED! (compiler)\n", testResult);
+	    	DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 6*LINE_H, clrRed, buf );
         while(1);
       }
       else
       {
 		    msprintf(buf, "Instruction set tests passed (compiler iteration i)\n");
-		    DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 50, clrGreen, buf );      
+		    DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 5*LINE_H, clrGreen, buf );
 		  }
     }
     msprintf(buf, "All compiler instruction test iterations passed!\n");
-    DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 70, clrGreen, buf );
+    DebugWS(gl_screen.dmaFlags, gl_screen.memP, X_TEXT1 + 5, Y_TEXT1_TOP + 7*LINE_H, clrGreen, buf );
 		// Endless loop!
 		while(1);
 	}
