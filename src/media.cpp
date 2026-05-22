@@ -14,23 +14,6 @@
 #include "NuonMemoryMap.h"
 #include "iso9660.h"
 
-// MEDIA_LITERAL_BIOS_ASM reproduces the likely behavior of vmlabs_bios2.dis
-// at the two ambiguous spots documented in MediaRead/MediaWrite below:
-//  1. blockcount == 0 with callback:
-//        interpretation  : callback receives r0 = MCB_END   mv_s #$40000000,r0 at
-//                                                           8078c512 is the jsr delay slot
-//        (maybe) literal : callback receives r0 = buffer    mv_s r4,r0 at 8078c50c
-//                                                           stays; mv_s #$40000000,r0
-//                                                           runs only post-call?!
-//  2. Validation failure (driver fn at struct+8 / struct+0xC is NULL):
-//        interpretation  : MediaRead/Write returns r0 = -1  apparent intent of the
-//                                                           unreachable mv_s #$ffffffff,r0
-//                                                           at 8078c568 / 8078c66e
-//        literal         : incoming r0 is left UNCHANGED    since the mv_s sits after
-//                                                           an unconditional bra+nop
-//                                                           delay slot and is thus dead code
-#define MEDIA_LITERAL_BIOS_ASM // stay with the buggy BIOS code
-
 // MEDIA_ASYNC_CALLBACKS makes MediaRead/MediaWrite defer the callback dispatch
 // roughly the way the vmlabs_bios2.dis would - read the disc into an emulator-side
 // intermediate buffer immediately, then trickle the data into the NUON memory one
@@ -501,40 +484,25 @@ void MediaRead(MPE &mpe)
   const uint32 callback = mpe.regs[5];
 
   // vmlabs_bios2.dis at 8078c4fc:
-  // - blockcount == 0 invokes the callback with r0 = MCB_END (one can read the
-  //   'mv_s #$40000000,r0' at 8078c512 as the delay slot of 'jsr (r5)'); r1
-  //   is not touched, so the callback sees the caller's original mode. Only
-  //   after the callback returns does the asm set r1 = -1 (8078c518) for
-  //   its own caller view.
-  //!! CAVEAT: this depends if NUON is treating the instruction after 'jsr (rN)'
-  //   as a delay slot. If 'jsr' is instead a self-contained 4-byte op with
-  //   no separate delay slot, the callback would receive r0 = buffer (from
-  //   8078c50c 'mv_s r4,r0') and r0 = MCB_END would be the post-call write.
-  //   Would make more sense to pick the MCB_END interpretation because the
-  //   user callback ABI may be always 'void cb(int status)' (e.g. SpinWait keys off 'r0 >> 30').
+  // - blockcount == 0 invokes the callback with r0 = MCB_END. The 'jsr (r5)' at
+  //   8078c50e has no ',nop' operand, so per spec its
+  //   2 following packets are delay slots that execute before the callback
+  //   target: 'mv_s #$40000000,r0' at 8078c512 sets r0 = MCB_END (the callback's
+  //   status arg), and 'mv_s #$ffffffff,r1' at 8078c518 sets r1 = -1 (blocknum).
   // - On success, the asm enqueues the request and returns r0 = 0
   //   (8078c608 mv_s #$00000000,r0); the user callback is dispatched later
   //   by the driver ISR - typically with r0 = MCB_END and r1 = blockcount.
   // - On validation failure (driver fn at struct+8 is NULL, or queue full)
-  //   the asm branches to the epilogue WITHOUT updating r0 - the
-  //   'mv_s #$ffffffff,r0' at 8078c568 sits after an unconditional 'bra'
-  //   (8078c564) whose nop-filled delay slot leaves it unreachable, so the
-  //   caller observes the original r0. Might make sense to deviate, and return
-  //   r0 = -1 (might be apparent intent and the more conventional error code).
+  //   the asm runs 'bra #$8078c60a' at 8078c564 (no ',nop') whose 2 delay-slot
+  //   packets execute; 'mv_s #$ffffffff,r0' at 8078c568 sits in that delay
+  //   window and sets r0 = -1 before control reaches the epilogue.
   if(blockcount == 0)
   {
     if(callback)
     {
-#ifdef MEDIA_LITERAL_BIOS_ASM
-      // the mv_s r4,r0 at 8078c50c lives, and jsr (r5) has no separate delay slot, so the callback receives r0 = buffer
-      const uint32 cbR0 = buffer;
-#else
-      // mv_s #$40000000,r0 at 8078c512 is the jsr's delay slot, so the callback receives r0 = MCB_END
-      const uint32 cbR0 = (uint32)eMedia::MCB_END;
-#endif
-      // Caller will get (MCB_END, -1) once the shim restores BIOS-visible state
+      // Callback enters with r0 = MCB_END (set by jsr DS1 at 8078c512)
       InvokeMediaCallback(mpe, callback,
-                          cbR0, mode,
+                          (uint32)eMedia::MCB_END, mode,
                           (uint32)eMedia::MCB_END, (uint32)-1);
     }
     else
@@ -545,23 +513,13 @@ void MediaRead(MPE &mpe)
     return;
   }
 
-#ifndef MEDIA_LITERAL_BIOS_ASM
-  // Seed r0 = -1 so validation failure returns -1 (might be intent of the unreachable mv_s #$ffffffff,r0 at 8078c568).
+  // Validation failure returns r0 = -1 (mv_s #$ffffffff,r0 at 8078c568 runs as DS2 of the unconditional bra at 8078c564)
   mpe.regs[0] = (uint32)-1;
-#endif
 
   if((handle < FIRST_DVD_FD) || (handle > LAST_DVD_FD))
     return;
   if(fileNameArray[handle].empty() || !buffer || ((eMedia)fileModeArray[handle] == eMedia::MEDIA_WRITE))
     return;
-
-#ifdef MEDIA_LITERAL_BIOS_ASM
-  // Past validation under literal-asm mode: set r0 = -1, so the
-  // emulator-only I/O-failure paths below still pass failure to
-  // no-callback callers. (The asm has no such direct paths - it would
-  // simply enqueue and let the driver ISR report outcomes via the callback)
-  mpe.regs[0] = (uint32)-1;
-#endif
 
   // Disc data is loaded into a host-side intermediate buffer directly here, then either:
   // - async path: schedule into the FIFO, so block 'i' of NUON memory is
@@ -772,7 +730,7 @@ void MediaWrite(MPE &mpe)
   const uint32 buffer = mpe.regs[4];
   const uint32 callback = mpe.regs[5];
 
-  // Per vmlabsvmlabs_bios2.dis at 8078c618: basically similar to MediaRead asm but
+  // Per vmlabs_bios2.dis at 8078c618: basically similar to MediaRead asm but
   // - the driver-write fn pointer lives at struct + 0xC (not + 8), and
   // - there is no blockcount == 0 shortcut. With strict-equality success
   //   and MCB_ERROR on too-short writes, handle the blockcount == 0
@@ -782,25 +740,14 @@ void MediaWrite(MPE &mpe)
   // Mirror this by passing 'mode' as the shim's retR1 and not touching
   // mpe.regs[1] on the no-callback paths.
   //
-  //!! Same validation-failure CAVEAT as in MediaRead: the 'mv_s #$ffffffff,r0' at
-  // 8078c66e sits after the unconditional 'bra #$8078c710' at 8078c66a and is
-  // unreachable, so the literal asm leaves reg0 untouched on validation
-  // failure. Instead one may return r0 = -1 (the apparent intent?).
-
-#ifndef MEDIA_LITERAL_BIOS_ASM
-  // Seed r0 = -1 so validation failure returns -1 (maybe apparent intent of the unreachable mv_s #$ffffffff,r0 at 8078c66e).
+  // Validation failure returns r0 = -1: 'mv_s #$ffffffff,r0' at 8078c66e runs
+  // as DS2 of the unconditional 'bra #$8078c710' at 8078c66a (no ',nop' so delay slots execute, per spec)
   mpe.regs[0] = (uint32)-1;
-#endif
 
   if((handle < FIRST_DVD_FD) || (handle > LAST_DVD_FD))
     return;
   if(fileNameArray[handle].empty() || !buffer || ((eMedia)fileModeArray[handle] == eMedia::MEDIA_READ))
     return;
-
-#ifdef MEDIA_LITERAL_BIOS_ASM
-  // Past validation under literal-asm mode: now seed r0 = -1 so emulator-only I/O-failure paths below still surface failure to no-callback callers
-  mpe.regs[0] = (uint32)-1;
-#endif
 
   // Try to open the existing file for read/write without erasing the contents
   FILE* outFile = nullptr;
