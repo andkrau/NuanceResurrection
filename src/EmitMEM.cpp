@@ -2631,7 +2631,7 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
     case (0x90 >> 4):
       //rzi1
       {
-      const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZI1);
+      const x86BaseReg baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI1);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RZI1);
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
       }
@@ -2639,7 +2639,7 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
     case (0xA0 >> 4):
       //rzi2
       {
-      const x86BaseReg baseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_RZI2);
+      const x86BaseReg baseReg = GetMiscRegReadBaseReg(vars,REGINDEX_RZI2);
       const int32 disp = GetMiscRegEmitDisp(vars,REGINDEX_RZI2);
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, baseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, disp);
       }

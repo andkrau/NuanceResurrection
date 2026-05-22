@@ -1854,11 +1854,14 @@ bool MPE::FetchDecodeExecute()
 
     //uint32 blockExecuteCount = 100;
 
-    /* Force 16 bit alignment of pcexec */
+    // Force 16 bit alignment of pcexec
     pcexec &= ~0x01U;
 
-    /* Check for interrupts and update pcexec, rzi1 and rzi2 if an interrupt is to be serviced */
+    // Check for interrupts and update pcexec, rzi1 and rzi2 if an interrupt is to be serviced
 
+    // SPEC NOTE: "Both level-1 and level-2 interrupts are temporarily blocked
+    // during the execution of any 'taken-jump' instruction and its first delay slot."
+    // Only ecuSkipCounter is gated here, so interrupts can fire one packet earlier than on real hardware after a taken bra/jmp/jsr/rts/rti
     if(intsrc && (ecuSkipCounter == 0))
     {
       //Test imaskHw2 bit

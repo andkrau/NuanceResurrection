@@ -509,9 +509,26 @@ public:
 
   void SaveRegisters()
   {
-    const uint32 tmp = tempCC;
+    const uint32 tmp = tempCC; // see below
     memcpy(tempreg_union,reg_union,sizeof(uint32)*48);
-    tempCC = tmp; //!! ?? this was what happened with the old code, but was this intended??
+    tempCC = tmp;
+
+    // The carry-over of tempCC across this sync was inherited from old code.
+    // Only caller is the MPEReadRegister BIOS-syscall hook (mpe_alloc.cpp), which then reads tempCC for
+    // the cc CR. 2 plausible Nuon HW models exist, but the specs do not clarify which one could be real:
+    //   (A) cc at $2050_0040 is the architectural post-packet register; the within-packet
+    //       snapshot is a transient pipeline shadow. Cross-MPE main-bus reads return
+    //       post-packet cc. Under (A), preserving tempCC here returns stale data => bug.
+    //   (B) The value exposed at $2050_0040 IS the per-packet snapshot for all readers
+    //       (own ld_s cc,Rk, cross-MPE main-bus, BIOS MPEReadRegister). Flags an ALU op
+    //       computes only become externally visible the NEXT packet, when snapshotted in.
+    //       Under (B), tempCC is the architectural cc and preserving it here would be correct.
+    // To test, via real HW, would need to employ a multi-MPE probe outside currents nuontest.s scope:
+    // load a small COF into MPE0 that does LoadFlags allflags, then halts; from MPE3 call
+    // BIOS::MPEReadRegister(0, $2050_0040) once MPE0's mpeGo is clear. A=>returns allflags,
+    // B=>returns whatever cc was BEFORE the LoadFlags packet on MPE0. Self-MPE variant
+    // (MPE3 reads its own cc via the syscall) cannot distinguish the two: the syscall
+    // itself runs inside a packet whose start already snapshotted live cc into tempCC.
   }
 
   uint32 ReadControlRegister(const uint32 address, const uint32 entrypRegs[48]);
