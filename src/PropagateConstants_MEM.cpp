@@ -699,7 +699,7 @@ void PropagateConstants_StoreScalarControlRegisterImmediate(SuperBlockConstants 
   bool bScalarReg = false;
   uint32 flagMask = 0;
   uint32 flagValues = 0;
-  
+
   switch(destIndex)
   {
     case 0x4:
@@ -711,11 +711,13 @@ void PropagateConstants_StoreScalarControlRegisterImmediate(SuperBlockConstants 
       bLockInstruction = true;
       break;
     case 0x8:
-      //RZ
+      //RZ: hardware forces bit 0 to 0 (16-bit instruction-address alignment)
+      destValue &= 0xFFFFFFFEU;
       destIndex = CONSTANT_REG_RZ;
       break;
     case 0x1E:
-      //RC0
+      //RC0: lower 16 bits only
+      destValue &= 0xFFFFU;
       destIndex = CONSTANT_REG_RC0;
       flagMask = CC_COUNTER0_ZERO;
       if(!destValue)
@@ -725,7 +727,8 @@ void PropagateConstants_StoreScalarControlRegisterImmediate(SuperBlockConstants 
       bLockInstruction = true;
       break;
     case 0x1F:
-      //RC1
+      //RC1: lower 16 bits only
+      destValue &= 0xFFFFU;
       destIndex = CONSTANT_REG_RC1;
       flagMask = CC_COUNTER1_ZERO;
       if(!destValue)
@@ -737,23 +740,24 @@ void PropagateConstants_StoreScalarControlRegisterImmediate(SuperBlockConstants 
     case 0x20:
       //RX
       destIndex = CONSTANT_REG_RX;
-      break;    
+      break;
     case 0x21:
       //RY
       destIndex = CONSTANT_REG_RY;
-      break;    
+      break;
     case 0x25:
       //RU
       destIndex = CONSTANT_REG_RU;
-      break;    
+      break;
     case 0x26:
       //RV
       destIndex = CONSTANT_REG_RV;
-      break;    
+      break;
     case 0x2C:
-      //SVSHIFT
+      //SVSHIFT: lower 2 bits
+      destValue &= 0x03U;
       destIndex = CONSTANT_REG_SVSHIFT;
-      break;    
+      break;
     case 0x2D:
       //ACSHIFT
       destIndex = CONSTANT_REG_ACSHIFT;
@@ -999,31 +1003,37 @@ void PropagateConstants_StoreScalarBilinearUV(SuperBlockConstants &constants)
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StoreScalarBilinearXY(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StoreVectorControlRegisterAbsolute(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StorePixelAbsolute(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StorePixelZAbsolute(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StoreShortVectorAbsolute(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StoreShortVectorLinear(SuperBlockConstants &constants)
 {
   const uint32 destIndex = (uint32_t)constants.nuance->fields[FIELD_MEM_TO];
@@ -1042,21 +1052,25 @@ void PropagateConstants_StoreShortVectorLinear(SuperBlockConstants &constants)
     constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
   }
 }
+
 void PropagateConstants_StoreShortVectorBilinearUV(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StoreShortVectorBilinearXY(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StoreVectorAbsolute(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StoreVectorLinear(SuperBlockConstants &constants)
 {
   const uint32 destIndex = (uint32_t)constants.nuance->fields[FIELD_MEM_TO];
@@ -1075,11 +1089,13 @@ void PropagateConstants_StoreVectorLinear(SuperBlockConstants &constants)
     constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
   }
 }
+
 void PropagateConstants_StoreVectorBilinearUV(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StoreVectorBilinearXY(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
@@ -1105,16 +1121,19 @@ void PropagateConstants_StorePixelLinear(SuperBlockConstants &constants)
     constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
   }
 }
+
 void PropagateConstants_StorePixelBilinearUV(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StorePixelBilinearXY(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StorePixelZLinear(SuperBlockConstants &constants)
 {
   const uint32 destIndex = (uint32_t)constants.nuance->fields[FIELD_MEM_TO];
@@ -1134,11 +1153,13 @@ void PropagateConstants_StorePixelZLinear(SuperBlockConstants &constants)
     constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
   }
 }
+
 void PropagateConstants_StorePixelZBilinearUV(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
   constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
 }
+
 void PropagateConstants_StorePixelZBilinearXY(SuperBlockConstants &constants)
 {
   constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
