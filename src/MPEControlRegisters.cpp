@@ -32,11 +32,11 @@ uint32 MPE::ReadControlRegister(const uint32 address, const uint32 entrypRegs[48
     case 0x4:
       return tempCC & 0x7FFU;
     case 0x5:
-      return pcfetch;
+      return pcfetch & 0xFFFFFFFEU;
     case 0x6:
       return pcroute & 0xFFFFFFFEU;
     case 0x7:
-      return pcexec;
+      return pcexec & 0xFFFFFFFEU;
     case 0x8:
       return entrypRegs[RZ_REG];
     case 0x9:
@@ -186,6 +186,18 @@ uint32 MPE::ReadControlRegister(const uint32 address, const uint32 entrypRegs[48
           return 0;
       }
     }
+    case 0x110:
+      //vdmactla (MPE1 only)
+      return vdmactla & ((1U << 24) | 0xFFFFEU);
+    case 0x111:
+      //vdmactlb (MPE1 only)
+      return vdmactlb & ((1U << 24) | 0xFFFFEU);
+    case 0x112:
+      //vdmaptra (MPE1 only)
+      return vdmaptra & 0x007FFFF0U;
+    case 0x113:
+      //vdmaptrb (MPE1 only)
+      return vdmaptrb & 0x007FFFF0U;
     default:
       //no special handling: return control register contents verbatim
       return *(&mpectl + (address >> 4));
@@ -230,10 +242,14 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
         mpectl = (mpectl & 0xFFFF) | (setBits & MPECTRL_MPECYCLETYPE);
       }
 
-      //If the resetMpe bit is set, handle the MPE reset
+      //If the resetMpe bit is set, perform a software MPE reset, Spec: "Writing a one
+      //causes the MPE to be reset. Writing a zero has no effect. Reset clears this bit."
+      //Reset() leaves the MPE halted with MPECTRL_MPEWASRESET set and pcfetch/pcexec at
+      //the IRAM base, matching the where_on_reset=00 value we use in configa
       if(data & MPECTRL_MPERESET)
       {
-        //!! ????????
+        Reset();
+        return;
       }
 
       if(!prevGoState && (mpectl & MPECTRL_MPEGO))
@@ -270,13 +286,17 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       cc = data & 0x7FFU;
       return;
     case 0x5:
-      pcfetch = data;
+      //pcfetch: PC value (16-bit aligned).
+      if(mpectl & MPECTRL_MPEGO) // per spec only writable while mpeGo is clear
+        return;
+      pcfetch = data & 0xFFFFFFFEU;
       return;
     case 0x6:
       pcroute = data & 0xFFFFFFFEU;
       return;
     case 0x7:
-      pcexec = data;
+      //pcexec: PC value (16-bit aligned)
+      pcexec = data & 0xFFFFFFFEU;
       return;
     case 0x8:
       //rz/rzi1/rzi2 hold instruction addresses; hardware forces bit 0 to 0 (16-bit alignment)
@@ -360,6 +380,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       ry = data;
       return;
     case 0x22:
+      //xyrange: spec only defines bits 25-16 (X range) and 9-0 (Y range); reserved bits stored verbatim here, masked off on read
       xyrange = data;
       return;
     case 0x23:
@@ -379,6 +400,7 @@ void MPE::WriteControlRegister(const uint32 address, const uint32 data)
       rv = data;
       return;
     case 0x27:
+      //uvrange: spec only defines bits 25-16 (U range) and 9-0 (V range); reserved bits stored verbatim here, masked off on read
       uvrange = data;
       return;
     case 0x28:
@@ -711,6 +733,22 @@ do_mdmacmd: // for batch commands
       }
     }
     break;
+    case 0x110:
+      //vdmactla (MPE1 only): bit 24 a_active + bits 19-0 a_count (must be even)
+      vdmactla = data & ((1U << 24) | 0xFFFFEU);
+      return;
+    case 0x111:
+      //vdmactlb (MPE1 only): bit 24 b_active + bits 19-0 b_count (must be even)
+      vdmactlb = data & ((1U << 24) | 0xFFFFEU);
+      return;
+    case 0x112:
+      //vdmaptra (MPE1 only): bits 22-4 vector address in MPE memory
+      vdmaptra = data & 0x007FFFF0U;
+      return;
+    case 0x113:
+      //vdmaptrb (MPE1 only): bits 22-4 vector address in MPE memory
+      vdmaptrb = data & 0x007FFFF0U;
+      return;
     default:
       //no special handling: write control register contents verbatim
       *(&mpectl + (address >> 4)) = data;
