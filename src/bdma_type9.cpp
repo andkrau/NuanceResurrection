@@ -1,5 +1,8 @@
 #include "basetypes.h"
-#include <cassert>
+#ifdef ENABLE_EMULATION_MESSAGEBOXES
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 #include "byteswap.h"
 #include "NuonEnvironment.h"
 #include "video.h"

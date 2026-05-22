@@ -16,13 +16,15 @@
 #define logout(x) fprintf(stderr,x)
 #endif
 
-// Large file support for 32-bit builds
-#if !defined(_MSC_VER) && (defined(__i386__) || defined(_M_IX86))
+#if defined(_MSC_VER)
+#define ISO_FOPEN fopen
+#define ISO_FSEEK(f, off, w) _fseeki64(f, (__int64)(off), w)
+#elif defined(__i386__) || defined(_M_IX86)
 #define ISO_FOPEN fopen64
 #define ISO_FSEEK(f, off, w) fseeko64(f, (off64_t)(off), w)
 #else
 #define ISO_FOPEN fopen
-#define ISO_FSEEK(f, off, w) fseek(f, (long)(off), w)
+#define ISO_FSEEK(f, off, w) fseeko(f, (off_t)(off), w)
 #endif
 #include <cstring>
 #include <cstdint>
