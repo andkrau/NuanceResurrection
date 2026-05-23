@@ -3766,6 +3766,15 @@ void NativeCodeCache::X86Emit_MOVQRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_MOVQMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  #ifdef USE_ASMJIT
+  if (asmjitAs) {
+    auto& a = *asmjitAs;
+    auto m = NuanceJit::buildMem(a, base, index, scale, disp, 8);
+    a.movq(NuanceJit::toXmm(regDest), m);
+    return;
+  }
+  #endif
+
   if(regDest < x86Reg::x86Reg_xmm0)
   {
     //MMX
@@ -3822,6 +3831,15 @@ void NativeCodeCache::X86Emit_MOVDQAMR(const x86Reg regDest, const uintptr_t bas
 
 void NativeCodeCache::X86Emit_MOVQRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  #ifdef USE_ASMJIT
+  if (asmjitAs) {
+    auto& a = *asmjitAs;
+    auto m = NuanceJit::buildMem(a, base, index, scale, disp, 8);
+    a.movq(m, NuanceJit::toXmm(regSrc));
+    return;
+  }
+  #endif
+
   if(regSrc < x86Reg::x86Reg_xmm0)
   {
     //MMX
@@ -4393,6 +4411,15 @@ void NativeCodeCache::X86Emit_MOVDRR2(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_MOVSSMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  #ifdef USE_ASMJIT
+  if (asmjitAs) {
+    auto& a = *asmjitAs;
+    auto m = NuanceJit::buildMem(a, base, index, scale, disp, 4);
+    a.movss(NuanceJit::toXmm(regDest), m);
+    return;
+  }
+  #endif
+
   //SSE
   *pEmitLoc++ = 0xF3;
   *pEmitLoc++ = 0x0F;
@@ -4422,6 +4449,14 @@ void NativeCodeCache::X86Emit_MOVDRM(const x86Reg regSrc, const uintptr_t base, 
 
 void NativeCodeCache::X86Emit_UNPCKLRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  #ifdef USE_ASMJIT
+  if (asmjitAs) {
+    auto& a = *asmjitAs;
+    a.unpcklps(NuanceJit::toXmm(regDest), NuanceJit::toXmm(regSrc));
+    return;
+  }
+  #endif
+
   //SSE
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x14;
@@ -4436,6 +4471,14 @@ void NativeCodeCache::X86Emit_UNPCKLRR(const x86Reg regDest, const x86Reg regSrc
 
 void NativeCodeCache::X86Emit_MOVLHRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  #ifdef USE_ASMJIT
+  if (asmjitAs) {
+    auto& a = *asmjitAs;
+    a.movlhps(NuanceJit::toXmm(regDest), NuanceJit::toXmm(regSrc));
+    return;
+  }
+  #endif
+
   //SSE
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x16;
