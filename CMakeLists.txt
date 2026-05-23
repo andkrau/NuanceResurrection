@@ -59,6 +59,22 @@ endif()
 #target_include_directories(murmurhash PUBLIC external)
 #set_property(TARGET murmurhash PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+# Dear ImGui (vendored, Linux standalone uses it for the live status overlay)
+if(NOT WIN32 AND NOT BUILD_LIBRETRO)
+    add_library(imgui_static STATIC
+        external/imgui/imgui.cpp
+        external/imgui/imgui_draw.cpp
+        external/imgui/imgui_widgets.cpp
+        external/imgui/imgui_tables.cpp
+        external/imgui/backends/imgui_impl_opengl3.cpp
+    )
+    target_include_directories(imgui_static PUBLIC
+        external/imgui
+        external/imgui/backends
+    )
+    set_property(TARGET imgui_static PROPERTY POSITION_INDEPENDENT_CODE ON)
+endif()
+
 # Main executable sources
 set(NUANCE_SOURCES
     src/archive.cpp
@@ -93,6 +109,7 @@ set(NUANCE_SOURCES
     src/file.cpp
     src/FlashEEPROM.cpp
     $<IF:$<PLATFORM_ID:Windows>,src/GLWindow.cpp,src/GLWindow_x11.cpp>
+    $<$<NOT:$<PLATFORM_ID:Windows>>:src/imgui_impl_x11.cpp>
     $<IF:$<PLATFORM_ID:Windows>,src/InputManager.cpp,src/InputManager_x11.cpp>
     src/InstructionCache.cpp
     src/joystick.cpp
@@ -215,9 +232,10 @@ target_link_libraries(${NUANCE_TARGET} PRIVATE
 )
 
 # Standalone build needs X11/GLX directly (NuanceUI uses Xlib, GLWindow uses GLX)
+# and Dear ImGui for the live status overlay panel.
 if(NOT BUILD_LIBRETRO AND NOT WIN32)
     find_package(X11 REQUIRED)
-    target_link_libraries(${NUANCE_TARGET} PRIVATE ${X11_LIBRARIES} -lGLX)
+    target_link_libraries(${NUANCE_TARGET} PRIVATE ${X11_LIBRARIES} -lGLX imgui_static)
 endif()
 
 # Windows standalone needs DirectInput8 (InputManager.cpp), DirectX GUIDs

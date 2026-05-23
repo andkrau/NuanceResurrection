@@ -41,8 +41,9 @@ extern void SDL2_SwapWindow();
 
 bool bQuit = false;
 bool bRun = false;
-std::string g_ISOPath;   // path to mounted ISO (for reading data files)
-std::string g_ISOPrefix; // NUON directory name inside ISO (e.g. "NUON")
+std::string g_ISOPath;          // path to mounted ISO (for reading data files)
+std::string g_ISOPrefix;        // NUON directory name inside ISO (e.g. "NUON")
+std::string g_LastLoadedPath;   // original argv path (for Reset → re-Load same game)
 static bool load4firsttime = true;
 
 GLWindow display;
@@ -81,6 +82,10 @@ bool OnDisplayPaint(WPARAM, LPARAM)
     RenderVideo(display.clientWidth, display.clientHeight);
   else
     glClear(GL_COLOR_BUFFER_BIT);
+
+  // ImGui overlay (status panel etc.) draws on top of the game scene
+  // before the buffer is presented.
+  NuanceUI_Render();
 
   SDL2_SwapWindow();
   return true;
@@ -128,6 +133,7 @@ static void Run()
 bool Load(const char* file)
 {
   if (!file) return false;
+  g_LastLoadedPath = file;   // remember for Reset → re-Load
 
   const std::string actualFile = ResolveGameFile(file);
   if (actualFile.empty()) {

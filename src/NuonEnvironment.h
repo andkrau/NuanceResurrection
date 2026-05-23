@@ -175,8 +175,15 @@ public:
   const GUID& GetController1Joystick() const;
   int GetCTRLRBitnumFromMapping(const ControllerButtonMapping& mapping) const;
   const ControllerButtonMapping& GetMappingForCTRLRBitnum(unsigned int bitnum) const;
+  const ControllerButtonMapping& GetDefaultMappingForCTRLRBitnum(unsigned int bitnum) const
+  { return controllerDefaultMapping[bitnum & 0xF]; }
 
   bool SaveConfigFile(const char* const filename);
+
+  // Accessors for the otherwise-private AudioInterrupts flag so the in-game
+  // settings UI can read / write it.
+  bool GetAudioInterruptsEnabled() const { return bAudioInterruptsEnabled; }
+  void SetAudioInterruptsEnabled(bool v) { bAudioInterruptsEnabled = v; }
 
   MPE mpe[4];
   NuonMemoryManager nuonMemoryManager;
