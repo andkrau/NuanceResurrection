@@ -277,11 +277,8 @@ if (MSVC)
         $<$<CONFIG:Release>:/GF>
         $<$<CONFIG:Release>:/GS->
         $<$<CONFIG:Release>:/Gy->
-        $<$<CONFIG:Release>:/LTCG>
         $<$<CONFIG:Release>:/fp:fast>
         $<$<CONFIG:Release>:/fp:except->
-        $<$<CONFIG:Release>:/OPT:REF>
-        $<$<CONFIG:Release>:/OPT:ICF>
 
         # debug
         $<$<CONFIG:Debug>:/Od>
@@ -289,6 +286,11 @@ if (MSVC)
         $<$<CONFIG:Debug>:/Zi>
         $<$<CONFIG:Debug>:/GS->
         $<$<CONFIG:Debug>:/fp:fast>
+    )
+    target_link_options(${NUANCE_TARGET} PRIVATE
+        $<$<CONFIG:Release>:/LTCG>
+        $<$<CONFIG:Release>:/OPT:REF>
+        $<$<CONFIG:Release>:/OPT:ICF>
     )
 else()
     target_compile_options(${NUANCE_TARGET} PRIVATE
