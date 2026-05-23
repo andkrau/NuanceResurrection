@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(Nuance CXX C)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 11)
 
 # Find SDL2 and OpenGL
@@ -149,7 +149,11 @@ if(BUILD_LIBRETRO)
     target_compile_definitions(nuance_libretro PRIVATE LIBRETRO)
     set(NUANCE_TARGET nuance_libretro)
 else()
+ if(NOT WIN32)
     add_executable(nuance ${NUANCE_SOURCES})
+ else()
+    add_executable(nuance WIN32 ${NUANCE_SOURCES})
+ endif()
     set(NUANCE_TARGET nuance)
 endif()
 
@@ -182,6 +186,16 @@ target_compile_definitions(${NUANCE_TARGET} PRIVATE
     $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:USE_ASMJIT>
 )
 
+# NuanceMain.cpp on Windows provides its own WinMain entry point.
+# SDL2main.lib also defines WinMain, so linking both produces a duplicate
+# WinMain. Tell SDL2 not to remap our main() and strip SDL2main from the
+# link line (the user-supplied SDL2_LIBRARIES on a typical Windows SDL2
+# install includes it).
+if(WIN32 AND NOT BUILD_LIBRETRO)
+    target_compile_definitions(${NUANCE_TARGET} PRIVATE SDL_MAIN_HANDLED)
+    list(FILTER SDL2_LIBRARIES EXCLUDE REGEX "(SDL2main|sdl2main)")
+endif()
+
 target_link_libraries(${NUANCE_TARGET} PRIVATE
     glew_static
     miniaudio_impl
@@ -195,9 +209,9 @@ target_link_libraries(${NUANCE_TARGET} PRIVATE
     $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:asmjit_static>
     OpenGL::GL
     ${SDL2_LIBRARIES}
-    pthread
+    $<$<NOT:$<PLATFORM_ID:Windows>>:pthread>
     $<$<NOT:$<PLATFORM_ID:Windows>>:dl>
-    m
+    $<$<NOT:$<PLATFORM_ID:Windows>>:m>
 )
 
 # Standalone build needs X11/GLX directly (NuanceUI uses Xlib, GLWindow uses GLX)
@@ -230,12 +244,37 @@ foreach(f ${NUANCE_DATA_FILES})
 endforeach()
 
 # Compiler flags
-target_compile_options(${NUANCE_TARGET} PRIVATE
-    -msse2
-    -Wno-multichar
-    -Wno-write-strings
-    -Wno-narrowing
-    -Wno-unused-result
-    -Wno-format-security
-    -fpermissive
-)
+if (MSVC)
+    target_compile_options(${NUANCE_TARGET} PRIVATE
+        /arch:SSE2
+        /permissive-
+        /EHsc     # standard C++ exceptions
+
+        # optimization
+        $<$<CONFIG:Release>:/O2>
+        $<$<CONFIG:Release>:/Oi>
+        $<$<CONFIG:Release>:/GL>
+        $<$<CONFIG:Release>:/LTCG>
+        $<$<CONFIG:Release>:/fp:fast>
+
+        # debug
+        $<$<CONFIG:Debug>:/Od>
+        $<$<CONFIG:Debug>:/Zi>
+        $<$<CONFIG:Debug>:/fp:fast>
+    )
+else()
+    target_compile_options(${NUANCE_TARGET} PRIVATE
+        -O3
+        -ffast-math
+        -msse2
+        -Wno-multichar
+        -Wno-write-strings
+        -Wno-narrowing
+        -Wno-unused-result
+        -Wno-format-security
+        -fpermissive
+    )
+endif()
+
+get_target_property(MY_COMPILE_OPTIONS ${NUANCE_TARGET} COMPILE_OPTIONS)
+message(STATUS "Compile options: ${MY_COMPILE_OPTIONS}")
