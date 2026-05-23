@@ -271,13 +271,23 @@ if (MSVC)
         # optimization
         $<$<CONFIG:Release>:/O2>
         $<$<CONFIG:Release>:/Oi>
+        $<$<CONFIG:Release>:/Ob2>
+        $<$<CONFIG:Release>:/Oy>
         $<$<CONFIG:Release>:/GL>
+        $<$<CONFIG:Release>:/GF>
+        $<$<CONFIG:Release>:/GS->
+        $<$<CONFIG:Release>:/Gy->
         $<$<CONFIG:Release>:/LTCG>
         $<$<CONFIG:Release>:/fp:fast>
+        $<$<CONFIG:Release>:/fp:except->
+        $<$<CONFIG:Release>:/OPT:REF>
+        $<$<CONFIG:Release>:/OPT:ICF>
 
         # debug
         $<$<CONFIG:Debug>:/Od>
+        $<$<CONFIG:Debug>:/DEBUG>
         $<$<CONFIG:Debug>:/Zi>
+        $<$<CONFIG:Debug>:/GS->
         $<$<CONFIG:Debug>:/fp:fast>
     )
 else()
