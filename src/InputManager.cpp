@@ -439,8 +439,10 @@ void InputManagerImpl::UpdateState(CONTROLLER_CALLBACK applyState, ANYPRESSED_CA
 #undef CURSTATE
 #undef PREVSTATE
 
-    static bool axisLastState[&js.rglSlider[_countof(js.rglSlider)] - &js.lX][2] = {};
-    bool axisState[&js.rglSlider[_countof(js.rglSlider)] - &js.lX][2] = {};
+    constexpr size_t AxisCount = (offsetof(DIJOYSTATE2, rglSlider) + sizeof(js.rglSlider) -
+                                  offsetof(DIJOYSTATE2, lX)) / sizeof(LONG);
+    static bool axisLastState[AxisCount][2] = {};
+    bool axisState[AxisCount][2] = {};
 #define CURSTATE() (axisState[idx][subIdx])
 #define PREVSTATE() (axisLastState[idx][subIdx])
     type = JOYAXIS;

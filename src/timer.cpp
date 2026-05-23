@@ -117,7 +117,13 @@ void TimeOfDay(MPE &mpe)
     if(currTime != oldTime)
     {
       localtime_s(&pcTime,&currTime);
+#if defined(__MINGW32__) || defined(__MINGW64__)
+      // MinGW's libmsvcrt doesn't always export _get_timezone; tzset()+_timezone is equivalent and universally available
+      tzset();
+      offset = _timezone;
+#else
       _get_timezone(&offset);
+#endif
 
       oldTime = currTime;
     }
