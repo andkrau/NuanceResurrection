@@ -561,6 +561,7 @@ void NativeCodeCache::X86Emit_Group2IR(const x86Reg regDest, const uint8 shiftCo
 
 void NativeCodeCache::X86Emit_Group2IM(const x86MemPtr ptrType, const uint8 shiftCount, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp, const uint8 groupIndex)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -729,6 +730,7 @@ void NativeCodeCache::X86Emit_ADDRR64(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_ADDRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 0);
 }
 
@@ -744,16 +746,19 @@ void NativeCodeCache::X86Emit_ADDIR(const intptr_t imm, const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_ADDIM(const int32 imm, const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 0);
 }
 
 void NativeCodeCache::X86Emit_PUSHES()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x06;
 }
 
 void NativeCodeCache::X86Emit_POPES()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x07;
 }
 
@@ -784,6 +789,7 @@ void NativeCodeCache::X86Emit_ORIM(const int32 imm, const x86MemPtr ptrType, con
 
 void NativeCodeCache::X86Emit_PUSHCS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0E;
 }
 
@@ -794,6 +800,7 @@ void NativeCodeCache::X86Emit_ADCRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_ADCRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 2);
 }
 
@@ -809,16 +816,19 @@ void NativeCodeCache::X86Emit_ADCIR(const intptr_t imm, const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_ADCIM(const int32 imm, const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 2);
 }
 
 void NativeCodeCache::X86Emit_PUSHSS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x16;
 }
 
 void NativeCodeCache::X86Emit_POPSS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x17;
 }
 
@@ -829,6 +839,7 @@ void NativeCodeCache::X86Emit_SBBRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_SBBRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 3);
 }
 
@@ -844,16 +855,19 @@ void NativeCodeCache::X86Emit_SBBIR(const intptr_t imm, const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_SBBIM(const int32 imm, const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 3);
 }
 
 void NativeCodeCache::X86Emit_PUSHDS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x1E;
 }
 
 void NativeCodeCache::X86Emit_POPDS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x1F;
 }
 
@@ -884,11 +898,13 @@ void NativeCodeCache::X86Emit_ANDIM(const int32 imm, const x86MemPtr ptrType, co
 
 void NativeCodeCache::X86Emit_ES()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x26;
 }
 
 void NativeCodeCache::X86Emit_DAA()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x27;
 }
 
@@ -899,6 +915,7 @@ void NativeCodeCache::X86Emit_SUBRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_SUBRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 5);
 }
 
@@ -914,16 +931,19 @@ void NativeCodeCache::X86Emit_SUBIR(const intptr_t imm, const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_SUBIM(const int32 imm, const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 5);
 }
 
 void NativeCodeCache::X86Emit_CS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x2E;
 }
 
 void NativeCodeCache::X86Emit_DAS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x2F;
 }
 
@@ -934,6 +954,7 @@ void NativeCodeCache::X86Emit_XORRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_XORRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 6);
 }
 
@@ -949,16 +970,19 @@ void NativeCodeCache::X86Emit_XORIR(const intptr_t imm, const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_XORIM(const int32 imm, const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 6);
 }
 
 void NativeCodeCache::X86Emit_SS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x36;
 }
 
 void NativeCodeCache::X86Emit_AAA()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x37;
 }
 
@@ -969,11 +993,13 @@ void NativeCodeCache::X86Emit_CMPRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_CMPRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1RM(regSrc, base, index, scale, disp, 7);
 }
 
 void NativeCodeCache::X86Emit_CMPMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1MR(regDest, base, index, scale, disp, 7);
 }
 
@@ -984,16 +1010,19 @@ void NativeCodeCache::X86Emit_CMPIR(const intptr_t imm, const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_CMPIM(const int32 imm, const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group1IM(imm, ptrType, base, index, scale, disp, 7);
 }
 
 void NativeCodeCache::X86Emit_DS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x3E;
 }
 
 void NativeCodeCache::X86Emit_AAS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x3F;
 }
 
@@ -1051,6 +1080,7 @@ void NativeCodeCache::X86Emit_DECR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_PUSHR(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   if(reg < x86Reg::x86Reg_eax)
   {
     *pEmitLoc++ = 0x66;
@@ -1061,6 +1091,7 @@ void NativeCodeCache::X86Emit_PUSHR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_POPR(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   if(reg < x86Reg::x86Reg_eax)
   {
     *pEmitLoc++ = 0x66;
@@ -1071,6 +1102,7 @@ void NativeCodeCache::X86Emit_POPR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_PUSHAW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0x60;
 }
@@ -1096,6 +1128,7 @@ void NativeCodeCache::X86Emit_PUSHAD()
 
 void NativeCodeCache::X86Emit_POPAW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0x61;
 }
@@ -1121,26 +1154,31 @@ void NativeCodeCache::X86Emit_POPAD()
 
 void NativeCodeCache::X86Emit_FS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x64;
 }
 
 void NativeCodeCache::X86Emit_GS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x65;
 }
 
 void NativeCodeCache::X86Emit_OPSIZE()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x66;
 }
 
 void NativeCodeCache::X86Emit_ADSIZE()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x67;
 }
 
 void NativeCodeCache::X86Emit_PUSHID(const int32 imm)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x68;
   *((int32 *)pEmitLoc) = imm;
   pEmitLoc += sizeof(int32);
@@ -1148,6 +1186,7 @@ void NativeCodeCache::X86Emit_PUSHID(const int32 imm)
 
 void NativeCodeCache::X86Emit_PUSHIW(const int16 imm)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0x68;
   *((int16 *)pEmitLoc) = imm;
@@ -1156,6 +1195,7 @@ void NativeCodeCache::X86Emit_PUSHIW(const int16 imm)
 
 void NativeCodeCache::X86Emit_IMULMRR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //imul reg16, r16
@@ -1256,6 +1296,7 @@ void NativeCodeCache::X86Emit_IMULIRR(const x86Reg regDest, const int32 imm, con
 
 void NativeCodeCache::X86Emit_IMULIMR(const x86Reg regDest, const int32 imm, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //reg16, m8, imm8 or reg16, m16, imm16
@@ -1296,48 +1337,57 @@ void NativeCodeCache::X86Emit_IMULIMR(const x86Reg regDest, const int32 imm, con
 
 void NativeCodeCache::X86Emit_PUSHIB(const int8 imm)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x6A;
   *pEmitLoc++ = imm;
 }
 
 void NativeCodeCache::X86Emit_INSB()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x6C;
 }
 
 void NativeCodeCache::X86Emit_INSW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x6D;
 }
 
 void NativeCodeCache::X86Emit_INSD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x6D;
 }
 
 void NativeCodeCache::X86Emit_OUTSB()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x6E;
 }
 
 void NativeCodeCache::X86Emit_OUTSW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x6F;
 }
 
 void NativeCodeCache::X86Emit_OUTSD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x6F;
 }
 
 void NativeCodeCache::X86Emit_FEMMS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x0E;
 }
 
 void NativeCodeCache::X86Emit_EMMS()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x77;
 }
@@ -1405,81 +1455,97 @@ void NativeCodeCache::X86Emit_JCC_Label(const int8 conditionCode, const uint32 l
 
 void NativeCodeCache::X86Emit_JO(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,0);
 }
 
 void NativeCodeCache::X86Emit_JNO(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,1);
 }
 
 void NativeCodeCache::X86Emit_JB(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,2);
 }
 
 void NativeCodeCache::X86Emit_JNB(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,3);
 }
 
 void NativeCodeCache::X86Emit_JZ(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,4);
 }
 
 void NativeCodeCache::X86Emit_JNZ(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,5);
 }
 
 void NativeCodeCache::X86Emit_JBE(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,6);
 }
 
 void NativeCodeCache::X86Emit_JNBE(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,7);
 }
 
 void NativeCodeCache::X86Emit_JS(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,8);
 }
 
 void NativeCodeCache::X86Emit_JNS(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,9);
 }
 
 void NativeCodeCache::X86Emit_JP(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,10);
 }
 
 void NativeCodeCache::X86Emit_JNP(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,11);
 }
 
 void NativeCodeCache::X86Emit_JL(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,12);
 }
 
 void NativeCodeCache::X86Emit_JNL(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,13);
 }
 
 void NativeCodeCache::X86Emit_JLE(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,14);
 }
 
 void NativeCodeCache::X86Emit_JNLE(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_JCC(pTarget,15);
 }
 
@@ -1517,6 +1583,7 @@ void NativeCodeCache::X86Emit_TESTRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_TESTRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   //OP m8, reg8, OP m16, reg16 or OP m32, reg32
 
   if(regSrc < x86Reg::x86Reg_ax)
@@ -1542,6 +1609,7 @@ void NativeCodeCache::X86Emit_TESTRM(const x86Reg regSrc, const uintptr_t base, 
 
 void NativeCodeCache::X86Emit_XCHGRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   //OP m8, reg8, OP m16, reg16 or OP m32, reg32
 
   if(regSrc < x86Reg::x86Reg_ax)
@@ -1598,6 +1666,7 @@ void NativeCodeCache::X86Emit_MOVRR64(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_LEA(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     *pEmitLoc++ = 0x66;
@@ -1609,6 +1678,7 @@ void NativeCodeCache::X86Emit_LEA(const x86Reg regDest, const uintptr_t base, co
 
 void NativeCodeCache::X86Emit_POPM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(ptrType == x86MemPtr::x86MemPtr_word)
   {
     *pEmitLoc++ = 0x66;
@@ -1620,12 +1690,14 @@ void NativeCodeCache::X86Emit_POPM(const x86MemPtr ptrType, const uintptr_t base
 
 void NativeCodeCache::X86Emit_NOP()
 {
+  assert(false); // unreachable from NUON JIT
   //Alias for XCHG rAX, rAX
   *pEmitLoc++ = 0x90;
 }
 
 void NativeCodeCache::X86Emit_XCHGRR(const x86Reg reg1, const x86Reg reg2)
 {
+  assert(false); // unreachable from NUON JIT
   if((reg2 == x86Reg::x86Reg_eax) || (reg2 == x86Reg::x86Reg_ax))
   {
     //r32, eax or r16, ax
@@ -1670,23 +1742,27 @@ void NativeCodeCache::X86Emit_XCHGRR(const x86Reg reg1, const x86Reg reg2)
 
 void NativeCodeCache::X86Emit_CBW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0x98;
 }
 
 void NativeCodeCache::X86Emit_CWDE()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x98;
 }
 
 void NativeCodeCache::X86Emit_CWD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0x99;
 }
 
 void NativeCodeCache::X86Emit_CDQ()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x99;
 }
 
@@ -1787,38 +1863,45 @@ void NativeCodeCache::X86Emit_JMPI_Label(const uint32 labelIndex)
 
 void NativeCodeCache::X86Emit_WAIT()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x9B;
 }
 
 void NativeCodeCache::X86Emit_PUSHFW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0x9C;
 }
 
 void NativeCodeCache::X86Emit_PUSHFD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x9C;
 }
 
 void NativeCodeCache::X86Emit_POPFW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0x9D;
 }
 
 void NativeCodeCache::X86Emit_POPFD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x9D;
 }
 
 void NativeCodeCache::X86Emit_SAHF()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x9E;
 }
 
 void NativeCodeCache::X86Emit_LAHF()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x9F;
 }
 
@@ -1934,79 +2017,94 @@ void NativeCodeCache::X86Emit_MOVIR(const intptr_t imm, const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_MOVSB()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xA4;
 }
 
 void NativeCodeCache::X86Emit_MOVSW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0xA5;
 }
 
 void NativeCodeCache::X86Emit_MOVSD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xA5;
 }
 
 void NativeCodeCache::X86Emit_CMPSB()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xA6;
 }
 
 void NativeCodeCache::X86Emit_CMPSW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0xA7;
 }
 
 void NativeCodeCache::X86Emit_CMPSD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xA7;
 }
 
 void NativeCodeCache::X86Emit_STOSB()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xAA;
 }
 
 void NativeCodeCache::X86Emit_STOSW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0xAB;
 }
 
 void NativeCodeCache::X86Emit_STOSD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xAB;
 }
 
 void NativeCodeCache::X86Emit_LODSB()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xAC;
 }
 
 void NativeCodeCache::X86Emit_LODSW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xAD;
 }
 
 void NativeCodeCache::X86Emit_LODSD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xAD;
 }
 
 void NativeCodeCache::X86Emit_SCASB()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xAE;
 }
 
 void NativeCodeCache::X86Emit_SCASW()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xAF;
 }
 
 void NativeCodeCache::X86Emit_SCASD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xAF;
 }
 
@@ -2022,6 +2120,7 @@ void NativeCodeCache::X86Emit_RORIR(const x86Reg regDest, const uint8 shiftCount
 
 void NativeCodeCache::X86Emit_RCLIR(const x86Reg regDest, const uint8 shiftCount)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2IR(regDest, shiftCount, 2);
 }
 
@@ -2042,6 +2141,7 @@ void NativeCodeCache::X86Emit_SHRIR(const x86Reg regDest, const uint8 shiftCount
 
 void NativeCodeCache::X86Emit_SALIR(const x86Reg regDest, const uint8 shiftCount)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2IR(regDest, shiftCount, 6);
 }
 
@@ -2052,61 +2152,73 @@ void NativeCodeCache::X86Emit_SARIR(const x86Reg regDest, const uint8 shiftCount
 
 void NativeCodeCache::X86Emit_ROLIM(const x86MemPtr ptrType, const uint8 shiftCount, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 0);
 }
 
 void NativeCodeCache::X86Emit_RORIM(const x86MemPtr ptrType, const uint8 shiftCount, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 1);
 }
 
 void NativeCodeCache::X86Emit_RCLIM(const x86MemPtr ptrType, const uint8 shiftCount, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 2);
 }
 
 void NativeCodeCache::X86Emit_RCRIM(const x86MemPtr ptrType, const uint8 shiftCount, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 3);
 }
 
 void NativeCodeCache::X86Emit_SHLIM(const x86MemPtr ptrType, const uint8 shiftCount, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 4);
 }
 
 void NativeCodeCache::X86Emit_SHRIM(const x86MemPtr ptrType, const uint8 shiftCount, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 5);
 }
 
 void NativeCodeCache::X86Emit_SALIM(const x86MemPtr ptrType, const uint8 shiftCount, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 6);
 }
 
 void NativeCodeCache::X86Emit_SARIM(const x86MemPtr ptrType, const uint8 shiftCount, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2IM(ptrType, shiftCount, base, index, scale, disp, 7);
 }
 
 void NativeCodeCache::X86Emit_ROLRM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 0);
 }
 
 void NativeCodeCache::X86Emit_RORRM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 1);
 }
 
 void NativeCodeCache::X86Emit_RCLRM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 2);
 }
 
 void NativeCodeCache::X86Emit_RCRRM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 3);
 }
 
@@ -2117,16 +2229,19 @@ void NativeCodeCache::X86Emit_SHLRM(const x86MemPtr ptrType, const uintptr_t bas
 
 void NativeCodeCache::X86Emit_SHRRM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 5);
 }
 
 void NativeCodeCache::X86Emit_SALRM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 6);
 }
 
 void NativeCodeCache::X86Emit_SARRM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2RM(ptrType, base, index, scale, disp, 7);
 }
 
@@ -2192,11 +2307,13 @@ void NativeCodeCache::X86Emit_MOVIM(const int32 imm, const x86MemPtr ptrType, co
 
 void NativeCodeCache::X86Emit_LEAVE()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xC9;
 }
 
 void NativeCodeCache::X86Emit_RETF(uint16 iw)
 {
+  assert(false); // unreachable from NUON JIT
   if(iw == 0)
   {
     *pEmitLoc++ = 0xCB;
@@ -2210,22 +2327,26 @@ void NativeCodeCache::X86Emit_RETF(uint16 iw)
 }
 void NativeCodeCache::X86Emit_INT3()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xCC;
 }
 
 void NativeCodeCache::X86Emit_INT(int8 vector)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xCD;
   *pEmitLoc++ = vector;
 }
 
 void NativeCodeCache::X86Emit_INTO()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xCE;
 }
 
 void NativeCodeCache::X86Emit_IRET()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xCF;
 }
 
@@ -2241,11 +2362,13 @@ void NativeCodeCache::X86Emit_RORRR(const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_RCLRR(const x86Reg regDest)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2RR(regDest, 2);
 }
 
 void NativeCodeCache::X86Emit_RCRRR(const x86Reg regDest)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2RR(regDest, 3);
 }
 
@@ -2261,6 +2384,7 @@ void NativeCodeCache::X86Emit_SHRRR(const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_SALRR(const x86Reg regDest)
 {
+  assert(false); // unreachable from NUON JIT
   X86Emit_Group2RR(regDest, 6);
 }
 
@@ -2271,6 +2395,7 @@ void NativeCodeCache::X86Emit_SARRR(const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_AAM(uint8 divisor)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xD4;
   if(divisor != 10)
   {
@@ -2280,6 +2405,7 @@ void NativeCodeCache::X86Emit_AAM(uint8 divisor)
 
 void NativeCodeCache::X86Emit_AAD(uint8 divisor)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xD5;
   if(divisor != 10)
   {
@@ -2289,51 +2415,61 @@ void NativeCodeCache::X86Emit_AAD(uint8 divisor)
 
 void NativeCodeCache::X86Emit_XLAT()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xD7;
 }
 
 void NativeCodeCache::X86Emit_ESC0()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xD8;
 }
 
 void NativeCodeCache::X86Emit_ESC1()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xD9;
 }
 
 void NativeCodeCache::X86Emit_ESC2()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xDA;
 }
 
 void NativeCodeCache::X86Emit_ESC3()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xDB;
 }
 
 void NativeCodeCache::X86Emit_ESC4()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xDC;
 }
 
 void NativeCodeCache::X86Emit_ESC5()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xDD;
 }
 
 void NativeCodeCache::X86Emit_ESC6()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xDE;
 }
 
 void NativeCodeCache::X86Emit_ESC7()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xDF;
 }
 
 void NativeCodeCache::X86Emit_LOOPNE(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   const int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE0;
@@ -2342,6 +2478,7 @@ void NativeCodeCache::X86Emit_LOOPNE(uint8 *pTarget)
 
 void NativeCodeCache::X86Emit_LOOPNE_Label(const uint32 labelIndex)
 {
+  assert(false); // unreachable from NUON JIT
   if(labelIndex >= patchMgr.numLabels)
   {
     patchMgr.AddPatch(pEmitLoc + 1, PatchType::PatchType_Rel8, pEmitLoc + 2, labelIndex);
@@ -2356,6 +2493,7 @@ void NativeCodeCache::X86Emit_LOOPNE_Label(const uint32 labelIndex)
 
 void NativeCodeCache::X86Emit_LOOPE(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   const int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE1;
@@ -2364,6 +2502,7 @@ void NativeCodeCache::X86Emit_LOOPE(uint8 *pTarget)
 
 void NativeCodeCache::X86Emit_LOOPE_Label(const uint32 labelIndex)
 {
+  assert(false); // unreachable from NUON JIT
   if(labelIndex >= patchMgr.numLabels)
   {
     patchMgr.AddPatch(pEmitLoc + 1, PatchType::PatchType_Rel8, pEmitLoc + 2, labelIndex);
@@ -2378,6 +2517,7 @@ void NativeCodeCache::X86Emit_LOOPE_Label(const uint32 labelIndex)
 
 void NativeCodeCache::X86Emit_LOOP(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   const int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE2;
@@ -2386,6 +2526,7 @@ void NativeCodeCache::X86Emit_LOOP(uint8 *pTarget)
 
 void NativeCodeCache::X86Emit_LOOP_Label(const uint32 labelIndex)
 {
+  assert(false); // unreachable from NUON JIT
   if(labelIndex >= patchMgr.numLabels)
   {
     patchMgr.AddPatch(pEmitLoc + 1, PatchType::PatchType_Rel8, pEmitLoc + 2, labelIndex);
@@ -2400,6 +2541,7 @@ void NativeCodeCache::X86Emit_LOOP_Label(const uint32 labelIndex)
 
 void NativeCodeCache::X86Emit_JCXZ(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   const int32 pOffset = (int32)(pTarget - (pEmitLoc + 3));
   
   //ADDRESS Prefix
@@ -2410,6 +2552,7 @@ void NativeCodeCache::X86Emit_JCXZ(uint8 *pTarget)
 
 void NativeCodeCache::X86Emit_JCXZ_Label(const uint32 labelIndex)
 {
+  assert(false); // unreachable from NUON JIT
   if(labelIndex >= patchMgr.numLabels)
   {
     patchMgr.AddPatch(pEmitLoc + 2, PatchType::PatchType_Rel8, pEmitLoc + 3, labelIndex);
@@ -2425,6 +2568,7 @@ void NativeCodeCache::X86Emit_JCXZ_Label(const uint32 labelIndex)
 
 void NativeCodeCache::X86Emit_JECXZ(uint8 *pTarget)
 {
+  assert(false); // unreachable from NUON JIT
   const int32 pOffset = (int32)(pTarget - (pEmitLoc + 2));
   
   *pEmitLoc++ = 0xE3;
@@ -2433,6 +2577,7 @@ void NativeCodeCache::X86Emit_JECXZ(uint8 *pTarget)
 
 void NativeCodeCache::X86Emit_JECXZ_Label(const uint32 labelIndex)
 {
+  assert(false); // unreachable from NUON JIT
   if(labelIndex >= patchMgr.numLabels)
   {
     patchMgr.AddPatch(pEmitLoc + 1, PatchType::PatchType_Rel8, pEmitLoc + 2, labelIndex);
@@ -2447,6 +2592,7 @@ void NativeCodeCache::X86Emit_JECXZ_Label(const uint32 labelIndex)
 
 void NativeCodeCache::X86Emit_INI(const x86Reg regDest, uint8 port)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_ax)
   {
     *pEmitLoc++ = 0xE4;
@@ -2467,6 +2613,7 @@ void NativeCodeCache::X86Emit_INI(const x86Reg regDest, uint8 port)
 
 void NativeCodeCache::X86Emit_OUTI(const x86Reg regDest, uint8 data)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_ax)
   {
     *pEmitLoc++ = 0xE6;
@@ -2487,6 +2634,7 @@ void NativeCodeCache::X86Emit_OUTI(const x86Reg regDest, uint8 data)
 
 void NativeCodeCache::X86Emit_INR(const x86Reg regDest)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_ax)
   {
     *pEmitLoc++ = 0xEC;
@@ -2504,6 +2652,7 @@ void NativeCodeCache::X86Emit_INR(const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_OUTR(const x86Reg regDest)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_ax)
   {
     *pEmitLoc++ = 0xEE;
@@ -2521,31 +2670,37 @@ void NativeCodeCache::X86Emit_OUTR(const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_LOCK()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xF0;
 }
 
 void NativeCodeCache::X86Emit_INT1()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xF1;
 }
 
 void NativeCodeCache::X86Emit_REPNE()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xF2;
 }
 
 void NativeCodeCache::X86Emit_REPE()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xF3;
 }
 
 void NativeCodeCache::X86Emit_HLT()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xF4;
 }
 
 void NativeCodeCache::X86Emit_CMC()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xF5;
 }
 
@@ -2577,6 +2732,7 @@ void NativeCodeCache::X86Emit_NOTR(const x86Reg regDest)
 
 void NativeCodeCache::X86Emit_NOTM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(ptrType == x86MemPtr::x86MemPtr_byte)
   {
     *pEmitLoc++ = 0xF6;
@@ -2733,6 +2889,7 @@ void NativeCodeCache::X86Emit_TESTIR(const uint32 imm, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_TESTIM(const uint32 imm, const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(ptrType == x86MemPtr::x86MemPtr_byte)
   {
     *pEmitLoc++ = 0xF6;
@@ -2760,6 +2917,7 @@ void NativeCodeCache::X86Emit_TESTIM(const uint32 imm, const x86MemPtr ptrType, 
 
 void NativeCodeCache::X86Emit_NEGM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(ptrType == x86MemPtr::x86MemPtr_byte)
   {
     *pEmitLoc++ = 0xF6;
@@ -2778,36 +2936,43 @@ void NativeCodeCache::X86Emit_NEGM(const x86MemPtr ptrType, const uintptr_t base
 
 void NativeCodeCache::X86Emit_CLC()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xF8;
 }
 
 void NativeCodeCache::X86Emit_STC()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xF9;
 }
 
 void NativeCodeCache::X86Emit_CLI()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xFA;
 }
 
 void NativeCodeCache::X86Emit_STI()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xFB;
 }
 
 void NativeCodeCache::X86Emit_CLD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xFC;
 }
 
 void NativeCodeCache::X86Emit_STD()
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xFD;
 }
 
 void NativeCodeCache::X86Emit_INCM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(ptrType == x86MemPtr::x86MemPtr_byte)
   {
     *pEmitLoc++ = 0xFE;
@@ -2826,6 +2991,7 @@ void NativeCodeCache::X86Emit_INCM(const x86MemPtr ptrType, const uintptr_t base
 
 void NativeCodeCache::X86Emit_DECM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(ptrType == x86MemPtr::x86MemPtr_byte)
   {
     *pEmitLoc++ = 0xFE;
@@ -2844,12 +3010,14 @@ void NativeCodeCache::X86Emit_DECM(const x86MemPtr ptrType, const uintptr_t base
 
 void NativeCodeCache::X86Emit_CALLNM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xFF;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
 }
 
 void NativeCodeCache::X86Emit_CALLR(const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   if(regSrc < x86Reg::x86Reg_eax)
   {
     //CALL r16
@@ -2867,12 +3035,14 @@ void NativeCodeCache::X86Emit_CALLR(const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_CALLFM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xFF;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)3,base,index,scale,disp);
 }
 
 void NativeCodeCache::X86Emit_JMPR(const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   if(regSrc < x86Reg::x86Reg_eax)
   {
     //JMP r16
@@ -2890,18 +3060,21 @@ void NativeCodeCache::X86Emit_JMPR(const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_JMPNM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xFF;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)4,base,index,scale,disp);
 }
 
 void NativeCodeCache::X86Emit_JMPFM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0xFF;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)5,base,index,scale,disp);
 }
 
 void NativeCodeCache::X86Emit_PUSHM(const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(ptrType == x86MemPtr::x86MemPtr_word)
   {
     *pEmitLoc++ = 0x66;
@@ -2913,18 +3086,21 @@ void NativeCodeCache::X86Emit_PUSHM(const x86MemPtr ptrType, const uintptr_t bas
 
 void NativeCodeCache::X86Emit_INVD(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x08;
 }
 
 void NativeCodeCache::X86Emit_WBINVD(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x09;
 }
 
 void NativeCodeCache::X86Emit_UD1(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x0B;
 }
@@ -2960,6 +3136,7 @@ void NativeCodeCache::X86Emit_SETOR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETOM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x90;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -2967,6 +3144,7 @@ void NativeCodeCache::X86Emit_SETOM(const uintptr_t base, const x86IndexReg inde
 
 void NativeCodeCache::X86Emit_SETNOR(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x91;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -2974,6 +3152,7 @@ void NativeCodeCache::X86Emit_SETNOR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETNOM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x91;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -2996,6 +3175,7 @@ void NativeCodeCache::X86Emit_SETBR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETBM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x92;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3003,6 +3183,7 @@ void NativeCodeCache::X86Emit_SETBM(const uintptr_t base, const x86IndexReg inde
 
 void NativeCodeCache::X86Emit_SETNBR(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x93;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -3010,6 +3191,7 @@ void NativeCodeCache::X86Emit_SETNBR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETNBM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x93;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3032,6 +3214,7 @@ void NativeCodeCache::X86Emit_SETZR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETZM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x94;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3039,6 +3222,7 @@ void NativeCodeCache::X86Emit_SETZM(const uintptr_t base, const x86IndexReg inde
 
 void NativeCodeCache::X86Emit_SETNZR(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x95;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -3046,6 +3230,7 @@ void NativeCodeCache::X86Emit_SETNZR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETNZM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x95;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3053,6 +3238,7 @@ void NativeCodeCache::X86Emit_SETNZM(const uintptr_t base, const x86IndexReg ind
 
 void NativeCodeCache::X86Emit_SETBER(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x96;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -3060,6 +3246,7 @@ void NativeCodeCache::X86Emit_SETBER(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETBEM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x96;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3067,6 +3254,7 @@ void NativeCodeCache::X86Emit_SETBEM(const uintptr_t base, const x86IndexReg ind
 
 void NativeCodeCache::X86Emit_SETNBER(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x97;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -3074,6 +3262,7 @@ void NativeCodeCache::X86Emit_SETNBER(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETNBEM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x97;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3096,6 +3285,7 @@ void NativeCodeCache::X86Emit_SETSR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETSM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x98;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3103,6 +3293,7 @@ void NativeCodeCache::X86Emit_SETSM(const uintptr_t base, const x86IndexReg inde
 
 void NativeCodeCache::X86Emit_SETNSR(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x99;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -3110,6 +3301,7 @@ void NativeCodeCache::X86Emit_SETNSR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETNSM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x99;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3117,6 +3309,7 @@ void NativeCodeCache::X86Emit_SETNSM(const uintptr_t base, const x86IndexReg ind
 
 void NativeCodeCache::X86Emit_SETPR(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9A;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -3124,6 +3317,7 @@ void NativeCodeCache::X86Emit_SETPR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETPM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9A;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3131,6 +3325,7 @@ void NativeCodeCache::X86Emit_SETPM(const uintptr_t base, const x86IndexReg inde
 
 void NativeCodeCache::X86Emit_SETNPR(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9B;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -3138,6 +3333,7 @@ void NativeCodeCache::X86Emit_SETNPR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETNPM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9B;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3145,6 +3341,7 @@ void NativeCodeCache::X86Emit_SETNPM(const uintptr_t base, const x86IndexReg ind
 
 void NativeCodeCache::X86Emit_SETLR(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9C;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -3152,6 +3349,7 @@ void NativeCodeCache::X86Emit_SETLR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETLM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9C;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3159,6 +3357,7 @@ void NativeCodeCache::X86Emit_SETLM(const uintptr_t base, const x86IndexReg inde
 
 void NativeCodeCache::X86Emit_SETNLR(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9D;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -3166,6 +3365,7 @@ void NativeCodeCache::X86Emit_SETNLR(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETNLM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9D;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3173,6 +3373,7 @@ void NativeCodeCache::X86Emit_SETNLM(const uintptr_t base, const x86IndexReg ind
 
 void NativeCodeCache::X86Emit_SETLER(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9E;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -3180,6 +3381,7 @@ void NativeCodeCache::X86Emit_SETLER(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETLEM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9E;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3187,6 +3389,7 @@ void NativeCodeCache::X86Emit_SETLEM(const uintptr_t base, const x86IndexReg ind
 
 void NativeCodeCache::X86Emit_SETNLER(const x86Reg reg)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9F;
   X86Emit_ModRegRM(x86ModType::x86ModType_reg,(x86ModReg)2,((uint32)reg & 0x07));
@@ -3194,6 +3397,7 @@ void NativeCodeCache::X86Emit_SETNLER(const x86Reg reg)
 
 void NativeCodeCache::X86Emit_SETNLEM(const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   *pEmitLoc++ = 0x0F;
   *pEmitLoc++ = 0x9F;
   X86Emit_ModRegRM(x86ModType::x86ModType_mem,(x86ModReg)2,base,index,scale,disp);
@@ -3201,6 +3405,7 @@ void NativeCodeCache::X86Emit_SETNLEM(const uintptr_t base, const x86IndexReg in
 
 void NativeCodeCache::X86Emit_CMOVORR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -3222,6 +3427,7 @@ void NativeCodeCache::X86Emit_CMOVORR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_CMOVOMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3235,6 +3441,7 @@ void NativeCodeCache::X86Emit_CMOVOMR(const x86Reg regDest, const uintptr_t base
 
 void NativeCodeCache::X86Emit_CMOVNORR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -3256,6 +3463,7 @@ void NativeCodeCache::X86Emit_CMOVNORR(const x86Reg regDest, const x86Reg regSrc
 
 void NativeCodeCache::X86Emit_CMOVNOMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3269,6 +3477,7 @@ void NativeCodeCache::X86Emit_CMOVNOMR(const x86Reg regDest, const uintptr_t bas
 
 void NativeCodeCache::X86Emit_CMOVBRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -3290,6 +3499,7 @@ void NativeCodeCache::X86Emit_CMOVBRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_CMOVBMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3341,6 +3551,7 @@ void NativeCodeCache::X86Emit_CMOVNBRR64(const x86Reg regDest, const x86Reg regS
 
 void NativeCodeCache::X86Emit_CMOVNBMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3375,6 +3586,7 @@ void NativeCodeCache::X86Emit_CMOVZRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_CMOVZMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3409,6 +3621,7 @@ void NativeCodeCache::X86Emit_CMOVNZRR(const x86Reg regDest, const x86Reg regSrc
 
 void NativeCodeCache::X86Emit_CMOVNZMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3422,6 +3635,7 @@ void NativeCodeCache::X86Emit_CMOVNZMR(const x86Reg regDest, const uintptr_t bas
 
 void NativeCodeCache::X86Emit_CMOVBERR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -3443,6 +3657,7 @@ void NativeCodeCache::X86Emit_CMOVBERR(const x86Reg regDest, const x86Reg regSrc
 
 void NativeCodeCache::X86Emit_CMOVBEMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3477,6 +3692,7 @@ void NativeCodeCache::X86Emit_CMOVNBERR(const x86Reg regDest, const x86Reg regSr
 
 void NativeCodeCache::X86Emit_CMOVNBEMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3492,6 +3708,7 @@ void NativeCodeCache::X86Emit_CMOVNBEMR(const x86Reg regDest, const uintptr_t ba
 
 void NativeCodeCache::X86Emit_CMOVSRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -3513,6 +3730,7 @@ void NativeCodeCache::X86Emit_CMOVSRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_CMOVSMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3526,6 +3744,7 @@ void NativeCodeCache::X86Emit_CMOVSMR(const x86Reg regDest, const uintptr_t base
 
 void NativeCodeCache::X86Emit_CMOVNSRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -3547,6 +3766,7 @@ void NativeCodeCache::X86Emit_CMOVNSRR(const x86Reg regDest, const x86Reg regSrc
 
 void NativeCodeCache::X86Emit_CMOVNSMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3560,6 +3780,7 @@ void NativeCodeCache::X86Emit_CMOVNSMR(const x86Reg regDest, const uintptr_t bas
 
 void NativeCodeCache::X86Emit_CMOVPRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3573,6 +3794,7 @@ void NativeCodeCache::X86Emit_CMOVPRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_CMOVPMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3586,6 +3808,7 @@ void NativeCodeCache::X86Emit_CMOVPMR(const x86Reg regDest, const uintptr_t base
 
 void NativeCodeCache::X86Emit_CMOVNPRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3599,6 +3822,7 @@ void NativeCodeCache::X86Emit_CMOVNPRR(const x86Reg regDest, const x86Reg regSrc
 
 void NativeCodeCache::X86Emit_CMOVNPMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3633,6 +3857,7 @@ void NativeCodeCache::X86Emit_CMOVLRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_CMOVLMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3667,6 +3892,7 @@ void NativeCodeCache::X86Emit_CMOVNLRR(const x86Reg regDest, const x86Reg regSrc
 
 void NativeCodeCache::X86Emit_CMOVNLMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3680,6 +3906,7 @@ void NativeCodeCache::X86Emit_CMOVNLMR(const x86Reg regDest, const uintptr_t bas
 
 void NativeCodeCache::X86Emit_CMOVLERR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -3701,6 +3928,7 @@ void NativeCodeCache::X86Emit_CMOVLERR(const x86Reg regDest, const x86Reg regSrc
 
 void NativeCodeCache::X86Emit_CMOVLEMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3735,6 +3963,7 @@ void NativeCodeCache::X86Emit_CMOVNLERR(const x86Reg regDest, const x86Reg regSr
 
 void NativeCodeCache::X86Emit_CMOVNLEMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     //r16, r16
@@ -3748,6 +3977,7 @@ void NativeCodeCache::X86Emit_CMOVNLEMR(const x86Reg regDest, const uintptr_t ba
 
 void NativeCodeCache::X86Emit_MOVQRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_xmm0)
   {
     //MMX
@@ -3938,6 +4168,7 @@ void NativeCodeCache::X86Emit_SHLDRRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_SHLDIMR(const x86Reg regDest, const x86MemPtr ptrType, const uint8 shiftCount, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     *pEmitLoc++ = 0x66;
@@ -3952,6 +4183,7 @@ void NativeCodeCache::X86Emit_SHLDIMR(const x86Reg regDest, const x86MemPtr ptrT
 
 void NativeCodeCache::X86Emit_SHLDRMR(const x86Reg regDest, const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     *pEmitLoc++ = 0x66;
@@ -4006,6 +4238,7 @@ void NativeCodeCache::X86Emit_SHRDRRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_SHRDIMR(const x86Reg regDest, const x86MemPtr ptrType, const uint8 shiftCount, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     *pEmitLoc++ = 0x66;
@@ -4020,6 +4253,7 @@ void NativeCodeCache::X86Emit_SHRDIMR(const x86Reg regDest, const x86MemPtr ptrT
 
 void NativeCodeCache::X86Emit_SHRDRMR(const x86Reg regDest, const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_eax)
   {
     *pEmitLoc++ = 0x66;
@@ -4084,6 +4318,7 @@ void NativeCodeCache::X86Emit_MOVZXMR(const x86Reg regDest, const x86MemPtr ptrT
 
 void NativeCodeCache::X86Emit_MOVSXRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   uint8 opcode = 0xBE;
 
   if(regDest < x86Reg::x86Reg_eax)
@@ -4101,6 +4336,7 @@ void NativeCodeCache::X86Emit_MOVSXRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_MOVSXMR(const x86Reg regDest, const x86MemPtr ptrType, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -4128,6 +4364,7 @@ void NativeCodeCache::X86Emit_MOVSXMR(const x86Reg regDest, const x86MemPtr ptrT
 
 void NativeCodeCache::X86Emit_PSRADRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -4182,6 +4419,7 @@ void NativeCodeCache::X86Emit_PSRADIR(const x86Reg regDest, const uint8 shiftCou
 
 void NativeCodeCache::X86Emit_PSRLDRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -4208,6 +4446,7 @@ void NativeCodeCache::X86Emit_PSRLDRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_PSRLDIR(const x86Reg regDest, const uint8 shiftCount)
 {
+  assert(false); // unreachable from NUON JIT
   #ifdef USE_ASMJIT
   if (asmjitAs) {
     auto& a = *asmjitAs;
@@ -4347,6 +4586,7 @@ void NativeCodeCache::X86Emit_PSHUFBRR(const x86Reg regDest, const x86Reg regSrc
 
 void NativeCodeCache::X86Emit_DPPSRR(const x86Reg regDest, const x86Reg regSrc, const uint8 mask)
 {
+  assert(false); // unreachable from NUON JIT
   //SSE4.1
   *pEmitLoc++ = 0x66;
   *pEmitLoc++ = 0x0F;
@@ -4532,6 +4772,7 @@ void NativeCodeCache::X86Emit_PANDRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_PANDMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_xmm0)
   {
     //MMX
@@ -4550,6 +4791,7 @@ void NativeCodeCache::X86Emit_PANDMR(const x86Reg regDest, const uintptr_t base,
 
 void NativeCodeCache::X86Emit_PANDRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regSrc < x86Reg::x86Reg_xmm0)
   {
     //MMX
@@ -4568,6 +4810,7 @@ void NativeCodeCache::X86Emit_PANDRM(const x86Reg regSrc, const uintptr_t base, 
 
 void NativeCodeCache::X86Emit_PANDBRR(const x86Reg regDest, const x86Reg regSrc)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_xmm0)
   {
     //MMX
@@ -4586,6 +4829,7 @@ void NativeCodeCache::X86Emit_PANDBRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_PANDNMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_xmm0)
   {
     //MMX
@@ -4604,6 +4848,7 @@ void NativeCodeCache::X86Emit_PANDNMR(const x86Reg regDest, const uintptr_t base
 
 void NativeCodeCache::X86Emit_PANDNRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regSrc < x86Reg::x86Reg_xmm0)
   {
     //MMX
@@ -4648,6 +4893,7 @@ void NativeCodeCache::X86Emit_PSUBDRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_PSUBDMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_xmm0)
   {
     //MMX
@@ -4666,6 +4912,7 @@ void NativeCodeCache::X86Emit_PSUBDMR(const x86Reg regDest, const uintptr_t base
 
 void NativeCodeCache::X86Emit_PSUBDRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regSrc < x86Reg::x86Reg_xmm0)
   {
     //MMX
@@ -4710,6 +4957,7 @@ void NativeCodeCache::X86Emit_PADDRR(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_PADDMR(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regDest < x86Reg::x86Reg_xmm0)
   {
     //MMX
@@ -4728,6 +4976,7 @@ void NativeCodeCache::X86Emit_PADDMR(const x86Reg regDest, const uintptr_t base,
 
 void NativeCodeCache::X86Emit_PADDRM(const x86Reg regSrc, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+  assert(false); // unreachable from NUON JIT
   if(regSrc < x86Reg::x86Reg_xmm0)
   {
     //MMX
