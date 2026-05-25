@@ -285,6 +285,9 @@ void Emit_RangeOnly(EmitterVariables * const vars, const Nuance &nuance)
       vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebx, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
       vars->mpe->nativeCodeCache.X86Emit_SHLIR(x86Reg::x86Reg_eax, 16);
       break;
+    default:
+      assert(!"missing Emit_RangeOnly");
+      break;
   }
 
   if(vars->miscRegOutDep & (DEPENDENCY_FLAG_MODGE | DEPENDENCY_FLAG_MODMI))

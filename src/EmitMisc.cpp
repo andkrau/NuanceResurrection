@@ -118,7 +118,7 @@ void Emit_StoreMiscRegisterConstant(EmitterVariables * const vars, const Nuance 
         vars->mpe->nativeCodeCache.X86Emit_MOVIM((uint32_t)nuance.fields[FIELD_CONSTANT_VALUE], x86MemPtr::x86MemPtr_dword, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
         break;
       default:
-        assert(false);
+        assert(!"missing Emit_StoreMiscRegisterConstant");
         break;
     }
   }

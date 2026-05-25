@@ -204,6 +204,9 @@ void EmitConditionCheck(const EmitterVariables * const vars, const uint32 condit
       vars->mpe->nativeCodeCache.X86Emit_TESTIR(CC_COPROCESSOR1,x86Reg::x86Reg_eax);
       vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_Z, conditionFalseLabel);
       return;
+    default:
+      assert(!"missing EmitConditionCheck");
+      return;
    }
 }
 

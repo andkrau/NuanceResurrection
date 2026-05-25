@@ -88,6 +88,9 @@ void Execute_StoreMiscRegisterConstant(MPE &mpe, const uint32 pRegs[48], const N
       case CONSTANT_REG_SVSHIFT:
         mpe.svshift = c;
         break;
+      default:
+        assert(!"missing Execute_StoreMiscRegisterConstant");
+        break;
     }
   }
 

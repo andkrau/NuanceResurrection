@@ -104,6 +104,10 @@ void NativeCodeCache::Flush()
 
 void NativeCodeCache::X86Emit_ModRegRM(const x86ModType modType, const x86ModReg regSpare, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
+#ifdef USE_ASMJIT
+  assert(false); // no ASMJIT path, but should never be called by it anyways
+#endif
+
   if(base > 7)
   {
     //[dword]: mod = 0, reg = regSpare, rm = 5
@@ -195,6 +199,8 @@ void NativeCodeCache::X86Emit_Group1RR(const x86Reg regDest, const x86Reg regSrc
         case 6: a.xor_(d, s); break;
         case 7: a.cmp(d, s); break;
         case 17: a.mov(d, s); break;
+        default:
+        assert(false); break; // no ASMJIT path
       }
     return;
   }
@@ -335,6 +341,8 @@ void NativeCodeCache::X86Emit_Group1IR(const intptr_t imm, const x86Reg regDest,
         case 6: a.xor_(d, asmjit::x86::r15); break;
         case 7: a.cmp(d, asmjit::x86::r15); break;
         case 17: a.mov(d, asmjit::x86::r15); break;
+        default:
+        assert(false); break; // no ASMJIT path
       }
     } else {
       auto d = NuanceJit::toGp32(regDest);
@@ -348,6 +356,8 @@ void NativeCodeCache::X86Emit_Group1IR(const intptr_t imm, const x86Reg regDest,
         case 6: a.xor_(d, (int32_t)imm); break;
         case 7: a.cmp(d, (int32_t)imm); break;
         case 17: a.mov(d, (int32_t)imm); break;
+        default:
+        assert(false); break; // no ASMJIT path
       }
     }
     return;
