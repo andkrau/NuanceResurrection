@@ -167,6 +167,7 @@ set(NUANCE_SOURCES
     src/MPEControlRegisters.cpp
     src/mpe_alloc.cpp
     src/nativecodecache.cpp
+    src/EmulatorCore.cpp
     $<IF:$<PLATFORM_ID:Windows>,src/NuanceMain.cpp,src/NuanceMain_linux.cpp>
     src/NuonEnvironment.cpp
     src/NuonMemoryManager.cpp
@@ -217,11 +218,18 @@ if(BUILD_LIBRETRO)
     target_compile_definitions(nuance_libretro PRIVATE LIBRETRO)
     set(NUANCE_TARGET nuance_libretro)
 else()
- if(NOT WIN32)
-    add_executable(nuance ${NUANCE_SOURCES})
- else()
-    add_executable(nuance WIN32 ${NUANCE_SOURCES})
- endif()
+    # Windows standalone keeps NuanceMain.cpp's legacy globals
+    # (nuonEnv/bQuit/g_ISOPath/g_ISOPrefix/StopEmulation). EmulatorCore.cpp
+    # defines the same names for the libretro and Linux-standalone frontends,
+    # so drop it on Windows to avoid duplicate-symbol link errors.
+    if(WIN32)
+        list(FILTER NUANCE_SOURCES EXCLUDE REGEX "EmulatorCore")
+    endif()
+    if(NOT WIN32)
+        add_executable(nuance ${NUANCE_SOURCES})
+    else()
+        add_executable(nuance WIN32 ${NUANCE_SOURCES})
+    endif()
     set(NUANCE_TARGET nuance)
 endif()
 
