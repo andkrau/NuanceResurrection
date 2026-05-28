@@ -1,6 +1,13 @@
 #ifndef X86EMITTYPES_H
 #define X86EMITTYPES_H
 
+#include <cstdint>
+
+// Sentinel value for X86Emit_LEA's 'base' parameter, meaning "no base register":
+// generates [index*scale + disp] (x86 SIB encoding with base=ebp slot, mod=00, disp32 follows).
+// Used to express LEA forms like [eax*4] for SHL-by-2 fusion
+#define X86_NO_BASE ((uintptr_t)-1)
+
 #define X86_CC_O (0x0)
 #define X86_CC_NO (0x1)
 #define X86_CC_B (0x2)

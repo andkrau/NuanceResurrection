@@ -1660,7 +1660,16 @@ void NativeCodeCache::X86Emit_MOVRR64(const x86Reg regDest, const x86Reg regSrc)
 
 void NativeCodeCache::X86Emit_LEA(const x86Reg regDest, const uintptr_t base, const x86IndexReg index, const x86ScaleVal scale, const int32 disp)
 {
-  assert(false); // no ASMJIT path
+  #ifdef USE_ASMJIT
+  if (asmjitAs) {
+    auto& a = *asmjitAs;
+    auto d = NuanceJit::toGp32(regDest);
+    auto m = NuanceJit::buildMem(a, base, index, scale, disp);
+    a.lea(d, m);
+    return;
+  }
+  #endif
+
   if(regDest < x86Reg::x86Reg_eax)
   {
     *pEmitLoc++ = 0x66;
