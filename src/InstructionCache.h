@@ -78,7 +78,15 @@
 #define SUPERBLOCKINFO_INHIBIT_ECU (0x00400000U)
 //This flag indicates packets where the ECU inhibit state cannot be predetermined
 #define SUPERBLOCKINFO_CHECK_ECU_INHIBIT (0x00200000U)
-//This flag indicates packets where the ECU skip counter must be checked
+//Marks the branch packet plus its two delay-slot packets in delayed-branch flows.
+//Currently vestigial: set in SuperBlock::FetchSuperBlock for those three packets,
+//but never read anywhere - nothing branches on this flag at emit or execute time.
+//Originally may have been intended to drive the per-packet ECU-skip-counter check the native
+//emitter would emit (via EmitterVariables::bCheckECUSkipCounter, but thats also dead).
+//The native path now resolves the spec's delay-slot semantic via a single
+//dispatcher-side decrement (see mpe.cpp) plus a FetchSuperBlock bail when any
+//delay-slot packet contains an ECU op - means no runtime per-packet check is needed.
+//See SuperBlock::EmitCodeBlock for the full explanation; kept in case the bail-out strategy is ever changed
 #define SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER (0x00100000U)
 //This flag denotes packets that require register/flag states be consistent w/ interpretation
 #define SUPERBLOCKINFO_SYNC (0x00080000U)

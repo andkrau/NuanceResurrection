@@ -20,7 +20,14 @@ struct EmitterVariables
   uint32 scalarRegOutDep;
   uint32 miscRegOutDep;
 
-  bool bCheckECUSkipCounter;
+  // Currently forced to false (set in SuperBlock::EmitCodeBlock, but never updated).
+  // The 'if(vars->bCheckECUSkipCounter)' guards in EmitECU.cpp would emit a runtime-
+  // "skip this ECU op if a prior branch is still in its delay window"-check,
+  // mirroring the IL path's per-op 'if(!ecuSkipCounter)' guards. They are unused
+  // because FetchSuperBlock bails native compilation when delay-slot packets
+  // contain ECU ops, eliminating the case those guards would handle. See
+  // comment block at the top of SuperBlock::EmitCodeBlock for a full explanation
+  static constexpr bool bCheckECUSkipCounter = false;
 };
 
 inline x86BaseReg GetScalarRegReadBaseReg(const EmitterVariables* const vars, const uint32 regIndex)

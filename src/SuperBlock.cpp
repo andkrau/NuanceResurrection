@@ -262,7 +262,21 @@ extern NuancePrintHandler printHandlers[];
 
 bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, const bool bContainsBranch)
 {
-  codeCache.emitVars.bCheckECUSkipCounter = false;
+  // bCheckECUSkipCounter is forced to always false for now. Per NUON spec:
+  // "If [a delayed] branch is taken, any ECU instructions (bra, halt,
+  // jmp, jsr, rti, rts) in its delay slots will not be evaluated." The IL path
+  // implements this with per-ECU-op 'if(!ecuSkipCounter)' guards plus a per-PACKETEND
+  // Handler_CheckECUSkipCounter decrement. The native path takes a different/equivalent route:
+  //  1. FetchSuperBlock (below) BAILS native compilation if any delay-slot packet
+  //     contains an ECU op, so within a native block delay slots are ECU-free
+  //     by construction - nothing to suppress
+  //  2. Emit_BRAConditional etc. set ecuSkipCounter = 1 (vs IL's = 3), and the
+  //     main dispatcher (see mpe.cpp) decrements it once after block exit
+  //     and resolves pcexec = pcfetchnext when it hits 0
+  // Consequence: the 'if(vars->bCheckECUSkipCounter)' runtime checks in EmitECU.cpp
+  // are dead code paths for now, kept as a hook in case the bail-out strategy is ever
+  // chaned. Same reason the native emit loop below has no PACKETEND case to emit Handler_CheckECUSkipCounter
+  //codeCache.emitVars.bCheckECUSkipCounter = false;
 
   const SuperBlockCompileType compileType = !bAllowBlockCompile ? SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE :
     (((COMPILE_TYPE != SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_SINGLE) && !bCanEmitNativeCode) ? SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK :
@@ -393,6 +407,12 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, const bool bContainsB
           Emit_SaveRegs(&codeCache.emitVars,pInstruction->instruction);
         }
       }
+      // Note: PACKETEND is intentionally not handled here. The IL emit loop above
+      // emits Handler_CheckECUSkipCounter at every PACKETEND to drive the
+      // ecuSkipCounter=3 / decrement-per-packet scheme. The native path uses
+      // ecuSkipCounter=1 plus a single dispatcher-side decrement (see mpe.cpp),
+      // so no per-packet check is needed. See the comment near 'bCheckECUSkipCounter'
+      // initialization above for the full explanation
       pInstruction++;
     }
 
@@ -747,9 +767,15 @@ uint32 SuperBlock::PerformDeadCodeElimination()
         scalarInDep |= instructions[i].scalarInputDependencies;
         miscInDep |= (instructions[i].miscInputDependencies & DEPENDENCY_MASK_ALLMISC_NON_MEM);
 
-        //Add all registers which are modified by this instruction
+        //Add all registers which are modified by this instruction.
+        //Note: DEPENDENCY_MASK_MEM_STORE/MEM_LOAD are side-effect markers, not
+        //register writes - they must not enter miscRegMaskNext, otherwise the
+        //strip step above would clear them from earlier stores' output deps and
+        //those stores would (incorrectly) become eligible for elimination.
+        //(MEM bits are also masked out of miscInDep above for the same reason:
+        // they never get "consumed" in the register-liveness sense)
         scalarRegMaskNext |= scalarOutDep;
-        miscRegMaskNext |= miscOutDep;
+        miscRegMaskNext |= (miscOutDep & ~(DEPENDENCY_MASK_MEM_STORE | DEPENDENCY_MASK_MEM_LOAD));
 
         //Remove all registers which are input dependencies of this packet
         scalarRegMaskNext &= ~scalarInDep;
@@ -860,7 +886,7 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
   uint32 decodeOptions = (DECOMPRESS_OPTIONS_SCHEDULE_ECU_LAST | DECOMPRESS_OPTIONS_SCHEDULE_MEM_FIRST);
   bCanEmitNativeCode = ALLOW_NATIVE_CODE_EMIT;
   bool bFirstNonNOPReached = false;
-  bool bForceILBlock = false;
+  constexpr bool bForceILBlock = false; // forced to false for now, see disabled enablement/comments below
 
   bContainsBranch = false;
 
@@ -937,20 +963,34 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
             pMPE->DecompressPacket((uint8 *)nuonEnv.GetPointerToMemory(pMPE->mpeIndex, packetAddress, false), packetDelaySlot2, decodeOptions);
             packetAddress = packetDelaySlot2.pcroute;
 
+            // SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER is currently vestigial: nothing
+            // ever reads it again. It may have been intended to drive per-packet skip-counter
+            // checks in the native emitter (gating the 'if(vars->bCheckECUSkipCounter)'
+            // blocks in EmitECU.cpp), but the native path now resolves the
+            // delay-slot semantic via the dispatcher-side single decrement instead
+            // (see EmitCodeBlock above). Kept as a hook in case the implementation changes
             packet.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
             packetDelaySlot1.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
             packetDelaySlot2.packetInfo |= SUPERBLOCKINFO_CHECK_ECUSKIPCOUNTER;
 
             if(((packetDelaySlot1.packetInfo | packetDelaySlot2.packetInfo) & (PACKETINFO_MEMORY_IO|PACKETINFO_MEMORY_INDIRECT|PACKETINFO_ECU|PACKETINFO_NEVERCOMPILE)))
             {
-              //Packet contains non-compilable instruction: don't add it to the list and stop adding packets
-              //Don't modify the current value of the delay counter
-              exitAddress = packet.pcexec;
-              packetsProcessed--;
-              break;
+              if(bFirstNonNOPReached)
+              {
+                //Packet contains non-compilable instruction: don't add it to the list and stop adding packets
+                //Don't modify the current value of the delay counter: Block has prior content, so bail and leave the branch for the next fetch
+                exitAddress = packet.pcexec;
+                packetsProcessed--;
+                break;
+              }
 
-              if(!bFirstNonNOPReached)
-                bForceILBlock = true; //!! after break, see also below?!
+              // Empty block + uncompilable delay slots: would downgrade to an IL block so
+              // the branch + delay slots get compiled together, rather than interpreted packet-by-packet.
+              // Disabled for now: T3K's (at least) first level shows flickering
+              // and artifacts if enabled. With the assignment commented out, bForceILBlock
+              // stays false and the 'else' branch below bails to the interpreter
+              // (keeping the IL-downgrade wiring intact for potential future re-enablement)
+              //bForceILBlock = true;
             }
  
             if(!((packetDelaySlot1.packetInfo | packetDelaySlot2.packetInfo) & (PACKETINFO_MEMORY_IO|PACKETINFO_MEMORY_INDIRECT|PACKETINFO_ECU|PACKETINFO_NEVERCOMPILE)) 
@@ -965,11 +1005,9 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
               }
               packetCounter--;
 
-              if(bForceILBlock)
-              {
-                //goto force_il_block; //!! ???
-              }
-
+              // Delay-slot packets are added unconditionally in IL-downgrade mode
+              // (even if NOP), so their PACKETEND nodes drive the IL path's
+              // Handler_CheckECUSkipCounter decrements at the right cadence
               if((!(packetDelaySlot1.packetInfo & PACKETINFO_NOP) && (packetDelaySlot1.nuanceCount != 0)) || bForceILBlock)
               {
                 AddPacketToList(packetDelaySlot1,numPackets);              
@@ -994,7 +1032,9 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
               packetCounter = 0; //!! ?? never used again anyway
 
               exitAddress = packetDelaySlot2.pcroute;
-//force_il_block:
+              // IL downgrade: forbid native compile so the IL block path is used.
+              // The IL path's per-PACKETEND Handler_CheckECUSkipCounter is required
+              // to drive the delay-slot timing for the embedded branch
               if(bForceILBlock)
                 bCanEmitNativeCode = false;
               break;
