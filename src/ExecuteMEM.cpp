@@ -505,9 +505,19 @@ void __fastcall _LoadPixelAbsolute(MPE* const __restrict mpe, const void* const 
     case 0x1:
     {
       //4 bit
-      //The initial xoffset is guaranteed to start at the first pixel of a group of four.  
+      //The initial xoffset is guaranteed to start at the first pixel of a group of four.
       //This means that for even values of X, the pixel bits to be extracted are always [7:4]
       //and for odd values of X, the pixel bits to be extracted are [3:0]
+      //
+      //The Nibble selector is stored in bit 31 of ba_mipped_xoffset, which GetBilinearAddress
+      //packs into its returned address (see ExecuteMEM.cpp and the MOVRM into ba_mipped_xoffset in EmitMEM.cpp's bilinear LD_P paths).
+      //Note that Execute_LoadPixelAbsolute instead reads bit 0 (set by CalculateBilinearAddress) - both bits hold the same X parity
+      //in their respective bilinear path, but the conventions are not interchangeable!
+      //For Linear/Absolute LD_P with 4-bit pixels, ba_mipped_xoffset is not freshly written by
+      //either path - nibble-selector semantics are also undefined per the NUON OEM spec AFAIK (the only
+      //documented 4-bit LD_P pattern is bilinear; linear LD_P with linpix_type=1 is not explicitly mentioned
+      //and "boundary alignment" is incoherent for sub-byte pixels)
+      //!! may need to be revisited!
       const uint32 pixelData8 = *((uint8 *)memPtr);
       const uint32 pixelData32 = (mpe->ba_mipped_xoffset&0x80000000u) ? (pixelData8 & 0x0FU) : (pixelData8 >> 4);
       regs[0] = (mpe->clutbase & 0xFFFFFFC0U) | (pixelData32 << 2);
@@ -611,9 +621,18 @@ void Execute_LoadPixelAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &n
     case 0x1:
     {
       //4 bit
-      //The initial xoffset is guaranteed to start at the first pixel of a group of four.  
+      //The initial xoffset is guaranteed to start at the first pixel of a group of four.
       //This means that for even values of X, the pixel bits to be extracted are always [7:4]
       //and for odd values of X, the pixel bits to be extracted are [3:0]
+      //
+      //Nibble selector is stored in bit 0 of ba_mipped_xoffset, set by CalculateBilinearAddress
+      //(which stores MIP(x & tilemask)). The JIT's _LoadPixelAbsolute reads bit 31 instead -
+      //both bits hold the same X parity in their respective bilinear path, but the conventions are
+      //not interchangeable. For Linear/Absolute LD_P with 4-bit pixels, ba_mipped_xoffset is not
+      //freshly written by either path - nibble-selector semantics are not explicitly mentioned in the NUON OEM
+      //spec (the only documented 4-bit LD_P pattern is bilinear; linear LD_P with linpix_type=1
+      //is missing and "boundary alignment" is incoherent for sub-byte pixels)
+      //!! may need to be revisited!
       const uint32 pixelData8 = *((uint8 *)memPtr);
       const uint32 pixelData32 = (mpe.ba_mipped_xoffset&1u) ? (pixelData8 & 0x0FU) : (pixelData8 >> 4);
       mpe.regs[dest  ] = (mpe.clutbase & 0xFFFFFFC0U) | (pixelData32 << 2);
