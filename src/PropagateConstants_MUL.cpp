@@ -40,8 +40,8 @@ void PropagateConstants_ADDM(SuperBlockConstants &constants)
 
   if(constants.IsScalarRegisterConstant(src1Index) && ALLOW_MUL_PROPAGATION)
   {
-    constants.nuance->fields[FIELD_ALU_HANDLER] = Handler_ADDMImmediate;
-    constants.nuance->fields[FIELD_ALU_SRC1] = constants.GetScalarRegisterConstant(src1Index);
+    constants.nuance->fields[FIELD_MUL_HANDLER] = Handler_ADDMImmediate;
+    constants.nuance->fields[FIELD_MUL_SRC1] = constants.GetScalarRegisterConstant(src1Index);
     constants.ClearScalarInputDependency(src1Index);
     constants.SetScalarInputDependency(src2Index);
     PropagateConstants_ADDMImmediate(constants);
@@ -112,9 +112,9 @@ void PropagateConstants_SUBM(SuperBlockConstants &constants)
   else if(constants.IsScalarRegisterConstant(src2Index) && ALLOW_MUL_PROPAGATION)
   {
     //Convert <Scalar - Immediate> to <(-Immediate) + Scalar>
-    constants.nuance->fields[FIELD_ALU_HANDLER] = Handler_ADDMImmediate;
-    constants.nuance->fields[FIELD_ALU_SRC1] = -((int32)constants.GetScalarRegisterConstant(src2Index));
-    constants.nuance->fields[FIELD_ALU_SRC2] = src1Index;
+    constants.nuance->fields[FIELD_MUL_HANDLER] = Handler_ADDMImmediate;
+    constants.nuance->fields[FIELD_MUL_SRC1] = -((int32)constants.GetScalarRegisterConstant(src2Index));
+    constants.nuance->fields[FIELD_MUL_SRC2] = src1Index;
     constants.ClearScalarInputDependency(src2Index);
     constants.SetScalarInputDependency(src1Index);
     //No ADDMImmediate propogation: just execute the following two lines
