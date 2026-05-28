@@ -296,11 +296,13 @@ void Execute_ASL(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
   mpe.cc &= ~(CC_ALU_ZERO | CC_ALU_OVERFLOW | CC_ALU_NEGATIVE | CC_ALU_CARRY);
 
+  const uint32 src1 = (uint32_t)nuance.fields[FIELD_ALU_SRC1];
   const uint32 src2 = pRegs[nuance.fields[FIELD_ALU_SRC2]];
 
   // carry = bit 31 of source
   mpe.cc |= ((src2 >> 30) & CC_ALU_CARRY);
-  const uint32 result = src2 << nuance.fields[FIELD_ALU_SRC1];
+  // PropagateConstants_AS->ASL conversion can generate src1=32 meaning "shift by 32 => clear"
+  const uint32 result = (src1 < 32) ? (src2 << src1) : 0;
 
   mpe.regs[nuance.fields[FIELD_ALU_DEST]] = result;
 
