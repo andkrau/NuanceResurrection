@@ -975,21 +975,25 @@ void PropagateConstants_StoreScalarLinear(SuperBlockConstants &constants)
 
   if(constants.IsScalarRegisterConstant(destIndex) && ALLOW_MEM_PROPAGATION)
   {
-    constants.nuance->fields[FIELD_MEM_TO] = constants.GetScalarRegisterConstant(destIndex);
-    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(constants.pMPE->mpeIndex, constants.GetScalarRegisterConstant(destIndex));
+    const uint32 addr = constants.GetScalarRegisterConstant(destIndex);
+    // Don't fold stores into [MPE_ITAGS_BASE, MPE_RESV_BASE): the ITAGS subrange
+    // needs to set bInvalidateInstructionCaches, the CTRL subrange triggers
+    // control-register side effects (DMA setup, interrupt control, etc.).
+    // Both are handled by the runtime dispatch (interpreter or JIT's range-check bail in Emit_StoreScalarLinear)
+    if(addr >= MPE_ITAGS_BASE && addr < MPE_RESV_BASE)
+    {
+      constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
+      constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
+      return;
+    }
+
+    constants.nuance->fields[FIELD_MEM_TO] = addr;
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(constants.pMPE->mpeIndex, addr);
     constants.ClearScalarInputDependency(destIndex);
     constants.SetScalarInputDependency((uint32_t)constants.nuance->fields[FIELD_MEM_FROM]);
     constants.bConstantPropagated = true;
-    if((constants.GetScalarRegisterConstant(destIndex) & MPE_CTRL_BASE) == MPE_CTRL_BASE)
-    {
-      constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_StoreScalarControlRegisterAbsolute;
-      PropagateConstants_StoreScalarControlRegisterAbsolute(constants);
-    }
-    else
-    {
-      constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_StoreScalarAbsolute;
-      PropagateConstants_StoreScalarAbsolute(constants);
-    }
+    constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_StoreScalarAbsolute;
+    PropagateConstants_StoreScalarAbsolute(constants);
   }
   else
   {
@@ -1077,9 +1081,21 @@ void PropagateConstants_StoreVectorLinear(SuperBlockConstants &constants)
 
   if(constants.IsScalarRegisterConstant(destIndex) && ALLOW_MEM_PROPAGATION)
   {
+    const uint32 addr = constants.GetScalarRegisterConstant(destIndex);
+    // Don't fold stores into [MPE_ITAGS_BASE, MPE_RESV_BASE): the ITAGS subrange
+    // needs to set bInvalidateInstructionCaches, the CTRL subrange triggers four
+    // per-lane control-register writes (vs a single 16-byte memory write). Both
+    // are handled by the runtime dispatch (interpreter or JIT's range-check bail in Emit_StoreVectorLinear)
+    if(addr >= MPE_ITAGS_BASE && addr < MPE_RESV_BASE)
+    {
+      constants.status.status = PROPAGATE_CONSTANTS_STATUS_MEM_OK;
+      constants.SetInstructionFlags(SUPERBLOCKINFO_LOCKED);
+      return;
+    }
+
     constants.nuance->fields[FIELD_MEM_HANDLER] = Handler_StoreVectorAbsolute;
-    constants.nuance->fields[FIELD_MEM_TO] = constants.GetScalarRegisterConstant(destIndex);
-    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(constants.pMPE->mpeIndex, constants.GetScalarRegisterConstant(destIndex));
+    constants.nuance->fields[FIELD_MEM_TO] = addr;
+    constants.nuance->fields[FIELD_MEM_POINTER] = (size_t)nuonEnv.GetPointerToMemory(constants.pMPE->mpeIndex, addr);
     constants.bConstantPropagated = true;
     PropagateConstants_StoreVectorAbsolute(constants);
   }
