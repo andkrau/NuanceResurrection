@@ -1110,7 +1110,7 @@ void PropagateConstants_CMPScalarShiftRightImmediate(SuperBlockConstants &consta
   {
     const uint32 src1 = constants.GetScalarRegisterConstant(src1Index);
     const uint32 src2 = (uint32_t)constants.nuance->fields[FIELD_ALU_SRC2];
-    constants.nuance->fields[FIELD_CONSTANT_HANDLER] = Handler_CMPImmediate;
+    constants.nuance->fields[FIELD_ALU_HANDLER] = Handler_CMPImmediate;
     constants.nuance->fields[FIELD_ALU_SRC1] = ((int32)src1) >> src2;
     constants.nuance->fields[FIELD_ALU_SRC2] = destIndex;
     constants.ClearScalarInputDependency(src1Index);
