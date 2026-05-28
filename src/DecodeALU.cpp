@@ -99,8 +99,8 @@ void MPE::DecodeInstruction_ALU16(const uint8 * const iPtr, InstructionCacheEntr
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = (field_1F & 0x1C);
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = (field_1F & 0x1C);
 
-          entry->scalarInputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_3E0) | VECTOR_REG_DEPENDENCY_MASK(field_1F);
-          entry->scalarOutputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_1F);
+          entry->scalarInputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_3E0 & 0x1C) | VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1C);
+          entry->scalarOutputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1C);
           return;
         case 0x01:
           //sub_sv Vi, Vk
@@ -110,8 +110,8 @@ void MPE::DecodeInstruction_ALU16(const uint8 * const iPtr, InstructionCacheEntr
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = (field_1F & 0x1C);
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = (field_1F & 0x1C);
 
-          entry->scalarInputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_3E0) | VECTOR_REG_DEPENDENCY_MASK(field_1F);
-          entry->scalarOutputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_1F);
+          entry->scalarInputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_3E0 & 0x1C) | VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1C);
+          entry->scalarOutputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1C);
           return;
         case 0x02:
           //neg Sk
@@ -371,8 +371,8 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000 & 0x1C;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000 & 0x1C;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F & 0x1C;
-          entry->scalarInputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_3E00000) | VECTOR_REG_DEPENDENCY_MASK(field_1F0000);
-          entry->scalarOutputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_1F);
+          entry->scalarInputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_3E00000 & 0x1C) | VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
+          entry->scalarOutputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1C);
           return;
         case 0x07:
           //add_p Vi, Vj, Vk
@@ -381,8 +381,8 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000 & 0x1C;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000 & 0x1C;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F & 0x1C;
-          entry->scalarInputDependencies[SLOT_ALU] = PIXEL_REG_DEPENDENCY_MASK(field_3E00000) | PIXEL_REG_DEPENDENCY_MASK(field_1F0000);
-          entry->scalarOutputDependencies[SLOT_ALU] = PIXEL_REG_DEPENDENCY_MASK(field_1F);
+          entry->scalarInputDependencies[SLOT_ALU] = PIXEL_REG_DEPENDENCY_MASK(field_3E00000 & 0x1C) | PIXEL_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
+          entry->scalarOutputDependencies[SLOT_ALU] = PIXEL_REG_DEPENDENCY_MASK(field_1F & 0x1C);
           return;
       }
       return;
@@ -476,8 +476,8 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000 & 0x1C;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000 & 0x1C;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F & 0x1C;
-          entry->scalarInputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_3E00000) | VECTOR_REG_DEPENDENCY_MASK(field_1F0000);
-          entry->scalarOutputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_1F);
+          entry->scalarInputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_3E00000 & 0x1C) | VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
+          entry->scalarOutputDependencies[SLOT_ALU] = VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1C);
           return;
         case 0x07:
           //sub_p Vi, Vj, Vk
@@ -486,8 +486,8 @@ void MPE::DecodeInstruction_ALU32(const uint8 * const iPtr, InstructionCacheEntr
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC1)] = field_3E00000 & 0x1C;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_SRC2)] = field_1F0000 & 0x1C;
           entry->nuances[FIXED_FIELD(SLOT_ALU,FIELD_ALU_DEST)] = field_1F & 0x1C;
-          entry->scalarInputDependencies[SLOT_ALU] = PIXEL_REG_DEPENDENCY_MASK(field_3E00000) | PIXEL_REG_DEPENDENCY_MASK(field_1F0000);
-          entry->scalarOutputDependencies[SLOT_ALU] = PIXEL_REG_DEPENDENCY_MASK(field_1F);
+          entry->scalarInputDependencies[SLOT_ALU] = PIXEL_REG_DEPENDENCY_MASK(field_3E00000 & 0x1C) | PIXEL_REG_DEPENDENCY_MASK(field_1F0000 & 0x1C);
+          entry->scalarOutputDependencies[SLOT_ALU] = PIXEL_REG_DEPENDENCY_MASK(field_1F & 0x1C);
           return;
       }
       return;

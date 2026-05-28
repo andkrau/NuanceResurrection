@@ -164,8 +164,8 @@ void MPE::DecodeInstruction_MUL32(const uint8 * const iPtr, InstructionCacheEntr
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC1)] = field_3E00000;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC2)] = field_1F0000 & 0x1CU;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_DEST)] = field_1F & 0x1CU;
-      entry->scalarInputDependencies[SLOT_MUL] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | VECTOR_REG_DEPENDENCY_MASK(field_1F0000);
-      entry->scalarOutputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_1F);
+      entry->scalarInputDependencies[SLOT_MUL] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1CU);
+      entry->scalarOutputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1CU);
 
       if(*(iPtr + 3) & 0x80)
       {
@@ -184,8 +184,8 @@ void MPE::DecodeInstruction_MUL32(const uint8 * const iPtr, InstructionCacheEntr
       entry->packetInfo |= mulsvFlags;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC2)] = field_3E00000 & 0x1CU;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_DEST)] = field_1F & 0x1CU;
-      entry->scalarInputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_3E00000);
-      entry->scalarOutputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_1F);
+      entry->scalarInputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_3E00000 & 0x1CU);
+      entry->scalarOutputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1CU);
 
       if(*(iPtr + 3) & 0x80)
       {
@@ -205,8 +205,8 @@ void MPE::DecodeInstruction_MUL32(const uint8 * const iPtr, InstructionCacheEntr
       entry->packetInfo |= mulsvFlags;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC2)] = field_3E00000 & 0x1CU;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_DEST)] = field_1F & 0x1CU;
-      entry->scalarInputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_3E00000);
-      entry->scalarOutputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_1F);
+      entry->scalarInputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_3E00000 & 0x1CU);
+      entry->scalarOutputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1CU);
 
       if(*(iPtr + 3) & 0x80)
       {
@@ -227,8 +227,8 @@ void MPE::DecodeInstruction_MUL32(const uint8 * const iPtr, InstructionCacheEntr
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC1)] = field_1F0000 & 0x1CU;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC2)] = field_3E00000 & 0x1CU;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_DEST)] = field_1F & 0x1CU;
-      entry->scalarInputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_3E00000) | VECTOR_REG_DEPENDENCY_MASK(field_1F0000);
-      entry->scalarOutputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_1F);
+      entry->scalarInputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_3E00000 & 0x1CU) | VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1CU);
+      entry->scalarOutputDependencies[SLOT_MUL] = VECTOR_REG_DEPENDENCY_MASK(field_1F & 0x1CU);
 
       if(*(iPtr + 3) & 0x80)
       {
@@ -249,8 +249,8 @@ void MPE::DecodeInstruction_MUL32(const uint8 * const iPtr, InstructionCacheEntr
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC1)] = field_3E00000;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC2)] = field_1F0000 & 0x1CU;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_DEST)] = field_1F & 0x1CU;
-      entry->scalarInputDependencies[SLOT_MUL] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | PIXEL_REG_DEPENDENCY_MASK(field_1F0000);
-      entry->scalarOutputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_1F);
+      entry->scalarInputDependencies[SLOT_MUL] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | PIXEL_REG_DEPENDENCY_MASK(field_1F0000 & 0x1CU);
+      entry->scalarOutputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_1F & 0x1CU);
 
       if(*(iPtr + 3) & 0x80)
       {
@@ -270,8 +270,8 @@ void MPE::DecodeInstruction_MUL32(const uint8 * const iPtr, InstructionCacheEntr
       entry->packetInfo |= mulpFlags;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC2)] = field_3E00000 & 0x1CU;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_DEST)] = field_1F & 0x1CU;
-      entry->scalarInputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_3E00000);
-      entry->scalarOutputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_1F);
+      entry->scalarInputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_3E00000 & 0x1CU);
+      entry->scalarOutputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_1F & 0x1CU);
 
       if(*(iPtr + 3) & 0x80)
       {
@@ -292,8 +292,8 @@ void MPE::DecodeInstruction_MUL32(const uint8 * const iPtr, InstructionCacheEntr
       entry->packetInfo |= mulpFlags;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC2)] = field_3E00000 & 0x1CU;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_DEST)] = field_1F & 0x1CU;
-      entry->scalarInputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_3E00000);
-      entry->scalarOutputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_1F);
+      entry->scalarInputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_3E00000 & 0x1CU);
+      entry->scalarOutputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_1F & 0x1CU);
 
       if(*(iPtr + 3) & 0x80)
       {
@@ -315,8 +315,8 @@ void MPE::DecodeInstruction_MUL32(const uint8 * const iPtr, InstructionCacheEntr
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC1)] = field_1F0000 & 0x1CU;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC2)] = field_3E00000 & 0x1CU;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_DEST)] = field_1F & 0x1CU;
-      entry->scalarInputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_3E00000) | PIXEL_REG_DEPENDENCY_MASK(field_1F0000);
-      entry->scalarOutputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_1F);
+      entry->scalarInputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_3E00000 & 0x1CU) | PIXEL_REG_DEPENDENCY_MASK(field_1F0000 & 0x1CU);
+      entry->scalarOutputDependencies[SLOT_MUL] = PIXEL_REG_DEPENDENCY_MASK(field_1F & 0x1CU);
 
       if(*(iPtr + 3) & 0x80)
       {
@@ -337,7 +337,7 @@ void MPE::DecodeInstruction_MUL32(const uint8 * const iPtr, InstructionCacheEntr
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC1)] = field_3E00000;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_SRC2)] = field_1F0000 & 0x1CU;
       entry->nuances[FIXED_FIELD(SLOT_MUL,FIELD_MUL_DEST)] = field_1F;
-      entry->scalarInputDependencies[SLOT_MUL] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | VECTOR_REG_DEPENDENCY_MASK(field_1F0000);
+      entry->scalarInputDependencies[SLOT_MUL] = SCALAR_REG_DEPENDENCY_MASK(field_3E00000) | VECTOR_REG_DEPENDENCY_MASK(field_1F0000 & 0x1CU);
       entry->scalarOutputDependencies[SLOT_MUL] = SCALAR_REG_DEPENDENCY_MASK(field_1F);
 
       if(*(iPtr + 3) & 0x80)
