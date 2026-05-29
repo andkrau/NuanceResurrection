@@ -395,6 +395,14 @@ void Emit_MULScalarShiftLeftImmediate(EmitterVariables * const vars, const Nuanc
     vars->mpe->nativeCodeCache.X86Emit_MOVIM(0, x86MemPtr::x86MemPtr_dword, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
     if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
     {
+      // For shifts > 32, the result's high-32 == (original IMUL low-32 << (shift-32)),
+      // not the unshifted low-32. Without this SHL, the JIT sets MV whenever the
+      // unshifted product is non-zero (e.g. product=0x80000000, shift=33: spec result has high-32 = 0, no overflow).
+      // For shift == 32 the SHL would be by 0 (a no-op), so only emit it when actually needed
+      if(nuance.fields[FIELD_MUL_INFO] > 32)
+      {
+        vars->mpe->nativeCodeCache.X86Emit_SHLIR(x86Reg::x86Reg_eax, (uint8)(nuance.fields[FIELD_MUL_INFO] - 32));
+      }
       vars->mpe->nativeCodeCache.X86Emit_MOVIR(CC_MUL_OVERFLOW, x86Reg::x86Reg_ebp);
       vars->mpe->nativeCodeCache.X86Emit_TESTRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_eax);
       vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_eax);
@@ -543,13 +551,13 @@ mulscalarshiftacshift_exit:
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SUBIR(32, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_SARRR(x86Reg::x86Reg_eax);
-  if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
-  {
-    vars->mpe->nativeCodeCache.X86Emit_MOVIR(CC_MUL_OVERFLOW, x86Reg::x86Reg_ebp);
-    vars->mpe->nativeCodeCache.X86Emit_CMPIR(0, x86Reg::x86Reg_eax);
-    vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_eax);
-    vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
-  }
+  // NOTE: this is the right-shift-by->=32 path (l_pos is taken when bit 6 of the
+  // shift count is clear, which encodes ASR per NUON spec). For a right shift by
+  // >= 32, the spec result is fully sign-extended (high-32 always matches the sign
+  // of low-32), so the standard "high-32 must equal sign-extension of low-32"
+  // overflow test in the corresponding Execute_MUL* interpreter can never trip.
+  // MV is therefore always clear here; the ANDIM at function entry already cleared
+  // it, and nothing needs OR-ing back
   vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
   //l_neg:
   vars->mpe->nativeCodeCache.SetLabelPointer(l_neg);
@@ -707,13 +715,13 @@ mulscalarshiftacshift_exit:
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SUBIR(32, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_SARRR(x86Reg::x86Reg_eax);
-  if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
-  {
-    vars->mpe->nativeCodeCache.X86Emit_MOVIR(CC_MUL_OVERFLOW, x86Reg::x86Reg_ebp);
-    vars->mpe->nativeCodeCache.X86Emit_CMPIR(0, x86Reg::x86Reg_eax);
-    vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_eax);
-    vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
-  }
+  // NOTE: this is the right-shift-by->=32 path (l_pos is taken when bit 6 of the
+  // shift count is clear, which encodes ASR per NUON spec). For a right shift by
+  // >= 32, the spec result is fully sign-extended (high-32 always matches the sign
+  // of low-32), so the standard "high-32 must equal sign-extension of low-32"
+  // overflow test in the corresponding Execute_MUL* interpreter can never trip.
+  // MV is therefore always clear here; the ANDIM at function entry already cleared
+  // it, and nothing needs OR-ing back
   vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
   //l_neg:
   vars->mpe->nativeCodeCache.SetLabelPointer(l_neg);
@@ -871,13 +879,13 @@ mulscalarshiftacshift_exit:
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_edx);
   vars->mpe->nativeCodeCache.X86Emit_SUBIR(32, x86Reg::x86Reg_ecx);
   vars->mpe->nativeCodeCache.X86Emit_SARRR(x86Reg::x86Reg_eax);
-  if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
-  {
-    vars->mpe->nativeCodeCache.X86Emit_MOVIR(CC_MUL_OVERFLOW, x86Reg::x86Reg_ebp);
-    vars->mpe->nativeCodeCache.X86Emit_CMPIR(0, x86Reg::x86Reg_eax);
-    vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_eax);
-    vars->mpe->nativeCodeCache.X86Emit_ORRM(x86Reg::x86Reg_ebp, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
-  }
+  // NOTE: this is the right-shift-by->=32 path (l_pos is taken when bit 6 of the
+  // shift count is clear, which encodes ASR per NUON spec). For a right shift by
+  // >= 32, the spec result is fully sign-extended (high-32 always matches the sign
+  // of low-32), so the standard "high-32 must equal sign-extension of low-32"
+  // overflow test in Execute_MULImmediateShiftScalar can never trip. MV is
+  // therefore always clear here; the ANDIM at function entry already cleared it,
+  // and nothing needs OR-ing back
   vars->mpe->nativeCodeCache.X86Emit_JMPI_Label(l_exit);
   //l_neg:
   vars->mpe->nativeCodeCache.SetLabelPointer(l_neg);
@@ -906,7 +914,7 @@ mulscalarshiftacshift_exit:
   //l_exit:
   vars->mpe->nativeCodeCache.SetLabelPointer(l_exit);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
-  
+
   //Patch forward branch offsets
   vars->mpe->nativeCodeCache.patchMgr.ApplyPatches();
 }
@@ -1045,6 +1053,14 @@ void Emit_MULImmediateShiftLeftImmediate(EmitterVariables * const vars, const Nu
     vars->mpe->nativeCodeCache.X86Emit_MOVIM(0, x86MemPtr::x86MemPtr_dword, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
     if(vars->miscRegOutDep & DEPENDENCY_FLAG_MV)
     {
+      // For shifts > 32, the result's high-32 == (original IMUL low-32 << (shift-32)),
+      // not the unshifted low-32. Without this SHL, the JIT sets MV whenever the
+      // unshifted product is non-zero (e.g. product=0x80000000, shift=33: spec result has high-32 = 0, no overflow).
+      // For shift == 32 the SHL would be by 0 (a no-op), so only emit it when actually needed
+      if(nuance.fields[FIELD_MUL_INFO] > 32)
+      {
+        vars->mpe->nativeCodeCache.X86Emit_SHLIR(x86Reg::x86Reg_eax, (uint8)(nuance.fields[FIELD_MUL_INFO] - 32));
+      }
       vars->mpe->nativeCodeCache.X86Emit_MOVIR(CC_MUL_OVERFLOW, x86Reg::x86Reg_ebp);
       vars->mpe->nativeCodeCache.X86Emit_TESTRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_eax);
       vars->mpe->nativeCodeCache.X86Emit_CMOVZRR(x86Reg::x86Reg_ebp, x86Reg::x86Reg_eax);
@@ -2108,10 +2124,10 @@ void Emit_MUL_PVectorShiftSvshift(EmitterVariables * const vars, const Nuance &n
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_edx);
-  vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebp);
+  vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+0);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
+  vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
 }
 
 void Emit_DOTPScalarShiftImmediate(EmitterVariables * const vars, const Nuance &nuance)
