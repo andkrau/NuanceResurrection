@@ -159,8 +159,9 @@ void Emit_LoadByteAbsolute(EmitterVariables * const vars, const Nuance &nuance)
 
 void Emit_LoadByteLinear(EmitterVariables * const vars, const Nuance &nuance)
 {
-  constexpr uint32 l_not_control_reg = 0;
-
+  // No CTRL-window bail: per NUON spec, MPE control registers are accessible only
+  // via ld_s/st_s and ld_v/st_v (commrecv/commxmit). ld_b / ld_w / ld_sv into CTRL
+  // space have no defined behavior, so the bail used by ld_s / ld_v is not needed
   const uint32 destRegIndex = (uint32_t)nuance.fields[FIELD_MEM_TO];
   const uint32 srcRegIndex = (uint32_t)nuance.fields[FIELD_MEM_FROM];
   const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
@@ -168,17 +169,7 @@ void Emit_LoadByteLinear(EmitterVariables * const vars, const Nuance &nuance)
   const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
-  vars->mpe->nativeCodeCache.patchMgr.Reset();
-
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFF00000, x86Reg::x86Reg_ebx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MPE_CTRL_BASE, x86Reg::x86Reg_ebx);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NZ, l_not_control_reg);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr::x86MemPtr_dword, (uintptr_t)&(vars->mpe->interpretNextPacket));
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr::x86MemPtr_dword, (uintptr_t)&(vars->mpe->pcexec));
-  Emit_ExitBlock(vars);
-  vars->mpe->nativeCodeCache.SetLabelPointer(l_not_control_reg);
   // Resolve bank pointer for the address in eax via the shared bankPtrTable
   // (matches the interpreter's nuonEnv.GetPointerToMemory; consistent for bank 3 too)
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
@@ -189,8 +180,6 @@ void Emit_LoadByteLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ebp, x86BaseReg::x86BaseReg_eax, x86IndexReg::x86IndexReg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_SHLIR(x86Reg::x86Reg_ebp, 24);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
-
-  vars->mpe->nativeCodeCache.patchMgr.ApplyPatches();
 }
 
 void Emit_LoadByteBilinearXY(EmitterVariables * const vars, const Nuance &nuance)
@@ -284,8 +273,9 @@ void Emit_LoadWordAbsolute(EmitterVariables * const vars, const Nuance &nuance)
 
 void Emit_LoadWordLinear(EmitterVariables * const vars, const Nuance &nuance)
 {
-  constexpr uint32 l_not_control_reg = 0;
-
+  // No CTRL-window bail: per NUON spec, MPE control registers are accessible only
+  // via ld_s/st_s and ld_v/st_v (commrecv/commxmit). ld_b / ld_w / ld_sv into CTRL
+  // space have no defined behavior, so the bail used by ld_s / ld_v is not needed
   const uint32 destRegIndex = (uint32_t)nuance.fields[FIELD_MEM_TO];
   const uint32 srcRegIndex = (uint32_t)nuance.fields[FIELD_MEM_FROM];
   const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
@@ -293,17 +283,7 @@ void Emit_LoadWordLinear(EmitterVariables * const vars, const Nuance &nuance)
   const int32 srcRegDisp = GetScalarRegEmitDisp(vars,srcRegIndex);
   const int32 destRegDisp = GetScalarRegEmitDisp(vars,destRegIndex);
 
-  vars->mpe->nativeCodeCache.patchMgr.Reset();
-
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_eax, srcRegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFF00000, x86Reg::x86Reg_ebx);
-  vars->mpe->nativeCodeCache.X86Emit_CMPIR(MPE_CTRL_BASE, x86Reg::x86Reg_ebx);
-  vars->mpe->nativeCodeCache.X86Emit_JCC_Label(X86_CC_NZ, l_not_control_reg);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr::x86MemPtr_dword, (uintptr_t)&(vars->mpe->interpretNextPacket));
-  vars->mpe->nativeCodeCache.X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr::x86MemPtr_dword, (uintptr_t)&(vars->mpe->pcexec));
-  Emit_ExitBlock(vars);
-  vars->mpe->nativeCodeCache.SetLabelPointer(l_not_control_reg);
   // Resolve bank pointer for the address in eax via the shared bankPtrTable
   // (matches the interpreter's nuonEnv.GetPointerToMemory; consistent for bank 3 too)
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ebx, x86Reg::x86Reg_eax);
@@ -315,8 +295,6 @@ void Emit_LoadWordLinear(EmitterVariables * const vars, const Nuance &nuance)
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0xFFFF, x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_BSWAP(x86Reg::x86Reg_ebp);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
-
-  vars->mpe->nativeCodeCache.patchMgr.ApplyPatches();
 }
 
 void Emit_LoadWordBilinearXY(EmitterVariables * const vars, const Nuance &nuance)
@@ -566,6 +544,9 @@ void Emit_LoadShortVectorAbsolute(EmitterVariables * const vars, const Nuance &n
 
 void Emit_LoadShortVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
 {
+  // No CTRL-window bail: per NUON spec, MPE control registers are accessible only
+  // via ld_s/st_s and ld_v/st_v (commrecv/commxmit). ld_b / ld_w / ld_sv into CTRL
+  // space have no defined behavior, so the bail used by ld_s / ld_v is not needed
   const uint32 destRegIndex = (uint32_t)nuance.fields[FIELD_MEM_TO];
   const uint32 srcRegIndex = (uint32_t)nuance.fields[FIELD_MEM_FROM];
   const x86BaseReg srcRegReadBaseReg = GetScalarRegReadBaseReg(vars,srcRegIndex);
@@ -1304,6 +1285,9 @@ void Emit_StoreShortVectorAbsolute(EmitterVariables * const vars, const Nuance &
 
 void Emit_StoreShortVectorLinear(EmitterVariables * const vars, const Nuance &nuance)
 {
+  // No CTRL-window bail: per NUON spec, MPE control registers are accessible only
+  // via ld_s/st_s and ld_v/st_v (commrecv/commxmit). st_sv into CTRL space has no
+  // defined behavior, so the bail used by st_s / st_v is not needed
   const uint32 destRegIndex = (uint32_t)nuance.fields[FIELD_MEM_TO];
   const uint32 srcRegIndex = (uint32_t)nuance.fields[FIELD_MEM_FROM];
   const x86BaseReg srcRegReadBaseReg_0 = GetScalarRegReadBaseReg(vars,srcRegIndex);
@@ -1368,7 +1352,7 @@ void Emit_StoreShortVectorBilinearXY(EmitterVariables * const vars, const Nuance
   vars->mpe->nativeCodeCache.X86Emit_SHRIR(x86Reg::x86Reg_ebx,26);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x3C,x86Reg::x86Reg_ebx);
   Emit_LoadBankPtr(vars);
-  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x007FFFFF, x86Reg::x86Reg_eax);
+  vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x007FFFFC, x86Reg::x86Reg_eax);
 
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_ecx, srcRegReadBaseReg_0, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp);
   vars->mpe->nativeCodeCache.X86Emit_MOVMR(x86Reg::x86Reg_edx, srcRegReadBaseReg_1, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, srcRegDisp+4);
