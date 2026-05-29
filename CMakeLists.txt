@@ -15,7 +15,7 @@ find_package(OpenGL REQUIRED)
 
 # GLEW from bundled source
 add_library(glew_static STATIC external/glew.c)
-target_include_directories(glew_static PUBLIC external/glew-2.2.0/include)
+target_include_directories(glew_static PUBLIC external/glew-2.3.1/include)
 target_compile_definitions(glew_static PUBLIC GLEW_STATIC GLEW_NO_GLU)
 target_link_libraries(glew_static PUBLIC OpenGL::GL)
 set_property(TARGET glew_static PROPERTY POSITION_INDEPENDENT_CODE ON)
@@ -178,7 +178,7 @@ target_include_directories(${NUANCE_TARGET} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/external
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/glew-2.2.0/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/glew-2.3.1/include
     ${CMAKE_CURRENT_SOURCE_DIR}/external/asmjit
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/libchdr/include
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/libchdr/deps/miniz-3.1.1

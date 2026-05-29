@@ -103,10 +103,10 @@
       <AssemblerOutput />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external;external\glew-2.3.1\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>external\glew-2.2.0\lib\Release\Win32\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>external\glew-2.3.1\lib\Release\Win32\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Nuance.exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)Nuance.pdb</ProgramDatabaseFile>
@@ -134,10 +134,10 @@
       </AssemblerOutput>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external;external\glew-2.3.1\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>external\glew-2.2.0\lib\Release\x64\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>external\glew-2.3.1\lib\Release\x64\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Nuance.exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)Nuance.pdb</ProgramDatabaseFile>
@@ -172,10 +172,10 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <StringPooling>true</StringPooling>
-      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external;external\glew-2.3.1\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>external\glew-2.2.0\lib\Release\Win32\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>external\glew-2.3.1\lib\Release\Win32\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Nuance.exe</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>false</GenerateMapFile>
@@ -214,10 +214,10 @@
       <ControlFlowGuard>false</ControlFlowGuard>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <StringPooling>true</StringPooling>
-      <AdditionalIncludeDirectories>external;external\glew-2.2.0\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>external;external\glew-2.3.1\include;third_party\libchdr\include;third_party\libchdr\deps\miniz-3.1.1;third_party\libchdr\deps\lzma-25.01\include;third_party\libchdr\deps\zstd-1.5.7</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>external\glew-2.2.0\lib\Release\x64\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>external\glew-2.3.1\lib\Release\x64\glew32s.lib;user32.lib;winmm.lib;ole32.lib;shell32.lib;opengl32.lib;dxguid.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Nuance.exe</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>false</GenerateMapFile>
@@ -399,8 +399,8 @@
     <ClInclude Include="external\miniaudio.h" />
     <ClInclude Include="third_party\libchdr\include\libchdr\chd.h" />
     <ClInclude Include="src\archive.h" />
-    <ClInclude Include="external\glew-2.2.0\include\GL\glew.h" />
-    <ClInclude Include="external\glew-2.2.0\include\GL\wglew.h" />
+    <ClInclude Include="external\glew-2.3.1\include\GL\glew.h" />
+    <ClInclude Include="external\glew-2.3.1\include\GL\wglew.h" />
     <ClInclude Include="external\xxh3.h" />
     <ClInclude Include="external\xxhash.h" />
     <ClInclude Include="src\file.h" />
