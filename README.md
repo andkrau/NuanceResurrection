@@ -261,10 +261,8 @@ The configuration entries applicable to dynamic compilation are:
   Note that these files can grow in size very quickly.  It is not uncommon for the files to
   grow beyond 500 megabytes or even wrap around the maximum file size of 4 GB, recommended: Disabled
 
-- **`[T3KCompilerHack]`** Enable/Disabled: toggles a compiler hack that avoids errors in T3K that occur even without
-  optimization enabled.  The penalty is an increase in non-compilable instructions and less
-  chance for constant propagation. NOTE: This does not seem to be needed/working nowadays anymore, but we left it in for now, lets see, recommended: Disabled
-  (please use the recommendation in GameCompatibility.txt instead)
+- **`[MPE3PacketHack]`** Enabled/Disabled: toggles a dynamic compiler hack that avoids e.g. a hang in T3K, recommended: Enabled
+  (otherwise (Disabled), for T3K please use the recommendation in GameCompatibility.txt instead)
 
 ## Flash ROM Support
 
@@ -329,10 +327,9 @@ The constant propagation optimizations are still being debugged.  Most programs 
 be safely run with constant propagation turned on while others may not.  Dead code
 elimination is extremely buggy.  Some programs will appear to be working smoothly only
 to freeze unexpectedly later on.  Play around with compiler options to determine the best
-setting for a particular program.  The T3KCompilerHack option might be an option to enable in order for
-T3K to avoid crashing during level selection, even if compiler optimizations are disabled.
-NOTE: This hack does not seem to work anymore on nowadays systems, so please use the
-recommendation in GameCompatibility.txt instead!
+setting for a particular program.  The MPE3PacketHack is an option to enable in order to
+resolve e.g. T3K to hang during level selection. It may also fix (yet unknown) hangs
+in other apps/games.
 
 ### Pixel shader issues
 
@@ -574,7 +571,8 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 ## History
 
 **version 0.6.7:**
-- FINALLY, T3K can be played with no hangs on music transitions, and with proper music looping (see GameCompatibility.txt though for the caveats)!
+- FINALLY, T3K can be played with no hangs on music transitions, and with proper music looping!
+  Also the level select hang (with DynamicCompiler enabled) is resolved (see GameCompatibility.txt/MPE3PacketHack-option though for the caveats)!
 - Merlin Racing's AI drivers now follow the course as intended (with DynamicCompiler enabled).
 - Add Linux port with CMake build system, X11/GLX backend and miniaudio audio output.
 - Add libretro port.
@@ -610,6 +608,7 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 - Some JIT instructions now are implemented correctly on non-SSE4.1 capable hardware (MUL_SVScalarShiftSvshift, MUL_SVRuShiftSvshift and MUL_SVRvShiftSvshift had vector-lane swaps for 2 components).
 - Fix JIT for PVectorShiftSvshift (had wrong z component).
 - Handle ITAGS and CTRL tags correctly in the JIT versions of StoreScalarLinear & StoreVectorLinear.
+- Handle vdma* loads in JIT.
 - Fix a potential correctness issue in the JIT MULScalarShiftLeftImmediate and MULImmediateShiftLeftImmediate with shifts > 32.
 - Fix JIT RangeOnly and ModuloOnly register indices.
 - instructiontest.cof has been updated with more tests (verified to match real HW / Samsung DVD-N501).

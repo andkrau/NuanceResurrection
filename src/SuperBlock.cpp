@@ -933,7 +933,29 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
 
   packetsProcessed = 0;
 
-  int32 packetCounter = COMPILE_SINGLE_PACKET ? 1 : MAX_SUPERBLOCK_PACKETS;
+  // MPE3 packet hack (bMPE3PacketHack, see CompilerOptions): MPE3's system-bus
+  // code may(!) contain a tight cross-MPE handshake (e.g. T3K level select: the
+  // dispatch/spin loop around the 0x8003DE40 completion mailbox) that may(!)
+  // rely on per-packet interleaving with the sub-MPEs. The scheduler
+  // (NuanceMain.cpp) runs one whole native block per MPE per round-robin step
+  // (cycleCounter += numPackets), whereas the interpreter advances one packet
+  // per step - so batching MPE3's handshake packets into a multi-packet native
+  // block lets MPE3 run a whole block ahead atomically, the sub-MPEs never get
+  // to update the mailbox at the expected point, and the handshake livelocks
+  // (JIT-only hang; the interpreter, at one packet/step, is fine). The ALU ops
+  // themselves were tested to be correct - this is most likely an interleaving-granularity issue, not a
+  // codegen bug. Capping MPE3's system-bus blocks to a single packet restores
+  // the per-packet yielding for that loop; the other/sub-MPEs and MPE3 IRAM/overlay (the
+  // heavy DSP work) keep full-length blocks, so the perf cost should be minimal
+  //!! to tailor this to T3K's needs, the checked address range could be even further minimized,
+  //   but leave for now as-is, in case other games do require something similar
+  const int32 maxPackets = (nuonEnv.compilerOptions.bMPE3PacketHack
+                            && pMPE->mpeIndex == 3
+                            && startAddress >= SYSTEM_BUS_BASE
+                            && startAddress < (SYSTEM_BUS_BASE + SYSTEM_BUS_SIZE))
+                           ? 1 : MAX_SUPERBLOCK_PACKETS;
+
+  int32 packetCounter = COMPILE_SINGLE_PACKET ? 1 : maxPackets;
 
   while(packetCounter > 0)
   {

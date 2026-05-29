@@ -20,7 +20,7 @@ and minor gfx glitches during the race.
 
 Tempest 3000
 ------------
-Playable, BUT hangs (only if dynamic compilation enabled) on entering level select.
+Playable, BUT hangs (only if dynamic compilation enabled and MPE3PacketHack disabled) on entering level select.
 WORKAROUND: Just enter 'options'->'vector test' first, before doing anything else.
 
 Ballistic

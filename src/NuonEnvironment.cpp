@@ -742,8 +742,8 @@ bool NuonEnvironment::SaveConfigFile(const char* const fileName)
   fprintf_s(configFile, "[CompilerConstantPropagation]\n");
   fprintf_s(configFile, "%s\n\n", compilerOptions.bConstantPropagation ? "Enabled" : "Disabled");
 
-  fprintf_s(configFile, "[T3KCompilerHack]\n");
-  fprintf_s(configFile, "%s\n\n", compilerOptions.bT3KCompilerHack ? "Enabled" : "Disabled");
+  fprintf_s(configFile, "[MPE3PacketHack]\n");
+  fprintf_s(configFile, "%s\n\n", compilerOptions.bMPE3PacketHack ? "Enabled" : "Disabled");
 
   fprintf_s(configFile, "[AutomaticLoadPopup]\n");
   fprintf_s(configFile, "%s\n\n", bAutomaticLoadPopup ? "Enabled" : "Disabled");
@@ -907,10 +907,10 @@ bool NuonEnvironment::LoadConfigFile(const std::string& fileName)
           tokenType = ReadConfigLine(configFile,line);
           compilerOptions.bConstantPropagation = !_stricmp(line,"Enabled");
         }
-        else if(_strnicmp(&line[1],"T3KCompilerHack]",sizeof("T3KCompilerHack]")) == 0)
+        else if(_strnicmp(&line[1],"MPE3PacketHack]",sizeof("MPE3PacketHack]")) == 0)
         {
           tokenType = ReadConfigLine(configFile,line);
-          compilerOptions.bT3KCompilerHack = !_stricmp(line,"Enabled");
+          compilerOptions.bMPE3PacketHack = !_stricmp(line,"Enabled");
         }
         else if(_strnicmp(&line[1],"AutomaticLoadPopup]",sizeof("AutomaticLoadPopup]")) == 0)
         {

@@ -6,8 +6,6 @@
 #include "NuonMemoryMap.h"
 #include "NuonEnvironment.h"
 
-extern NuonEnvironment nuonEnv;
-
 #define loadPixelBilinearXYFlags 0
 #define loadPixelBilinearUVFlags 0
 #define loadPixelLinearFlags 0
@@ -72,10 +70,6 @@ void MPE::DecodeInstruction_MEM16(const uint8 * const iPtr, InstructionCacheEntr
       //ld_s (Si),Sk
       entry->packetInfo |= PACKETINFO_MEMORY_INDIRECT;
       entry->packetInfo |= loadScalarLinearFlags;
-      if(nuonEnv.compilerOptions.bT3KCompilerHack)
-      {
-        entry->packetInfo |= PACKETINFO_NEVERCOMPILE;
-      }
       entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_LoadScalarLinear;
       entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] = field_3E0;
       entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] = field_1F;
@@ -88,10 +82,6 @@ void MPE::DecodeInstruction_MEM16(const uint8 * const iPtr, InstructionCacheEntr
       //st_s Sj,(Si)
       entry->packetInfo |= PACKETINFO_MEMORY_INDIRECT;
       entry->packetInfo |= storeScalarLinearFlags;
-      if(nuonEnv.compilerOptions.bT3KCompilerHack)
-      {
-        entry->packetInfo |= PACKETINFO_NEVERCOMPILE;
-      }
       entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_HANDLER)] = Handler_StoreScalarLinear;
       entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_FROM)] = field_1F;
       entry->nuances[FIXED_FIELD(SLOT_MEM,FIELD_MEM_TO)] = field_3E0;
@@ -197,11 +187,6 @@ void MPE::DecodeInstruction_MEM16(const uint8 * const iPtr, InstructionCacheEntr
       }
       else
       {
-        if(nuonEnv.compilerOptions.bT3KCompilerHack)
-        {
-          entry->packetInfo |= PACKETINFO_NEVERCOMPILE;
-        }
-
         if(*(iPtr + 1) & 0x20)
         {
           //push

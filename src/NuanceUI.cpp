@@ -544,9 +544,9 @@ static void DrawSettingsPanel()
     ImGui::Checkbox("DumpCompiledBlocks", &nuonEnv.compilerOptions.bDumpBlocks);
     ImGui::SameLine();
     ImGui::TextDisabled("(verbose; for debugging)");
-    ImGui::Checkbox("T3KCompilerHack", &nuonEnv.compilerOptions.bT3KCompilerHack);
+    ImGui::Checkbox("MPE3PacketHack", &nuonEnv.compilerOptions.bMPE3PacketHack);
     ImGui::SameLine();
-    ImGui::TextDisabled("(only relevant for Tempest 3000)");
+    ImGui::TextDisabled("(most likely only relevant for Tempest 3000)");
 
     ImGui::Separator();
     ImGui::TextUnformatted("UI / Frontend");
