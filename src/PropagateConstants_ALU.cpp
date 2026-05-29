@@ -150,8 +150,13 @@ void PropagateConstants_BTST(SuperBlockConstants &constants)
   }
   else
   {
+    // BTST does not write regs[] (only updates CC flags, see Execute_BTST),
+    // so no scalar register constant to clear. DecodeALU sets FIELD_ALU_DEST
+    // == FIELD_ALU_SRC2 for BTST, so any prior ClearScalarRegisterConstant
+    // on destIndex would be a no-op (src2 not constant, which is why
+    // we're in this branch). Only Z's constant changes here; its runtime
+    // value (AND of src1 & src2) is unknown without src2's constant
     constants.ClearMiscRegisterConstant(CONSTANT_REG_Z);
-    constants.ClearScalarRegisterConstant(destIndex);
     constants.status.status = PROPAGATE_CONSTANTS_STATUS_ALU_OK;
   }
 }
@@ -328,16 +333,16 @@ void PropagateConstants_ASL(SuperBlockConstants &constants)
   if(constants.IsScalarRegisterConstant(src2Index) && ALLOW_ALU_PROPAGATION)
   {
     const uint32 src2 = constants.GetScalarRegisterConstant(src2Index);
+    const uint32 src1 = (uint32_t)constants.nuance->fields[FIELD_ALU_SRC1];
     // carry = bit 31 of source
     uint32 flagValues = ((src2 >> 30) & CC_ALU_CARRY);
-    uint32 destValue = src2 << constants.nuance->fields[FIELD_ALU_SRC1];
+    // AS <immediate>,<scalar>,<scalar> will be transformed into ASL.  The AS
+    // instruction allows left shifts of 32 so this handler must support this
+    // scenario even though ASL cannot shift by 32
+    const uint32 destValue = (src1 < 32) ? (src2 << src1) : 0;
 
-    //AS <immediate>,<scalar>,<scalar> will be transformed into ASL.  The AS
-    //instruction allows left shifts of 32 so this handler must support this
-    //scenario even though ASL cannot shift by 32.
-    if(!destValue || (constants.nuance->fields[FIELD_ALU_SRC1] == 32))
+    if(!destValue)
     {
-      destValue = 0;
       flagValues |= CC_ALU_ZERO;
     }
     else
