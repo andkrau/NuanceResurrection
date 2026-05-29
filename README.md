@@ -575,6 +575,7 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 
 **version 0.6.7:**
 - FINALLY, T3K can be played with no hangs on music transitions, and with proper music looping (see GameCompatibility.txt though for the caveats)!
+- Merlin Racing's AI drivers now follow the course as intended (with DynamicCompiler enabled).
 - Add Linux port with CMake build system, X11/GLX backend and miniaudio audio output.
 - Add libretro port.
 - 32-bit build supports the x86 JIT dynamic recompiler on Linux via `__attribute__((fastcall))`.
@@ -605,7 +606,12 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 - Fix "_MediaGetInfo()" byte-swapped fields.
 - Fix uninitialized framebuffer (e.g. when starting fullscreen from command line).
 - Optimize most JIT code that needs to do bswap/endian change.
-- Enforce rz/rzi1/rzi2, matching the Nuon hardware, to have bit 0 as 0 (due to 16-bit alignment)
+- Enforce rz/rzi1/rzi2 (matching the Nuon hardware) to have bit 0 as 0 (due to 16-bit alignment).
+- Some JIT instructions now are implemented correctly on non-SSE4.1 capable hardware (MUL_SVScalarShiftSvshift, MUL_SVRuShiftSvshift and MUL_SVRvShiftSvshift had vector-lane swaps for 2 components).
+- Fix JIT for PVectorShiftSvshift (had wrong z component).
+- Handle ITAGS and CTRL tags correctly in the JIT versions of StoreScalarLinear & StoreVectorLinear.
+- Fix a potential correctness issue in the JIT MULScalarShiftLeftImmediate and MULImmediateShiftLeftImmediate with shifts > 32.
+- Fix JIT RangeOnly and ModuloOnly register indices.
 - instructiontest.cof has been updated with more tests (verified to match real HW / Samsung DVD-N501).
 
 **03/21/2025 version 0.6.6:**
