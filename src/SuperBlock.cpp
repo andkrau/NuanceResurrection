@@ -350,6 +350,30 @@ bool SuperBlock::EmitCodeBlock(NativeCodeCache &codeCache, const bool bContainsB
     uint8 * const entryPoint = codeCache.GetEmitPointer();
     codeCache.emitVars.pInstructionEntry = pInstruction;
 
+    // Invariant: a native code block containing a delayed branch (BRANCH_ALWAYS
+    // or BRANCH_CONDITIONAL without BRANCH_NOP) must extend past both delay-slot
+    // packets, i.e. exitAddress must be the post-delay-slot address - not the
+    // branch packet's own pcroute. The native path resolves the branch via
+    // ecuSkipCounter=1 set in the branch emitter (see EmitECU.cpp) plus a single
+    // decrement in the dispatcher loop (see mpe.cpp) after block exit.
+    // This is only equivalent to the IL path's ecuSkipCounter=3 + per-PACKETEND
+    // triple-decrement scheme when the delay slots are inlined into the same
+    // native block. FetchSuperBlock enforces this by inlining both delay slots
+    // or bailing native compilation entirely.
+    // Check for a future regression that lets a native block end
+    // mid-delay-slot, which would resolve the branch prematurely
+#ifdef ENABLE_ASSERTS
+    for(uint32 i = 0; i < numPackets; ++i)
+    {
+      if((packets[i].flags & (PACKETINFO_BRANCH_ALWAYS | PACKETINFO_BRANCH_CONDITIONAL))
+         && !(packets[i].flags & PACKETINFO_BRANCH_NOP))
+      {
+        assert(exitAddress > packets[i].pcroute
+               && "Native block containing a delayed branch must end past both delay slots");
+      }
+    }
+#endif
+
 #ifdef USE_ASMJIT
     codeCache.AsmJit_BeginBlock();
 #endif
