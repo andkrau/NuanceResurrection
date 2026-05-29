@@ -253,10 +253,10 @@ void Emit_RangeOnly(EmitterVariables * const vars, const Nuance &nuance)
   //const x86BaseReg ccReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_CC);
   const x86BaseReg xyRangeReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_XYRANGE);
   const x86BaseReg uvRangeReadBaseReg = GetMiscRegReadBaseReg(vars,REGINDEX_UVRANGE);
-  const x86BaseReg srcRegReadBaseReg = GetMiscRegReadBaseReg(vars, (uint32_t)nuance.fields[FIELD_RCU_SRC]);
-  //const x86BaseReg destRegReadBaseReg = GetMiscRegReadBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
+  const x86BaseReg srcRegReadBaseReg = GetMiscRegReadBaseReg(vars, srcRegIndex);
+  //const x86BaseReg destRegReadBaseReg = GetMiscRegReadBaseReg(vars, destRegIndex);
   const x86BaseReg ccWriteBaseReg = GetMiscRegWriteBaseReg(vars,REGINDEX_CC);
-  //const x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars,nuance.fields[FIELD_RCU_DEST]);
+  //const x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars, destRegIndex);
   const int32 xyRangeDisp = GetMiscRegEmitDisp(vars,REGINDEX_XYRANGE);
   const int32 uvRangeDisp = GetMiscRegEmitDisp(vars,REGINDEX_UVRANGE);
   const int32 srcRegDisp = GetMiscRegEmitDisp(vars,srcRegIndex);
@@ -290,6 +290,17 @@ void Emit_RangeOnly(EmitterVariables * const vars, const Nuance &nuance)
       break;
   }
 
+  // Conditional clear gated on miscRegOutDep, vs Execute_RangeOnly which clears
+  // both MODGE and MODMI unconditionally. This is the standard JIT pattern (see
+  // EmitALU.cpp for the same idiom on N/Z/C/V): we only touch a flag bit when
+  // dead-code-elimination says a later-on consumer reads it. The clear-mask
+  // uses the SAME (miscRegOutDep & (MODMI|MODGE)) subset that drives the
+  // conditional ORIMs, so the cleared bits and
+  // the bits that may be re-set always match. DecodeRCU.cpp pairs
+  // MODGE+MODMI in the output dep, so under correct DCE either both bits flow
+  // through here or both are pruned together. If DCE ever incorrectly drops a
+  // bit that is actually read downstream, the JIT will leave a stale flag -
+  // but that hazard applies to every flag-producing emitter, not just this one
   if(vars->miscRegOutDep & (DEPENDENCY_FLAG_MODGE | DEPENDENCY_FLAG_MODMI))
   {
     vars->mpe->nativeCodeCache.X86Emit_ANDIM(~(FLAG_DEPENDENCIES(vars->miscRegOutDep & (DEPENDENCY_FLAG_MODMI | DEPENDENCY_FLAG_MODGE))), x86MemPtr::x86MemPtr_dword, ccWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, ccDisp);
@@ -339,12 +350,21 @@ void Emit_Range(EmitterVariables * const vars, const Nuance &nuance)
 void Emit_ModuloOnly(EmitterVariables * const vars, const Nuance &nuance)
 {
   const uint32 destRegIndex = REGINDEX_RX + (uint32_t)nuance.fields[FIELD_RCU_DEST];
-  const x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars, (uint32_t)nuance.fields[FIELD_RCU_DEST]);
+  const x86BaseReg destRegWriteBaseReg = GetMiscRegWriteBaseReg(vars, destRegIndex);
   const int32 destRegDisp = GetMiscRegEmitDisp(vars,destRegIndex);
 
   Emit_RangeOnly(vars,nuance);
   if(vars->miscRegOutDep & (~DEPENDENCY_FLAG_ALLFLAGS))
   {
+    // ebx (= modulo result from Emit_RangeOnly) is stored to dest in full,
+    // while Execute_ModuloOnly preserves the low 16 bits of the old dest:
+    //   dest = (oldDest & 0x0000FFFF) | (moduloResult & 0xFFFF0000)
+    // Equivalent here because DecodeRCU.cpp forces RCU_SRC == RCU_DEST for
+    // modulo, and Emit_RangeOnly only modifies bits 16-25
+    // of ebx (range value is masked to 0x03FF0000, and is added to / subtracted
+    // from the source's upper-half via SUB/ADD), leaving the low 16 bits of
+    // src == dest untouched. If the decoder ever permits RCU_SRC != RCU_DEST,
+    // this write must mask in the original low 16 bits of dest!
     vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
   }
 }
