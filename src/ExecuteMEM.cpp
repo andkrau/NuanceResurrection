@@ -893,6 +893,10 @@ void Execute_LoadPixelZAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance &
 
 void Execute_LoadByteLinear(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
+  // No CTRL-window handling: per NUON spec, MPE control registers are accessible
+  // only via ld_s/st_s and ld_v/st_v (commrecv/commxmit). ld_b / ld_w / ld_sv into
+  // CTRL space have no defined behavior, so the special-case used by ld_s / ld_v
+  // is not needed here
   const uint32 address = pRegs[nuance.fields[FIELD_MEM_FROM]];
 
   const uint32 data = *((uint8 *)(nuonEnv.GetPointerToMemory(mpe.mpeIndex,address)));
@@ -925,6 +929,10 @@ void Execute_LoadByteBilinearXY(MPE &mpe, const uint32 pRegs[48], const Nuance &
 
 void Execute_LoadWordLinear(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
+  // No CTRL-window handling: per NUON spec, MPE control registers are accessible
+  // only via ld_s/st_s and ld_v/st_v (commrecv/commxmit). ld_b / ld_w / ld_sv into
+  // CTRL space have no defined behavior, so the special-case used by ld_s / ld_v
+  // is not needed here
   const uint32 dest = (uint32_t)nuance.fields[FIELD_MEM_TO];
   const uint32 address = pRegs[nuance.fields[FIELD_MEM_FROM]];
 
@@ -1002,6 +1010,10 @@ void Execute_LoadShortVectorAbsolute(MPE &mpe, const uint32 pRegs[48], const Nua
 
 void Execute_LoadShortVectorLinear(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
+  // No CTRL-window handling: per NUON spec, MPE control registers are accessible
+  // only via ld_s/st_s and ld_v/st_v (commrecv/commxmit). ld_b / ld_w / ld_sv into
+  // CTRL space have no defined behavior, so the special-case used by ld_s / ld_v
+  // is not needed here
   const uint32 dest = (uint32_t)nuance.fields[FIELD_MEM_TO];
   const uint8 * const ptr = (uint8 *)(nuonEnv.GetPointerToMemory(mpe.mpeIndex,pRegs[nuance.fields[FIELD_MEM_FROM]] & 0xFFFFFFF8));
   uint32 data[4] = {*((uint32 *)(ptr + 0)),*((uint32 *)(ptr + 2)),*((uint32 *)(ptr + 4)),*((uint32 *)(ptr + 6))};
@@ -1197,8 +1209,15 @@ void Execute_StoreScalarControlRegisterImmediate(MPE &mpe, const uint32 pRegs[48
 
 void Execute_StoreScalarLinear(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
-  const uint32 address = pRegs[nuance.fields[FIELD_MEM_TO]] & 0xFFFFFFFC;
-  if((address < MPE_ITAGS_BASE) || (address >= MPE_RESV_BASE))
+  // Trap-range check uses the raw address to match Emit_StoreScalarLinear's
+  // raw-address range check. The 4-byte mask is applied only on the data path
+  // (pointer dereference / WriteControlRegister offset), so JIT and interpreter
+  // are bit-equivalent regardless of whether MPE_ITAGS_BASE / MPE_RESV_BASE are
+  // aligned to the store width
+  const uint32 raw_address = pRegs[nuance.fields[FIELD_MEM_TO]];
+  const uint32 address = raw_address & 0xFFFFFFFC;
+
+  if((raw_address < MPE_ITAGS_BASE) || (raw_address >= MPE_RESV_BASE))
   {
     uint32* const destPtr = (uint32 *)(nuonEnv.GetPointerToMemory(mpe.mpeIndex,address));
     *destPtr = SwapBytes(pRegs[nuance.fields[FIELD_MEM_FROM]]);
@@ -1489,6 +1508,10 @@ void Execute_StoreShortVectorAbsolute(MPE &mpe, const uint32 pRegs[48], const Nu
 
 void Execute_StoreShortVectorLinear(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
+  // No CTRL-window handling: per NUON spec, MPE control registers are accessible
+  // only via ld_s/st_s and ld_v/st_v (commrecv/commxmit). st_sv into CTRL space
+  // has no defined behavior, so the special-case used by st_s / st_v is not
+  // needed here
   const uint32* const srcPtr = &pRegs[nuance.fields[FIELD_MEM_FROM]];
   uint16* const destPtr = (uint16 *)(nuonEnv.GetPointerToMemory(mpe.mpeIndex,pRegs[nuance.fields[FIELD_MEM_TO]] & 0xFFFFFFF8));
 
@@ -1536,10 +1559,14 @@ void Execute_StoreVectorAbsolute(MPE &mpe, const uint32 pRegs[48], const Nuance 
 
 void Execute_StoreVectorLinear(MPE &mpe, const uint32 pRegs[48], const Nuance &nuance)
 {
-  const uint32 address = pRegs[nuance.fields[FIELD_MEM_TO]] & 0xFFFFFFF0;
+  // Same as Execute_StoreScalarLinear: raw address for the trap-range
+  // check (to match Emit_StoreVectorLinear), 16-byte mask applied only on the
+  // data path where alignment is actually required
+  const uint32 raw_address = pRegs[nuance.fields[FIELD_MEM_TO]];
+  const uint32 address = raw_address & 0xFFFFFFF0;
   const uint32 * const srcPtr = &pRegs[nuance.fields[FIELD_MEM_FROM]];
 
-  if((address < MPE_ITAGS_BASE) || (address >= MPE_RESV_BASE))
+  if((raw_address < MPE_ITAGS_BASE) || (raw_address >= MPE_RESV_BASE))
   {
     uint32 * const destPtr = (uint32 *)(nuonEnv.GetPointerToMemory(mpe.mpeIndex,address));
     destPtr[0] = srcPtr[0];
