@@ -2551,8 +2551,34 @@ void EmitControlRegisterLoad(EmitterVariables * const vars, const uint32 address
           break;
       }
       break;
+    case (0x1100 >> 4):
+      //vdmactla (MPE1 only)
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->vdmactla)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(((1U << 24) | 0xFFFFEU), destReg);
+      break;
+    case (0x1110 >> 4):
+      //vdmactlb (MPE1 only)
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->vdmactlb)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(((1U << 24) | 0xFFFFEU), destReg);
+      break;
+    case (0x1120 >> 4):
+      //vdmaptra (MPE1 only)
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->vdmaptra)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x007FFFF0U, destReg);
+      break;
+    case (0x1130 >> 4):
+      //vdmaptrb (MPE1 only)
+      vars->mpe->nativeCodeCache.X86Emit_MOVMR(destReg, ((uintptr_t)&(vars->mpe->vdmaptrb)));
+      vars->mpe->nativeCodeCache.X86Emit_ANDIR(0x007FFFF0U, destReg);
+      break;
     default:
-      assert(!"unhandled control register load");
+      // Any control register not found above (e.g. dabreak at 0x2F, or
+      // reserved indices the interpreter executes via its raw-struct-read default)
+      // is handled by bailing to the interpreter, which will re-execute
+      // the whole packet (matches e.g. ReadControlRegister in MPEControlRegisters.cpp)
+      vars->mpe->nativeCodeCache.X86Emit_MOVIM(1, x86MemPtr::x86MemPtr_dword, (uintptr_t)&(vars->mpe->interpretNextPacket));
+      vars->mpe->nativeCodeCache.X86Emit_MOVIM(vars->pInstructionEntry->packet->pcexec, x86MemPtr::x86MemPtr_dword, (uintptr_t)&(vars->mpe->pcexec));
+      Emit_ExitBlock(vars);
       break;
   }
 }
