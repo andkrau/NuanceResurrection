@@ -19,6 +19,22 @@ void Emit_ExitBlock(const EmitterVariables * const vars)
 
 void Emit_SaveRegs(EmitterVariables * const vars, const Nuance &nuance)
 {
+  // tempCC snapshot invariant: the conditional CC->tempCC write
+  // below is gated on (nuance.fields[2] & DEPENDENCY_FLAG_ALLFLAGS), while
+  // subsequent ECU emitters (EmitConditionCheck in EmitECU.cpp) route their
+  // CC read through GetMiscRegReadBaseReg(vars, REGINDEX_CC), which selects
+  // edi (=&mpe->tempCC) iff (vars->miscRegDep & DEPENDENCY_FLAG_ALLFLAGS).
+  // For the JIT to read fresh tempCC data, those two gating conditions must
+  // be the same value. SuperBlock.cpp sets both nuance.fields[2] and
+  // vars->miscRegDep from the same pInstruction->miscOpDependencies field,
+  // so they're equal today. If a future change makes them diverge, the JIT
+  // could route a CC read through edi without tempCC ever being snapshotted,
+  // reading stale data from a prior packet!
+  assert(vars->miscRegDep == (uint32)nuance.fields[2]
+         && "Emit_SaveRegs: nuance.fields[2] must match vars->miscRegDep, "
+            "or the tempCC snapshot gate diverges from the EmitConditionCheck "
+            "routing gate (see comment above and GetMiscRegReadBaseReg in EmitMisc.h)");
+
   uint32 testMask = 0xF;
 
   int32 offset = -128;
