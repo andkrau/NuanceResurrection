@@ -1,4 +1,4 @@
-# Nuance 0.6.7
+# Nuance 0.6.8
 
 A NUON (VM Labs) emulator for Windows and Linux.
 
@@ -571,7 +571,9 @@ At the moment the emulator is hardwired to assume an Aries 2 generation chip.
 
 ## History
 
-**version 0.6.7:**
+**version 0.6.8:**
+
+**05/30/2026 version 0.6.7:**
 - FINALLY, T3K can be played with no hangs on music transitions, and with proper music looping!
   Also the level select hang (with DynamicCompiler enabled) is resolved (see GameCompatibility.txt/MPE3PacketHack-option though for the caveats)!
 - Merlin Racing's AI drivers now follow the course as intended (with DynamicCompiler enabled).

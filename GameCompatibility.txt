@@ -17,11 +17,13 @@ Merlin Racing
 -------------
 Playable, BUT some screen corruption when watching the Adventure intro, 
 and minor gfx glitches during the race.
+Also some sporadic hangs or crashes (regression??).
 
 Tempest 3000
 ------------
-Playable, BUT hangs (only if dynamic compilation enabled and MPE3PacketHack disabled) on entering level select.
-WORKAROUND: Just enter 'options'->'vector test' first, before doing anything else.
+Playable.
+(hangs, if dynamic compilation enabled and MPE3PacketHack disabled, on entering level select.
+ WORKAROUND: Just enter 'options'->'vector test' first, before doing anything else)
 
 Ballistic
 ---------
