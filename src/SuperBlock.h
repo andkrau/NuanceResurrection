@@ -17,7 +17,7 @@ public:
     // When enabled, MPE3's system-bus native blocks are capped to a single packet (see SuperBlock::FetchSuperBlock)
     // so MPE3 yields to the sub-MPEs at per-packet granularity. Needed for games with tight cross-MPE handshakes
     // in MPE3 system-bus code (e.g. suspected for T3K's level select), which otherwise livelock under the JIT. Should be low perf cost
-    bMPE3PacketHack = true;
+    bMPE3PacketHack = 1;
     bConstantPropagation = false;
     bDeadCodeElimination = false;
 #if defined(_WIN64) || (defined(__x86_64__) && !defined(_WIN32))
@@ -34,7 +34,7 @@ public:
 #endif
   }
 
-  bool bMPE3PacketHack;
+  char bMPE3PacketHack; // 0: disabled, 1: enabled, 2: T3K-level-select-hang-range-only
   bool bConstantPropagation;
   bool bDeadCodeElimination;
   bool bAllowCompile;

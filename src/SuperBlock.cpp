@@ -946,13 +946,16 @@ int32 SuperBlock::FetchSuperBlock(uint32 packetAddress, bool &bContainsBranch)
   // themselves were tested to be correct - this is most likely an interleaving-granularity issue, not a
   // codegen bug. Capping MPE3's system-bus blocks to a single packet restores
   // the per-packet yielding for that loop; the other/sub-MPEs and MPE3 IRAM/overlay (the
-  // heavy DSP work) keep full-length blocks, so the perf cost should be minimal
-  //!! to tailor this to T3K's needs, the checked address range could be even further minimized,
-  //   but leave for now as-is, in case other games do require something similar
+  // heavy DSP work) keep full-length blocks, so the perf cost should be minimal.
+  //
+  // To tailor this to T3K's needs, the checked address range can even be further reduced to the bare
+  // minimum needed to just avoid the level select hang.
+  const uint32 stHack = nuonEnv.compilerOptions.bMPE3PacketHack == 2 ? 0x80011B6CU : SYSTEM_BUS_BASE;
+  const uint32 enHack = nuonEnv.compilerOptions.bMPE3PacketHack == 2 ? 0x80011F59U : (SYSTEM_BUS_BASE + SYSTEM_BUS_SIZE);
   const int32 maxPackets = (nuonEnv.compilerOptions.bMPE3PacketHack
                             && pMPE->mpeIndex == 3
-                            && startAddress >= SYSTEM_BUS_BASE
-                            && startAddress < (SYSTEM_BUS_BASE + SYSTEM_BUS_SIZE))
+                            && startAddress >= stHack
+                            && startAddress < enHack)
                            ? 1 : MAX_SUPERBLOCK_PACKETS;
 
   int32 packetCounter = COMPILE_SINGLE_PACKET ? 1 : maxPackets;

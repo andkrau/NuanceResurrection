@@ -246,23 +246,24 @@ For more information on the implementation details of the compiler, please read 
 
 The configuration entries applicable to dynamic compilation are:
 
-- **`[DynamicCompiler]`** Enabled/Disabled: forces (slower) interpretation when disabled, recommended: Enabled
+- **`[DynamicCompiler]`** `Enabled`/`Disabled`: forces (slower) interpretation when disabled, recommended: `Enabled`
 
-- **`[CompilerConstantPropagation]`** Enabled/Disabled: toggles constant propagation phase that is performed after fetching
-  the block instructions. NOTE: Might still be a bit buggy in corner cases, but recommended: Enabled
+- **`[CompilerConstantPropagation]`** `Enabled`/`Disabled`: toggles constant propagation phase that is performed after fetching
+  the block instructions. NOTE: Might still be a bit buggy in corner cases, but recommended: `Enabled`
 
-- **`[CompilerDeadCodeElimination]`** Enabled/Disabled: toggles a dead code elimination phase that is performed after constant
-  propagation. NOTE: Still buggy, recommended: Disabled
+- **`[CompilerDeadCodeElimination]`** `Enabled`/`Disabled`: toggles a dead code elimination phase that is performed after constant
+  propagation. NOTE: Still buggy, recommended: `Disabled`
 
-- **`[DumpCompiledBlocks]`** NOTE: This option is only available in custom builds, not released versions!
+- **`[DumpCompiledBlocks]`** `Enabled`/`Disabled`: NOTE: This option is only available in custom builds, not released versions!
   Enabled/Disabled: toggles file dump of blocks that are compiled during execution.  When
   enabled, the emulator will print the resulting optimized blocks in a readable format to
   the files SuperBlocks0.txt through SuperBlocks3.txt corresponding to MPE0 through MPE3.
   Note that these files can grow in size very quickly.  It is not uncommon for the files to
-  grow beyond 500 megabytes or even wrap around the maximum file size of 4 GB, recommended: Disabled
+  grow beyond 500 megabytes or even wrap around the maximum file size of 4 GB, recommended: `Disabled`
 
-- **`[MPE3PacketHack]`** Enabled/Disabled: toggles a dynamic compiler hack that avoids e.g. a hang in T3K, recommended: Enabled
+- **`[MPE3PacketHack]`** `Enabled`/`Disabled`: toggles a dynamic compiler hack that avoids e.g. a hang in T3K, recommended: `Enabled`
   (otherwise (Disabled), for T3K please use the recommendation in GameCompatibility.txt instead)
+  (one can also choose `T3K` for the minimal subset needed to make T3Ks level select hang go away)
 
 ## Flash ROM Support
 
