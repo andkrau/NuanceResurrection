@@ -505,20 +505,12 @@ void retro_run(void)
         video_cb(framebuffer, FB_WIDTH, FB_HEIGHT, FB_WIDTH * 4);
     }
 
-    // Audio
-    if (nuonEnv.pNuonAudioBuffer && nuonEnv.nuonAudioBufferSize > 0) {
-        uint32 halfSize = nuonEnv.nuonAudioBufferSize >> 1;
-        uint32 frames = halfSize / 4; // 16-bit stereo = 4 bytes per frame
-        if (frames > AUDIO_BUFFER_SIZE / 2) frames = AUDIO_BUFFER_SIZE / 2;
-
-        const uint8* src = nuonEnv.pNuonAudioBuffer + nuonEnv.audio_buffer_offset;
-        // Byteswap from big-endian NUON to little-endian
-        for (uint32 i = 0; i < frames * 2; i++) {
-            audio_buffer[i] = (int16_t)((src[i*2+1]) | (src[i*2] << 8));
-        }
+    // Audio: drain the host audio ring (byte-swapped to LE inside DrainAudioRing).
+    // Replaces the old pNuonAudioBuffer/audio_buffer_offset path which no longer
+    // exists after the audio-ring refactor (NuonEnvironment::DrainAudioRing).
+    uint32 frames = nuonEnv.DrainAudioRing(audio_buffer, AUDIO_BUFFER_SIZE / 2);
+    if (frames)
         audio_batch_cb(audio_buffer, frames);
-        _InterlockedExchange(&nuonEnv.audio_buffer_played, 1);
-    }
 }
 
 size_t retro_serialize_size(void) { return 0; }
