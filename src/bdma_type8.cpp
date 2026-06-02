@@ -5,6 +5,62 @@
 
 extern NuonEnvironment nuonEnv;
 
+#ifdef NUANCE_BYTESWAP_USE_PSHUFB
+// SSSE3 kernels for the Type 4 (32-bit Y:Cr:Cb:ctrl) <-> Type 2 (16-bit Y6:Cr5:Cb5) pixel conversions
+// used below, 8 pixels per call. Reproduces the scalar math exactly (and that one is according to the spec):
+// Truncate low bits going 32->16, zero-pad low bits going 16->32, control byte = 0; and the same big-endian load/store byteswap
+
+// 8x 32-bit pixel (big-endian in memory) -> 16-bit pixel (big-endian in memory)
+static __forceinline void BDMA_Type8_Convert32to16_x8(const uint32* const pSrc32, uint16* const pDest16)
+{
+  const __m128i bswap32 = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
+  // Gather the low 16 bits of each 32-bit lane into the low 8 bytes while swapping each pair of bytes (the SwapBytes on the 16-bit result); upper 8 bytes are zeroed.
+  const __m128i packswap = _mm_set_epi8(-1,-1,-1,-1,-1,-1,-1,-1, 12,13, 8,9, 4,5, 0,1);
+  const __m128i mY  = _mm_set1_epi32(0xFC00);
+  const __m128i mCr = _mm_set1_epi32(0x03E0);
+  const __m128i mCb = _mm_set1_epi32(0x001F);
+
+  __m128i a = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)(pSrc32 + 0)), bswap32);
+  __m128i b = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)(pSrc32 + 4)), bswap32);
+
+  a = _mm_or_si128(_mm_or_si128(_mm_and_si128(_mm_srli_epi32(a, 16), mY),
+                                _mm_and_si128(_mm_srli_epi32(a, 14), mCr)),
+                                _mm_and_si128(_mm_srli_epi32(a, 11), mCb));
+  b = _mm_or_si128(_mm_or_si128(_mm_and_si128(_mm_srli_epi32(b, 16), mY),
+                                _mm_and_si128(_mm_srli_epi32(b, 14), mCr)),
+                                _mm_and_si128(_mm_srli_epi32(b, 11), mCb));
+
+  a = _mm_shuffle_epi8(a, packswap);
+  b = _mm_shuffle_epi8(b, packswap);
+  _mm_storeu_si128((__m128i*)pDest16, _mm_unpacklo_epi64(a, b));
+}
+
+// 8x 16-bit pixel (big-endian in memory) -> 32-bit pixel (big-endian in memory)
+static __forceinline void BDMA_Type8_Convert16to32_x8(const uint16* const pSrc16, uint32* const pDest32)
+{
+  const __m128i bswap16 = _mm_set_epi8(14,15, 12,13, 10,11, 8,9, 6,7, 4,5, 2,3, 0,1);
+  const __m128i bswap32 = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
+  const __m128i zero = _mm_setzero_si128();
+  const __m128i mY  = _mm_set1_epi32(0xFC00);
+  const __m128i mCr = _mm_set1_epi32(0x03E0);
+  const __m128i mCb = _mm_set1_epi32(0x001F);
+
+  const __m128i v = _mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)pSrc16), bswap16);
+  __m128i lo = _mm_unpacklo_epi16(v, zero); // pixels 0-3, zero-extended to 32-bit lanes
+  __m128i hi = _mm_unpackhi_epi16(v, zero); // pixels 4-7
+
+  lo = _mm_or_si128(_mm_or_si128(_mm_slli_epi32(_mm_and_si128(lo, mY), 16),
+                                 _mm_slli_epi32(_mm_and_si128(lo, mCr), 14)),
+                                 _mm_slli_epi32(_mm_and_si128(lo, mCb), 11));
+  hi = _mm_or_si128(_mm_or_si128(_mm_slli_epi32(_mm_and_si128(hi, mY), 16),
+                                 _mm_slli_epi32(_mm_and_si128(hi, mCr), 14)),
+                                 _mm_slli_epi32(_mm_and_si128(hi, mCb), 11));
+
+  _mm_storeu_si128((__m128i*)(pDest32 + 0), _mm_shuffle_epi8(lo, bswap32));
+  _mm_storeu_si128((__m128i*)(pDest32 + 4), _mm_shuffle_epi8(hi, bswap32));
+}
+#endif
+
 // 32bit -> 16bit RGB conversion
 void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, const uint32 xinfo, const uint32 yinfo, const uint32 intaddr)
 {
@@ -82,9 +138,20 @@ void BDMA_Type8_Write_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, con
 
   while(ylen--)
   {
-    uint32 srcA = 0;
+    uint32 destA = 0;
 
-    for(uint32 destA = 0; destA < xlen; ++destA) // as destAStep==1
+#ifdef NUANCE_BYTESWAP_USE_PSHUFB
+    // Fast path: contiguous source (srcAStep == 1, i.e. not Dup), 8 pixels at a time
+    if(SSSE3_supported && srcAStep == 1)
+    {
+      for(; destA + 8 <= xlen; destA += 8)
+        BDMA_Type8_Convert32to16_x8(pSrc32 + destA, pDest16 + destA);
+    }
+#endif
+
+    // Scalar remainder, and the general (Dup / srcAStep == 0) path
+    uint32 srcA = destA * (uint32)srcAStep;
+    for(; destA < xlen; ++destA) // as destAStep==1
     {
       const uint32 pix32 = SwapBytes(pSrc32[srcA]);
       pDest16[destA] = SwapBytes((uint16)(((pix32 >> 16) & 0xFC00U) | ((pix32 >> 14) & 0x03E0U) | ((pix32 >> 11) & 0x001FU)));
@@ -190,7 +257,17 @@ void BDMA_Type8_Read_0(MPE& mpe, const uint32 flags, const uint32 baseaddr, cons
 
   while(ylen--)
   {
-    for(uint32 A = 0; A < xlen; ++A) // as srcAStep and destAStep==1
+    uint32 A = 0;
+
+#ifdef NUANCE_BYTESWAP_USE_PSHUFB
+    if(SSSE3_supported) // srcAStep and destAStep == 1, so always contiguous
+    {
+      for(; A + 8 <= xlen; A += 8)
+        BDMA_Type8_Convert16to32_x8(pSrc16 + A, pDest32 + A);
+    }
+#endif
+
+    for(; A < xlen; ++A) // as srcAStep and destAStep==1
     {
       const uint32 pix16 = SwapBytes(pSrc16[A]);
       pDest32[A] = SwapBytes(((pix16 & 0xFC00U) << 16) | ((pix16 & 0x03E0U) << 14) | ((pix16 & 0x001FU) << 11));
