@@ -14,6 +14,12 @@
 
 #ifdef NUANCE_LITTLE_ENDIAN
 
+#include "Utility.h"
+
+#if (defined(_MSC_VER) && !defined(__clang__)) || defined(NUANCE_ISA_SSSE3)
+ #define NUANCE_BYTESWAP_USE_PSHUFB 1
+#endif
+
 __forceinline void SwapWordBytes(uint16 * const toswap)
 {
 #if 0 // old __fastcall dependent code
@@ -54,54 +60,38 @@ __forceinline uint32 SwapBytes(const uint32 toswap)
 
 __forceinline void SwapShortVectorBytes(uint16 toswap[4])
 {
-#if 0 // old __fastcall dependent code
-  __asm
+/*#ifdef NUANCE_BYTESWAP_USE_PSHUFB
+  if(SSSE3_supported)
   {
-    mov dx, [ecx]
-    mov ax, [ecx + 2]
-    xchg dl, dh
-    xchg al, ah
-    mov [ecx], dx
-    mov [ecx + 2], ax
-    mov dx, [ecx + 4]
-    mov ax, [ecx + 6]
-    xchg dl, dh
-    xchg al, ah
-    mov [ecx + 4], dx
-    mov [ecx + 6], ax
+    // Swap the byte order of four 16-bit words (8 bytes) in a single SSSE3 shuffle
+    const __m128i shuf = _mm_set_epi8(-1,-1,-1,-1,-1,-1,-1,-1, 6,7, 4,5, 2,3, 0,1);
+    const __m128i v = _mm_loadl_epi64((const __m128i *)toswap);
+    _mm_storel_epi64((__m128i *)toswap, _mm_shuffle_epi8(v, shuf));
+    return;
   }
-#else
+#endif*/
   toswap[0] = _byteswap_ushort(toswap[0]);
   toswap[1] = _byteswap_ushort(toswap[1]);
   toswap[2] = _byteswap_ushort(toswap[2]);
   toswap[3] = _byteswap_ushort(toswap[3]);
-#endif
 }
 
 __forceinline void SwapVectorBytes(uint32 toswap[4])
 {
-#if 0 // old __fastcall dependent code
-  __asm
+/*#ifdef NUANCE_BYTESWAP_USE_PSHUFB
+  if(SSSE3_supported)
   {
-    mov edx, [ecx]
-    mov eax, [ecx + 4]
-    bswap edx
-    bswap eax
-    mov [ecx],edx
-    mov [ecx + 4],eax
-    mov edx, [ecx + 8]
-    mov eax, [ecx + 12]
-    bswap edx
-    bswap eax
-    mov [ecx + 8],edx
-    mov [ecx + 12],eax
+    // Swap the byte order of four 32-bit scalars (16 bytes) in a single SSSE3 shuffle
+    const __m128i shuf = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
+    const __m128i v = _mm_loadu_si128((const __m128i *)toswap);
+    _mm_storeu_si128((__m128i *)toswap, _mm_shuffle_epi8(v, shuf));
+    return;
   }
-#else
+#endif*/
   toswap[0] = _byteswap_ulong(toswap[0]);
   toswap[1] = _byteswap_ulong(toswap[1]);
   toswap[2] = _byteswap_ulong(toswap[2]);
   toswap[3] = _byteswap_ulong(toswap[3]);
-#endif
 }
 
 #else // !NUANCE_LITTLE_ENDIAN

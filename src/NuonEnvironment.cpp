@@ -15,6 +15,7 @@
 #include "joystick.h"
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
+#include "byteswap.h"
 
 #include "miniaudio.h"
 
@@ -26,13 +27,23 @@ extern VidDisplay structMainDisplay;
   {
     assert((numBytes % 4) == 0); //!! only handles 16bit stereo at the moment
 
-    for(uint32 byteCount = 0; byteCount < numBytes; byteCount += 4)
+    // Byte-reverse each 16-bit sample (big-endian Nuon -> little-endian ring).
+    // Ring stays little-endian regardless of host endianness - which is what DrainAudioRing assumes
+    const uint16 * const __restrict src = (const uint16*)pNuonAudioBuffer;
+    uint16 * const __restrict dst = (uint16*)pPCAudioBuffer;
+    const uint32 n = numBytes >> 1;
+    uint32 i = 0;
+#ifdef NUANCE_BYTESWAP_USE_PSHUFB
+    if(SSSE3_supported)
     {
-      pPCAudioBuffer[byteCount  ] = pNuonAudioBuffer[byteCount+1];
-      pPCAudioBuffer[byteCount+1] = pNuonAudioBuffer[byteCount  ];
-      pPCAudioBuffer[byteCount+2] = pNuonAudioBuffer[byteCount+3];
-      pPCAudioBuffer[byteCount+3] = pNuonAudioBuffer[byteCount+2];
+      const __m128i bswap16 = _mm_set_epi8(14,15, 12,13, 10,11, 8,9, 6,7, 4,5, 2,3, 0,1);
+      // 8 samples per SSSE3 shuffle
+      for(; i + 8 <= n; i += 8)
+        _mm_storeu_si128((__m128i*)(dst + i), _mm_shuffle_epi8(_mm_loadu_si128((const __m128i*)(src + i)), bswap16));
     }
+#endif
+    for(; i < n; i++)
+      dst[i] = _byteswap_ushort(src[i]);
   }
 
   void NuonEnvironment::MiniAudioDataCallback(ma_device* pDevice, void* pOutput, const void* /*pInput*/, ma_uint32 frameCount)
@@ -267,17 +278,27 @@ uint32 NuonEnvironment::DrainAudioRing(int16_t* dst, uint32 maxFrames)
   uint32 available = w - r; // bytes
   const uint32 maxBytes = maxFrames * 4; // 2ch * 2B per frame
   if(available > maxBytes) available = maxBytes;
-  const uint32 toCopy = available - (available % 4); // align to whole frame
+  const uint32 toCopy = available & (~3u); // align to whole frame (4 bytes)
   if(toCopy == 0)
     return 0;
 
-  for(uint32 i = 0; i < toCopy / 2; i++)
-  {
-    const uint32 byteIdx = (r + i*2) % audioRingSize;
-    const uint8 hi = audioRing[byteIdx];
-    const uint8 lo = audioRing[(byteIdx + 1) % audioRingSize];
-    dst[i] = (int16_t)(lo | (hi << 8));
-  }
+  // Ring holds little-endian 16-bit samples (ConvertNuonAudioData byte-swaps the big-endian Nuon data on the way in).
+  // Ring read/write positions are 4-byte aligned, so the copy splits into at most two
+  // frame-aligned contiguous chunks across the wrap boundary
+  uint8* const out = (uint8*)dst;
+  const uint32 ringStart = r % audioRingSize;
+  const uint32 firstChunk = (ringStart + toCopy <= audioRingSize) ? toCopy : (audioRingSize - ringStart);
+#ifdef NUANCE_LITTLE_ENDIAN
+  // Host = little-endian: ring bytes match, just copy them (matches MiniAudioDataCallback)
+  memcpy(out, audioRing + ringStart, firstChunk);
+  if(firstChunk < toCopy)
+    memcpy(out + firstChunk, audioRing, toCopy - firstChunk);
+#else
+  // Host = big-endian: int16 needs the bytes swapped back from the little-endian based ring
+  ConvertNuonAudioData(audioRing + ringStart, out, firstChunk);
+  if(firstChunk < toCopy)
+    ConvertNuonAudioData(audioRing, out + firstChunk, toCopy - firstChunk);
+#endif
   audioRingReadPos.store(r + toCopy, std::memory_order_release);
   return toCopy / 4;
 }

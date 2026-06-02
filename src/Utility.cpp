@@ -1,16 +1,37 @@
+#include "Utility.h"
+
 #ifdef _MSC_VER
 #include <intrin.h>
 #endif
 
+// Storage is only needed for flags that are runtime-detected; the ones fixed at compile time are
+// constexpr in Utility.h (and must not be redefined or assigned here). The NUANCE_ISA_* macros are
+// defined by Utility.h above and capture the per-compiler "ISA enabled at compile time?" logic.
+#ifndef NUANCE_ISA_SSE
 bool SSE_supported   = false;
+#endif
+#ifndef NUANCE_ISA_SSE2
 bool SSE2_supported  = false;
+#endif
+#ifndef NUANCE_ISA_SSE3
 bool SSE3_supported  = false;
+#endif
+#ifndef NUANCE_ISA_SSSE3
 bool SSSE3_supported = false;
+#endif
+#ifndef NUANCE_ISA_SSE41
 bool SSE41_supported = false;
+#endif
+#ifndef NUANCE_ISA_SSE42
 bool SSE42_supported = false;
+#endif
+#ifndef NUANCE_ISA_SSE4A
 bool SSE4a_supported = false;
+#endif
 bool SSE5_supported  = false;
+#ifndef NUANCE_ISA_AVX
 bool AVX_supported   = false;
+#endif
 
 #ifdef __GNUC__
 static void __cpuid(int* cpuinfo, const int info)
@@ -33,6 +54,7 @@ static void __cpuid(int* cpuinfo, const int info)
 	);
 #endif
 }
+#ifndef NUANCE_ISA_AVX
 static unsigned long long _xgetbv(const unsigned int index)
 {
 	unsigned int eax, edx;
@@ -44,6 +66,7 @@ static unsigned long long _xgetbv(const unsigned int index)
 	return ((unsigned long long)edx << 32) | eax;
 }
 #endif
+#endif
 
 void init_supported_CPU_extensions()
 {
@@ -51,12 +74,25 @@ void init_supported_CPU_extensions()
 	__cpuid(cpuinfo, 1);
 
 	// Check SSE, SSE2, SSE3, SSSE3, SSE4.1, and SSE4.2 support
+	// (only for flags not already constexpr'ed at compile time; see NUANCE_ISA_* in Utility.h)
+#ifndef NUANCE_ISA_SSE
 	SSE_supported   = !!(cpuinfo[3] & (1 << 25));
+#endif
+#ifndef NUANCE_ISA_SSE2
 	SSE2_supported  = !!(cpuinfo[3] & (1 << 26));
+#endif
+#ifndef NUANCE_ISA_SSE3
 	SSE3_supported  = !!(cpuinfo[2] & (1 << 0));
+#endif
+#ifndef NUANCE_ISA_SSSE3
 	SSSE3_supported = !!(cpuinfo[2] & (1 << 9));
+#endif
+#ifndef NUANCE_ISA_SSE41
 	SSE41_supported = !!(cpuinfo[2] & (1 << 19));
+#endif
+#ifndef NUANCE_ISA_SSE42
 	SSE42_supported = !!(cpuinfo[2] & (1 << 20));
+#endif
 
 	// ----------------------------------------------------------------------
 
@@ -64,6 +100,7 @@ void init_supported_CPU_extensions()
 	// http://software.intel.com/en-us/blogs/2011/04/14/is-avx-enabled/
 	// http://insufficientlycomplicated.wordpress.com/2011/11/07/detecting-intel-advanced-vector-extensions-avx-in-visual-studio/
 
+#ifndef NUANCE_ISA_AVX
 	AVX_supported = !!(cpuinfo[2] & (1 << 28));
 	const bool osxsave_supported = !!(cpuinfo[2] & (1 << 27));
 	if (osxsave_supported && AVX_supported)
@@ -72,6 +109,7 @@ void init_supported_CPU_extensions()
 		const unsigned long long xcrFeatureMask = _xgetbv(0);
 		AVX_supported = ((xcrFeatureMask & 0x6) == 0x6);
 	}
+#endif
 
 	// ----------------------------------------------------------------------
 
@@ -82,7 +120,9 @@ void init_supported_CPU_extensions()
 	if (numExtendedIds >= 0x80000001)
 	{
 		__cpuid(cpuinfo, 0x80000001);
+#ifndef NUANCE_ISA_SSE4A
 		SSE4a_supported = !!(cpuinfo[2] & (1 << 6));
+#endif
 		SSE5_supported  = !!(cpuinfo[2] & (1 << 11));
 	}
 }

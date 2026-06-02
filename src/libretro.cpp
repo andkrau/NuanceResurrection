@@ -505,9 +505,9 @@ void retro_run(void)
         video_cb(framebuffer, FB_WIDTH, FB_HEIGHT, FB_WIDTH * 4);
     }
 
-    // Audio: drain the host audio ring (byte-swapped to LE inside DrainAudioRing).
-    // Replaces the old pNuonAudioBuffer/audio_buffer_offset path which no longer
-    // exists after the audio-ring refactor (NuonEnvironment::DrainAudioRing).
+    // Audio: drain the host audio ring. DrainAudioRing emits native-endian s16
+    // (the ring holds little-endian samples; swapped only on big-endian hosts),
+    // so what audio_batch_cb expects
     uint32 frames = nuonEnv.DrainAudioRing(audio_buffer, AUDIO_BUFFER_SIZE / 2);
     if (frames)
         audio_batch_cb(audio_buffer, frames);

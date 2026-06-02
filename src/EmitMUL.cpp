@@ -5,8 +5,7 @@
 #include "NativeCodeCache.h"
 #include "PatchManager.h"
 #include "mpe.h"
-
-extern bool SSE41_supported;
+#include "Utility.h"
 
 static constexpr uint32 shiftTable[4] = {16, 8, 0, 2};
 

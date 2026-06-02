@@ -8,9 +8,9 @@
 #include "mpe.h"
 #include "NativeCodeCache.h"
 #include "NuonEnvironment.h"
+#include "Utility.h"
 #include "X86EmitTypes.h"
 
-extern bool SSSE3_supported;
 extern NuonEnvironment nuonEnv;
 
 // Load a bank pointer from bankPtrTable[ebx] into RBX/EBX.
