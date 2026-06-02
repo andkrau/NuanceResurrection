@@ -296,7 +296,7 @@ else()
     target_compile_options(${NUANCE_TARGET} PRIVATE
         -O3
         -ffast-math
-        -msse2
+        -mssse3
         -Wno-multichar
         -Wno-write-strings
         -Wno-narrowing
