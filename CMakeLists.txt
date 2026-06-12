@@ -225,7 +225,11 @@ target_link_libraries(${NUANCE_TARGET} PRIVATE
     #murmurhash # unused - see add_library above
     $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:asmjit_static>
     OpenGL::GL
-    ${SDL2_LIBRARIES}
+    # SDL2 is a standalone-only dependency (windowing + audio); the libretro core
+    # uses neither. Guarding it out also avoids a CMP0004 hard error when the
+    # libretro build infra passes SDL2_LIBRARIES as a raw `sdl2-config --libs`
+    # string (e.g. "-L/usr/lib/... -lSDL2 ") that has trailing whitespace.
+    $<$<NOT:$<BOOL:${BUILD_LIBRETRO}>>:${SDL2_LIBRARIES}>
     $<$<NOT:$<PLATFORM_ID:Windows>>:pthread>
     $<$<NOT:$<PLATFORM_ID:Windows>>:dl>
     $<$<NOT:$<PLATFORM_ID:Windows>>:m>
