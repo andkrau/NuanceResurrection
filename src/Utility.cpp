@@ -55,7 +55,10 @@ static void __cpuid(int* cpuinfo, const int info)
 #endif
 }
 #ifndef NUANCE_ISA_AVX
-static unsigned long long _xgetbv(const unsigned int index)
+// GCC 11+ declares a builtin _xgetbv() in <x86gprintrin.h> (pulled in via the
+// intrinsics headers), so a function named _xgetbv here is an ambiguating
+// redeclaration that breaks the build on modern toolchains. Use our own name.
+static unsigned long long nuance_xgetbv(const unsigned int index)
 {
 	unsigned int eax, edx;
 	__asm__ __volatile__(
@@ -66,6 +69,12 @@ static unsigned long long _xgetbv(const unsigned int index)
 	return ((unsigned long long)edx << 32) | eax;
 }
 #endif
+#endif
+
+#if defined(_MSC_VER) && !defined(NUANCE_ISA_AVX)
+// MSVC provides the _xgetbv intrinsic via <intrin.h>; wrap it under our name so
+// the call site below is toolchain-agnostic.
+static inline unsigned long long nuance_xgetbv(const unsigned int index) { return _xgetbv(index); }
 #endif
 
 void init_supported_CPU_extensions()
@@ -106,7 +115,7 @@ void init_supported_CPU_extensions()
 	if (osxsave_supported && AVX_supported)
 	{
 		// _XCR_XFEATURE_ENABLED_MASK = 0
-		const unsigned long long xcrFeatureMask = _xgetbv(0);
+		const unsigned long long xcrFeatureMask = nuance_xgetbv(0);
 		AVX_supported = ((xcrFeatureMask & 0x6) == 0x6);
 	}
 #endif
