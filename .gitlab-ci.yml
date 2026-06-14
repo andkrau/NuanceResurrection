@@ -13,6 +13,8 @@
 include:
   - project: 'libretro-infrastructure/ci-templates'
     file: '/linux-cmake.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/windows-cmake-mingw.yml'
 
 stages:
   - build-prepare
@@ -25,4 +27,9 @@ stages:
 libretro-build-linux-x64:
   extends:
     - .libretro-linux-cmake-x86_64
+    - .core-defs
+
+libretro-build-windows-x64:
+  extends:
+    - .libretro-windows-cmake-x86_64
     - .core-defs
