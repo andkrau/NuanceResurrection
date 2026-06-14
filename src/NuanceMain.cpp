@@ -5,7 +5,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shellapi.h>
-#include <Commctrl.h>
+#include <commctrl.h>
 #include <tchar.h>
 #include <commdlg.h>
 #include <GL/glew.h>
