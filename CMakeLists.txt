@@ -4,10 +4,14 @@ project(Nuance CXX C)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 11)
 
-# Find SDL2 and OpenGL
+# Find SDL2 and OpenGL. SDL2 is a standalone-only dependency (windowing +
+# audio); the libretro core uses neither, so don't require it for that build
+# (the libretro Windows/MinGW CI has no SDL2 in its sysroot).
 if(SDL2_INCLUDE_DIRS AND SDL2_LIBRARIES)
     # Manual SDL2 configuration (for static 32-bit builds)
     message(STATUS "Using manually specified SDL2: ${SDL2_LIBRARIES}")
+elseif(BUILD_LIBRETRO)
+    find_package(SDL2 QUIET)
 else()
     find_package(SDL2 REQUIRED)
 endif()
@@ -252,11 +256,26 @@ if(NOT BUILD_LIBRETRO AND NOT WIN32)
     target_link_libraries(${NUANCE_TARGET} PRIVATE ${X11_LIBRARIES} -lGLX imgui_static)
 endif()
 
-# Windows standalone needs DirectInput8 (InputManager.cpp), DirectX GUIDs
-# (IID_IDirectInput8A / c_dfDIJoystick2) and the multimedia timer API
-# (timeBeginPeriod / timeEndPeriod / timeGetDevCaps in timer.cpp).
+# timer.cpp uses the Windows multimedia timer API (timeBeginPeriod /
+# timeEndPeriod / timeGetDevCaps), which lives in winmm — needed by both the
+# standalone exe and the libretro core.
+if(WIN32)
+    target_link_libraries(${NUANCE_TARGET} PRIVATE winmm)
+endif()
+
+# Windows standalone additionally needs DirectInput8 (InputManager.cpp) and the
+# DirectX GUIDs (IID_IDirectInput8A / c_dfDIJoystick2); the libretro core has
+# no DirectInput path.
 if(WIN32 AND NOT BUILD_LIBRETRO)
-    target_link_libraries(${NUANCE_TARGET} PRIVATE dinput8 dxguid winmm)
+    target_link_libraries(${NUANCE_TARGET} PRIVATE dinput8 dxguid)
+endif()
+
+# On a MinGW build, statically link the GCC/libstdc++/winpthread runtimes so the
+# core (or exe) is self-contained and doesn't drag libgcc_s_seh-1.dll /
+# libstdc++-6.dll / libwinpthread-1.dll alongside it.
+if(WIN32 AND MINGW)
+    target_link_options(${NUANCE_TARGET} PRIVATE
+        -static-libgcc -static-libstdc++ -static -lwinpthread)
 endif()
 
 # For 32-bit static SDL2, provide samplerate stub

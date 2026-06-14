@@ -17,6 +17,12 @@
 #include <GL/gl.h>
 #include <mutex>
 #include <cstdarg>
+#ifdef _WIN32
+#include <direct.h>     // _mkdir
+#include <windows.h>    // GetModuleHandleEx / GetModuleFileName
+#else
+#include <dlfcn.h>      // dladdr / Dl_info
+#endif
 
 #include "byteswap.h"
 #include "Utility.h"
@@ -271,7 +277,11 @@ static std::string FindGameFile(const char* path)
     if (dotPos != std::string::npos) baseName = baseName.substr(0, dotPos);
     std::string parentDir = spath.substr(0, spath.rfind('/'));
     std::string td = parentDir + "/" + baseName + ".extract";
+#ifdef _WIN32
+    _mkdir(td.c_str());
+#else
     mkdir(td.c_str(), 0755);
+#endif
     log_printf("libretro: temp dir: %s\n", td.c_str()); fflush(stderr);
 
     std::string isoFile;
@@ -354,18 +364,32 @@ bool retro_load_game(const struct retro_game_info *game)
     }
     // Also check build directory (for development)
     if (access("bios.cof", F_OK) != 0) {
-        // Try the directory containing the .so
+        // Try the directory containing the core library
+        std::string soDir;
+#ifdef _WIN32
+        HMODULE hm = nullptr;
+        char modPath[MAX_PATH];
+        if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                               GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                               (LPCSTR)(void*)retro_init, &hm) &&
+            GetModuleFileNameA(hm, modPath, sizeof(modPath))) {
+            soDir = modPath;
+            size_t pos = soDir.find_last_of("/\\");
+            if (pos != std::string::npos) soDir = soDir.substr(0, pos);
+            else soDir.clear();
+        }
+#else
         Dl_info dl_info;
         if (dladdr((void*)retro_init, &dl_info) && dl_info.dli_fname) {
-            std::string soDir(dl_info.dli_fname);
+            soDir = dl_info.dli_fname;
             size_t pos = soDir.rfind('/');
-            if (pos != std::string::npos) {
-                soDir = soDir.substr(0, pos);
-                if (access((soDir + "/bios.cof").c_str(), F_OK) == 0) {
-                    chdir(soDir.c_str());
-                    log_printf("libretro: bios dir (from .so): %s\n", soDir.c_str()); fflush(stderr);
-                }
-            }
+            if (pos != std::string::npos) soDir = soDir.substr(0, pos);
+            else soDir.clear();
+        }
+#endif
+        if (!soDir.empty() && access((soDir + "/bios.cof").c_str(), F_OK) == 0) {
+            chdir(soDir.c_str());
+            log_printf("libretro: bios dir (from core lib): %s\n", soDir.c_str()); fflush(stderr);
         }
     }
 

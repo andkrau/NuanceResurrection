@@ -325,9 +325,13 @@ void FileFstat(MPE &mpe)
   {
     if((/*index =*/ FindFileDescriptorIndex(fd)) >= 0)
     {
-#ifdef _WIN32
+#if defined(_MSC_VER)
       struct _stat32 st;
       int32 result = _fstat32(fd, &st);
+#elif defined(_WIN32)
+      // MinGW's msvcrt exports _fstat / _stat (no _fstat32 symbol)
+      struct _stat st;
+      int32 result = _fstat(fd, &st);
 #else
       struct stat st;
       int32 result = fstat(fd, &st);
