@@ -161,10 +161,11 @@ option(BUILD_LIBRETRO "Build libretro core instead of standalone" OFF)
 
 if(BUILD_LIBRETRO)
     # Libretro core - shared library
-    # Remove standalone-specific files for libretro build. archive.cpp is also
-    # dropped because retroarch hands the core an already-resolved file path
-    # (and unpacks CHD itself), so the core doesn't need libchdr linked in.
-    list(FILTER NUANCE_SOURCES EXCLUDE REGEX "NuanceMain|GLWindow|InputManager|NuanceUI|archive")
+    # Remove standalone-specific files for libretro build. archive.cpp is kept:
+    # the core uses its ResolveGameFile() to resolve ISO/ZIP/CHD inputs and to
+    # read data files straight from the ISO at runtime (no whole-disc extraction),
+    # so libchdr + miniz are linked in below for the libretro build too.
+    list(FILTER NUANCE_SOURCES EXCLUDE REGEX "NuanceMain|GLWindow|InputManager|NuanceUI")
     add_library(nuance_libretro SHARED ${NUANCE_SOURCES} src/libretro.cpp)
     set_target_properties(nuance_libretro PROPERTIES PREFIX "" OUTPUT_NAME "nuance_libretro")
     target_compile_definitions(nuance_libretro PRIVATE LIBRETRO)
@@ -222,10 +223,10 @@ target_link_libraries(${NUANCE_TARGET} PRIVATE
     miniaudio_impl
     # libchdr (CHD reader) + its bundled miniz 3.1.1 (also doubles as the ZIP
     # reader for archive.cpp's Windows #ifdef path - configured with
-    # MINIZ_ARCHIVE_APIS=ON above so mz_zip_reader_* is available). Standalone
-    # build only; the libretro core never sees a raw archive.
-    $<$<NOT:$<BOOL:${BUILD_LIBRETRO}>>:chdr-static>
-    $<$<NOT:$<BOOL:${BUILD_LIBRETRO}>>:miniz>
+    # MINIZ_ARCHIVE_APIS=ON above so mz_zip_reader_* is available). Needed by
+    # archive.cpp's ResolveGameFile() in both the standalone and libretro builds.
+    chdr-static
+    miniz
     #murmurhash # unused - see add_library above
     $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:asmjit_static>
     OpenGL::GL
