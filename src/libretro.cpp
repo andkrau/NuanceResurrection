@@ -155,6 +155,14 @@ static void context_reset(void)
 
     gl_initialized = true;
 
+    // The GL context was just (re)created. RetroArch can call context_reset more
+    // than once per session (e.g. it tears down and rebuilds the GL context on a
+    // windowed->fullscreen switch, which happens when its primary video driver is
+    // Vulkan). All GL object names from the previous context are now dead, so tell
+    // the video module to rebuild its textures/shaders; otherwise it keeps the
+    // one-time-init guards set and renders with stale handles -> black screen.
+    VideoInvalidateGLState();
+
     // Init CPU extensions and lookup tables (deferred from retro_load_game)
     static bool tables_initialized = false;
     if (!tables_initialized) {
@@ -180,6 +188,9 @@ static void context_reset(void)
 static void context_destroy(void)
 {
     gl_initialized = false;
+    // GL objects die with the context; make sure they are rebuilt after the next
+    // context_reset rather than reused with stale handles.
+    VideoInvalidateGLState();
 }
 
 // --- Libretro API ---

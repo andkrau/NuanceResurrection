@@ -108,4 +108,11 @@ void RenderVideo(int width, int height);
 void VideoCleanup();
 void IncrementVideoFieldCounter();
 
+// Invalidate the lazily-created GL resources (textures, shaders, viewport) so
+// they get rebuilt on the next RenderVideo. Must be called whenever the GL
+// context is (re)created, because all GL object names from the previous context
+// are then dead. RetroArch destroys/recreates the context e.g. on a
+// windowed->fullscreen switch, which is common when its primary driver is Vulkan.
+void VideoInvalidateGLState();
+
 #endif
