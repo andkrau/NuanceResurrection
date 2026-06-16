@@ -475,6 +475,7 @@ void retro_run(void)
     static uint64 last_time0 = useconds_since_start();
     static uint64 last_time1 = useconds_since_start();
     static uint64 last_time2 = useconds_since_start();
+    static uint64 last_time3 = useconds_since_start();
     const uint64 frame_budget_start = useconds_since_start();
     // During BIOS init (before video is configured), allow longer execution time
     // Use 100ms budget for first 100 frames to allow BIOS init to complete
@@ -523,6 +524,22 @@ void retro_run(void)
                     last_time2 = new_time;
                 }
             }
+
+            // Audio: feed the host audio ring (RetroArch drains it via
+            // DrainAudioRing below). Mirrors the standalone main loop's audTimer:
+            // push one Nuon audio period when the game has re-armed its HALF/WRAP
+            // interrupt and INT_AUDIO is not already pending. Without this the
+            // libretro core never produces audio (the producer used to live only
+            // in the excluded standalone main loop).
+            if (nuonEnv.timer_rate[2] > 0) {
+                if (nuonEnv.pNuonAudioBuffer &&
+                    (new_time >= last_time3 + (uint64)nuonEnv.timer_rate[2]) &&
+                    ((nuonEnv.nuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT)) != (nuonEnv.oldNuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT))) &&
+                    ((((nuonEnv.mpe[0].intsrc & nuonEnv.mpe[0].inten1) | (nuonEnv.mpe[1].intsrc & nuonEnv.mpe[1].inten1) | (nuonEnv.mpe[2].intsrc & nuonEnv.mpe[2].inten1) | (nuonEnv.mpe[3].intsrc & nuonEnv.mpe[3].inten1)) & INT_AUDIO) == 0)) {
+                    if (nuonEnv.TryPushAudioPeriod())
+                        last_time3 = new_time;
+                }
+            } else last_time3 = new_time;
         }
 
         nuonEnv.TriggerScheduledInterrupts();

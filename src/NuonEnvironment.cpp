@@ -95,6 +95,29 @@ void NuonEnvironment::InitAudio()
   if(nuonAudioPlaybackRate == 0 || nuonAudioBufferSize == 0) // delay init until SetAudioPlaybackRate and AudioSetChannelMode have been called, so we can configure rate/buffer here (also avoids one resampling step)
     return;
 
+#ifdef LIBRETRO
+  // Libretro core: RetroArch owns audio output - retro_run drains the ring via
+  // DrainAudioRing() and hands it to audio_batch_cb. We must NOT open our own
+  // miniaudio playback device here, or it would be a second consumer of the
+  // single-producer/single-consumer ring. Just (re)allocate the ring; reinit
+  // only when the period size or playback rate actually changes (this is called
+  // again from SetAudioPlaybackRate on every rate set, since audioDevice stays
+  // null in the libretro build).
+  {
+    const uint32 newPeriodBytes = nuonAudioBufferSize >> 1;
+    if(audioRing && audioRingPeriodBytes == newPeriodBytes && audioDeviceRate == nuonAudioPlaybackRate)
+      return;
+    audioRingPeriodBytes = newPeriodBytes;
+    audioRingSize        = AUDIO_RING_SLOTS * audioRingPeriodBytes;
+    delete[] audioRing;
+    audioRing = new uint8[audioRingSize];
+    audioRingWritePos.store(0, std::memory_order_relaxed);
+    audioRingReadPos.store(0, std::memory_order_relaxed);
+    audioDeviceRate = nuonAudioPlaybackRate; // also serves as the "initialized" sentinel
+  }
+  return;
+#else
+
   if(audioDevice)
     ma_device_uninit(audioDevice);
   else
@@ -142,6 +165,7 @@ void NuonEnvironment::InitAudio()
     audioDeviceRate = 0;
     return;
   }
+#endif // LIBRETRO
 }
 
 // Reset audio + MPE state to a "fresh boot", before loading a new game.
