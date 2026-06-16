@@ -34,7 +34,7 @@
 #include "ExecuteMEM.h"
 #include "timer.h"
 #include "Bios.h"
-#include "iso9660.h"
+#include "archive.h"
 
 // GLWindow stubs for libretro (no windowing needed)
 #include "GLWindow.h"
@@ -262,6 +262,7 @@ void retro_init(void)
 void retro_deinit(void)
 {
     log_printf("libretro: retro_deinit\n");
+    CleanupArchives();
 }
 
 void retro_set_controller_port_device(unsigned, unsigned) {}
@@ -270,79 +271,6 @@ void retro_reset(void)
 {
     for (int i = 0; i < 4; i++)
         nuonEnv.mpe[i].Reset();
-}
-
-static std::string popen_line(const std::string& cmd)
-{
-    FILE* fp = popen(cmd.c_str(), "r");
-    if (!fp) return "";
-    char buf[2048] = {};
-    if (fgets(buf, sizeof(buf), fp)) {
-        size_t len = strlen(buf);
-        if (len > 0 && buf[len-1] == '\n') buf[len-1] = '\0';
-    }
-    pclose(fp);
-    return buf;
-}
-
-// Extract game files using 7z (no FUSE dependency - works in any context)
-static std::string FindGameFile(const char* path)
-{
-    std::string spath(path);
-    size_t len = spath.size();
-
-    // Direct .run or .cof file
-    if ((len > 4 && strcasecmp(path + len - 4, ".run") == 0) ||
-        (len > 4 && strcasecmp(path + len - 4, ".cof") == 0) ||
-        (len > 3 && strcasecmp(path + len - 3, ".cd") == 0) ||
-        (len > 5 && strcasecmp(path + len - 5, ".nuon") == 0))
-        return spath;
-
-    bool isZip = (len > 4 && strcasecmp(path + len - 4, ".zip") == 0);
-    bool isIso = (len > 4 && (strcasecmp(path + len - 4, ".iso") == 0 || strcasecmp(path + len - 4, ".img") == 0));
-    if (!isZip && !isIso) return spath;
-
-    // Create extraction dir next to the ISO/ZIP file (e.g. nuon-roms/Game.extract/)
-    std::string baseName = spath.substr(spath.rfind('/') + 1);
-    size_t dotPos = baseName.rfind('.');
-    if (dotPos != std::string::npos) baseName = baseName.substr(0, dotPos);
-    std::string parentDir = spath.substr(0, spath.rfind('/'));
-    std::string td = parentDir + "/" + baseName + ".extract";
-#ifdef _WIN32
-    _mkdir(td.c_str());
-#else
-    mkdir(td.c_str(), 0755);
-#endif
-    log_printf("libretro: temp dir: %s\n", td.c_str()); fflush(stderr);
-
-    std::string isoFile;
-    if (isIso) {
-        isoFile = spath;
-    } else {
-        // Extract ISO from ZIP (unzip is faster than 7z for simple ZIP)
-        std::string cmd = "unzip -o -d \"" + td + "\" \"" + spath + "\" '*.iso' '*.img' > /dev/null 2>&1";
-        log_printf("libretro: extracting ISO from ZIP...\n"); fflush(stderr);
-        system(cmd.c_str());
-        isoFile = popen_line("find \"" + td + "\" -maxdepth 2 \\( -iname '*.iso' -o -iname '*.img' \\) -print -quit 2>/dev/null");
-    }
-    if (isoFile.empty()) { log_printf("libretro: no ISO found\n"); return ""; }
-    log_printf("libretro: ISO: %s\n", isoFile.c_str()); fflush(stderr);
-
-    // Extract NUON directory from ISO (skip if already extracted)
-    std::string gameDir = td + "/game";
-    std::string result = popen_line("find \"" + gameDir + "\" -maxdepth 3 \\( -iname 'nuon.run' -o -iname 'NUON.CD' -o -iname 'cd_app.cof' \\) -print -quit 2>/dev/null");
-    if (result.empty()) {
-      std::string cmd = "mkdir -p \"" + gameDir + "\" && 7z x -y -o\"" + gameDir + "\" \"" + isoFile + "\" NUON/ nuon/ > /dev/null 2>&1";
-      log_printf("libretro: extracting NUON dir from ISO...\n"); fflush(stderr);
-      system(cmd.c_str());
-      result = popen_line("find \"" + gameDir + "\" -maxdepth 3 \\( -iname 'nuon.run' -o -iname 'NUON.CD' -o -iname 'cd_app.cof' \\) -print -quit 2>/dev/null");
-    } else {
-      log_printf("libretro: using cached extraction\n"); fflush(stderr);
-    }
-    if (result.empty()) { log_printf("libretro: no NUON boot file found\n"); return ""; }
-
-    log_printf("libretro: boot file: %s\n", result.c_str()); fflush(stderr);
-    return result;
 }
 
 bool retro_load_game(const struct retro_game_info *game)
@@ -372,9 +300,9 @@ bool retro_load_game(const struct retro_game_info *game)
     }
 
     // Find game file
-    log_printf("libretro: FindGameFile(%s)...\n", game->path); fflush(stderr);
-    std::string gamePath = FindGameFile(game->path);
-    log_printf("libretro: FindGameFile returned: '%s'\n", gamePath.c_str()); fflush(stderr);
+    log_printf("libretro: ResolveGameFile(%s)...\n", game->path); fflush(stderr);
+    std::string gamePath = ResolveGameFile(game->path);
+    log_printf("libretro: ResolveGameFile returned: '%s'\n", gamePath.c_str()); fflush(stderr);
     if (gamePath.empty()) {
         log_printf("libretro: cannot find NUON game in %s\n", game->path);
         return false;
