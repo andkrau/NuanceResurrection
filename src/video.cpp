@@ -404,6 +404,24 @@ void IncrementVideoFieldCounter()
   }
 }
 
+void VideoInvalidateGLState()
+{
+  // The GL context was (re)created, so every GL object name created by the
+  // previous context (textures in InitTextures, the YCrCbA->RGB shader, etc.)
+  // is now invalid. Clear the lazy-init guards so RenderVideo regenerates them
+  // against the new context on the next frame; otherwise we would keep drawing
+  // with dead handles and present a black screen.
+  bTexturesInitialized = false;
+  bShadersInstalled = false;
+  bSetupViewport = false;
+  // The freshly generated mainTexName/osdTexName have no storage until
+  // glTexImage2D runs. Force the glTexImage2D upload path (rather than
+  // glTexSubImage2D, which is a no-op on a texture without storage and would
+  // leave the shader sampling all-zero) by resetting the cached pixel types.
+  bMainTexturePixType = -1;
+  bOverlayTexturePixType = -1;
+}
+
 void RenderVideo(const int winwidth, const int winheight)
 {
   if(!bCanDisplayVideo)
