@@ -140,6 +140,21 @@ public:
     return (nuonAudioChannelMode & ENABLE_SAMP_INT);
   }
 
+  // Wall-clock duration, in microseconds, that one pushed audio period
+  // (audioRingPeriodBytes = half the Nuon DMA buffer) represents when played
+  // back at the real Nuon rate. The host must pace pushes at this interval, NOT
+  // at the video-field rate: a period is half the DMA buffer, whose size the
+  // game picks freely (1K..64K), so "one period per 60Hz field" only happens to
+  // approximate 32kHz for ~4K buffers. Larger buffers overproduce (RetroArch's
+  // audio_sync then throttles the whole frontend); smaller ones underrun.
+  uint64 AudioPeriodIntervalUs() const
+  {
+    if(nuonAudioPlaybackRate == 0 || audioRingPeriodBytes == 0)
+      return 0;
+    const uint32 framesPerPeriod = audioRingPeriodBytes >> 2; // 4 bytes/frame (s16 stereo)
+    return ((uint64)framesPerPeriod * 1000000ull) / nuonAudioPlaybackRate;
+  }
+
   char *GetDVDBase() const
   {
     return dvdBase;

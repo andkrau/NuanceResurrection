@@ -454,14 +454,17 @@ void retro_run(void)
             }
 
             // Audio: feed the host audio ring (RetroArch drains it via
-            // DrainAudioRing below). Mirrors the standalone main loop's audTimer:
-            // push one Nuon audio period when the game has re-armed its HALF/WRAP
-            // interrupt and INT_AUDIO is not already pending. Without this the
-            // libretro core never produces audio (the producer used to live only
-            // in the excluded standalone main loop).
-            if (nuonEnv.timer_rate[2] > 0) {
+            // DrainAudioRing below). Push one Nuon audio period when the game has
+            // re-armed its HALF/WRAP interrupt and INT_AUDIO is not already
+            // pending. The pacing interval is the period's TRUE playback duration
+            // at the Nuon rate (AudioPeriodIntervalUs), not the 60Hz video field:
+            // a period is half the game-chosen DMA buffer (1K..64K), so pacing on
+            // the field overproduces for >4K buffers (RetroArch audio_sync then
+            // throttles the whole frontend -> slowdown) and underruns for <4K.
+            const uint64 audioIntervalUs = nuonEnv.AudioPeriodIntervalUs();
+            if (audioIntervalUs > 0) {
                 if (nuonEnv.pNuonAudioBuffer &&
-                    (new_time >= last_time3 + (uint64)nuonEnv.timer_rate[2]) &&
+                    (new_time >= last_time3 + audioIntervalUs) &&
                     ((nuonEnv.nuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT)) != (nuonEnv.oldNuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT))) &&
                     ((((nuonEnv.mpe[0].intsrc & nuonEnv.mpe[0].inten1) | (nuonEnv.mpe[1].intsrc & nuonEnv.mpe[1].inten1) | (nuonEnv.mpe[2].intsrc & nuonEnv.mpe[2].inten1) | (nuonEnv.mpe[3].intsrc & nuonEnv.mpe[3].inten1)) & INT_AUDIO) == 0)) {
                     if (nuonEnv.TryPushAudioPeriod())
