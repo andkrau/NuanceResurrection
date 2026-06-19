@@ -1,6 +1,8 @@
 #include <string>
 #include <cstdio>
+#include <cstring>
 #include "ShaderProgram.h"
+#include "embedded_shaders.h"
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -97,16 +99,49 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
     err = fopen_s(&inFile,(tmps + filename).c_str(),"rb");
   }
 
+  GLchar *buffer = nullptr;
+  GLint length = 0;
+
   if(err == 0)
   {
     fseek(inFile,0,SEEK_END);
-    const GLint length = ftell(inFile);
+    length = ftell(inFile);
 
-    GLchar *buffer = new GLchar[length+1];
-    const GLchar **pBuffer = (const GLchar **)(&buffer);
+    buffer = new GLchar[length+1];
     buffer[length] = '\0';
     fseek(inFile,0,SEEK_SET);
     fread(buffer,sizeof(char),length,inFile);
+    fclose(inFile);
+  }
+  else
+  {
+    // No shader file on disk (e.g. the libretro core has no .vs/.fs files next
+    // to it - GetModuleFileName resolves to the RetroArch binary, not the core).
+    // Fall back to the source compiled into the binary so rendering still works.
+    const char * const embedded = GetEmbeddedShaderSource(filename);
+    if(embedded)
+    {
+      // The embedded source is the .vs/.fs file turned into a C++ raw string.
+      // Because the raw string opens right after the file's leading
+      // "#ifdef EMBED_HLSL", it captures that guard's closing "#endif" at the
+      // start and the trailing "#ifdef EMBED_HLSL" at the end. Wrap the whole
+      // thing in "#if 1 ... #endif" so those stray directives stay balanced for
+      // the GLSL preprocessor: the leading #endif closes our #if 1, and the
+      // trailing #ifdef is closed by our appended #endif.
+      static const char prefix[] = "#if 1\n";
+      static const char suffix[] = "\n#endif\n";
+      const size_t embLen = strlen(embedded);
+      length = (GLint)(sizeof(prefix)-1 + embLen + sizeof(suffix)-1);
+      buffer = new GLchar[length+1];
+      memcpy(buffer, prefix, sizeof(prefix)-1);
+      memcpy(buffer + sizeof(prefix)-1, embedded, embLen);
+      memcpy(buffer + sizeof(prefix)-1 + embLen, suffix, sizeof(suffix)); // incl. '\0'
+    }
+  }
+
+  if(buffer)
+  {
+    const GLchar **pBuffer = (const GLchar **)(&buffer);
 
     if(type == GL_FRAGMENT_SHADER)
     {
@@ -128,9 +163,8 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
     }
 
     delete [] buffer;
-    fclose(inFile);
   }
-  
+
   return bStatus;
 }
 

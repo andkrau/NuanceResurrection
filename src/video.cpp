@@ -139,6 +139,11 @@ void UpdateTextureStates()
       shaderProgram.Uninitalize();
   }
 
+  // Only push uniforms if a valid program is bound. If shader install failed
+  // (e.g. source not found) GetProgramObject() is 0, and glGetUniformLocation
+  // on program 0 raises GL_INVALID_VALUE every frame.
+  if(bShadersInstalled)
+  {
   uint32 pixType = (structOverlayChannel.dmaflags >> 4) & 0x0F;
   uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "structOverlayChannelAlpha");
   glUniform1f(uniformLoc, bOverlayChannelActive ? ((pixType == 2) ? (float)((double)structOverlayChannel.alpha*(1.0/255.0)) : -1.0f) : 1.0f);
@@ -151,6 +156,7 @@ void UpdateTextureStates()
   glUniform2f(uniformLoc, (float)display.clientWidth, (float)display.clientHeight);
   uniformLoc = glGetUniformLocation(shaderProgram.GetProgramObject(), "scaleInternal");
   glUniform4f(uniformLoc, (float)((double)structMainChannel.src_width * (1.0 / ALLOCATED_TEXTURE_WIDTH)), (float)((double)structMainChannel.src_height * (1.0 / ALLOCATED_TEXTURE_HEIGHT)), (float)((double)structOverlayChannel.src_width * (1.0 / ALLOCATED_TEXTURE_WIDTH)), (float)((double)structOverlayChannel.src_height * (1.0 / ALLOCATED_TEXTURE_HEIGHT)));
+  }
 
   glActiveTexture(mainTextureUnit);
 

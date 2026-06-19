@@ -1,3 +1,6 @@
+#ifdef EMBED_HLSL
+R"NUONSHADER(
+#endif
 /*
 Nuance generic vertex shader for all pixel modes:
 
@@ -13,3 +16,6 @@ void main(void)
   gl_TexCoord[2] = gl_MultiTexCoord2;
   gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 }
+#ifdef EMBED_HLSL
+)NUONSHADER"
+#endif

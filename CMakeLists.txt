@@ -179,6 +179,14 @@ else()
     set(NUANCE_TARGET nuance)
 endif()
 
+# The GLSL shaders are embedded into the binary via src/embedded_shaders.h,
+# which #includes the real .vs/.fs files as C++ raw strings (they carry their
+# own #ifdef EMBED_HLSL guards, so the files stay valid standalone GLSL too).
+# No generated header: the .vs/.fs files are the single source of truth.
+# ShaderProgram still loads external shader files first and only falls back to
+# the embedded copy when none are found next to the binary. The repo root is on
+# the include path below so the #include "video_*.vs/.fs" lines resolve.
+
 target_include_directories(${NUANCE_TARGET} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}

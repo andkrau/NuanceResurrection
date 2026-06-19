@@ -1,3 +1,6 @@
+#ifdef EMBED_HLSL
+R"NUONSHADER(
+#endif
 /*
 Nuance pixel shader for 16/32-bit pixel modes:
 
@@ -170,3 +173,7 @@ void main()
 
   gl_FragColor = vec4(texture2D_composite(mainuv, overlayuv), 1.0);
 }
+
+#ifdef EMBED_HLSL
+)NUONSHADER"
+#endif
