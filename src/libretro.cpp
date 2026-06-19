@@ -403,6 +403,7 @@ void retro_run(void)
     static uint64 last_time0 = useconds_since_start();
     static uint64 last_time1 = useconds_since_start();
     static uint64 last_time2 = useconds_since_start();
+    static uint64 last_time3 = useconds_since_start();
     const uint64 frame_budget_start = useconds_since_start();
     // During BIOS init (before video is configured), allow longer execution time
     // Use 100ms budget for first 100 frames to allow BIOS init to complete
@@ -451,6 +452,25 @@ void retro_run(void)
                     last_time2 = new_time;
                 }
             }
+
+            // Audio: feed the host audio ring (RetroArch drains it via
+            // DrainAudioRing below). Push one Nuon audio period when the game has
+            // re-armed its HALF/WRAP interrupt and INT_AUDIO is not already
+            // pending. The pacing interval is the period's TRUE playback duration
+            // at the Nuon rate (AudioPeriodIntervalUs), not the 60Hz video field:
+            // a period is half the game-chosen DMA buffer (1K..64K), so pacing on
+            // the field overproduces for >4K buffers (RetroArch audio_sync then
+            // throttles the whole frontend -> slowdown) and underruns for <4K.
+            const uint64 audioIntervalUs = nuonEnv.AudioPeriodIntervalUs();
+            if (audioIntervalUs > 0) {
+                if (nuonEnv.pNuonAudioBuffer &&
+                    (new_time >= last_time3 + audioIntervalUs) &&
+                    ((nuonEnv.nuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT)) != (nuonEnv.oldNuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT))) &&
+                    ((((nuonEnv.mpe[0].intsrc & nuonEnv.mpe[0].inten1) | (nuonEnv.mpe[1].intsrc & nuonEnv.mpe[1].inten1) | (nuonEnv.mpe[2].intsrc & nuonEnv.mpe[2].inten1) | (nuonEnv.mpe[3].intsrc & nuonEnv.mpe[3].inten1)) & INT_AUDIO) == 0)) {
+                    if (nuonEnv.TryPushAudioPeriod())
+                        last_time3 = new_time;
+                }
+            } else last_time3 = new_time;
         }
 
         nuonEnv.TriggerScheduledInterrupts();
