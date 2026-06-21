@@ -331,8 +331,25 @@ inline unsigned int __popcnt(unsigned int x) {
     return __builtin_popcount(x);
 }
 
-// _addcarry_u32 / _subborrow_u32 - use GCC builtins via immintrin.h
+// _addcarry_u32 / _subborrow_u32 - use GCC builtins via immintrin.h on x86.
+// ARM has neither immintrin.h nor these intrinsics, so provide portable
+// equivalents (the wide-add captures the carry/borrow out of bit 31).
+#if defined(__aarch64__) || defined(_M_ARM64) || defined(__arm__)
+static inline unsigned char _addcarry_u32(unsigned char c_in, unsigned int a, unsigned int b, unsigned int *out)
+{
+    const unsigned long long sum = (unsigned long long)a + b + c_in;
+    *out = (unsigned int)sum;
+    return (unsigned char)(sum >> 32);
+}
+static inline unsigned char _subborrow_u32(unsigned char b_in, unsigned int a, unsigned int b, unsigned int *out)
+{
+    const unsigned long long diff = (unsigned long long)a - b - b_in;
+    *out = (unsigned int)diff;
+    return (unsigned char)((diff >> 32) & 1);
+}
+#else
 #include <immintrin.h>
+#endif
 
 // _lrotr / _lrotl replacements (32-bit rotate).
 // gcc's <ia32intrin.h> defines these as MACROS using __rorq/__rolq on LP64

@@ -26,6 +26,8 @@ public:
   #else
     bAllowCompile = false; // 'old' JIT cannot emit 64bit-, only 32bit-x86 code
   #endif
+#elif defined(__aarch64__) || defined(_M_ARM64) || defined(__arm__)
+    bAllowCompile = false; // no ARM native emitter yet: interpreter only
 #else
     bAllowCompile = true;
 #endif
