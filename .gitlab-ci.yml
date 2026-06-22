@@ -29,6 +29,13 @@ libretro-build-linux-x64:
     - .libretro-linux-cmake-x86_64
     - .core-defs
 
+# Linux ARM 64-bit (aarch64). The buildbot provides an aarch64 image/runner
+# via .libretro-linux-cmake-aarch64.
+libretro-build-linux-aarch64:
+  extends:
+    - .libretro-linux-cmake-aarch64
+    - .core-defs
+
 libretro-build-windows-x64:
   extends:
     - .libretro-windows-cmake-x86_64
