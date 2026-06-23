@@ -332,20 +332,40 @@ inline unsigned int __popcnt(unsigned int x) {
 }
 
 // _addcarry_u32 / _subborrow_u32 - use GCC builtins via immintrin.h on x86.
-// ARM has neither immintrin.h nor these intrinsics, so provide portable
-// equivalents (the wide-add captures the carry/borrow out of bit 31).
+// ARM has neither immintrin.h nor these intrinsics. Prefer the carry-chain
+// builtins __builtin_addc/__builtin_subc (Clang, and GCC >= 14) which map
+// straight onto adcs/sbcs; otherwise fall back to a portable wide-add (which
+// compilers also lower to adcs/sbcs) so older toolchains such as the libretro
+// buildbot's GCC 9 - which has neither __has_builtin nor the builtins - work.
 #if defined(__aarch64__) || defined(_M_ARM64) || defined(__arm__)
+#if defined(__has_builtin)
+#  if __has_builtin(__builtin_addc) && __has_builtin(__builtin_subc)
+#    define NUANCE_HAVE_BUILTIN_CARRY 1
+#  endif
+#endif
 static inline unsigned char _addcarry_u32(unsigned char c_in, unsigned int a, unsigned int b, unsigned int *out)
 {
+#ifdef NUANCE_HAVE_BUILTIN_CARRY
+    unsigned int carry_out;
+    *out = __builtin_addc(a, b, c_in, &carry_out);
+    return (unsigned char)carry_out;
+#else
     const unsigned long long sum = (unsigned long long)a + b + c_in;
     *out = (unsigned int)sum;
     return (unsigned char)(sum >> 32);
+#endif
 }
 static inline unsigned char _subborrow_u32(unsigned char b_in, unsigned int a, unsigned int b, unsigned int *out)
 {
+#ifdef NUANCE_HAVE_BUILTIN_CARRY
+    unsigned int borrow_out;
+    *out = __builtin_subc(a, b, b_in, &borrow_out);
+    return (unsigned char)borrow_out;
+#else
     const unsigned long long diff = (unsigned long long)a - b - b_in;
     *out = (unsigned int)diff;
     return (unsigned char)((diff >> 32) & 1);
+#endif
 }
 #else
 #include <immintrin.h>
