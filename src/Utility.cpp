@@ -33,7 +33,13 @@ bool SSE5_supported  = false;
 bool AVX_supported   = false;
 #endif
 
-#ifdef __GNUC__
+// x86 CPU-feature probing. None of this exists on non-x86 hosts (e.g. ARM),
+// where init_supported_CPU_extensions() below leaves the runtime flags false.
+#if defined(__x86_64__) || defined(__i386__) || defined(_M_X64) || defined(_M_IX86)
+#define NUANCE_ARCH_X86 1
+#endif
+
+#if defined(NUANCE_ARCH_X86) && defined(__GNUC__)
 static void __cpuid(int* cpuinfo, const int info)
 {
 #if defined(__x86_64__)
@@ -57,7 +63,7 @@ static void __cpuid(int* cpuinfo, const int info)
 #ifndef NUANCE_ISA_AVX
 // GCC 11+ declares a builtin _xgetbv() in <x86gprintrin.h> (pulled in via the
 // intrinsics headers), so a function named _xgetbv here is an ambiguating
-// redeclaration that breaks the build on modern toolchains. Use our own name.
+// redeclaration. Use our own name to avoid the clash on modern toolchains.
 static unsigned long long nuance_xgetbv(const unsigned int index)
 {
 	unsigned int eax, edx;
@@ -71,7 +77,7 @@ static unsigned long long nuance_xgetbv(const unsigned int index)
 #endif
 #endif
 
-#if defined(_MSC_VER) && !defined(NUANCE_ISA_AVX)
+#if defined(NUANCE_ARCH_X86) && defined(_MSC_VER) && !defined(NUANCE_ISA_AVX)
 // MSVC provides the _xgetbv intrinsic via <intrin.h>; wrap it under our name so
 // the call site below is toolchain-agnostic.
 static inline unsigned long long nuance_xgetbv(const unsigned int index) { return _xgetbv(index); }
@@ -79,6 +85,7 @@ static inline unsigned long long nuance_xgetbv(const unsigned int index) { retur
 
 void init_supported_CPU_extensions()
 {
+#ifdef NUANCE_ARCH_X86
 	int cpuinfo[4];
 	__cpuid(cpuinfo, 1);
 
@@ -134,4 +141,10 @@ void init_supported_CPU_extensions()
 #endif
 		SSE5_supported  = !!(cpuinfo[2] & (1 << 11));
 	}
+#else
+	// Non-x86 (e.g. ARM): no x86 SSE feature bits to probe. The runtime
+	// *_supported flags keep their false defaults, so every SIMD-gated path
+	// takes its scalar fallback. sse2neon still supplies the _mm_* API for the
+	// translation units that reference it unconditionally.
+#endif // NUANCE_ARCH_X86
 }

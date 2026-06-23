@@ -43,8 +43,17 @@ set_property(TARGET miniz        PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET chdr-lzma    PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET zstd         PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+# The asmjit JIT path emits x86 machine code and the -mssse3 flag are x86-only.
+# On other architectures (e.g. aarch64) build interpreter-only without them.
+if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64|amd64")
+    set(NUANCE_X86_64 TRUE)
+else()
+    set(NUANCE_X86_64 FALSE)
+endif()
+message(STATUS "NUANCE_X86_64 (asmjit JIT enabled) = ${NUANCE_X86_64} (processor: ${CMAKE_SYSTEM_PROCESSOR})")
+
 # asmjit (only used by the 64-bit JIT path; 32-bit keeps the legacy x86 emitter)
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+if(NUANCE_X86_64)
     file(GLOB_RECURSE ASMJIT_SRC
         external/asmjit/asmjit/core/*.cpp
         external/asmjit/asmjit/x86/*.cpp
@@ -154,7 +163,7 @@ set(NUANCE_SOURCES
     src/Utility.cpp
     src/video.cpp
     $<IF:$<PLATFORM_ID:Windows>,,src/NuanceUI.cpp>
-    $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:src/asmjit_emit.cpp>
+    $<$<BOOL:${NUANCE_X86_64}>:src/asmjit_emit.cpp>
 )
 
 option(BUILD_LIBRETRO "Build libretro core instead of standalone" OFF)
@@ -213,7 +222,7 @@ target_compile_definitions(${NUANCE_TARGET} PRIVATE
     GLEW_NO_GLU
     _CRT_SECURE_NO_WARNINGS
     _LARGEFILE64_SOURCE
-    $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:USE_ASMJIT>
+    $<$<BOOL:${NUANCE_X86_64}>:USE_ASMJIT>
 )
 
 # NuanceMain.cpp on Windows provides its own WinMain entry point.
@@ -236,7 +245,7 @@ target_link_libraries(${NUANCE_TARGET} PRIVATE
     chdr-static
     miniz
     #murmurhash # unused - see add_library above
-    $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:asmjit_static>
+    $<$<BOOL:${NUANCE_X86_64}>:asmjit_static>
     OpenGL::GL
     # SDL2 is a standalone-only dependency (windowing + audio); the libretro core
     # uses neither. Guarding it out also avoids a CMP0004 hard error when the
@@ -328,7 +337,7 @@ else()
     target_compile_options(${NUANCE_TARGET} PRIVATE
         -O3
         -ffast-math
-        -mssse3
+        $<$<BOOL:${NUANCE_X86_64}>:-mssse3>
         -Wno-multichar
         -Wno-write-strings
         -Wno-narrowing
