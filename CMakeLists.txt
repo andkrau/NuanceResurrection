@@ -133,6 +133,7 @@ set(NUANCE_SOURCES
     src/MPEControlRegisters.cpp
     src/mpe_alloc.cpp
     src/nativecodecache.cpp
+    src/EmulatorCore.cpp
     $<IF:$<PLATFORM_ID:Windows>,src/NuanceMain.cpp,src/NuanceMain_linux.cpp>
     src/NuonEnvironment.cpp
     src/NuonMemoryManager.cpp
@@ -180,11 +181,18 @@ if(BUILD_LIBRETRO)
     target_compile_definitions(nuance_libretro PRIVATE LIBRETRO)
     set(NUANCE_TARGET nuance_libretro)
 else()
- if(NOT WIN32)
-    add_executable(nuance ${NUANCE_SOURCES})
- else()
-    add_executable(nuance WIN32 ${NUANCE_SOURCES})
- endif()
+    # Windows standalone keeps NuanceMain.cpp's legacy globals
+    # (nuonEnv/bQuit/g_ISOPath/g_ISOPrefix/StopEmulation). EmulatorCore.cpp
+    # defines the same names for the libretro and Linux-standalone frontends,
+    # so drop it on Windows to avoid duplicate-symbol link errors.
+    if(WIN32)
+        list(FILTER NUANCE_SOURCES EXCLUDE REGEX "EmulatorCore")
+    endif()
+    if(NOT WIN32)
+        add_executable(nuance ${NUANCE_SOURCES})
+    else()
+        add_executable(nuance WIN32 ${NUANCE_SOURCES})
+    endif()
     set(NUANCE_TARGET nuance)
 endif()
 
@@ -252,6 +260,8 @@ target_link_libraries(${NUANCE_TARGET} PRIVATE
     # libretro build infra passes SDL2_LIBRARIES as a raw `sdl2-config --libs`
     # string (e.g. "-L/usr/lib/... -lSDL2 ") that has trailing whitespace.
     $<$<NOT:$<BOOL:${BUILD_LIBRETRO}>>:${SDL2_LIBRARIES}>
+    # pthread / libdl are POSIX-only; MinGW uses Win32 threads and resolves
+    # dlopen-style calls via the C runtime / LoadLibrary
     $<$<NOT:$<PLATFORM_ID:Windows>>:pthread>
     $<$<NOT:$<PLATFORM_ID:Windows>>:dl>
     $<$<NOT:$<PLATFORM_ID:Windows>>:m>
