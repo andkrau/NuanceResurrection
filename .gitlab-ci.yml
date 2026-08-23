@@ -56,7 +56,8 @@ libretro-build-windows-x64:
 # macOS 64-bit
 libretro-build-osx-x64:
   extends:
-    - .libretro-osx-cmake-x86
+    # -x86_64, not -x86: the latter is the 32-bit macOS class and sets ARCH=x86.
+    - .libretro-osx-cmake-x86_64
     - .core-defs
 
 # macOS ARM 64-bit
