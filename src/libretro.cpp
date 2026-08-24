@@ -12,7 +12,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <GL/glew.h>
-#include <GL/gl.h>
+// GL/gl.h not needed, glew.h already declares every entry point this file calls
 #include <mutex>
 #include <cstdarg>
 #ifdef _WIN32

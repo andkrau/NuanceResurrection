@@ -52,6 +52,16 @@ else()
 endif()
 message(STATUS "NUANCE_X86_64 (asmjit JIT enabled) = ${NUANCE_X86_64} (processor: ${CMAKE_SYSTEM_PROCESSOR})")
 
+# The SSE/SSSE3 intrinsics in the emitters and the byteswap helpers are compiled
+# on every x86 target, not only the 64-bit one — on aarch64 they go through the
+# vendored sse2neon. x86_64 has SSE2 in its baseline so it only ever needed the
+# SSSE3 switch, but a 32-bit x86 build has neither on by default and fails in
+# emmintrin.h ("inlining failed in call to always_inline _mm_set_epi32").
+# Asking the compiler whether it takes the flag covers both without having to
+# recognise every spelling of the processor name; it is simply absent elsewhere.
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag(-mssse3 NUANCE_HAS_MSSSE3)
+
 # asmjit (only used by the 64-bit JIT path; 32-bit keeps the legacy x86 emitter)
 if(NUANCE_X86_64)
     file(GLOB_RECURSE ASMJIT_SRC
@@ -174,7 +184,10 @@ if(BUILD_LIBRETRO)
     # the core uses its ResolveGameFile() to resolve ISO/ZIP/CHD inputs and to
     # read data files straight from the ISO at runtime (no whole-disc extraction),
     # so libchdr + miniz are linked in below for the libretro build too.
-    list(FILTER NUANCE_SOURCES EXCLUDE REGEX "NuanceMain|GLWindow|InputManager|NuanceUI")
+    # imgui_impl_x11 belongs with the other standalone-only files: the libretro
+    # build has no imgui (imgui_static is standalone-only) and pulling it in
+    # dragged X11 headers into a build that has none on macOS.
+    list(FILTER NUANCE_SOURCES EXCLUDE REGEX "NuanceMain|GLWindow|InputManager|NuanceUI|imgui_impl")
     add_library(nuance_libretro SHARED ${NUANCE_SOURCES} src/libretro.cpp)
     set_target_properties(nuance_libretro PROPERTIES PREFIX "" OUTPUT_NAME "nuance_libretro")
     target_compile_definitions(nuance_libretro PRIVATE LIBRETRO)
@@ -337,7 +350,7 @@ else()
     target_compile_options(${NUANCE_TARGET} PRIVATE
         -O3
         -ffast-math
-        $<$<BOOL:${NUANCE_X86_64}>:-mssse3>
+        $<$<BOOL:${NUANCE_HAS_MSSSE3}>:-mssse3>
         -Wno-multichar
         -Wno-write-strings
         -Wno-narrowing
