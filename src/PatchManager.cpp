@@ -21,10 +21,8 @@ void PatchManager::ApplyPatches()
         break;
       case PatchType::PatchType_Abs32:
         // Absolute 32-bit patch slot: the pointer is truncated by design (and
-        // only ever emitted by the 32-bit x86 backend). Written through
-        // uintptr_t because clang rejects the direct pointer-to-uint32 cast
-        // that gcc only warns about.
-        *((uint32 *)(patchData[i].patchPtr)) = (uint32)(uintptr_t)(labelPointers[patchData[i].destLabel]); //!! 64bit prob?
+        // only ever emitted by the 32-bit x86 backend!). Written through uintptr_t to please clang
+        *((uint32 *)(patchData[i].patchPtr)) = (uint32)(uintptr_t)(labelPointers[patchData[i].destLabel]);
         break;
       case PatchType::PatchType_Abs64:
         //*((uint64 *)(patchData[i].patchPtr)) = (uint32)(labelPointers[patchData[i].destLabel]);
