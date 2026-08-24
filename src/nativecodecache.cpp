@@ -75,8 +75,7 @@ bool NativeCodeCache::ReleaseBuffer(NativeCodeCacheEntryPoint entryPoint, uint32
     MessageBox(NULL, "VirtualProtect failed", "VirtualProtect failed", MB_OK);
 #endif
   }*/
-  // entryPoint is a function pointer and the shim takes void*. gcc converts that
-  // implicitly as an extension; clang requires the cast to be written out.
+  // entryPoint is a function pointer and the shim takes void*
   FlushInstructionCache(GetCurrentProcess(), (void *)entryPoint, newUsedBytes);
 
   if(alignment)
