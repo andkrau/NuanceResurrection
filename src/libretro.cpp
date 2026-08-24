@@ -12,9 +12,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <GL/glew.h>
-// GL/gl.h is the Linux/Windows spelling; on macOS the header lives in the
-// OpenGL framework. Nothing here needs it either way — glew.h already declares
-// every entry point this file calls, and it must come first regardless.
+// GL/gl.h not needed, glew.h already declares every entry point this file calls
 #include <mutex>
 #include <cstdarg>
 #ifdef _WIN32
