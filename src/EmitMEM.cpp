@@ -32,11 +32,8 @@ static inline void Emit_LoadBankPtr(EmitterVariables * const vars)
 #endif
   // 32-bit: entries are 4 bytes, ebx has index*4, scale=1 -> byte offset = index*4
   // The absolute address is emitted as a 32-bit displacement, so the pointer is
-  // truncated on purpose. Say so through uintptr_t: a direct pointer-to-int32
-  // cast is a warning on gcc but an error on clang, which is what kept this
-  // file — dead code on any non-x86 target, but still compiled there — from
-  // building on macOS and every other clang-hosted arch.
-  cc.X86Emit_MOVMR(x86Reg::x86Reg_ebx, x86BaseReg::x86BaseReg_ebx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, (int32)(uintptr_t)vars->mpe->bankPtrTable); //!! how does the latter part actually work?
+  // truncated on purpose. Say so through uintptr_t: a direct pointer-to-int32 cast errors on clang otherwise
+  cc.X86Emit_MOVMR(x86Reg::x86Reg_ebx, x86BaseReg::x86BaseReg_ebx, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, (int32)(uintptr_t)vars->mpe->bankPtrTable);
 }
 
 static const __m128i bswap_lut = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3); //_mm_setr_epi8(3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12);
