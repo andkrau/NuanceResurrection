@@ -11,7 +11,12 @@
     #define COMPILE_TYPE SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK
     #define ALLOW_NATIVE_CODE_EMIT false
   #endif
+#elif defined(__aarch64__) || defined(_M_ARM64) || defined(__arm__)
+  // No native code emitter exists for ARM yet, so always run the IL interpreter.
+  #define COMPILE_TYPE SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK
+  #define ALLOW_NATIVE_CODE_EMIT false
 #else
+  // 32-bit x86: legacy raw-byte native emitter
   //#define COMPILE_TYPE SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_IL_BLOCK
   #define COMPILE_TYPE SuperBlockCompileType::SUPERBLOCKCOMPILETYPE_NATIVE_CODE_BLOCK
   #define ALLOW_NATIVE_CODE_EMIT true

@@ -1,7 +1,16 @@
 #ifndef BASETYPES_H
 #define BASETYPES_H
 
-#include <immintrin.h>
+#if defined(__aarch64__) || defined(_M_ARM64) || defined(__arm__)
+  // ARM has no x86 SSE intrinsics. The vendored sse2neon translation layer maps
+  // the _mm_* / __m128i API onto NEON so the x86 emitter's lookup tables and the
+  // SSSE3 byteswap helpers still compile (the JIT itself never runs on ARM, but
+  // those translation units are always built).
+  #define SSE2NEON_SUPPRESS_WARNINGS
+  #include "sse2neon.h"
+#else
+  #include <immintrin.h>
+#endif
 
 #define ENABLE_ASSERTS
 #define ENABLE_EMULATION_MESSAGEBOXES // also enables "DumpCompiledBlocks" option

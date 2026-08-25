@@ -15,6 +15,10 @@ include:
     file: '/linux-cmake.yml'
   - project: 'libretro-infrastructure/ci-templates'
     file: '/windows-cmake-mingw.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/osx-cmake-x86.yml'
+  - project: 'libretro-infrastructure/ci-templates'
+    file: '/osx-cmake-arm64.yml'
 
 stages:
   - build-prepare
@@ -29,7 +33,35 @@ libretro-build-linux-x64:
     - .libretro-linux-cmake-x86_64
     - .core-defs
 
+# Linux 32-bit (i686). The x86 emitter this build uses is the one the project
+# started on, and the SSSE3 flag it needs is now applied wherever the compiler
+# takes it, so this is the same code path as x86_64 minus asmjit.
+libretro-build-linux-i686:
+  extends:
+    - .libretro-linux-cmake-x86
+    - .core-defs
+
+# Linux ARM 64-bit (aarch64). The buildbot provides an aarch64 image/runner
+# via .libretro-linux-cmake-aarch64.
+libretro-build-linux-aarch64:
+  extends:
+    - .libretro-linux-cmake-aarch64
+    - .core-defs
+
 libretro-build-windows-x64:
   extends:
     - .libretro-windows-cmake-x86_64
+    - .core-defs
+
+# macOS 64-bit
+libretro-build-osx-x64:
+  extends:
+    # -x86_64, not -x86: the latter is the 32-bit macOS class and sets ARCH=x86.
+    - .libretro-osx-cmake-x86_64
+    - .core-defs
+
+# macOS ARM 64-bit
+libretro-build-osx-arm64:
+  extends:
+    - .libretro-osx-cmake-arm64
     - .core-defs

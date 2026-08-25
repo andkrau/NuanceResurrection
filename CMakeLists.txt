@@ -43,8 +43,27 @@ set_property(TARGET miniz        PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET chdr-lzma    PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_property(TARGET zstd         PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+# The asmjit JIT path emits x86 machine code and the -mssse3 flag are x86-only.
+# On other architectures (e.g. aarch64) build interpreter-only without them.
+if(CMAKE_SIZEOF_VOID_P EQUAL 8 AND CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|AMD64|amd64")
+    set(NUANCE_X86_64 TRUE)
+else()
+    set(NUANCE_X86_64 FALSE)
+endif()
+message(STATUS "NUANCE_X86_64 (asmjit JIT enabled) = ${NUANCE_X86_64} (processor: ${CMAKE_SYSTEM_PROCESSOR})")
+
+# The SSE/SSSE3 intrinsics in the emitters and the byteswap helpers are compiled
+# on every x86 target, not only the 64-bit one — on aarch64 they go through the
+# vendored sse2neon. x86_64 has SSE2 in its baseline so it only ever needed the
+# SSSE3 switch, but a 32-bit x86 build has neither on by default and fails in
+# emmintrin.h ("inlining failed in call to always_inline _mm_set_epi32").
+# Asking the compiler whether it takes the flag covers both without having to
+# recognise every spelling of the processor name; it is simply absent elsewhere.
+include(CheckCXXCompilerFlag)
+check_cxx_compiler_flag(-mssse3 NUANCE_HAS_MSSSE3)
+
 # asmjit (only used by the 64-bit JIT path; 32-bit keeps the legacy x86 emitter)
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+if(NUANCE_X86_64)
     file(GLOB_RECURSE ASMJIT_SRC
         external/asmjit/asmjit/core/*.cpp
         external/asmjit/asmjit/x86/*.cpp
@@ -155,7 +174,7 @@ set(NUANCE_SOURCES
     src/Utility.cpp
     src/video.cpp
     $<IF:$<PLATFORM_ID:Windows>,,src/NuanceUI.cpp>
-    $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:src/asmjit_emit.cpp>
+    $<$<BOOL:${NUANCE_X86_64}>:src/asmjit_emit.cpp>
 )
 
 option(BUILD_LIBRETRO "Build libretro core instead of standalone" OFF)
@@ -166,7 +185,10 @@ if(BUILD_LIBRETRO)
     # the core uses its ResolveGameFile() to resolve ISO/ZIP/CHD inputs and to
     # read data files straight from the ISO at runtime (no whole-disc extraction),
     # so libchdr + miniz are linked in below for the libretro build too.
-    list(FILTER NUANCE_SOURCES EXCLUDE REGEX "NuanceMain|GLWindow|InputManager|NuanceUI")
+    # imgui_impl_x11 belongs with the other standalone-only files: the libretro
+    # build has no imgui (imgui_static is standalone-only) and pulling it in
+    # dragged X11 headers into a build that has none on macOS.
+    list(FILTER NUANCE_SOURCES EXCLUDE REGEX "NuanceMain|GLWindow|InputManager|NuanceUI|imgui_impl")
     add_library(nuance_libretro SHARED ${NUANCE_SOURCES} src/libretro.cpp)
     set_target_properties(nuance_libretro PROPERTIES PREFIX "" OUTPUT_NAME "nuance_libretro")
     target_compile_definitions(nuance_libretro PRIVATE LIBRETRO)
@@ -221,7 +243,7 @@ target_compile_definitions(${NUANCE_TARGET} PRIVATE
     GLEW_NO_GLU
     _CRT_SECURE_NO_WARNINGS
     _LARGEFILE64_SOURCE
-    $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:USE_ASMJIT>
+    $<$<BOOL:${NUANCE_X86_64}>:USE_ASMJIT>
 )
 
 # NuanceMain.cpp on Windows provides its own WinMain entry point.
@@ -244,7 +266,7 @@ target_link_libraries(${NUANCE_TARGET} PRIVATE
     chdr-static
     miniz
     #murmurhash # unused - see add_library above
-    $<$<EQUAL:${CMAKE_SIZEOF_VOID_P},8>:asmjit_static>
+    $<$<BOOL:${NUANCE_X86_64}>:asmjit_static>
     OpenGL::GL
     # SDL2 is a standalone-only dependency (windowing + audio); the libretro core
     # uses neither. Guarding it out also avoids a CMP0004 hard error when the
@@ -338,7 +360,7 @@ else()
     target_compile_options(${NUANCE_TARGET} PRIVATE
         -O3
         -ffast-math
-        -mssse3
+        $<$<BOOL:${NUANCE_HAS_MSSSE3}>:-mssse3>
         -Wno-multichar
         -Wno-write-strings
         -Wno-narrowing

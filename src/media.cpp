@@ -566,7 +566,10 @@ void MediaRead(MPE &mpe)
           FILE* isoFp = ISO_FOPEN(g_ISOPath.c_str(), "rb");
           if(isoFp)
           {
-            const off64_t byteOffset = (off64_t)lba * 2048 + (off64_t)startblock * BLOCK_SIZE_DVD;
+            // int64_t rather than off64_t: the latter is a glibc type that
+            // macOS does not have (its off_t is already 64-bit), and ISO_FSEEK
+            // casts to whatever the platform's seek function takes anyway.
+            const int64_t byteOffset = (int64_t)lba * 2048 + (int64_t)startblock * BLOCK_SIZE_DVD;
             ISO_FSEEK(isoFp, byteOffset, SEEK_SET);
             readCount = (uint32)fread(intermediate.data(), BLOCK_SIZE_DVD, blockcount, isoFp);
             fclose(isoFp);
