@@ -30,14 +30,14 @@ bool ShaderProgram::Initialize()
 {  
   if(!hProgramObject)
   {
-    hProgramObject = glCreateProgramObjectARB();
+    hProgramObject = glCreateProgram();
     if(!hProgramObject)
     {
       return false;
     }
 
-    hVertexShaderObject = glCreateShaderObjectARB(GL_VERTEX_SHADER);
-    hFragmentShaderObject = glCreateShaderObjectARB(GL_FRAGMENT_SHADER);
+    hVertexShaderObject = glCreateShader(GL_VERTEX_SHADER);
+    hFragmentShaderObject = glCreateShader(GL_FRAGMENT_SHADER);
   }
 
   return true;
@@ -49,15 +49,15 @@ bool ShaderProgram::Uninitalize()
   {
     if(hVertexShaderObject)
     {
-      glDeleteObjectARB(hVertexShaderObject);
+      glDeleteShader(hVertexShaderObject);
     }
 
     if(hFragmentShaderObject)
     {
-      glDeleteObjectARB(hFragmentShaderObject);
+      glDeleteShader(hFragmentShaderObject);
     }
 
-    glDeleteObjectARB(hProgramObject);
+    glDeleteProgram(hProgramObject);
     hProgramObject = 0;
     hVertexShaderObject = 0;
     hFragmentShaderObject = 0;
@@ -68,15 +68,24 @@ bool ShaderProgram::Uninitalize()
   return true;
 }
 
-void ShaderProgram::PrintInfoLog(GLhandleARB obj, const char *msg)
+void ShaderProgram::PrintInfoLog(GLuint obj, const char *msg)
 {
+  // The ARB extension had one call for both; the core API this now uses - and
+  // the only one OpenGL ES has - splits them, so ask the object which it is.
+  const bool bIsShader = glIsShader(obj) == GL_TRUE;
   int32 blen = 0;   /* length of buffer to allocate */
-  glGetObjectParameterivARB(obj, GL_OBJECT_INFO_LOG_LENGTH_ARB , &blen);
+  if(bIsShader)
+    glGetShaderiv(obj, GL_INFO_LOG_LENGTH, &blen);
+  else
+    glGetProgramiv(obj, GL_INFO_LOG_LENGTH, &blen);
   if(blen > 1)
   {
     GLchar *infoLog = new GLchar[blen];
     int32 slen = 0;   /* strlen actually written to buffer */
-    glGetInfoLogARB(obj, blen, &slen, infoLog);
+    if(bIsShader)
+      glGetShaderInfoLog(obj, blen, &slen, infoLog);
+    else
+      glGetProgramInfoLog(obj, blen, &slen, infoLog);
     MessageBox(NULL,infoLog,msg,MB_OK);
     delete [] infoLog;
   }
@@ -147,7 +156,7 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
     {
       if(hFragmentShaderObject)
       {
-        glShaderSourceARB(hFragmentShaderObject,1,pBuffer,&length);
+        glShaderSource(hFragmentShaderObject,1,pBuffer,&length);
         bFragmentShaderCodeLoaded = true;
         bStatus = true;
       }
@@ -156,7 +165,7 @@ bool ShaderProgram::InstallShaderSourceFromFile(const char * const filename, GLe
     {
       if(hVertexShaderObject)
       {
-        glShaderSourceARB(hVertexShaderObject,1,pBuffer,NULL);
+        glShaderSource(hVertexShaderObject,1,pBuffer,NULL);
         bVertexShaderCodeLoaded = true;
         bStatus = true;
       }
@@ -176,7 +185,7 @@ bool ShaderProgram::InstallShaderSourceFromMemory(char **sourceStrings, uint32 c
   {
     if(hFragmentShaderObject)
     {
-      glShaderSourceARB(hFragmentShaderObject,count,(const char **)sourceStrings,lengths);
+      glShaderSource(hFragmentShaderObject,count,(const char **)sourceStrings,lengths);
       bFragmentShaderCodeLoaded = true;
       bStatus = true;
     }
@@ -185,7 +194,7 @@ bool ShaderProgram::InstallShaderSourceFromMemory(char **sourceStrings, uint32 c
   {
     if(hVertexShaderObject)
     {
-      glShaderSourceARB(hVertexShaderObject,1,(const char **)sourceStrings,lengths);
+      glShaderSource(hVertexShaderObject,1,(const char **)sourceStrings,lengths);
       bVertexShaderCodeLoaded = true;
       bStatus = true;
     }
@@ -203,8 +212,8 @@ bool ShaderProgram::CompileShader(GLenum type)
   {
     if(hFragmentShaderObject && bFragmentShaderCodeLoaded)
     {
-      glCompileShaderARB(hFragmentShaderObject);
-      glGetObjectParameterivARB(hFragmentShaderObject, GL_OBJECT_COMPILE_STATUS_ARB, &bCompiled);
+      glCompileShader(hFragmentShaderObject);
+      glGetShaderiv(hFragmentShaderObject, GL_COMPILE_STATUS, &bCompiled);
       bStatus = bCompiled;
     }
   }
@@ -212,8 +221,8 @@ bool ShaderProgram::CompileShader(GLenum type)
   {
     if(hVertexShaderObject && bVertexShaderCodeLoaded)
     {
-      glCompileShaderARB(hVertexShaderObject);
-      glGetObjectParameterivARB(hVertexShaderObject, GL_OBJECT_COMPILE_STATUS_ARB, &bCompiled);
+      glCompileShader(hVertexShaderObject);
+      glGetShaderiv(hVertexShaderObject, GL_COMPILE_STATUS, &bCompiled);
       bStatus = bCompiled;
     }
   }
@@ -226,9 +235,9 @@ bool ShaderProgram::Link()
   if(!hProgramObject || !(bVertexShaderObjectAttached || bFragmentShaderObjectAttached))
     return false;
 
-  glLinkProgramARB(hProgramObject);
+  glLinkProgram(hProgramObject);
   GLint bLinked = GL_FALSE;
-  glGetObjectParameterivARB(hProgramObject, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
+  glGetProgramiv(hProgramObject, GL_LINK_STATUS, &bLinked);
   const bool bStatus = bLinked;
 
   return bStatus;
@@ -251,7 +260,7 @@ bool ShaderProgram::AttachShader(GLenum type)
     if(!bFragmentShaderObjectAttached)
     {
       bFragmentShaderObjectAttached = true;
-      glAttachObjectARB(hProgramObject,hFragmentShaderObject);
+      glAttachShader(hProgramObject,hFragmentShaderObject);
     }
   }
   else if(type == GL_VERTEX_SHADER)
@@ -264,7 +273,7 @@ bool ShaderProgram::AttachShader(GLenum type)
     if(!bVertexShaderObjectAttached)
     {
       bVertexShaderObjectAttached = true;
-      glAttachObjectARB(hProgramObject,hVertexShaderObject);
+      glAttachShader(hProgramObject,hVertexShaderObject);
     }
   } 
 
@@ -288,7 +297,7 @@ bool ShaderProgram::DetachShader(GLenum type)
     if(bFragmentShaderObjectAttached)
     {
       bFragmentShaderObjectAttached = false;
-      glDetachObjectARB(hProgramObject,hFragmentShaderObject);
+      glDetachShader(hProgramObject,hFragmentShaderObject);
     }
   }
   else if(type == GL_VERTEX_SHADER)
@@ -301,7 +310,7 @@ bool ShaderProgram::DetachShader(GLenum type)
     if(bVertexShaderObjectAttached)
     {
       bVertexShaderObjectAttached = false;
-      glDetachObjectARB(hProgramObject,hVertexShaderObject);
+      glDetachShader(hProgramObject,hVertexShaderObject);
     }
   } 
 
@@ -316,8 +325,8 @@ bool ShaderProgram::CompileAndLinkShaders()
   GLint bCompiled;
   if(hFragmentShaderObject && bFragmentShaderCodeLoaded)
   {
-    glCompileShaderARB(hFragmentShaderObject);
-    glGetObjectParameterivARB(hFragmentShaderObject, GL_OBJECT_COMPILE_STATUS_ARB, &bCompiled);
+    glCompileShader(hFragmentShaderObject);
+    glGetShaderiv(hFragmentShaderObject, GL_COMPILE_STATUS, &bCompiled);
     if(!bCompiled)
     {
       PrintInfoLog(hFragmentShaderObject,"Fragment Shader Compile Error");
@@ -327,8 +336,8 @@ bool ShaderProgram::CompileAndLinkShaders()
 
   if(hVertexShaderObject && bVertexShaderCodeLoaded)
   {
-    glCompileShaderARB(hVertexShaderObject);
-    glGetObjectParameterivARB(hVertexShaderObject, GL_OBJECT_COMPILE_STATUS_ARB, &bCompiled);
+    glCompileShader(hVertexShaderObject);
+    glGetShaderiv(hVertexShaderObject, GL_COMPILE_STATUS, &bCompiled);
     if(!bCompiled)
     {
       PrintInfoLog(hVertexShaderObject,"Vertex Shader Compile Error");
@@ -336,9 +345,9 @@ bool ShaderProgram::CompileAndLinkShaders()
     }
   }
 
-  glLinkProgramARB(hProgramObject);
+  glLinkProgram(hProgramObject);
   GLint bLinked;
-  glGetObjectParameterivARB(hProgramObject, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
+  glGetProgramiv(hProgramObject, GL_LINK_STATUS, &bLinked);
   const bool bStatus = bLinked;
   if(!bLinked)
   {
@@ -349,12 +358,12 @@ bool ShaderProgram::CompileAndLinkShaders()
 
 bool ShaderProgram::StartShaderProgram()
 {
-  glUseProgramObjectARB(hProgramObject);
+  glUseProgram(hProgramObject);
   return true;
 }
 
 bool ShaderProgram::StopShaderProgram()
 {
-  glUseProgramObjectARB(0);
+  glUseProgram(0);
   return true;
 }

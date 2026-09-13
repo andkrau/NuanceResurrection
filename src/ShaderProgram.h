@@ -2,7 +2,7 @@
 #define SHADERPROGRAM_H
 
 #include "basetypes.h"
-#include <GL/glew.h>
+#include "gl_headers.h"
 
 class ShaderProgram final
 {
@@ -18,20 +18,20 @@ public:
   bool InstallShaderSourceFromMemory(char **sourceStrings, uint32 count, const int *lengths, GLenum type);
   bool CompileShader(GLenum type);
   bool Link();
-  void PrintInfoLog(GLhandleARB obj, const char *msg);
+  void PrintInfoLog(GLuint obj, const char *msg);
   bool AttachShader(GLenum type);
   bool DetachShader(GLenum type);
   bool CompileAndLinkShaders();
   bool StartShaderProgram();
   bool StopShaderProgram();
-  GLhandleARB GetProgramObject() { return hProgramObject; }
-  GLhandleARB GetVertexShaderObject() { return hVertexShaderObject; }
-  GLhandleARB GetFragmentShaderObject() { return hFragmentShaderObject; }
+  GLuint GetProgramObject() { return hProgramObject; }
+  GLuint GetVertexShaderObject() { return hVertexShaderObject; }
+  GLuint GetFragmentShaderObject() { return hFragmentShaderObject; }
 
 private:
-  GLhandleARB hVertexShaderObject;
-  GLhandleARB hFragmentShaderObject;
-  GLhandleARB hProgramObject;
+  GLuint hVertexShaderObject;
+  GLuint hFragmentShaderObject;
+  GLuint hProgramObject;
   bool bVertexShaderObjectAttached;
   bool bFragmentShaderObjectAttached;
   bool bVertexShaderCodeLoaded;

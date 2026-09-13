@@ -1,0 +1,115 @@
+name: verify new libretro targets
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [pr-platforms, gles-targets]
+
+jobs:
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Both slices on the Apple Silicon runner: the Intel ones queue for
+          # hours now, and the x86_64 slice cross-compiles the way the buildbot's
+          # osx-cmake template does anyway.
+          - { runner: macos-14, name: "osx-x64", arch: x86_64 }
+          - { runner: macos-14, name: "osx-arm64", arch: arm64 }
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v5
+        with: { submodules: recursive }
+      - run: cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_LIBRETRO=ON -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} -B build
+      - run: cmake --build build --parallel 3
+      - run: file build/nuance_libretro.* && ls -la build/nuance_libretro.*
+
+  linux_i686:
+    name: linux-i686
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with: { submodules: recursive }
+      - run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update -qy
+          sudo apt-get install -yq gcc-multilib g++-multilib libgl1-mesa-dev:i386 libx11-dev:i386 libglx-dev:i386
+      - run: cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_LIBRETRO=ON -DCMAKE_C_FLAGS=-m32 -DCMAKE_CXX_FLAGS=-m32 -DCMAKE_SYSTEM_PROCESSOR=i686 -B build
+      - run: cmake --build build --parallel 3
+      - run: file build/nuance_libretro.so
+
+  windows_i686:
+    name: windows-i686 (mingw)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with: { submodules: recursive }
+      - run: |
+          sudo apt-get update -qy
+          sudo apt-get install -yq mingw-w64
+      - run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_LIBRETRO=ON \
+            -DCMAKE_SYSTEM_NAME=Windows -DCMAKE_SYSTEM_PROCESSOR=i686 \
+            -DCMAKE_C_COMPILER=i686-w64-mingw32-gcc -DCMAKE_CXX_COMPILER=i686-w64-mingw32-g++ \
+            -DCMAKE_RC_COMPILER=i686-w64-mingw32-windres \
+            -DCMAKE_FIND_ROOT_PATH=/usr/i686-w64-mingw32 \
+            -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
+            -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+            -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+            -B build
+      - run: cmake --build build --parallel 3
+      - run: file build/nuance_libretro.dll && ls -la build/nuance_libretro.dll
+
+  android:
+    name: android-${{ matrix.abi }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        abi: [arm64-v8a, x86_64]
+    steps:
+      - uses: actions/checkout@v5
+        with: { submodules: recursive }
+      - run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_LIBRETRO=ON \
+            -DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake \
+            -DANDROID_ABI=${{ matrix.abi }} -DANDROID_PLATFORM=android-24 -DANDROID_STL=c++_static \
+            -B build
+      - run: cmake --build build --target nuance_libretro --parallel 3
+      - run: file build/nuance_libretro.so && ls -la build/nuance_libretro.so
+
+  ios:
+    name: ios-arm64
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v5
+        with: { submodules: recursive }
+      - run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_LIBRETRO=ON \
+            -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO \
+            -B build
+      - run: cmake --build build --target nuance_libretro --parallel 3
+      - run: find build -name 'nuance_libretro*' -exec file {} \;
+
+  # tvOS is in .gitlab-ci.yml as libretro-build-tvos-arm64 but was the one
+  # target nothing here ever compiled. It differs from iOS in ways that matter
+  # to this core - no shell, the same deprecated OpenGLES framework, its own
+  # deployment target for <filesystem> - so leaving it unbuilt would mean
+  # finding out on the buildbot.
+  tvos-arm64:
+    name: tvos-arm64
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v5
+        with: { submodules: recursive }
+      - run: |
+          cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_LIBRETRO=ON \
+            -DCMAKE_SYSTEM_NAME=tvOS -DCMAKE_OSX_ARCHITECTURES=arm64 \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=12.0 \
+            -DCMAKE_XCODE_ATTRIBUTE_CODE_SIGNING_ALLOWED=NO \
+            -B build
+      - run: cmake --build build --target nuance_libretro --parallel 3
+      - run: find build -name 'nuance_libretro*' -exec file {} \;

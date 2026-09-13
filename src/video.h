@@ -3,7 +3,7 @@
 
 #include "basetypes.h"
 #include "mpe.h"
-#include <GL/glew.h>
+#include "gl_headers.h"
 
 #define NUON_VIDEO_SYSTEM 1 // 0 PAL, 1 NTSC
 

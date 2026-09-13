@@ -6,6 +6,11 @@
 #include <cstdlib>
 #include <vector>
 #include <string>
+#ifdef NUANCE_NO_SUBPROCESS
+  // Not <filesystem>: its declarations are marked unavailable below iOS 13,
+  // and the deployment target here is lower than that.
+  #include <ftw.h>
+#endif
 
 #include "libchdr/chd.h"
 
@@ -319,6 +324,21 @@ bool ExtractZipBootOrIso(const char* zipPath, const std::string& tempDir, std::s
   return !outBoot.empty() || !outIso.empty();
 }
 
+#elif defined(NUANCE_NO_SUBPROCESS)
+
+// iOS and tvOS have neither system() nor popen(), and none of fuseiso,
+// fuse-zip, archivemount or 7z exists to call even if they did. The in-process
+// readers above - miniz for zip, libchdr for chd, iso9660 for iso - cover
+// every format this path was a fallback for, so it stands down rather than
+// pretending to mount something.
+std::string MountPath(const char*) { return ""; }
+
+std::string MountAndFind(const char* archivePath)
+{
+  fprintf(stderr, "Cannot mount %s: this platform has no external archive tools\n", archivePath);
+  return "";
+}
+
 #else // _WIN32 // Linux-only: FUSE-based mount / extract logic
 
 std::string PopenLine(const std::string& cmd)
@@ -488,6 +508,15 @@ void CleanupArchives()
     op.pFrom  = from;
     op.fFlags = FOF_NO_UI;
     SHFileOperationA(&op);
+  }
+  g_tempPaths.clear();
+#elif defined(NUANCE_NO_SUBPROCESS)
+  // Nothing is ever mounted here - see MountPath above - so there is only what
+  // the in-process extractors wrote, and removing that needs no shell.
+  for (auto& d : g_tempPaths) {
+    nftw(d.c_str(),
+         [](const char* p, const struct stat*, int, struct FTW*) { return remove(p); },
+         8, FTW_DEPTH | FTW_PHYS); // depth-first, so a directory goes after what is in it
   }
   g_tempPaths.clear();
 #else

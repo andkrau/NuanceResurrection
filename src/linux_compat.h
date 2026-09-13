@@ -9,6 +9,9 @@
 
 #include <cstdint>
 #include <cstdio>
+#if defined(__APPLE__)
+#include <libkern/OSCacheControl.h> // sys_icache_invalidate, for FlushInstructionCache below
+#endif
 #include <cstring>
 #include <cstdlib>
 #include <climits>
@@ -269,7 +272,15 @@ inline int VirtualFree(void* addr, size_t size, unsigned int) {
 
 // FlushInstructionCache
 inline int FlushInstructionCache(void*, void* addr, size_t size) {
+#if defined(__APPLE__)
+    // Apple ships no __clear_cache: the builtin lowers to a call into libgcc
+    // or compiler-rt, and neither is linked here, so it ends up undefined at
+    // link time. sys_icache_invalidate is what the platform offers instead,
+    // and on x86 it is a no-op the same way the builtin is.
+    sys_icache_invalidate(addr, size);
+#else
     __builtin___clear_cache((char*)addr, (char*)addr + size);
+#endif
     return 1;
 }
 inline void* GetCurrentProcess() { return nullptr; }

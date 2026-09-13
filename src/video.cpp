@@ -2,7 +2,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mutex>
-#include <GL/glew.h>
+#include "gl_headers.h"
 
 #include "GLWindow.h"
 #include "Bios.h"
@@ -40,7 +40,13 @@ constexpr GLint mainInternalTextureFormat32 = GL_RGBA8;
 constexpr GLint mainInternalTextureFormat16 = GL_RG8;
 constexpr GLint mainInternalTextureBPC32 = 4;
 constexpr GLint mainInternalTextureBPC16 = 2;
+// OpenGL ES has no BGRA at all, so the same bytes are uploaded as RGBA and the
+// fragment shader skips the swizzle it does on desktop (NUON_TEXEL3/4).
+#if defined(NUANCE_GLES)
+constexpr GLint mainExternalTextureFormat32 = GL_RGBA;
+#else
 constexpr GLint mainExternalTextureFormat32 = GL_BGRA;
+#endif
 constexpr GLint mainExternalTextureFormat16 = GL_RG;
 constexpr GLint mainPixelType32 = GL_UNSIGNED_BYTE;
 constexpr GLint mainPixelType16 = GL_UNSIGNED_BYTE;
@@ -50,7 +56,11 @@ constexpr GLint osdInternalTextureFormat32 = GL_RGBA8;
 constexpr GLint osdInternalTextureFormat16 = GL_RG8;
 constexpr GLint osdInternalTextureBPC32 = 4;
 constexpr GLint osdInternalTextureBPC16 = 2;
+#if defined(NUANCE_GLES)
+constexpr GLint osdExternalTextureFormat32 = GL_RGBA;
+#else
 constexpr GLint osdExternalTextureFormat32 = GL_BGRA;
+#endif
 constexpr GLint osdExternalTextureFormat16 = GL_RG;
 constexpr GLint osdPixelType32 = GL_UNSIGNED_BYTE;
 constexpr GLint osdPixelType16 = GL_UNSIGNED_BYTE;
@@ -185,23 +195,37 @@ void UpdateTextureStates()
     videoTexInfo.mainTexCoords[5] = yf;
     videoTexInfo.mainTexCoords[6] = xf;
     videoTexInfo.mainTexCoords[7] = y0;
+#if !defined(NUANCE_GLES)
 
     glEnable(TEXTURE_TARGET);
+#endif
     glBindTexture(TEXTURE_TARGET, videoTexInfo.mainTexName);
   }
   else
   {
     glBindTexture(TEXTURE_TARGET, videoTexInfo.borderTexName);
     glTexImage2D(TEXTURE_TARGET,0,mainInternalTextureFormat32,2,2,0,mainExternalTextureFormat32, mainPixelType32,borderTexture);
+#if !defined(NUANCE_GLES)
     glDisable(TEXTURE_TARGET);
+#endif
   }
 
+#if defined(NUANCE_GLES)
+  // Neither the border colour nor GL_CLAMP_TO_BORDER exists in the OpenGL ES
+  // core. Clamping to the edge is the nearest behaviour, and it differs only
+  // where the quad samples outside the buffer.
+  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#else
   glTexParameterfv(TEXTURE_TARGET, GL_TEXTURE_BORDER_COLOR, videoTexInfo.borderColor);
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+#endif
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MIN_FILTER, filterType);
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MAG_FILTER, filterType);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+#if !defined(NUANCE_GLES)
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE); // fixed-function, no-shader path only
+#endif
 
   glActiveTexture(osdTextureUnit);
 
@@ -230,38 +254,60 @@ void UpdateTextureStates()
     //  pBuffer[3] = videoTexInfo.transColor[3];
     //  pBuffer += 4;
     //}
+#if !defined(NUANCE_GLES)
 
     glEnable(TEXTURE_TARGET);
+#endif
     glBindTexture(TEXTURE_TARGET, videoTexInfo.osdTexName);
   }
   else
   {
     glBindTexture(TEXTURE_TARGET, videoTexInfo.transparencyTexName);
     glTexImage2D(TEXTURE_TARGET,0,osdInternalTextureFormat32,2,2,0,osdExternalTextureFormat32, osdPixelType32,transparencyTexture);
+#if !defined(NUANCE_GLES)
     glDisable(TEXTURE_TARGET);
+#endif
   }
 
+#if defined(NUANCE_GLES)
+  // As above: no border colour and no GL_CLAMP_TO_BORDER in the ES core.
+  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#else
   glTexParameterfv(TEXTURE_TARGET, GL_TEXTURE_BORDER_COLOR, videoTexInfo.transColor);
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+#endif
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MIN_FILTER, filterType);
   glTexParameteri(TEXTURE_TARGET, GL_TEXTURE_MAG_FILTER, filterType);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+#if !defined(NUANCE_GLES)
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL); // fixed-function, no-shader path only
+#endif
 
   glActiveTexture(lutTextureUnit);
+#if !defined(NUANCE_GLES)
   glEnable(GL_TEXTURE_2D);
+#endif
   glBindTexture(GL_TEXTURE_2D, videoTexInfo.LUTTexName);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+#if !defined(NUANCE_GLES)
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE); // fixed-function, no-shader path only
+#endif
 
   if(bUseSeparateThread) gfx_lock.unlock();
 }
 
 void UpdateDisplayList()
 {
+#if defined(NUANCE_GLES)
+  // Display lists went out with the compatibility profile and OpenGL ES never
+  // had them. They are only still built for the no-shader fallback, which
+  // cannot run here either - DrawChannelQuadWithAttributes is what draws on ES.
+  return;
+#else
   if(bUseSeparateThread) gfx_lock.lock();
 
   if(!glIsList(videoTexInfo.displayListName[0]))
@@ -351,6 +397,7 @@ void UpdateDisplayList()
   }
 
   if(bUseSeparateThread) gfx_lock.unlock();
+#endif
 }
 
 void InitTextures()
@@ -422,6 +469,64 @@ void VideoInvalidateGLState()
   bOverlayTexturePixType = -1;
 }
 
+
+// Draws the output quad with explicit vertex attributes instead of a display
+// list full of glMultiTexCoord2fv/glVertex2f. Immediate mode, display lists and
+// the fixed-function matrix are compatibility-profile features that OpenGL ES
+// does not have, so this is the path that can run on Android and iOS; it feeds
+// video_generic.vs exactly the values the display list used to pass.
+//
+// Only usable with the shader program - the no-shader fallback still relies on
+// the fixed-function texture environment, and keeps the display list below.
+static void DrawChannelQuadWithAttributes(const uint32 activeChannels)
+{
+  const GLuint program = shaderProgram.GetProgramObject();
+  if(!program)
+    return;
+
+  // The corners the display list emitted, in the same order: (0,0) (0,1) (1,1) (1,0).
+  static const float positions[8] = { 0.f,0.f, 0.f,1.f, 1.f,1.f, 1.f,0.f };
+  // glOrtho(0,1, 0,1, -1,1), which is what the client set on the fixed-function
+  // projection matrix, written out column-major for glUniformMatrix4fv.
+  static const float orthoMvp[16] = {
+    2.f, 0.f,  0.f, 0.f,
+    0.f, 2.f,  0.f, 0.f,
+    0.f, 0.f, -1.f, 0.f,
+   -1.f,-1.f,  0.f, 1.f };
+
+  const bool bMain = (activeChannels & CHANNELSTATE_MAIN_ACTIVE) != 0;
+  const bool bOverlay = (activeChannels & CHANNELSTATE_OVERLAY_ACTIVE) != 0;
+
+  // A channel that is not active gets its coordinates from an active one rather
+  // than a dangling pointer; the shader ignores them in that case.
+  const float * const mainTC = bMain ? videoTexInfo.mainTexCoords : videoTexInfo.osdTexCoords;
+  const float * const osdTC = bOverlay ? videoTexInfo.osdTexCoords : videoTexInfo.mainTexCoords;
+
+  const GLint locMvp = glGetUniformLocation(program, "u_mvp");
+  if(locMvp >= 0)
+    glUniformMatrix4fv(locMvp, 1, GL_FALSE, orthoMvp);
+
+  const GLint locPos = glGetAttribLocation(program, "a_position");
+  const GLint locTc0 = glGetAttribLocation(program, "a_texcoord0");
+  const GLint locTc1 = glGetAttribLocation(program, "a_texcoord1");
+  const GLint locTc2 = glGetAttribLocation(program, "a_texcoord2");
+  if(locPos < 0)
+    return;
+
+  glEnableVertexAttribArray(locPos);
+  glVertexAttribPointer(locPos, 2, GL_FLOAT, GL_FALSE, 0, positions);
+  if(locTc0 >= 0) { glEnableVertexAttribArray(locTc0); glVertexAttribPointer(locTc0, 2, GL_FLOAT, GL_FALSE, 0, mainTC); }
+  if(locTc1 >= 0) { glEnableVertexAttribArray(locTc1); glVertexAttribPointer(locTc1, 2, GL_FLOAT, GL_FALSE, 0, osdTC); }
+  if(locTc2 >= 0) { glEnableVertexAttribArray(locTc2); glVertexAttribPointer(locTc2, 2, GL_FLOAT, GL_FALSE, 0, videoTexInfo.windowTexCoords); }
+
+  glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+
+  glDisableVertexAttribArray(locPos);
+  if(locTc0 >= 0) glDisableVertexAttribArray(locTc0);
+  if(locTc1 >= 0) glDisableVertexAttribArray(locTc1);
+  if(locTc2 >= 0) glDisableVertexAttribArray(locTc2);
+}
+
 void RenderVideo(const int winwidth, const int winheight)
 {
   if(!bCanDisplayVideo)
@@ -458,11 +563,15 @@ void RenderVideo(const int winwidth, const int winheight)
     if(bUseSeparateThread) gfx_lock.lock();
 
     glViewport(0,0,winwidth,winheight);
+#if !defined(NUANCE_GLES)
+    // The shader path gets this same projection through u_mvp; the matrix stack
+    // is only still set up for the no-shader fallback, and ES has none.
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0.0,1.0,0.0,1.0,-1.0,1.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+#endif
 
     if(bUseSeparateThread) gfx_lock.unlock();
     bSetupViewport = true;
@@ -856,7 +965,16 @@ render_main_buffer:
 
   if(bUseSeparateThread) gfx_lock.lock();
 
-  glCallList(videoTexInfo.displayListName[activeChannels]);
+#if defined(NUANCE_GLES)
+  // There is no fallback on ES: without the shader program there is nothing to
+  // draw with, and the display list it would call does not exist.
+  DrawChannelQuadWithAttributes(activeChannels);
+#else
+  if(bShadersInstalled)
+    DrawChannelQuadWithAttributes(activeChannels);
+  else
+    glCallList(videoTexInfo.displayListName[activeChannels]);
+#endif
   //glFlush();
 #ifdef _WIN32
   SwapBuffers(display.hDC);
@@ -1523,6 +1641,7 @@ void VidSetCLUTRange(MPE &mpe)
 void VideoCleanup()
 {
   if(bUseSeparateThread) gfx_lock.lock();
+#if !defined(NUANCE_GLES)
   for(uint32 i = 0; i < 4; i++)
   {
     if(glIsList(videoTexInfo.displayListName[i]))
@@ -1530,5 +1649,6 @@ void VideoCleanup()
       glDeleteLists(videoTexInfo.displayListName[i],1);
     }
   }
+#endif
   if(bUseSeparateThread) gfx_lock.unlock();
 }

@@ -11,8 +11,10 @@
 #include <vector>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <GL/glew.h>
-// GL/gl.h not needed, glew.h already declares every entry point this file calls
+#include "gl_headers.h"
+// GL/gl.h not needed; the header above already brings in every entry point
+// this file calls, whether that is GLEW on the desktop or the platform's own
+// GLES headers.
 #include <mutex>
 #include <cstdarg>
 #ifdef _WIN32
@@ -142,6 +144,9 @@ static uint16 GetInputButtons()
 
 static void context_reset(void)
 {
+#if defined(NUANCE_GLES)
+    log_printf("libretro: GLES context, no loader needed\n");
+#else
     glewExperimental = GL_TRUE;
     GLenum glew_err = glewInit();
     // GLEW often reports GLEW_ERROR_NO_GL_VERSION on core/forward-compatible contexts
@@ -152,6 +157,7 @@ static void context_reset(void)
         return;
     }
     log_printf("libretro: GL context reset OK (GL %s)\n", (const char*)glGetString(GL_VERSION));
+#endif
 
     gl_initialized = true;
 
@@ -175,11 +181,16 @@ static void context_reset(void)
 
     // Setup GL state
     glViewport(0, 0, FB_WIDTH, FB_HEIGHT);
+#if !defined(NUANCE_GLES)
+    // The matrix stack is only still here for the no-shader fallback: the
+    // shader path gets the same projection through the u_mvp uniform, and GLES
+    // has no fixed-function matrices at all.
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+#endif
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
     glClearColor(0, 0, 0, 1);
@@ -282,7 +293,15 @@ bool retro_load_game(const struct retro_game_info *game)
     // Defer CPU init to context_reset to avoid potential issues
 
     // Request OpenGL context
+#if defined(NUANCE_GLES)
+    // Android, iOS and tvOS have OpenGL ES and nothing else. Version 3 rather
+    // than 2 for one reason: the texture formats. GL_RGBA8, GL_RG8 and GL_RG
+    // are what the video buffers are declared with, and ES2 has no sized
+    // internal formats and no two-channel one at all.
+    hw_render.context_type = RETRO_HW_CONTEXT_OPENGLES3;
+#else
     hw_render.context_type = RETRO_HW_CONTEXT_OPENGL;
+#endif
     hw_render.context_reset = context_reset;
     hw_render.context_destroy = context_destroy;
     hw_render.depth = false;

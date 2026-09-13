@@ -15,14 +15,38 @@ elseif(BUILD_LIBRETRO)
 else()
     find_package(SDL2 REQUIRED)
 endif()
-find_package(OpenGL REQUIRED)
+# Desktop OpenGL and GLEW, the loader for it, exist on Linux, Windows and macOS
+# and nowhere else: Android and iOS have OpenGL ES, which needs no loader and
+# has none of the fixed-function entry points this renderer uses. Asking for
+# them unconditionally is a configure-time failure on those platforms, before
+# any of that becomes the real question.
+if(IOS OR CMAKE_SYSTEM_NAME MATCHES "^(iOS|tvOS|watchOS)$")
+    set(NUANCE_APPLE_MOBILE ON)
+    # A framework is one linker argument in two words, which target_link_libraries
+    # splits into two items and then mangles into `-framework -lOpenGLES`. Asking
+    # find_library for it yields the path to link, which has no such problem.
+    find_library(NUANCE_OPENGLES_FRAMEWORK OpenGLES REQUIRED)
+else()
+    set(NUANCE_APPLE_MOBILE OFF)
+endif()
 
-# GLEW from bundled source
-add_library(glew_static STATIC external/glew.c)
-target_include_directories(glew_static PUBLIC external/glew-2.3.1/include)
-target_compile_definitions(glew_static PUBLIC GLEW_STATIC GLEW_NO_GLU)
-target_link_libraries(glew_static PUBLIC OpenGL::GL)
-set_property(TARGET glew_static PROPERTY POSITION_INDEPENDENT_CODE ON)
+if(ANDROID OR NUANCE_APPLE_MOBILE)
+    set(NUANCE_GLES ON)
+else()
+    set(NUANCE_GLES OFF)
+endif()
+message(STATUS "NUANCE_GLES (OpenGL ES target) = ${NUANCE_GLES} (system: ${CMAKE_SYSTEM_NAME})")
+
+if(NOT NUANCE_GLES)
+    find_package(OpenGL REQUIRED)
+
+    # GLEW from bundled source
+    add_library(glew_static STATIC external/glew.c)
+    target_include_directories(glew_static PUBLIC external/glew-2.3.1/include)
+    target_compile_definitions(glew_static PUBLIC GLEW_STATIC GLEW_NO_GLU)
+    target_link_libraries(glew_static PUBLIC OpenGL::GL)
+    set_property(TARGET glew_static PROPERTY POSITION_INDEPENDENT_CODE ON)
+endif()
 
 ## miniaudio (single-TU implementation)
 add_library(miniaudio_impl STATIC external/miniaudio_impl.cpp)
@@ -236,6 +260,15 @@ target_compile_definitions(${NUANCE_TARGET} PRIVATE
     _CRT_SECURE_NO_WARNINGS
     _LARGEFILE64_SOURCE
     $<$<BOOL:${NUANCE_X86_64}>:USE_ASMJIT>
+    # Tells the sources they are building against OpenGL ES: no loader, no
+    # fixed-function matrix stack, and a GLES2 hardware context to ask for.
+    $<$<BOOL:${NUANCE_GLES}>:NUANCE_GLES>
+    $<$<BOOL:${NUANCE_APPLE_MOBILE}>:NUANCE_NO_SUBPROCESS>
+    # Apple deprecated the whole of OpenGL ES in iOS 12 and offers Metal
+    # instead. Until someone writes that renderer, every GL call this core
+    # makes is a warning - ninety-nine of them, which is enough to hide a real
+    # one. The deprecation is noted; silence it rather than reading past it.
+    $<$<BOOL:${NUANCE_APPLE_MOBILE}>:GLES_SILENCE_DEPRECATION>
 )
 
 # NuanceMain.cpp on Windows provides its own WinMain entry point.
@@ -249,8 +282,11 @@ if(WIN32 AND NOT BUILD_LIBRETRO)
 endif()
 
 target_link_libraries(${NUANCE_TARGET} PRIVATE
-    glew_static
-    miniaudio_impl
+    $<$<NOT:$<BOOL:${NUANCE_GLES}>>:glew_static>
+    # Standalone only, like SDL2: the libretro core hands its audio to
+    # RetroArch and never opens a device. On iOS miniaudio also reaches for the
+    # Objective-C audio backends, which a C++ build cannot compile.
+    $<$<NOT:$<BOOL:${BUILD_LIBRETRO}>>:miniaudio_impl>
     # libchdr (CHD reader) + its bundled miniz 3.1.1 (also doubles as the ZIP
     # reader for archive.cpp's Windows #ifdef path - configured with
     # MINIZ_ARCHIVE_APIS=ON above so mz_zip_reader_* is available). Needed by
@@ -259,13 +295,22 @@ target_link_libraries(${NUANCE_TARGET} PRIVATE
     miniz
     #murmurhash # unused - see add_library above
     $<$<BOOL:${NUANCE_X86_64}>:asmjit_static>
-    OpenGL::GL
+    # Desktop GL through the loader, or GLES2 linked straight in - on Android
+    # and iOS the library is part of the platform and there is nothing to load.
+    $<$<NOT:$<BOOL:${NUANCE_GLES}>>:OpenGL::GL>
+    # GLESv3 for the sized texture formats the video buffers use; the library
+    # also carries the ES 2 entry points, so there is nothing else to link.
+    # Apple has no such library - the same entry points live in a framework.
+    $<$<AND:$<BOOL:${NUANCE_GLES}>,$<NOT:$<BOOL:${NUANCE_APPLE_MOBILE}>>>:GLESv3>
+    $<$<BOOL:${NUANCE_APPLE_MOBILE}>:${NUANCE_OPENGLES_FRAMEWORK}>
     # SDL2 is a standalone-only dependency (windowing + audio); the libretro core
     # uses neither. Guarding it out also avoids a CMP0004 hard error when the
     # libretro build infra passes SDL2_LIBRARIES as a raw `sdl2-config --libs`
     # string (e.g. "-L/usr/lib/... -lSDL2 ") that has trailing whitespace.
     $<$<NOT:$<BOOL:${BUILD_LIBRETRO}>>:${SDL2_LIBRARIES}>
-    $<$<NOT:$<PLATFORM_ID:Windows>>:pthread>
+    # Bionic has the pthread functions in libc itself and ships no libpthread
+    # to link, so asking for one is an error rather than a no-op there.
+    $<$<AND:$<NOT:$<PLATFORM_ID:Windows>>,$<NOT:$<BOOL:${ANDROID}>>>:pthread>
     $<$<NOT:$<PLATFORM_ID:Windows>>:dl>
     $<$<NOT:$<PLATFORM_ID:Windows>>:m>
 )

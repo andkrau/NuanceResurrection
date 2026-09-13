@@ -25,6 +25,28 @@ are being biased to [-0.5,0.5] unlike when using the imaging subset where
 all intermediate values are required to stay within the range [0.0,1.0]
 */
 
+#ifdef GL_ES
+precision highp float;
+#endif
+
+// Fed by video_generic.vs. These replace gl_TexCoord[0..2], which is a
+// compatibility built-in and does not exist in OpenGL ES.
+// The NUON framebuffer goes to the GPU as raw bytes. Desktop uploads them with
+// GL_BGRA, so the driver reorders and the shader takes .bgr to get back to the
+// original byte order; OpenGL ES has no BGRA, uploads the same bytes as GL_RGBA
+// and therefore wants no reordering at all. Same pixels either way.
+#ifdef GL_ES
+#define NUON_TEXEL3(t) (t).rgb
+#define NUON_TEXEL4(t) (t).rgba
+#else
+#define NUON_TEXEL3(t) (t).bgr
+#define NUON_TEXEL4(t) (t).bgra
+#endif
+
+varying vec2 v_texcoord0;
+varying vec2 v_texcoord1;
+varying vec2 v_texcoord2;
+
 uniform sampler2D mainChannelSampler;
 uniform sampler2D overlayChannelSampler;
 uniform sampler2D LUTSampler;
@@ -79,7 +101,7 @@ vec3 texture2D_main(vec2 uv_org)
       uv = clamp(uv,vec2(0.,0.),vec2((720.0-1.0)*scaleInternal.x,(resy-1.)*scaleInternal.y));
       uv *= vec2(0.0013888889,1./resy); // 1./720
 
-      mainColor = texture2D(mainChannelSampler, uv).bgr; //!! throws away alpha, but should not matter as this is the final displayed buffer anyway!
+      mainColor = NUON_TEXEL3(texture2D(mainChannelSampler, uv)); //!! throws away alpha, but should not matter as this is the final displayed buffer anyway!
     }
 
     mainColor = clamp(mainColor*expansion-preBiasExpansion, 0.0, 1.0);
@@ -128,7 +150,7 @@ vec4 texture2D_overlay(vec2 uv_org)
       uv = clamp(uv,vec2(0.,0.),vec2((720.0-1.0)*scaleInternal.z,(resy-1.)*scaleInternal.w));
       uv *= vec2(0.0013888889,1./resy); // 1./720
 
-      overlayColor = texture2D(overlayChannelSampler, uv).bgra;
+      overlayColor = NUON_TEXEL4(texture2D(overlayChannelSampler, uv));
     }
 
     if(overlayColor.xyz == vec3(0.0,0.0,0.0)) // invalid overlay pixel -> fully transparent overlay pixel //!! should this also be interpolated??
@@ -168,8 +190,8 @@ vec3 texture2D_composite(vec2 mainuv, vec2 overlayuv)
 
 void main()
 {
-  vec2 mainuv    = gl_TexCoord[0].st*vec2(720.,resy)-0.499; //!! 0.499 because of precision problems if src width/height is rather small (Space Invaders XL)
-  vec2 overlayuv = gl_TexCoord[1].st*vec2(720.,resy)-0.499; //!! dto.
+  vec2 mainuv    = v_texcoord0*vec2(720.,resy)-0.499; //!! 0.499 because of precision problems if src width/height is rather small (Space Invaders XL)
+  vec2 overlayuv = v_texcoord1*vec2(720.,resy)-0.499; //!! dto.
 
   gl_FragColor = vec4(texture2D_composite(mainuv, overlayuv), 1.0);
 }

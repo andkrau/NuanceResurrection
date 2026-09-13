@@ -17,7 +17,13 @@
 #include "NuonMemoryMap.h"
 #include "byteswap.h"
 
+#ifndef LIBRETRO
+// Standalone only: in the libretro core RetroArch owns audio output, retro_run
+// drains the ring itself, and no playback device is ever opened. Including it
+// would also drag miniaudio's Objective-C backends into a C++ translation unit
+// on iOS, which is where this became more than dead weight.
 #include "miniaudio.h"
+#endif
 
 extern GLWindow display;
 
@@ -46,6 +52,7 @@ extern VidDisplay structMainDisplay;
       dst[i] = _byteswap_ushort(src[i]);
   }
 
+#ifndef LIBRETRO
   void NuonEnvironment::MiniAudioDataCallback(ma_device* pDevice, void* pOutput, const void* /*pInput*/, ma_uint32 frameCount)
   {
     NuonEnvironment* const nuonEnv = (NuonEnvironment*)pDevice->pUserData;
@@ -83,6 +90,7 @@ extern VidDisplay structMainDisplay;
     if(toCopy < bytesNeeded)
       memset((uint8*)pOutput + toCopy, 0, bytesNeeded - toCopy); // true underrun (producer behind)
   }
+#endif
 
 //InitAudio: Initialize miniaudio device for s16 stereo playback
 //Playback rate is the initially requested one (to avoid a resampling step), or 48000 Hz if exceeding supported ones,
@@ -198,6 +206,7 @@ void NuonEnvironment::ResetForReload()
 
 void NuonEnvironment::CloseAudio()
 {
+#ifndef LIBRETRO
   if(audioDevice)
   {
     MuteAudio(true);
@@ -206,6 +215,7 @@ void NuonEnvironment::CloseAudio()
     audioDevice = nullptr;
     audioDeviceRate = 0;
   }
+#endif
   delete[] audioRing;
   audioRing = nullptr;
   audioRingSize = 0;
@@ -245,8 +255,10 @@ void NuonEnvironment::RestartAudio()
 
 void NuonEnvironment::StopAudio()
 {
+#ifndef LIBRETRO
   if(audioDevice)
     ma_device_stop(audioDevice);
+#endif
 }
 
 void NuonEnvironment::SetAudioVolume(uint32 volume)
@@ -254,8 +266,10 @@ void NuonEnvironment::SetAudioVolume(uint32 volume)
   if(volume > 255)
     volume = 255;
   audioVolume = (float)volume / 255.0f;
+#ifndef LIBRETRO
   if(audioDevice)
     ma_device_set_master_volume(audioDevice, audioVolume);
+#endif
 }
 
 bool NuonEnvironment::TryPushAudioPeriod()
