@@ -245,7 +245,7 @@ void retro_get_system_info(struct retro_system_info *info)
     memset(info, 0, sizeof(*info));
     info->library_name = "Nuance";
     info->library_version = "0.6.7";
-    info->valid_extensions = "run|cof|nuon|cd|iso|img";
+    info->valid_extensions = "run|cof|nuon|cd|iso|img|chd";
     info->need_fullpath = true;
     info->block_extract = false; // let RetroArch extract ZIPs for us
 }

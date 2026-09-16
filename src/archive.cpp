@@ -455,10 +455,10 @@ std::string ResolveGameFile(const char* inputPath)
   if (!inputPath || !*inputPath) return "";
   const std::string input(inputPath);
 
-  // CHD: extract to a temp ISO via `chdman extractdvd` and then handle the
-  // produced ISO exactly like a regular ISO input. Same code path on Windows
-  // and Linux because chdman is cross-platform; on Linux we deliberately skip
-  // the FUSE-mount path (no point mounting a flat ISO we just produced).
+  // CHD: decompress to a temp ISO with the vendored libchdr and then handle
+  // the produced ISO exactly like a regular ISO input. Same code path on
+  // Windows and Linux; on Linux we deliberately skip the FUSE-mount path (no
+  // point mounting a flat ISO we just produced).
   if (IsChdPath(input)) {
     const std::string tempDir = MakeTempDir();
     if (tempDir.empty()) return "";
