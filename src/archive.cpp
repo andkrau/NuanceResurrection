@@ -13,12 +13,12 @@
 #endif
 
 #include "libchdr/chd.h"
+#include "miniz.h"
 
 #ifdef _WIN32
   #define WIN32_LEAN_AND_MEAN
   #include <windows.h>
   #include <shellapi.h>
-  #include "miniz.h"
   #define PATH_SEP '\\'
   #define strcasecmp _stricmp
 #else
@@ -219,7 +219,8 @@ std::string ExtractChdToIso(const char* chdPath, const std::string& tempDir)
   return isoPath;
 }
 
-#ifdef _WIN32 // ZIP handling via miniz
+// ZIP handling via miniz, on every platform: it is linked in everywhere for
+// libchdr's zlib codec anyway.
 // Returns the basename portion of a path (after the last '/' or '\')
 const char* Basename(const char* path)
 {
@@ -231,13 +232,17 @@ const char* Basename(const char* path)
 
 // Create every parent directory of a file path. Best-effort: ignores failures
 // (which include "already exists"). Walks each separator in the path and tries
-// CreateDirectoryA on each prefix.
+// creates each prefix.
 void MakeDirsRecursive(const std::string& filePath)
 {
   for (size_t i = 1; i < filePath.size(); i++) {
     if (filePath[i] == '\\' || filePath[i] == '/') {
       const std::string prefix = filePath.substr(0, i);
+#ifdef _WIN32
       CreateDirectoryA(prefix.c_str(), NULL);
+#else
+      mkdir(prefix.c_str(), 0755);
+#endif
     }
   }
 }
@@ -276,15 +281,15 @@ bool ExtractZipBootOrIso(const char* zipPath, const std::string& tempDir, std::s
 
     if (innerIsoIdx < 0) {
       const size_t blen = strlen(base);
-      if (blen >= 4 && (_stricmp(base + blen - 4, ".iso") == 0 ||
-                        _stricmp(base + blen - 4, ".img") == 0)) {
+      if (blen >= 4 && (strcasecmp(base + blen - 4, ".iso") == 0 ||
+                        strcasecmp(base + blen - 4, ".img") == 0)) {
         innerIsoIdx = (int)i;
         innerIsoBasename = base;
       }
     }
     if (bootIdx < 0) {
       for (const char* const* bp = kBootFileNames; *bp; bp++) {
-        if (_stricmp(base, *bp) == 0) { bootIdx = (int)i; break; }
+        if (strcasecmp(base, *bp) == 0) { bootIdx = (int)i; break; }
       }
     }
   }
@@ -324,6 +329,10 @@ bool ExtractZipBootOrIso(const char* zipPath, const std::string& tempDir, std::s
   return !outBoot.empty() || !outIso.empty();
 }
 
+#ifdef _WIN32
+// Nothing to mount: ISO, ZIP and CHD are all read in-process (see
+// ResolveGameFile), and other archive formats are not supported.
+
 #elif defined(NUANCE_NO_SUBPROCESS)
 
 // iOS and tvOS have neither system() nor popen(), and none of fuseiso,
@@ -331,13 +340,6 @@ bool ExtractZipBootOrIso(const char* zipPath, const std::string& tempDir, std::s
 // readers above - miniz for zip, libchdr for chd, iso9660 for iso - cover
 // every format this path was a fallback for, so it stands down rather than
 // pretending to mount something.
-std::string MountPath(const char*) { return ""; }
-
-std::string MountAndFind(const char* archivePath)
-{
-  fprintf(stderr, "Cannot mount %s: this platform has no external archive tools\n", archivePath);
-  return "";
-}
 
 #else // _WIN32 // Linux-only: FUSE-based mount / extract logic
 
@@ -469,30 +471,46 @@ std::string ResolveGameFile(const char* inputPath)
     return ExtractIsoBootAndArmDataReads(iso.c_str(), tempDir);
   }
 
-#ifdef _WIN32
-  if (!IsIsoPath(input) && !IsZipPath(input)) return input; // pass through
+  // ISO and ZIP are read in-process on every platform: the ISO9660 reader,
+  // and miniz. On Linux these used to go to fuseiso, mount-zip, fuse-zip,
+  // archivemount or 7z, so an .iso did not load wherever none of those was
+  // installed - a sandboxed or Flatpak RetroArch, Android, iOS.
+  if (IsIsoPath(input) || IsZipPath(input)) {
+    const std::string tempDir = MakeTempDir();
+    if (tempDir.empty()) return "";
+    g_tempPaths.push_back(tempDir);
 
-  const std::string tempDir = MakeTempDir();
-  if (tempDir.empty()) return "";
-  g_tempPaths.push_back(tempDir);
-
-  if (IsIsoPath(input))
-    return ExtractIsoBootAndArmDataReads(inputPath, tempDir);
-
-  // .zip
-  std::string boot, innerIso;
-  if (!ExtractZipBootOrIso(inputPath, tempDir, boot, innerIso))
-    return "";
-  if (!boot.empty()) return boot;
-  if (!innerIso.empty()) {
-    g_tempPaths.push_back(innerIso); // make sure the extracted inner ISO gets cleaned up
-    return ExtractIsoBootAndArmDataReads(innerIso.c_str(), tempDir);
-  }
-  return "";
+    std::string result;
+    if (IsIsoPath(input)) {
+      result = ExtractIsoBootAndArmDataReads(inputPath, tempDir);
+    } else {
+      std::string boot, innerIso;
+      if (ExtractZipBootOrIso(inputPath, tempDir, boot, innerIso)) {
+        if (!boot.empty())
+          result = boot;
+        else if (!innerIso.empty()) {
+          g_tempPaths.push_back(innerIso); // make sure the extracted inner ISO gets cleaned up
+          result = ExtractIsoBootAndArmDataReads(innerIso.c_str(), tempDir);
+        }
+      }
+    }
+#if defined(_WIN32) || defined(NUANCE_NO_SUBPROCESS)
+    return result;
 #else
-  if (!IsIsoPath(input) && !IsZipPath(input) && !IsOtherArchivePath(input))
-    return input;
-  return MountAndFind(inputPath);
+    // What the in-process readers cannot open - a UDF-only disc image, a zip
+    // method miniz lacks - may still mount with the external tools.
+    if (!result.empty())
+      return result;
+    return MountAndFind(inputPath);
+#endif
+  }
+
+#if defined(_WIN32) || defined(NUANCE_NO_SUBPROCESS)
+  return input; // pass through
+#else
+  if (IsOtherArchivePath(input))
+    return MountAndFind(inputPath);
+  return input;
 #endif
 }
 
