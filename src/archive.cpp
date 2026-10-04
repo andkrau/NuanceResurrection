@@ -7,8 +7,7 @@
 #include <vector>
 #include <string>
 #ifdef NUANCE_NO_SUBPROCESS
-  // Not <filesystem>: its declarations are marked unavailable below iOS 13,
-  // and the deployment target here is lower than that.
+  // Not <filesystem>: its declarations are marked unavailable below iOS 13, and the deployment target here is lower than that
   #include <ftw.h>
 #endif
 
@@ -71,9 +70,8 @@ bool IsZipPath(const std::string& s)
   return HasExtensionICase(s, ".zip");
 }
 
-// CHD detection probes the first 8 bytes for the "MComprHD" magic rather than
-// trusting the .chd extension, so renamed files (or extensions like .gz/.bin
-// that some tools default to) still resolve.
+// CHD detection probes the first 8 bytes for the "MComprHD" magic rather than trusting the .chd extension,
+// so renamed files (or extensions like .gz/.bin that some tools default to) still resolve
 bool IsChdPath(const std::string& s)
 {
   if (HasExtensionICase(s, ".chd")) return true;
@@ -103,7 +101,7 @@ std::string ExtractIsoBootAndArmDataReads(const char* isoPath, const std::string
 {
   ISO9660Reader reader;
   if (!reader.open(isoPath))
-    return "";
+    return std::string();
 
   uint32_t lba, fsize;
   const char* foundPath = nullptr;
@@ -113,7 +111,7 @@ std::string ExtractIsoBootAndArmDataReads(const char* isoPath, const std::string
 
   if (!foundPath) {
     reader.close();
-    return "";
+    return std::string();
   }
 
   std::string ff(foundPath);
@@ -130,7 +128,7 @@ std::string ExtractIsoBootAndArmDataReads(const char* isoPath, const std::string
   const std::string dstPath = nuonDir + PATH_SEP + bootName;
   const bool ok = reader.extractFile(foundPath, dstPath.c_str());
   reader.close();
-  if (!ok) return "";
+  if (!ok) return std::string();
 
   g_ISOPath   = isoPath;
   g_ISOPrefix = subdir;
@@ -141,7 +139,7 @@ std::string MakeTempDir()
 {
 #ifdef _WIN32
   char tempPath[MAX_PATH];
-  if (!GetTempPathA(MAX_PATH, tempPath)) return "";
+  if (!GetTempPathA(MAX_PATH, tempPath)) return std::string();
 
   for (int attempt = 0; attempt < 100; attempt++) {
     char dirName[MAX_PATH];
@@ -150,7 +148,7 @@ std::string MakeTempDir()
     if (CreateDirectoryA(dirName, NULL))
       return dirName;
   }
-  return "";
+  return std::string();
 #else
   char tmpl[] = "/tmp/nuance_XXXXXX";
   char* dir = mkdtemp(tmpl);
@@ -172,14 +170,14 @@ std::string ExtractChdToIso(const char* chdPath, const std::string& tempDir)
   const chd_error openErr = chd_open(chdPath, CHD_OPEN_READ, nullptr, &chd);
   if (openErr != CHDERR_NONE) {
     fprintf(stderr, "chd_open(%s) failed: %s\n", chdPath, chd_error_string(openErr));
-    return "";
+    return std::string();
   }
 
   const chd_header* hdr = chd_get_header(chd);
   if (!hdr || hdr->hunkbytes == 0 || hdr->logicalbytes == 0) {
     fprintf(stderr, "chd_get_header(%s) returned an unusable header\n", chdPath);
     chd_close(chd);
-    return "";
+    return std::string();
   }
 
   const std::string isoPath = tempDir + PATH_SEP + "extracted.iso";
@@ -187,7 +185,7 @@ std::string ExtractChdToIso(const char* chdPath, const std::string& tempDir)
   if (!out) {
     fprintf(stderr, "Cannot create %s\n", isoPath.c_str());
     chd_close(chd);
-    return "";
+    return std::string();
   }
 
   std::vector<uint8_t> hunk(hdr->hunkbytes);
@@ -198,7 +196,7 @@ std::string ExtractChdToIso(const char* chdPath, const std::string& tempDir)
       fprintf(stderr, "chd_read(hunk %u) failed: %s\n", i, chd_error_string(readErr));
       fclose(out);
       chd_close(chd);
-      return "";
+      return std::string();
     }
     // Last hunk may overshoot logicalbytes; clip to the declared size so the
     // produced ISO matches the original byte-for-byte.
@@ -207,7 +205,7 @@ std::string ExtractChdToIso(const char* chdPath, const std::string& tempDir)
       fprintf(stderr, "Short write to %s\n", isoPath.c_str());
       fclose(out);
       chd_close(chd);
-      return "";
+      return std::string();
     }
     remaining -= writeBytes;
   }
@@ -219,8 +217,7 @@ std::string ExtractChdToIso(const char* chdPath, const std::string& tempDir)
   return isoPath;
 }
 
-// ZIP handling via miniz, on every platform: it is linked in everywhere for
-// libchdr's zlib codec anyway.
+// ZIP handling via miniz, on every platform (it's linked in everywhere for libchdr's zlib codec anyway).
 // Returns the basename portion of a path (after the last '/' or '\')
 const char* Basename(const char* path)
 {
@@ -346,7 +343,7 @@ bool ExtractZipBootOrIso(const char* zipPath, const std::string& tempDir, std::s
 std::string PopenLine(const std::string& cmd)
 {
   FILE* fp = popen(cmd.c_str(), "r");
-  if (!fp) return "";
+  if (!fp) return std::string();
   char buf[1024] = {};
   if (fgets(buf, sizeof(buf), fp)) {
     const size_t len = strlen(buf);
@@ -359,7 +356,7 @@ std::string PopenLine(const std::string& cmd)
 std::string MountPath(const char* archivePath)
 {
   const std::string mountPoint = MakeTempDir();
-  if (mountPoint.empty()) return "";
+  if (mountPoint.empty()) return std::string();
 
   const std::string path(archivePath);
   std::string cmd;
@@ -398,7 +395,7 @@ std::string MountPath(const char* archivePath)
   if (ret != 0) {
     fprintf(stderr, "Failed to mount: %s\n", archivePath);
     rmdir(mountPoint.c_str());
-    return "";
+    return std::string();
   }
 
   fprintf(stderr, "Mounted: %s -> %s\n", archivePath, mountPoint.c_str());
@@ -411,7 +408,7 @@ std::string MountAndFind(const char* archivePath)
   fprintf(stderr, "Mounting: %s\n", archivePath);
 
   const std::string mp = MountPath(archivePath);
-  if (mp.empty()) return "";
+  if (mp.empty()) return std::string();
 
   std::string result = PopenLine(
       "find \"" + mp + "\" -maxdepth 5 \\( -iname 'nuon.run' -o -iname 'NUON.CD' \\) -print -quit 2>/dev/null");
@@ -439,7 +436,7 @@ std::string MountAndFind(const char* archivePath)
 
   if (result.empty()) {
     fprintf(stderr, "No NUON game found in: %s\n", archivePath);
-    return "";
+    return std::string();
   }
 
   fprintf(stderr, "Found: %s\n", result.c_str());
@@ -454,7 +451,7 @@ std::string MountAndFind(const char* archivePath)
 
 std::string ResolveGameFile(const char* inputPath)
 {
-  if (!inputPath || !*inputPath) return "";
+  if (!inputPath || !*inputPath) return std::string();
   const std::string input(inputPath);
 
   // CHD: decompress to a temp ISO with the vendored libchdr and then handle
@@ -463,21 +460,18 @@ std::string ResolveGameFile(const char* inputPath)
   // point mounting a flat ISO we just produced).
   if (IsChdPath(input)) {
     const std::string tempDir = MakeTempDir();
-    if (tempDir.empty()) return "";
+    if (tempDir.empty()) return std::string();
     g_tempPaths.push_back(tempDir);
     const std::string iso = ExtractChdToIso(inputPath, tempDir);
-    if (iso.empty()) return "";
+    if (iso.empty()) return std::string();
     g_tempPaths.push_back(iso);
     return ExtractIsoBootAndArmDataReads(iso.c_str(), tempDir);
   }
 
-  // ISO and ZIP are read in-process on every platform: the ISO9660 reader,
-  // and miniz. On Linux these used to go to fuseiso, mount-zip, fuse-zip,
-  // archivemount or 7z, so an .iso did not load wherever none of those was
-  // installed - a sandboxed or Flatpak RetroArch, Android, iOS.
+  // ISO and ZIP are read in-process on every platform: the ISO9660 reader, and miniz
   if (IsIsoPath(input) || IsZipPath(input)) {
     const std::string tempDir = MakeTempDir();
-    if (tempDir.empty()) return "";
+    if (tempDir.empty()) return std::string();
     g_tempPaths.push_back(tempDir);
 
     std::string result;
