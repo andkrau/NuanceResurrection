@@ -3,6 +3,9 @@
 #include <cstring>
 #include "ShaderProgram.h"
 #include "embedded_shaders.h"
+#ifdef LIBRETRO
+void libretro_log_message(const char* caption, const char* text); // libretro.cpp
+#endif
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -86,7 +89,13 @@ void ShaderProgram::PrintInfoLog(GLuint obj, const char *msg)
       glGetShaderInfoLog(obj, blen, &slen, infoLog);
     else
       glGetProgramInfoLog(obj, blen, &slen, infoLog);
+#ifdef LIBRETRO
+    // Into the frontend's log: a dialog would stop RetroArch in the middle of
+    // a frame, and on Linux the stub only printed to stderr.
+    libretro_log_message(msg, infoLog);
+#else
     MessageBox(NULL,infoLog,msg,MB_OK);
+#endif
     delete [] infoLog;
   }
 }

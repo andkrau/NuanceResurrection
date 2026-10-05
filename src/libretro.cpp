@@ -91,11 +91,35 @@ static int16_t audio_buffer[AUDIO_BUFFER_SIZE];
 #define FB_HEIGHT 480
 static uint32_t framebuffer[FB_WIDTH * FB_HEIGHT];
 
+// Into the frontend's log when it has one - stderr goes nowhere for a
+// RetroArch started from a Windows desktop, so a report from there carried
+// none of these lines - and to stderr otherwise.
+static retro_log_printf_t log_cb = nullptr;
+
 static void log_printf(const char* fmt, ...) {
+    char line[2048];
     va_list ap;
     va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
+    vsnprintf(line, sizeof(line), fmt, ap);
     va_end(ap);
+    if (log_cb)
+        log_cb(RETRO_LOG_INFO, "%s", line);
+    else
+        fputs(line, stderr);
+}
+
+// For the rest of the core: a shader that does not compile, and the like.
+void libretro_log_info(const char* text)
+{
+    log_printf("libretro: %s\n", text);
+}
+
+void libretro_log_message(const char* caption, const char* text)
+{
+    if (log_cb)
+        log_cb(RETRO_LOG_ERROR, "libretro: %s: %s\n", caption ? caption : "message", text ? text : "");
+    else
+        fprintf(stderr, "[%s] %s\n", caption ? caption : "message", text ? text : "");
 }
 
 // Stub functions needed by other modules
@@ -209,6 +233,9 @@ static void context_destroy(void)
 void retro_set_environment(retro_environment_t cb)
 {
     environ_cb = cb;
+    struct retro_log_callback logging;
+    if (cb(RETRO_ENVIRONMENT_GET_LOG_INTERFACE, &logging))
+        log_cb = logging.log;
     bool no_game = false;
     cb(RETRO_ENVIRONMENT_SET_SUPPORT_NO_GAME, &no_game);
 
@@ -499,7 +526,16 @@ void retro_run(void)
     if (gl_initialized) {
         glBindFramebuffer(GL_FRAMEBUFFER, hw_render.get_current_framebuffer());
         glViewport(0, 0, FB_WIDTH, FB_HEIGHT);
+        // Once: what a black screen comes down to is in these.
+        static bool reported = false;
+        const GLenum fbStatus = reported ? GL_FRAMEBUFFER_COMPLETE : glCheckFramebufferStatus(GL_FRAMEBUFFER);
         RenderVideo(FB_WIDTH, FB_HEIGHT);
+        if (!reported) {
+            reported = true;
+            log_printf("libretro: first frame: GL %s on %s, framebuffer %u (status 0x%04X), GL error 0x%04X\n",
+                (const char*)glGetString(GL_VERSION), (const char*)glGetString(GL_RENDERER),
+                (unsigned)hw_render.get_current_framebuffer(), (unsigned)fbStatus, (unsigned)glGetError());
+        }
         video_cb(RETRO_HW_FRAME_BUFFER_VALID, FB_WIDTH, FB_HEIGHT, 0);
     } else {
         // Software fallback - black frame
