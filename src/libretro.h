@@ -164,8 +164,9 @@ struct retro_input_descriptor {
 };
 
 enum retro_log_level { RETRO_LOG_DEBUG = 0, RETRO_LOG_INFO, RETRO_LOG_WARN, RETRO_LOG_ERROR };
+typedef void (*retro_log_printf_t)(enum retro_log_level level, const char *fmt, ...);
 struct retro_log_callback {
-   void (*log)(enum retro_log_level level, const char *fmt, ...);
+   retro_log_printf_t log;
 };
 
 #define RETRO_HW_FRAME_BUFFER_VALID ((void*)-1)

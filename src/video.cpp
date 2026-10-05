@@ -11,6 +11,9 @@
 #include "NuonEnvironment.h"
 #include "NuonMemoryMap.h"
 #include "ShaderProgram.h"
+#ifdef LIBRETRO
+void libretro_log_info(const char* text); // libretro.cpp
+#endif
 #include "video.h"
 //---------------------------------------------------------------------------
 
@@ -147,6 +150,11 @@ void UpdateTextureStates()
     }
     if(!bShadersInstalled)
       shaderProgram.Uninitalize();
+#ifdef LIBRETRO
+    // Once a context: a picture that never shows is often a program that
+    // never linked, and the compile or link error is logged just before this.
+    libretro_log_info(bShadersInstalled ? "video shaders installed" : "video shaders could NOT be installed - nothing will be drawn");
+#endif
   }
 
   // Only push uniforms if a valid program is bound. If shader install failed
