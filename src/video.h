@@ -105,6 +105,9 @@ void VidSetBorderColor(MPE &mpe);
 void VidSetCLUTRange(MPE &mpe);
 void InitializeColorSpaceTables();
 void RenderVideo(int width, int height);
+#ifdef LIBRETRO
+void VideoDebugState(char *out, size_t size);
+#endif
 void VideoCleanup();
 void IncrementVideoFieldCounter();
 
