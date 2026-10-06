@@ -535,6 +535,28 @@ static void DrawChannelQuadWithAttributes(const uint32 activeChannels)
   if(locTc2 >= 0) glDisableVertexAttribArray(locTc2);
 }
 
+#ifdef LIBRETRO
+// For the core's log: whether there is a picture to show, and whether the
+// Nuon's main channel holds anything but zeros (issue #79, a black screen)
+void VideoDebugState(char *out, size_t size)
+{
+  const uint32 w = structMainChannel.src_width, h = structMainChannel.src_height;
+  const uint32 pixType = (structMainChannel.dmaflags >> 4) & 0x0F;
+  uint32 nonzero = 0, sampled = 0;
+  if(bMainChannelActive && w && h)
+  {
+    const uint8 *p = (const uint8 *)nuonEnv.GetPointerToSystemMemory((uint32)structMainChannel.base);
+    const uint32 bytes = (w * h * 2 < (1u << 20)) ? w * h * 2 : (1u << 20);
+    if(p)
+      for(uint32 i = 0; i < bytes; i += 7, sampled++)
+        nonzero += p[i] != 0;
+  }
+  snprintf(out, size, "video state: can display %d, shaders %d, main %d (%ux%u, pixtype %u, %u of %u sampled bytes nonzero), overlay %d",
+    (int)bCanDisplayVideo, (int)bShadersInstalled, (int)bMainChannelActive, (unsigned)w, (unsigned)h, (unsigned)pixType,
+    (unsigned)nonzero, (unsigned)sampled, (int)bOverlayChannelActive);
+}
+#endif
+
 void RenderVideo(const int winwidth, const int winheight)
 {
   if(!bCanDisplayVideo)
@@ -545,7 +567,7 @@ void RenderVideo(const int winwidth, const int winheight)
     glViewport(0, 0, winwidth, winheight);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(LIBRETRO)
     SwapBuffers(display.hDC);
 #endif
     if(bUseSeparateThread) gfx_lock.unlock();
@@ -984,7 +1006,7 @@ render_main_buffer:
     glCallList(videoTexInfo.displayListName[activeChannels]);
 #endif
   //glFlush();
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(LIBRETRO)
   SwapBuffers(display.hDC);
 #endif
   // On Linux, swap is done in OnDisplayPaint after ImGui overlay render

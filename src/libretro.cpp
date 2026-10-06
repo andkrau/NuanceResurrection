@@ -536,6 +536,26 @@ void retro_run(void)
                 (const char*)glGetString(GL_VERSION), (const char*)glGetString(GL_RENDERER),
                 (unsigned)hw_render.get_current_framebuffer(), (unsigned)fbStatus, (unsigned)glGetError());
         }
+        // A few times once the game runs: whether the Nuon has a picture,
+        // whether drawing it raised a GL error, and what landed in
+        // RetroArch's framebuffer - which of the three a black screen is
+        // (#79). At about 5, 20 and 60 seconds.
+        {
+            static unsigned frames = 0;
+            ++frames;
+            if (frames == 300 || frames == 1200 || frames == 3600) {
+                char state[256];
+                VideoDebugState(state, sizeof(state));
+                const GLenum err = glGetError();
+                unsigned char px[3][4] = {};
+                glReadPixels(FB_WIDTH / 2, FB_HEIGHT / 2, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, px[0]);
+                glReadPixels(FB_WIDTH / 4, FB_HEIGHT / 4, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, px[1]);
+                glReadPixels(FB_WIDTH * 3 / 4, FB_HEIGHT * 3 / 4, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, px[2]);
+                log_printf("libretro: frame %u: %s; GL error 0x%04X; framebuffer %u pixels %02X%02X%02X %02X%02X%02X %02X%02X%02X\n",
+                    frames, state, (unsigned)err, (unsigned)hw_render.get_current_framebuffer(),
+                    px[0][0], px[0][1], px[0][2], px[1][0], px[1][1], px[1][2], px[2][0], px[2][1], px[2][2]);
+            }
+        }
         video_cb(RETRO_HW_FRAME_BUFFER_VALID, FB_WIDTH, FB_HEIGHT, 0);
     } else {
         // Software fallback - black frame
