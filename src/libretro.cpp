@@ -398,6 +398,21 @@ bool retro_load_game(const struct retro_game_info *game)
         }
     }
 
+    // Without the BIOS files InitBios() carries on with nothing loaded and
+    // the first game crashes (iPad, #84): say which files go where instead
+    static const char* const bios_files[] = { "bios.cof", "minibios.cof", "minibiosX.cof" };
+    for (const char* f : bios_files) {
+        if (access(f, F_OK) != 0) {
+            char msg[256];
+            snprintf(msg, sizeof(msg),
+                     "Nuance: %s is missing. Put bios.cof, minibios.cof and minibiosX.cof in the system folder's nuance/ subfolder.", f);
+            log_printf("libretro: %s\n", msg);
+            struct retro_message rmsg = { msg, 600 };
+            environ_cb(RETRO_ENVIRONMENT_SET_MESSAGE, &rmsg);
+            return false;
+        }
+    }
+
     log_printf("libretro: nuonEnv.Init()...\n"); fflush(stderr);
     nuonEnv.Init();
     log_printf("libretro: nuonEnv.Init() done\n"); fflush(stderr);
