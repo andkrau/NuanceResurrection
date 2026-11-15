@@ -1264,10 +1264,11 @@ void Emit_MUL_SVScalarShiftSvshift(EmitterVariables * const vars, const Nuance &
   vars->mpe->nativeCodeCache.X86Emit_SHRRR(x86Reg::x86Reg_esi); // shifts by cl
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(~0x04, x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_esi);
+  // esi goes back to being the register-file pointer before anything is stored through it
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
   vars->mpe->nativeCodeCache.X86Emit_PSLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
   vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   }
   else
   {
@@ -1290,6 +1291,8 @@ void Emit_MUL_SVScalarShiftSvshift(EmitterVariables * const vars, const Nuance &
   vars->mpe->nativeCodeCache.X86Emit_SHRRR(x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(~0x04, x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_esi);
+  // esi goes back to being the register-file pointer before anything is stored through it
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_edx);
@@ -1298,7 +1301,6 @@ void Emit_MUL_SVScalarShiftSvshift(EmitterVariables * const vars, const Nuance &
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   }
 }
 
@@ -1412,10 +1414,11 @@ void Emit_MUL_SVRuShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_SHRRR(x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(~0x04, x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_esi);
+  // esi goes back to being the register-file pointer before anything is stored through it
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
   vars->mpe->nativeCodeCache.X86Emit_PSLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
   vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   }
   else
   {
@@ -1437,6 +1440,8 @@ void Emit_MUL_SVRuShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_SHRRR(x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(~0x04, x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_esi);
+  // esi goes back to being the register-file pointer before anything is stored through it
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_edx);
@@ -1445,7 +1450,6 @@ void Emit_MUL_SVRuShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   }
 }
 
@@ -1557,10 +1561,11 @@ void Emit_MUL_SVRvShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_SHRRR(x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(~0x04, x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_MOVDRR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_esi);
+  // esi goes back to being the register-file pointer before anything is stored through it
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_SHUFIR(x86Reg::x86Reg_xmm1, x86Reg::x86Reg_xmm1, 0);
   vars->mpe->nativeCodeCache.X86Emit_PSLDRR(x86Reg::x86Reg_xmm0, x86Reg::x86Reg_xmm1);
   vars->mpe->nativeCodeCache.X86Emit_MOVDQURM(x86Reg::x86Reg_xmm0, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   }
   else
   {
@@ -1582,6 +1587,8 @@ void Emit_MUL_SVRvShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_SHRRR(x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_ANDIR(~0x04, x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_ecx, x86Reg::x86Reg_esi);
+  // esi goes back to being the register-file pointer before anything is stored through it
+  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_eax);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_ebx);
   vars->mpe->nativeCodeCache.X86Emit_SHLRR(x86Reg::x86Reg_edx);
@@ -1590,7 +1597,6 @@ void Emit_MUL_SVRvShiftSvshift(EmitterVariables * const vars, const Nuance &nuan
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_ebp, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+8);
   vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_edx, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+12);
-  vars->mpe->nativeCodeCache.X86Emit_MOVIR((uintptr_t)&(vars->mpe->cc), x86Reg::x86Reg_esi);
   }
 }
 
