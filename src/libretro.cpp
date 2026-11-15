@@ -528,8 +528,18 @@ void retro_run(void)
                     (new_time >= last_time3 + audioIntervalUs) &&
                     ((nuonEnv.nuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT)) != (nuonEnv.oldNuonAudioChannelMode & (ENABLE_WRAP_INT | ENABLE_HALF_INT))) &&
                     ((((nuonEnv.mpe[0].intsrc & nuonEnv.mpe[0].inten1) | (nuonEnv.mpe[1].intsrc & nuonEnv.mpe[1].inten1) | (nuonEnv.mpe[2].intsrc & nuonEnv.mpe[2].inten1) | (nuonEnv.mpe[3].intsrc & nuonEnv.mpe[3].inten1)) & INT_AUDIO) == 0)) {
-                    if (nuonEnv.TryPushAudioPeriod())
-                        last_time3 = new_time;
+                    if (nuonEnv.TryPushAudioPeriod()) {
+                        // Keep to the schedule, not to when this check happened to run:
+                        // the check is only made every few thousand emulation steps and
+                        // not at all between retro_run calls, so restarting the interval
+                        // from "now" made every period a little late and delivered less
+                        // audio than playback consumes - audible as gaps. If the game has
+                        // fallen a whole period behind there is nothing to catch up to,
+                        // so start again from here.
+                        last_time3 += audioIntervalUs;
+                        if (new_time - last_time3 >= audioIntervalUs)
+                            last_time3 = new_time;
+                    }
                 }
             } else last_time3 = new_time;
         }
