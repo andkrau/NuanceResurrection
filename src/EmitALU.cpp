@@ -279,10 +279,16 @@ void Emit_BUTT(EmitterVariables * const vars, const Nuance &nuance)
   {
     vars->mpe->nativeCodeCache.X86Emit_MOVRR(x86Reg::x86Reg_eax, x86Reg::x86Reg_ebx);
     vars->mpe->nativeCodeCache.X86Emit_SUBMR(x86Reg::x86Reg_eax, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
-    vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
   }
 
   vars->mpe->nativeCodeCache.X86Emit_ADDMR(x86Reg::x86Reg_ebx, src1RegReadBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, src1RegDisp);
+
+  // Only now, with src1 read for the last time: src1 may be the very register
+  // the difference is written to (butt r9, r21, r8 writes r8 and r9).
+  if(vars->scalarRegOutDep & (1u << (destRegIndex+1)))
+  {
+    vars->mpe->nativeCodeCache.X86Emit_MOVRM(x86Reg::x86Reg_eax, destRegWriteBaseReg, x86IndexReg::x86IndexReg_none, x86ScaleVal::x86Scale_1, destRegDisp+4);
+  }
 
   if(vars->scalarRegOutDep & (1u << destRegIndex))
   {
